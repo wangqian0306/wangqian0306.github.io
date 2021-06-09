@@ -1,0 +1,16 @@
+.DS_Store
+.idea
+*.iws
+*.iml
+*.ipr
+*.log
+yarn.lock
+.cache
+.gradle
+
+# Hexo
+.deploy_git
+node_modules/
+public/
+package-lock.json
+db.json
