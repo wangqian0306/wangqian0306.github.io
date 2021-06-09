@@ -18,7 +18,7 @@ timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
-url: https://wqnice.github.io/
+url: https://wangqian0306.github.io/
 root: /
 #permalink: :year/:month/:day/:title/
 permalink: :year/:id/
@@ -112,7 +112,7 @@ theme: ayer
 #  type: ''
 deploy:
   type: git
-  repository: git@github.com:wangqian0306/wangqian0306.git
+  repository: git@github.com:wangqian0306/wangqian0306.github.io.git
   branch: dev
 
 search:
@@ -127,7 +127,7 @@ markdown:
     html: true
     xhtmlOut: false
     langPrefix: 'language-'
-    breaks: true
+    breaks: false
     linkify: true
     typographer: true
     quotes: '“”‘’'

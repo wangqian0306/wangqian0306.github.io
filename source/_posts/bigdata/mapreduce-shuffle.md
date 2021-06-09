@@ -28,7 +28,8 @@ Reducer 则主要有以下三个阶段：
 在官方文档中是这样描述 shuffle 的：
 
 ```text
-Input to the Reducer is the sorted output of the mappers. In this phase the framework fetches the relevant partition of the output of all the mappers, via HTTP.
+Input to the Reducer is the sorted output of the mappers.
+In this phase the framework fetches the relevant partition of the output of all the mappers, via HTTP.
 ```
 
 Reducer 所需的输入是经过排序的 Mapper 输出。
