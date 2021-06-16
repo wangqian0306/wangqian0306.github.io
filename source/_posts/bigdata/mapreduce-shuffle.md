@@ -96,8 +96,6 @@ Reducer 会通过 HTTP 的方式得到输出文件的分区 。
 
 ![Word Count 数据流样例](https://i.loli.net/2021/06/08/UBGie4kvFtq1Lfy.png)
 
-### 
-
 ### 参考资料
 
 [MapReduce Tutorial](https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html)
