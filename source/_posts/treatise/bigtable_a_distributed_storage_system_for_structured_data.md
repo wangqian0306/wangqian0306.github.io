@@ -1,7 +1,10 @@
 ---
 title: Bigtable A Distributed Storage System for Structured Data 中文翻译版
 date: 2021-06-10 22:26:13
-tags: "论文"
+tags:
+- "论文"
+- "Bigtable"
+- "HBase"
 id: bigtable_a_distributed_storage_system_for_structured_data
 no_word_count: true
 no_toc: false

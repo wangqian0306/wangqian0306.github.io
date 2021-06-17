@@ -1,7 +1,10 @@
 ---
 title: The Google File System 中文翻译版
 date: 2021-01-07 22:26:13
-tags: "论文"
+tags:
+- "论文"
+- "GFS"
+- "HDFS"
 id: the_google_file_system
 no_word_count: true
 no_toc: false

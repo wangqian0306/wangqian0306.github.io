@@ -1,7 +1,9 @@
 ---
 title: MapReduce Simplified Data Processing on Large Clusters 中文翻译版
 date: 2021-06-02 22:26:13
-tags: "论文"
+tags:
+- "论文"
+- "MapReduce"
 id: mapreduce_simplified_data_processing_on_large_clusters
 no_word_count: true
 no_toc: false
