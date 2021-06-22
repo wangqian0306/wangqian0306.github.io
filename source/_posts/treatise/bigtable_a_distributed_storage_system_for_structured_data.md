@@ -13,6 +13,12 @@ categories: 大数据
 
 ## Bigtable: A Distributed Storage System for Structured Data 中文翻译版
 
+作者：
+
+Fay Chang, Jeffrey Dean, Sanjay Ghemawat, Wilson C. Hsieh, Deborah A. Wallach
+
+Mike Burrows, Tushar Chandra, Andrew Fikes, Robert E. Gruber
+
 ### 摘要
 
 Bigtable 是一个分布式的结构化数据存储系统，它被设计用来处理海量数据：通常是分布在数千台普通服务器上的 PB 级的数据。

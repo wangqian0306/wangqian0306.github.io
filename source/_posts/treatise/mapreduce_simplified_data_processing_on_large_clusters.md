@@ -12,6 +12,10 @@ categories: 大数据
 
 ## MapReduce: Simplified Data Processing on Large Clusters 中文翻译版
 
+作者：
+
+Jeffrey Dean and Sanjay Ghemawat
+
 ### 摘要
 
 MapReduce 是一种编程模型同时也是一个处理和生成超大数据集的算法模型的相关实现。

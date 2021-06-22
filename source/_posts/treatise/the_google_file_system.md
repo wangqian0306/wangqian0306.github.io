@@ -13,6 +13,10 @@ categories: 大数据
 
 ## The Google File System 中文翻译版
 
+作者：
+
+Sanjay Ghemawat, Howard Gobioff, and Shun-Tak Leung
+
 ### 原版的版权说明
 
 ```text

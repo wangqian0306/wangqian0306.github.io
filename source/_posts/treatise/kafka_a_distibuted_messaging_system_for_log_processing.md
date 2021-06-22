@@ -12,6 +12,10 @@ categories: 大数据
 
 ## Kafka: a Distributed Messaging System for Log Processing
 
+作者：
+
+Jay Kreps, Neha Narkhede, Jun Rao
+
 ### 原版的版权说明
 
 ```text
