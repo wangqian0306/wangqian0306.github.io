@@ -9,12 +9,12 @@
     "server": "hexo clean && hexo server"
   },
   "hexo": {
-    "version": "5.3.0"
+    "version": "5.4.0"
   },
   "dependencies": {
     "hexo": "^5.1.2",
     "hexo-browsersync": "^0.3.0",
-    "hexo-deployer-git": "^2.1.0",
+    "hexo-deployer-git": "^3.0.0",
     "hexo-filter-plantuml": "^2.1.0",
     "hexo-generator-archive": "^1.0.0",
     "hexo-generator-baidu-sitemap": "^0.1.6",
@@ -30,10 +30,10 @@
     "hexo-renderer-markdown-it": "^5.0.0",
     "hexo-renderer-stylus": "^2.0.0",
     "hexo-server": "^2.0.0",
-    "hexo-tag-aplayer": "^3.0.4",
+    "hexo-tag-aplayer": "^2.0.2",
     "hexo-tag-chart": "^1.0.7",
-    "hexo-tag-dplayer": "^0.3.3",
-    "hexo-theme-ayer": "^1.8.3",
+    "hexo-tag-dplayer": "^0.1.6",
+    "hexo-theme-ayer": "^1.9.0",
     "hexo-theme-landscape": "^0.0.3",
     "markdown-it-emoji": "^2.0.0"
   }
