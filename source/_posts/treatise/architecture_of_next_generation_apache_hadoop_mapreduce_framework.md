@@ -162,7 +162,7 @@ Scheduler 将尝试为应用程序匹配适当的机器；如果特定机器不�
 ApplicationMaster 在没有翻译的情况下继续按照任务/拆分进行思考。
 ApplicationMaster 中的这个调度程序组件与 Scheduler 协同工作，可以想象的是在未来移除这个组件，而不影响 ApplicationMaster 的任何实现。
 
-#### 任务调度
+##### Scheduler 
 
 Scheduler 聚合来自所有正在运行的应用程序的资源请求，以构建分配资源的全局计划。
 然后，调度器基于特定于应用程序的约束(如适当的机器)和全局约束(如应用程序、队列、用户等的配额)来分配资源。
@@ -174,7 +174,7 @@ Scheduler 使用熟悉的容量和容量保证概念作为在竞争应用程序�
 - 选择队列中最高优先级的任务
 - 给这个任务它需要的资源
 
-#### Scheduler API
+##### Scheduler API
 
 YARN 调度程序和 ApplicationMaster 之间只有一个 API：
 
@@ -189,6 +189,301 @@ AM 可以使用容器状态来收集有关已完成容器的信息，并对失�
 AM 可以使用空余资源来调整其未来的请求，例如，在 MapReduce 中 AM 可以使用此信息来安排 Map 和 Reduce，以避免死锁，
 例如将其所有空间用于 Reduce 等。
 
-#### 资源监控
+##### 资源监控
 
+Scheduler 从 NodeManagers 接收有关已分配资源的资源使用情况的定期信息。
+Scheduler 还向 ApplicationMaster 提供已完成容器的状态。
 
+##### 程序提交
+
+应用程序遵循下面的提交流程：
+
+- 用户(通常来自网关)向 ApplicationsManager 提交作业。
+  - 客户端首先得到一个新的 Application ID
+  - 打包应用相关内容，上传至 HDFS 中的 `${user}/.staging/${application_id}`
+  - 提交程序至 ApplicationsManager
+- ApplicationsManager 接受用户发出的程序申请
+- ApplicationsManager 与 Scheduler 协商，申请所需的 slot 并启动 ApplicationMaster
+- ApplicationsManager 还负责向客户端提供正在运行的 ApplicationMaster 的详细信息，用于监控应用程序进度等。
+
+##### ApplicationMaster 的生命周期
+
+ApplicationsManager 负责管理系统中所有应用程序的 ApplicationMaster 的生命周期。
+
+如应用程序提交部分所述，ApplicationsManager 负责启动 ApplicationMaster。
+
+之后 ApplicationsManager 会监控 ApplicationMaster 发送周期性的心跳，并负责确保其运行状态，在失败时重新启动 ApplicationMaster 等。
+
+##### ApplicationsManager 的组件
+
+如前几节所述，ApplicationsManager 的主要职责是管理 ApplicationMaster 的生命周期。
+
+为了实现这一需求，ApplicationsManager 具有以下组件：
+
+- SchedulerNegotiator ——负责与 Scheduler 协调用于 AM 的容器
+- AMContainerManager ——通过 NodeManager 启动和停止 AM 的容器
+- AMMonitor ——负责管理 AM 的运行状态并负责在必要时重新启动 AM 
+
+##### 可用性
+
+ResourceManager 将其状态存储在 Zookeeper 中以确保其高可用。
+依靠 Zookeeper 中保存的状态可以快速重启。
+有关更多详细信息，请参阅 YARN 可用性部分。
+
+#### NodeManager
+
+一旦 Scheduler 将容器分配给应用程序，每台机器的 NodeManager 负责启动应用程序的容器。
+NodeManager 还负责确保分配的容器不超额使用其在机器上分配的资源。
+
+NodeManager 还负责为任务设置容器的环境。
+这包括二进制文件、jar 文件等。
+
+NodeManager 还提供了一个简单的服务来管理节点上的本地存储。
+即使应用程序在节点上没有分配到活动，也可以使用本地存储。
+例如 MapReduce 应用程序使用此服务来存储临时的 Map 任务输出并将它们 shuffle 到 Reduce 任务。
+
+#### ApplicationMaster
+
+ApplicationMaster 是每个应用程序的 master，负责协商来自 Scheduler 的资源，与 NodeManager 一起在适当的容器中运行字任务并监控任务。
+它通过向 Scheduler 请求备用资源来对容器故障作出反应。
+
+ApplicationMaster 负责计算应用程序的资源需求，例如拆分 MapReduce 应用程序的输入，并将其转换为 Scheduler 可以理解的协议。
+ApplicationsManager 仅在失败时重新启动 AM；AM 负责从保存的持久状态中恢复应用程序。
+当然，AM 也可以从一开始就运行应用程序。
+
+#### 在 YARN 上运行 MapReduce 任务
+
+本节介绍用于通过 YARN 运行 Hadoop MapReduce 作业的各种组件。
+
+##### MapReduce ApplicationMaster
+
+Map-Reduce ApplicationMaster 是 MapReduce 特定类型的 ApplicationMaster，负责管理 MR 作业。
+
+MR AM 的主要职责是从 ResourceManager 获取适当的资源，在分配的容器上调度任务，监控正在运行的任务并管理 MR 作业的生命周期直至完成。
+MR AM 的另一个职责是将作业的状态保存到持久存储中，以便在 AM 本身发生故障时可以恢复 MR 作业。
+
+该提议是在 MR AM 中使用基于事件的有限状态机(FSM)来管理 MR 任务和作业的生命周期和恢复。
+这允许将 MR 作业的状态自然表达为 FSM，并允许可维护性和可观察性。
+
+下图显示了 MR 作业、任务和任务尝试的 FSM：
+
+![YARN Job State Machine, 20110328](https://i.loli.net/2021/06/23/J3cHeo6TkuKrbZ7.png)
+
+![State Transition Dragram fro MR Job](https://i.loli.net/2021/06/23/Y6UyndWfzrVegx5.png)
+
+> 注：此处原文截图本来就不清晰。。。基本没法看
+
+在 YARN 中运行的 MapReduce 作业的生命周期应当是这样的：
+
+- Hadoop MR JobClient 将作业提交给 YARN ResourceManager (ApplicationsManager) 而不是 Hadoop MapReduce JobTracker。
+- YARN ASM 与 Scheduler 协商 MR AM 的容器，然后为作业启动 MR AM。
+- MR AM 启动并注册到 ASM。
+- Hadoop MapReduce JobClient 轮询 ASM 以获取有关 MR AM 的信息，然后直接与 AM 通信获取状态、计数器等。
+- MR AM 将输入数据进行拆分并将所有映射构建成 YARN Scheduler 的资源请求。
+- MR AM 为作业运行 Hadoop MR OutputCommitter 的必要作业设置 API。
+- MR AM 将 Map/Reduce 任务的资源请求提交给 YARN Scheduler，从 RM 中获取容器，并通过与每个容器的 NodeManager 协同工作，
+  在对应容器上调度适当的任务。
+- MR AM 监控单个任务的完成情况，如果任何任务失败或停止响应，则请求备用资源。
+- MR AM 还会使用应用程序清理 Hadoop MR OutputCommitter 已完成的任务。
+- 一旦整个一次 Map 和 Reduce 任务完成，MR AM 就会提交相应任务或者终止相应任务的 Hadoop MR OutputCommitter 的API
+- 作业完成只有 MR AM 也会终止。
+
+MapReduce ApplicationMaster 具有以下组件：
+
+- Event Dispatcher ——作为协调器的中央组件，为下面的其他组件生成事件。
+- ContainerAllocator ——该组件负责将任务的资源需求转换为 YARN Scheduler 可以理解的资源请求，并与 RM 协商资源。
+- ClientService ——负责使用作业状态、计数器、进度等响应 Hadoop MapReduce JobClient 的组件。
+- TaskListener ——从 Map/Reduce 任务接收心跳。
+- TaskUmbilical ——负责接收心跳和更新 Map Reduce 任务的组件
+- ContainerLauncher ——负责通过适当的 NodeManager 来启动容器的组件。
+- JobHistoryEventHandler ——将作业历史事件写入 HDFS。
+- Job ——负责维护作业和组件任务状态的组件。
+
+![ApplicationMaster：组件时间流程图](https://i.loli.net/2021/06/23/FdYTHLvtN7qmkVP.png)
+
+##### 可用性
+
+ApplicationMaster 通常将其状态存储在 HDFS 中，以确保其高可用。
+
+有关更多的详细信息，请参阅 YARN 可用性部分。
+
+### YARN 可用性
+
+本节描述了 YARN 高用性相关的设计。
+
+#### 运行失败的场景
+
+本节列举了 YARN 中实体(如 ResourceManager、ApplicationMasters、Containers 等)的各种异常和失败场景，并重点介绍了负责处理这些情况的实体。
+
+场景和处理实体：
+
+- 容器(任务)活着，但被卡住了 ——AM 容器运行超时并杀死了它。
+- 容器(任务)死了 ——NM 发现容器已经退出，并通知了 RM(Scheduler)；AM 在下一次与 YARN 调度器交互期间获取容器的状态(参见 Scheduler API 部分)
+- NM 活着，但被卡住了 ——RM 发现 NM 已经超时了，在下一次交互时通知所有在该节点上有容器的 AM。
+- NM 死了 ——RM 发现 NM 已经超时了，在下一次交互时通知所有在该节点上有容器的 AM。
+- AM 活着，但被卡住了 ——ApplicationsManager 使 AM 超时，释放 RM 的容器并通过协商另一个容器重新启动 AM。
+- AM 死了 ——ApplicationsManager 使 AM 超时，释放 RM 的容器并通过协商另一个容器重新启动 AM。
+- RM 死了 ——参见 RM 重启的部分
+
+#### MapReduce 应用程序和 ApplicationMaster 的可用性
+
+本节介绍 MR ApplicationMaster 的故障转移以及如何恢复 MR 作业。
+
+如 YARN ResourceManager 中的 ApplicationsManager(ASM) 部分所述，
+ASM 负责监控 MR ApplicationMaster 或任何与此相关的 ApplicationMaster 并为其提供高可用性。
+
+MR ApplicationMaster 自己负责恢复具体的 MR 作业，ASM 只重启 MR AM。
+
+当 MR AM 重新启动时，我们有多种选择来恢复 MR 作业：
+
+- 从头开始重新启动作业。
+- 仅重启未完整的 Map 和 Reduce 任务。
+- 为 Map 和 Reduce 任务标识正在运行的 MR AM 来完成它们。
+
+仅针对单个容器(即运行 AM 的容器)失败，而从头开始重新启动 MR 作业的成本太高因此是不可行的选择。
+
+仅重新启动不完整的 Map 和 Reduce 任务的方式很吸引我们，因为它确保我们不会运行已完成的任务，但是它仍然会伤害 Reduce，
+因为它们可能(几乎)完成了 shuffle 并会因重新启动它们而受到影响。
+
+从工作本身的角度来看，为 Map 和 Reduce 任务标识正在运行的 MR AM 是最有吸引力的选择，但从技术上讲，这是一项更具挑战性的任务。
+
+鉴于上述权衡，我们建议对 YARN-v1.0 使用选项 2。
+是一个更简单的实现，但有显著的好处。
+我们很可能会在未来的版本中实现选项 3。
+
+实现选项 2 的建议是让 MR AM 将事务日志写出到 HDFS，以跟踪所有已完成的任务。
+在重新启动时，我们可以从事务日志中重放任务完成事件，并使用 MR AM 中的状态来跟踪已完成的任务。
+因此，让 MR AM 运行剩余的任务是相当简单的。
+
+####  YARN ResourceManager 的可用性
+
+这里的主要目标是能够在遇到灾难性故障时快速重启 ResourceManager 和所有正在运行/挂起的应用程序。
+
+因此 YARN 的可用性有两个方面：
+
+- ResourceManager 的可用性
+- 单个应用程序及其 ApplicationMaster 的可用性。
+
+YARN 的高可用性设计在概念上非常简单 ——ResourceManager 负责恢复它自己的状态，例如运行 AM、分配 NM 和资源。
+AM 本身负责恢复它自己的应用程序的状态。
+有关恢复 MR 作业的详细讨论，请参阅 MR ApplicationMaster 可用性部分。
+
+本节介绍了确保 YARN ResourceManager 高可用的设计。
+
+为了提供高可用性，YARN ResourceManager 具有以下需要的特性：
+
+- Queue definitions ——这些定义已经存在于持久存储中，例如文件系统或 LDAP。
+- 正在运行和待处理的应用程序的定义
+- 各种应用程序和队列的资源分配。
+- 已经运行并分配给应用程序的容器。
+- 单个 NodeManager 上的资源分配。
+
+该提议是使用 ZooKeeper 来存储 YARN ResourceManager 的状态，该状态尚未存在于持久存储中，即 AM 的状态和单个应用程序的资源分配。
+
+通过扫描对应用程序的分配，可以快速重建对各种 NM 和队列的资源分配。
+
+ZooKeeper 允许通过主选举快速恢复 RM 和故障转移。
+
+一个简单的方案是为每个 NodeManager 创建 ZooKeeper 临时节点，并为每个分配的容器创建一个节点，并使用以下最少信息：
+
+- 应用 ID
+- 容器资源
+
+样例如下：
+
+```text
+|
++ app_1
+| + <container_for_AM>
+| |
+| + <container_1, host_0, 2G>
+| |
+| + <container_11, host_10, 1G>
+| |
+| + <container_34, host_9, 2G>
+|
++ app2
+| + <container_for_AM>
+| |
+| + <container_5, host_87, 1G>
+| |
+| + <container_67, host_14, 4G>
+| |
+| + <container_87, host_9, 2G>
+| |
+```
+
+有了这些信息，ResourceManager 在重启时可以通过 ZooKeeper 快速重建状态。
+ZooKeeper 是所有分配的真实来源。
+
+这是容器分配的流程。 
+
+- ResourceManager 获取了 ApplicationMaster 容器的请求
+- ResourceManager 在 /app$i 下的 ZooKeeper 中创建一个 znode，其中包含 containerid、node id 和资源能力信息。
+- ResourceManager 响应 ApplicationMaster 获取对应资源的请求。
+
+在释放容器时，遵循以下步骤：
+
+- ApplicationMaster 向 NodeManager 发送 `stopContainer()` 请求以停止容器，如果遇到失败它会自动重试。
+- ApplicationMaster 然后使用 `deallocateContainer(containerid)` 向 ResourceManager 发送请求。
+- ResourceManager 然后从 ZooKeeper 中删除容器的 znode。
+
+为了能够在 ApplicationMaster、ResourceManager 和 NodeManager 之间保持所有容器分配同步，我们需要一些 API：
+
+ApplicationMaster 使用 `getAllocatedContainers(appid)` 在分配给 ApplicationMaster 的容器集合上与 ResourceManager 保持同步。
+
+NodeManager 保持自己与 ResourceManager 的心跳同步，ResourceManager 则使用 NodeManager 应当清理和删除的容器作为响应。
+
+重新启动时，ResourceManager 会遍历 HDFS/ZK 中的所有应用程序定义，即 /systemdir 并假设所有 RUNNING 状态的 ApplicationMaster 都处于活动状态。
+ApplicationsManager 负责重新启动任何不更新 ApplicationsManager 的失败 AM，如前所述。
+
+启动时的 ResourceManager 在 `${yarn-root}/yarn/rm` 下的 ZooKeeper 上发布其主机和端口。
+
+```text
+|
++ yarn
+| |
+| + <rm>
+```
+
+这个 ZooKeeper 节点是一个临时节点，如果 ResourceManager 死亡，它会自动删除。
+在这种情况下，备份 ResourceManager 可以通过来自 ZooKeeper 的通知来接管。
+由于 ResourceManager 状态在 ZooKeeper 中，因此备份 ResourceManager 可以启动。
+
+所有的 NodeManager 都会监视 `${yarn-root}/yarn/rm` 以便在 znode 被删除或更新时得到通知。
+
+ApplicationMaster 也会监视 `${yarn-root}/yarn/rm` 上的通知。
+
+删除 znode 时，NodeManagers 和 ApplicationMasters 会收到更改通知。
+ResourceManager 中的这种变化可以通过 ZooKeeper 通知 YARN 组件。
+
+### YARN 的安全性
+
+本节介绍 YARN 安全方面的内容。
+
+一个硬性要求是 YARN 至少与当前的 Hadoop MapReduce 框架一样安全。
+
+这意味着几个方面，例如：
+
+- 全面基于 Kerberos 的强身份验证。
+- YARN 守护程序（例如 RM 和 NM）应该以安全的非 root Unix 用户身份运行。
+- 单个应用程序作为提交应用程序的实际用户运行，并且他们可以安全地访问 HDFS 等上的数据。
+- 支持 Oozie 等框架的超级用户。
+- 队列、管理工具等的类似授权。
+
+该提议是使用 Hadoop 现有的安全机制和组件来实现 YARN 的安全性。
+
+YARN 的唯一额外要求是，NodeManager 可以通过确保 ResourceManager 实际分配容器来安全地验证传入请求以分配和启动容器。
+
+该提议是在 RM 和 NM 之间使用共享密钥。
+RM 使用密钥来签署授权的 ContainerToken，其中包括 ContainerID、ApplicationID 和分配的资源能力。
+NM 可以使用共享密钥来解码 ContainerToken 并验证请求。
+
+#### ZooKeeper 的安全性
+
+ZooKeeper 具有可配置的安全插件，可以使用 YCA 或共享秘密身份验证。它具有用于授权的 ACL。
+
+ZooKeeper 中用于发现 RM 的 RM 节点和 YARN RM 可用性一节中提到的应用程序容器分配可由 ResourceManager 写入，并且只能由其他人读取。
+YCA 用于认证系统。
+
+请注意，由于 ZooKeeper 尚不支持 Kerberos，因此不允许单个 ApplicationMaster 和任务写入 ZooKeeper，所有写入均由 RM 自己完成。

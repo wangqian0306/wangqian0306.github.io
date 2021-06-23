@@ -24,7 +24,7 @@ is granted without fee provided that copies are not made or distributed for prof
 advantage and that copies bear this notice and the full citation on the first page. 
 To copy otherwise, or republish, to post on servers or to redistribute to lists, 
 requires prior specific permission and/or a fee. NetDB'11, Jun. 12, 2011, Athens, Greece.
- Copyright 2011 ACM 978-1-4503-0652-2/11/06…$10.00.
+Copyright 2011 ACM 978-1-4503-0652-2/11/06…$10.00.
 ```
 
 ### 摘要
@@ -116,7 +116,7 @@ Flume 是 Cloudera 开发的一个相对较新的日志聚合器。
 
 最近 Yahoo 研究开发了一种新的分布式发布/订阅系统，称为 HedWig `[13]`。
 HedWig 具有高度可扩展性和可用性，并提供强大的耐用性保证。
-但是，它主要用于存储数据存储的提交日志。
+但是，它主要用于传输数据存储的提交日志。
 
 ### 3 Kafka 的架构和设计原则
 
@@ -191,7 +191,7 @@ Kafka 有一个非常简单的存储布局。
 要计算下一条消息的 ID，我们必须将当前消息的长度加到它的 ID 上。
 从现在开始，我们将交替使用消息 ID 和偏移量。
 
-![图 1: Kafka 日志文件](https://i.loli.net/2021/06/21/wS6VP2IsZ5Cjz47.png)
+![图 2: Kafka 日志文件](https://i.loli.net/2021/06/21/CQPwzd2hlxSI9Ef.png)
 
 消费者总是按顺序消费来自特定分区的消息。
 如果消费者确认特定的消息偏移量，则意味着消费者已收到分区中该偏移量之前的所有消息。
