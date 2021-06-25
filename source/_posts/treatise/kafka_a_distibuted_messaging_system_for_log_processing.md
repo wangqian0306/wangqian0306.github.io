@@ -492,38 +492,38 @@ Kafka 平均每秒消费 22,000 条消息，是 ActiveMQ 和 RabbitMQ 的 4 倍�
 
 ### 7 参考资料
 
-[1] http://activemq.apache.org/
+`[1]` http://activemq.apache.org/
 
-[2] http://avro.apache.org/
+`[2]` http://avro.apache.org/
 
-[3] Cloudera’s Flume, https://github.com/cloudera/flume
+`[3]` Cloudera’s Flume, https://github.com/cloudera/flume
 
-[4] http://developer.yahoo.com/blogs/hadoop/posts/2010/06/enabling_hadoop_batch_processi_1/
+`[4]` http://developer.yahoo.com/blogs/hadoop/posts/2010/06/enabling_hadoop_batch_processi_1/
 
-[5] Efficient data transfer through zero copy: https://www.ibm.com/developerworks/linux/library/jzerocopy/
+`[5]` Efficient data transfer through zero copy: https://www.ibm.com/developerworks/linux/library/jzerocopy/
 
-[6] Facebook’s Scribe, http://www.facebook.com/note.php?note_id=32008268919
+`[6]` Facebook’s Scribe, http://www.facebook.com/note.php?note_id=32008268919
 
-[7] IBM Websphere MQ: http://www01.ibm.com/software/integration/wmq/
+`[7]` IBM Websphere MQ: http://www01.ibm.com/software/integration/wmq/
 
-[8] http://hadoop.apache.org/
+`[8]` http://hadoop.apache.org/
 
-[9] http://hadoop.apache.org/hdfs/
+`[9]` http://hadoop.apache.org/hdfs/
 
-[10] http://hadoop.apache.org/zookeeper/
+`[10]` http://hadoop.apache.org/zookeeper/
 
-[11] http://www.slideshare.net/cloudera/hw09-hadoop-baseddata-mining-platform-for-the-telecom-industry
+`[11]` http://www.slideshare.net/cloudera/hw09-hadoop-baseddata-mining-platform-for-the-telecom-industry
 
-[12] http://www.slideshare.net/prasadc/hive-percona-2009
+`[12]` http://www.slideshare.net/prasadc/hive-percona-2009
 
-[13] https://issues.apache.org/jira/browse/ZOOKEEPER-775
+`[13]` https://issues.apache.org/jira/browse/ZOOKEEPER-775
 
-[14] JAVA Message Service:http://download.oracle.com/javaee/1.3/jms/tutorial/1_3_1-fcs/doc/jms_tutorialTOC.html.
+`[14]` JAVA Message Service:http://download.oracle.com/javaee/1.3/jms/tutorial/1_3_1-fcs/doc/jms_tutorialTOC.html.
 
-[15] Oracle Enterprise Messaging Service: http://www.oracle.com/technetwork/middleware/ias/index093455.html
+`[15]` Oracle Enterprise Messaging Service: http://www.oracle.com/technetwork/middleware/ias/index093455.html
 
-[16] http://www.rabbitmq.com/
+`[16]` http://www.rabbitmq.com/
 
-[17] TIBCO Enterprise Message Service: http://www.tibco.com/products/soa/messaging/
+`[17]` TIBCO Enterprise Message Service: http://www.tibco.com/products/soa/messaging/
 
-[18] Kafka, http://sna-projects.com/kafka/
+`[18]` Kafka, http://sna-projects.com/kafka/

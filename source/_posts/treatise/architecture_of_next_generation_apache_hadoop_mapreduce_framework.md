@@ -3,7 +3,6 @@ title: Architecture of Next Generation Apache Hadoop MapReduce Framework 中文�
 date: 2021-06-22 22:26:13
 tags:
 - "论文"
-- "Hadoop"
 - "MapReduce"
 - "YARN"
 id: architecture_of_next_generation_apache_hadoop_mapreduce_framework
