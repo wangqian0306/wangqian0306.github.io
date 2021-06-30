@@ -145,3 +145,254 @@ println(errors.count())
 RDD 是容错的，因为系统可以使用 RDD 的 lineage 图恢复丢失的数据(通过重新运行上面的过滤器等操作来重建丢失的分区)。
 它们也可以明确地缓存在内存或磁盘上以支持迭代 `[39]`。
 
+关于 API 的最后一个注意事项是 RDD 是惰性求值的。
+每个 RDD 代表一个计算数据集的“逻辑计划”，但 Spark 会等到某些输出操作(例如计数)启动计算。
+这允许引擎做一些简单的查询优化，例如流水线操作。
+例如，在上面的示例中，Spark 将通过应用过滤器并计算运行计数来管道从 HDFS 文件读取行，因此它永远不需要具体化中间行和错误结果。
+虽然这种优化非常有用，但它也有局限性，因为引擎不理解 RDD 中数据的结构(任意 Java/Python 对象)或用户函数的语义(包含任意代码)。
+
+#### 2.2 Spark 之前的关系系统
+
+我们在 Spark 上构建关系型接口的第一个努力是 Shark `[38]`，它“魔改“了 Apache Hive 以在 Spark 上运行，
+并在 Spark 引擎上实现了传统的 RDBMS 优化，例如列式处理。
+虽然 Shark 表现出良好的性能和与 Spark 程序集成度良好，但它面临三个重要挑战。
+首先，Shark 只能用于查询存储在 Hive 目录中的外部数据，因此不适用于 Spark 程序内部数据的关系查询(例如，手动创建的错误 RDD 上)。
+其次，从 Spark 程序调用 Shark 的唯一方法是将 SQL 字符串放在一起，这在模块化程序中使用起来不方便且容易出错。
+最后，Hive 优化器是为 MapReduce 量身定制的，难以扩展，因此很难构建新功能，例如用于机器学习的数据类型或对新数据源的支持。
+
+#### 2.3 Spark SQL 的目标
+
+凭借 Shark 的经验，我们希望扩展关系处理接口以涵盖 Spark 中的原生 RDD 和更广泛的数据源。 
+我们为 Spark SQL 设定了以下目标：
+
+1. 不仅是在 Spark 内部的程序(在原生 RDD 中)还有在对程序员友好的外部 API 中在都可以使用的关系处理。
+2. 使用成熟的 DBMS 技术提供高性能。
+3. 轻松支持新数据源，包括半结构化数据和适合联合查询的外部数据库。
+4. 使用高级分析算法(例如图形处理和机器学习)启用扩展。
+
+### 3 编程接口
+
+![图 1：Spark SQL 的程序接口和 Spark 的交互](https://i.loli.net/2021/06/30/TAFWDgdiZIptrbs.png)
+
+Spark SQL 作为一个基于 Spark 的库运行，如图 1 所示。
+它公开了 SQL 接口，可以通过 JDBC/ODBC 或命令行控制台访问这些 SQL 接口，以及集成到 Spark 支持的编程语言中的 DataFrame API。
+我们首先介绍 DataFrame API，它允许用户将程序和关系代码进行融合。
+但是，高级函数也可以通过 UDF 在 SQL 中对外提供服务，例如，通过商业智能工具。
+我们在 3.7 节讨论 UDF。
+
+#### 3.1 DataFrame API
+
+Spark SQL 的 API 中的主要抽象是一个 DataFrame，一个具有相同结构的分布式行集合。
+DataFrame 相当于关系数据库中的表，也可以以类似于 Spark(RDD) 中“原生”分布式集合的方式进行操作。
+与 RDD 不同，DataFrame 会跟踪其架构并支持各种关系操作，从而对执行流程进行优化。
+
+DataFrames 可以从系统目录中的表(基于外部数据源)或从本机 Java/Python 对象现有的 RDD 进行构建(参见第 3.5 节)。
+构建后，它们可以使用各种关系运算符进行操作，例如 where 和 groupBy，它们采用域特定语言(DSL)中的表达式，类似于 R 和 Python 中的 DataFrame `[32, 30]`。
+每个 DataFrame 也可以看成是一个 Row 对象的 RDD，允许用户调用 map 等程序化的 Spark API。
+
+> 注：这些 Row 对象是动态构建的，不一定代表数据的内部存储格式，通常将数据按列存储。
+
+最后，与传统的 DataFrame API 不同，Spark DataFrames 是惰性的，因为每个 DataFrame 对象代表一个计算数据集的逻辑计划，
+但在用户调用特殊的“输出操作”(例如保存)之前不会执行。
+这可以对用于构建 DataFrame 的操作进行丰富优化。
+
+为了说明这一点，下面的 Scala 代码从 Hive 中的表定义了一个 DataFrame，基于它进行了操作然后打印结果：
+
+```text
+ctx = new HiveContext()
+users = ctx.table("users")
+young = users.where(users("age") < 21)
+println(young.count())
+```
+
+在这段代码中，users 和 young 是DataFrames。
+代码段 `users("age") < 21` 是 DataFrame DSL 中的一个表达式，它被捕获为抽象语法树，而不是像传统 Spark API 那样表示的 Scala 函数。
+最后，每个 DataFrame 只代表一个逻辑计划(即，读取用户表并筛选年龄 < 21 岁的记录)。
+当用户调用 count 时(这是一个输出操作)，Spark SQL 会构建一个物理计划来计算最终结果。
+物理计划可能包含优化，例如仅扫描数据的“age”列(如果其存储格式为列式)，或者甚至使用数据源中的索引来计算匹配的行。
+
+接下来我们将介绍 DataFrame API 的详细信息。
+
+#### 3.2 数据模型
+
+Spark SQL 使用基于 Hive `[19]` 的嵌套数据模型来处理表和 DataFrame。
+它支持所有主要的 SQL 数据类型，包括 boolean, integer, double, decimal, string, date,timestamp 以及复杂(即非原子)数据类型：
+structs, arrays, maps, unions.
+复杂数据类型也可以嵌套在一起以创建更强大的类型。
+与许多传统 DBMS 不同，Spark SQL 在查询语言和 API 中为复杂数据类型提供一流的支持。
+此外，Spark SQL 还支持用户自定义类型，如 4.4.2 节所述。
+使用这种类型系统，我们能够准确地对来自各种来源和格式的数据进行建模，包括 Hive、关系数据库、JSON 和 Java/Scala/Python 中的本地对象。
+
+#### 3.3 DataFrame 的操作
+
+用户可以使用类似于 R DataFrame `[32]` 和 Python Pandas `[30]` 的特定领域语言(DSL) 对 DataFrame 执行关系操作。
+DataFrames 支持所有常见的关系运算符，包括投影(select)、过滤器(where)、连接(join)和聚合(groupBy)。
+这些操作符都在一个有限的 DSL 中获取表达式对象，让 Spark 捕获表达式的结构。
+例如，以下代码计算每个部门的女性员工人数。
+
+```text
+employees
+  .join(dept, employees("deptId") === dept("id"))
+  .where(employees("gender") === "female")
+  .groupBy(dept("id"), dept("name"))
+  .agg(count("name"))
+```
+
+这里，employees 是一个 DataFrame，employees("deptId") 是一个表示 deptId 列的表达式。
+表达式对象有许多返回新表达式的运算符，包括常用的比较运算符(例如，=== 用于相等性测试，> 用于大于)和算术运算符(+、- 等)。
+它们还支持聚合，例如 count("name")。
+所有这些运算符都构建了表达式的抽象语法树(AST)，然后将其传递给 Catalyst 进行优化。
+这与原生 Spark API 不同，后者采用包含任意 Scala/Java/Python 代码的函数，然后这些代码对运行时引擎是不透明的。
+有关 API 的详细列表，我们建议读者参阅 Spark 的官方文档 `[6]`。
+
+除了关系型 DSL，DataFrame 还可以为系统中的的内容建立临时表并使用 SQL 进行查询。
+下面的代码显示了一个示例：
+
+```text
+users.where(users("age") < 21)
+     .registerTempTable("young")
+ctx.sql("SELECT count (*), avg(age) FROM young")
+```
+
+SQL 有时便于简洁地计算多个聚合，并且还允许程序通过 JDBC/ODBC 将数据集对外输出。
+在系统中注册的 DataFrame 仍然是尚未被具体化的视图，因此还可以跨越 SQL 和原始的 DataFrame 表达式对其进行优化。
+然而，DataFrames 也可以具体化，正如我们在 3.6 节中讨论的那样。
+
+#### 3.4 DataFrames 与关系查询语言
+
+虽然从表面上看，DataFrames 提供与 SQL 和 Pig `[29]` 等关系查询语言相同的操作，但我们发现，由于它们与完整的编程语言集成，用户可以更轻松地使用它们。
+例如，用户可以将他们的代码分解成 Scala、Java 或 Python 函数，在它们之间传递 DataFrame 以构建逻辑计划，并且在运行输出操作时仍将受益于整个计划的优化。
+同样，开发人员可以使用 if 语句和循环等控制结构来构建他们的工作。
+一位用户说 DataFrame API “像 SQL 一样简洁和声明性，但我可以命名中间结果”，指的是如何更容易地构建计算和调试中间步骤。
+
+为了简化 DataFrames 中的编程，我们还使 API 热切地分析逻辑计划(即识别表达式中使用的列名是否存在于底层表中，以及它们的数据类型是否合适)，
+即使查询结果是惰性计算的。
+因此，只要用户输入无效的代码行，Spark SQL 就会报告错误，而不是等待执行。
+这再次比大型 SQL 语句更容易使用。
+
+#### 3.5 查询原生数据集
+
+现实世界的数据管道通常从异构源中提取数据，并运行来自不同编程库的各种算法。
+为了与过程 Spark 代码互操作，Spark SQL 允许用户直接针对编程语言本机对象的 RDD 构造 DataFrames。
+Spark SQL 可以使用反射自动推断这些对象的模式。
+在 Scala 和 Java 中，类型信息是从语言的类型系统(来自 JavaBeans 和 Scala case 类)中提取的。
+在 Python 中，由于动态类型系统，Spark SQL 对数据集进行采样以执行模式推断。
+
+例如，下面的 Scala 代码从用户对象的 RDD 中定义了一个 DataFrame。
+Spark SQL 会自动检测列的名称(“name”和“age”)和数据类型(string 和 int)。
+
+```text
+case class User(name:String, age:Int)
+
+// Create an RDD of User objects
+usersRDD = spark. parallelize (
+  List(User("Alice", 22), User("Bob", 19)))
+
+// View the RDD as a DataFrame
+usersDF = usersRDD.toDF
+```
+
+在内部，Spark SQL 创建一个指向 RDD 的逻辑数据扫描操作符。
+这被编译成访问本机对象字段的物理运算符。
+需要注意的是，这与传统的对象关系映射(ORM)非常不同。
+ORM 通常会导致将整个对象转换为不同格式的昂贵转换。
+
+在内部，Spark SQL 创建一个指向 RDD 的逻辑数据扫描操作符。
+这被编译成访问本机对象字段的物理运算符。
+需要注意的是，这与传统的对象关系映射(ORM) 非常不同。
+ORM 通常会导致将整个对象转换为不同格式性能消耗严重。
+相比之下，Spark SQL 就地访问本机对象，仅提取每个查询中使用的字段。
+
+查询本机数据集的能力让用户可以在现有 Spark 程序中运行优化的关系操作。
+此外，它还可以轻松地将 RDD 与外部结构化数据相结合。
+例如，我们可以将用户 RDD 与 Hive 中的一个表连接起来：
+
+```text
+views = ctx.table("pageviews")
+usersDF.join(views ,usersDF("name") === views("user")
+```
+
+#### 3.6 缓存在内存中
+
+与之前的 Shark 一样，Spark SQL 可以使用列式存储在内存中物化(通常称为“缓存”)热数据。
+与 Spark 的原生缓存将数据简单地存储为 JVM 对象相比，列式缓存可以将内存占用减少一个数量级，因为它应用了列式压缩方案，例如字典编码和运行长度编码。
+缓存对于交互式查询和机器学习中常见的迭代算法特别有用。
+它可以通过在 DataFrame 上调用 `cache()` 方法来调用。
+
+#### 3.7 用户定义的函数(UDF)
+
+用户定义函数(UDF) 已成为数据库系统的重要扩展点。
+例如，MySQL 依靠 UDF 为 JSON 数据提供基本支持。
+一个更高级的例子是 MADLib 使用 UDF 为 Postgres 和其他数据库系统实现机器学习算法 `[12]`。
+但是，数据库系统通常需要在与主要查询接口不同的单独编程环境中定义 UDF。
+Spark SQL 的 DataFrame API 支持 UDF 的内联定义，没有其他数据库系统复杂的打包和注册过程。
+事实证明，此功能对于 API 的采用至关重要。
+
+在 Spark SQL 中，UDF 可以通过传递 Scala、Java 或 Python 函数来内联注册，这些函数可能在内部使用完整的 Spark API。
+例如，给定机器学习模型的模型对象，我们可以将其预测函数注册为 UDF：
+
+```text
+val model: LogisticRegressionModel = ...
+
+ctx.udf. register (" predict",
+    (x: Float , y: Float) => model.predict(Vector(x, y)))
+
+ctx.sql ("SELECT predict(age , weight) FROM users ")
+```
+
+注册后，商业智能工具还可以通过 JDBC/ODBC 接口使用 UDF。
+除了像这里这样对标量值进行操作的 UDF 之外，还可以通过取其名称来定义对整个表进行操作的 UDF，
+如 MADLib `[12]`，就在其中使用分布式 Spark API，从而公开高级分析功能给 SQL 用户。
+最后，由于 UDF 定义和查询执行使用相同的通用语言(例如 Scala 或 Python)表示，因此用户可以使用标准工具调试或分析整个程序。
+
+> 注：在 Spark 权威指南中是这样描述 Python UDF 的
+> 启动此 Python 进程代价很高，但主要代价是将数据序列化为 Python 可理解格式的过程。
+> 造成代价高的原因有两个: 一个是计算昂贵，另一个是数据进入 Python 后 Spark 无法管理 worker 的内存。
+> 这意味着，如果某个 worker 因资源受限而失败 (因为 JVM 和 Python 都在同一台计算机上争夺内存)，则可能会导致该worker出现故障。
+> 所以建议使用 Scala 或 Java编写UDF，不仅编写程序的时间少，还能提高性能。
+> 当然仍然可以使用 Python 编写函数。
+
+### 4 Catalyst 优化器
+
+为了实现 Spark SQL，我们设计了一个新的可扩展优化器 Catalyst，它基于 Scala 中的函数式编程结构。
+Catalyst 的可扩展设计有两个目的。
+首先，我们希望能够轻松地向 Spark SQL 添加新的优化技术和功能，尤其是解决我们在“大数据”(例如，半结构化数据和高级分析)方面遇到的各种问题。
+其次，我们希望让外部开发人员能够扩展优化器——例如，添加特定于数据源的规则，这些规则可以将过滤或聚合推送到外部存储系统中，或者支持新的数据类型。
+Catalyst 支持基于规则和基于成本的优化。
+
+> 注：基于成本的优化是通过使用规则生成多个计划，然后计算它们的成本来执行的。
+
+虽然过去已经提出了可扩展优化器，但它们通常需要一种复杂的领域特定语言来指定规则，并需要一个“优化器编译器”来将规则转换为可执行代码 `[17, 16]`。
+这会导致显着的学习曲线和维护负担。
+相比之下，Catalyst 使用 Scala 编程语言的标准特性，例如模式匹配 `[14]`，让开发人员使用完整的编程语言，同时仍然使规则易于指定。
+函数式语言的部分设计目的是构建编译器，因此我们发现 Scala 非常适合这项任务。
+尽管如此，据我们所知，Catalyst 是第一个基于这种语言构建的生产级别质量的查询优化器。
+
+其核心中，Catalyst 包含一个通用库，用于表示树并应用规则来操作它们。
+在此框架之上，我们构建了特定于关系查询处理(例如表达式、逻辑查询计划)的库，以及处理查询执行不同阶段的几组规则：
+分析、逻辑优化、物理规划和生成代码以将部分查询编译为 Java 字节码。
+对于后者，我们使用另一个 Scala 特性，quasiquotes `[34]`，它可以很容易地在运行时从可组合表达式生成代码。
+最后，Catalyst 提供了几个公共扩展点，包括外部数据源和用户定义的类型。
+
+#### 4.1 树
+
+Catalyst 中的主要数据类型是由节点对象组成的树。
+每个节点都有一个节点类型和零个或多个子节点。
+新的节点类型在 Scala 中定义为 TreeNode 类的子类。
+这些对象是不可变的，可以使用函数转换来操作，如下一小节中所述。
+
+作为一个简单的例子，假设对于一个非常简单的表达式语言，我们有以下三个节点类：
+
+- Literal(value: Int): 一个常数值
+- Attribute(name: String): 来自输入行的属性，例如“x”
+- Add(left: TreeNode, right: TreeNode): 获取两个表达式的合。
+
+> 注：我们在这里对类使用 Scala 语法，其中每个类的字段都在括号中定义，它们的类型使用冒号标识。
+
+这些类可用于构建树；例如，表达式 x+(1+2) 的树，如图 2 所示，将在 Scala 代码中表示如下：
+
+![image.png](https://i.loli.net/2021/06/30/POp4JZigAdhLwVG.png)
+
+```text
+Add(Attribute (x), Add(Literal(1), Literal(2)))
+```
