@@ -285,7 +285,7 @@ Spark SQL 会自动检测列的名称(“name”和“age”)和数据类型(str
 case class User(name:String, age:Int)
 
 // Create an RDD of User objects
-usersRDD = spark. parallelize (
+usersRDD = spark. parallelize(
   List(User("Alice", 22), User("Bob", 19)))
 
 // View the RDD as a DataFrame
@@ -334,10 +334,10 @@ Spark SQL 的 DataFrame API 支持 UDF 的内联定义，没有其他数据库�
 ```text
 val model: LogisticRegressionModel = ...
 
-ctx.udf. register (" predict",
+ctx.udf.register (" predict",
     (x: Float , y: Float) => model.predict(Vector(x, y)))
 
-ctx.sql ("SELECT predict(age , weight) FROM users ")
+ctx.sql("SELECT predict(age , weight) FROM users ")
 ```
 
 注册后，商业智能工具还可以通过 JDBC/ODBC 接口使用 UDF。
@@ -370,8 +370,8 @@ Catalyst 支持基于规则和基于成本的优化。
 
 其核心中，Catalyst 包含一个通用库，用于表示树并应用规则来操作它们。
 在此框架之上，我们构建了特定于关系查询处理(例如表达式、逻辑查询计划)的库，以及处理查询执行不同阶段的几组规则：
-分析、逻辑优化、物理规划和生成代码以将部分查询编译为 Java 字节码。
-对于后者，我们使用另一个 Scala 特性，quasiquotes `[34]`，它可以很容易地在运行时从可组合表达式生成代码。
+分析、逻辑优化、物理规划和代码生成以将部分查询编译为 Java 字节码。
+对于后者，我们使用另一个 Scala 特性，quasiquotes `[34]`，它可以很容易地在运行时从可组合表达式代码生成。
 最后，Catalyst 提供了几个公共扩展点，包括外部数据源和用户定义的类型。
 
 #### 4.1 树
@@ -391,8 +391,318 @@ Catalyst 中的主要数据类型是由节点对象组成的树。
 
 这些类可用于构建树；例如，表达式 x+(1+2) 的树，如图 2 所示，将在 Scala 代码中表示如下：
 
-![image.png](https://i.loli.net/2021/06/30/POp4JZigAdhLwVG.png)
+![图 2：通过 Catalyst 树表达 x+(1+2)](https://i.loli.net/2021/06/30/POp4JZigAdhLwVG.png)
 
 ```text
 Add(Attribute (x), Add(Literal(1), Literal(2)))
 ```
+
+#### 4.2 规则
+
+可以使用规则来操作树，规则是将一棵树转化为另一棵树的函数。
+模式匹配是许多函数式语言的一个特性，它允许从代数数据类型的潜在嵌套结构中提取值。
+在 Catalyst 中，树提供了一种转换方法，该方法在树的所有节点上递归地应用模式匹配函数，将与每个模式匹配的节点转换为结果。
+例如，我们可以实现一个规则，在常量之间折叠 Add 操作，如下所示：
+
+```text
+tree. transform {
+  case Add(Literal(c1), Literal(c2)) => Literal(c1+c2)
+}
+```
+
+将此应用于图 2 中 x+(1+2) 的树将产生新树 x+3。
+此处的 case 关键字是 Scala 的标准模式匹配语法 `[14]`，可用于匹配对象的类型以及为提取的值命名(此处为 c1 和 c2)。
+
+传递给 transform 的模式匹配表达式是一个偏函数，这意味着它只需要匹配所有可能的输入树的一个子集。
+Catalyst 将测试给定规则适用于树的哪些部分，自动跳过并下降到不匹配的子树。
+这种能力意味着规则只需要推理应用给定优化的树，而不是那些不匹配的树。
+因此，当新类型的运算符添加到系统中时，不需要修改规则。
+
+规则(以及一般的 Scala 模式匹配)可以在同一个转换调用中匹配多个模式，使得一次实现多个转换变得非常简洁：
+
+```text
+tree. transform {
+  case Add(Literal(c1), Literal(c2)) => Literal(c1+c2)
+  case Add(left , Literal(0)) => left
+  case Add(Literal(0), right) => right
+}
+```
+
+在实践中，规则可能需要多次执行才能完全转换一棵树。
+Catalyst 将规则分组，并执行每个批次，直到达到固定点，即直到应用其规则后树停止更改为止。
+将规则运行到定点意味着每个规则都可以是简单的和自包含的，但最终仍会对树产生更大的全局影响。
+在上面的例子中，重复应用会不断折叠更大的树，例如 (x+0)+(3+3)。
+作为另一个示例，第一批可能会分析表达式以将类型分配给所有属性，而第二批可能会使用这些类型进行常量折叠。
+在每批之后，开发人员还可以对新树运行健全性检查(例如，查看所有属性都分配了类型)，这些检查通常也通过递归匹配编写。
+
+最后，规则条件及其主体可以包含任意 Scala 代码。
+这使 Catalyst 比面向特定领域对应语言的优化器更强大，同时保持简单规则的简洁。
+
+根据我们的经验，不可变树上的函数转换使整个优化器非常容易推理和调试。
+它们还在优化器中启用并行化，尽管我们还没有进一步开发它。
+
+#### 4.3 在 Spark SQL 中使用 Catalyst
+
+![图 3：Spark SQL 中的查询计划阶段，圆角矩形代表 Catalyst 树](https://i.loli.net/2021/07/01/RNUldhDQOJuZS21.png)
+
+我们在四个阶段使用 Catalyst 的通用树转换框架，如图 3 所示：
+
+1. 分析逻辑计划以解析引用
+2. 逻辑计划优化
+3. 指定物理计划
+4. 生成并编译代码来查询部分 Java 字节码。
+
+在物理规划阶段，Catalyst 可能会生成多个计划并根据成本进行比较。
+所有其他阶段完全基于规则。
+每个阶段使用不同类型的树节点；Catalyst 包括用于表达式、数据类型以及逻辑和物理运算符的节点库。
+我们现在对这些内容进行描述。
+
+##### 4.3.1 分析
+
+Spark SQL 从一个要计算的关系开始，可能是来自于 SQL 解析器返回的抽象语法树(AST)，也可能是来自 API 构造的 DataFrame 对象。
+在这两种情况下，关系可能包含未解析的属性引用或关系：例如，在 SQL 查询 SELECT col FROM sales 中，col 的类型，甚至它是否是有效的列名，
+直到我们查找 sales 表时才知道。
+如果我们不知道其类型或未将其与输入表(或别名)匹配，则该属性被称为未解析。
+Spark SQL 使用 Catalyst 规则和一个 Catalog 对象来跟踪所有数据源中的表来解析这些属性。
+它首先构建具有未绑定属性和数据类型的“未解析逻辑计划”树，然后应用执行以下操作的规则。
+
+- 从 Catalog 中按照名称查找关系。
+- 将命名之后的属性(例如 col)作为输入映射到给定运算符的子项
+- 确定哪些属性引用相同的值，并为它们提供唯一的 ID(稍后允许优化表达式，例如 col = col)。
+- 表达式的传递和强制类型转换：例如，我们无法知道 1+col 的类型，直到我们解析 col 并可能将其子表达式转换为兼容类型。
+
+总的来说，分析器的规则大约是 1000 行代码。
+
+##### 4.3.2 逻辑优化
+
+在逻辑优化阶段会将标准的基于规则的优化方案应用于逻辑计划。
+其中包括常量折叠(constant folding)、谓词下推(predicate pushdown)、投影修剪(projection pruning)、空值传导(null propagation)、
+布尔表达式简化和其他规则。
+总的来说，我们发现为各种情况添加规则非常简单。
+
+> 注：
+> 常量折叠——将常量渲染至代码中
+> 谓词下推——将过滤表达式尽可能移动至靠近数据源的位置，以使真正执行时能直接跳过无关的数据。
+> 投影修剪——? 推测是通过切分数据进行优化
+> 空值传导——? 空值验证
+
+例如，当我们将固定精度的 DECIMAL 类型添加到 Spark SQL 时，我们想优化小精度 DECIMAL 上的总和与平均值等聚合；
+用 12 行代码编写了一个规则，在 SUM 和 AVG 表达式中找到这样的小数，并将它们转换为未缩放的 64 位 LONG，在其上进行聚合，然后将结果转换回。
+仅优化 SUM 表达式的此规则的简化版本复制如下：
+
+```text
+object DecimalAggregates extends Rule[LogicalPlan] {
+  /** Maximum number of decimal digits in a Long */
+  val MAX_LONG_DIGITS = 18
+  def apply(plan: LogicalPlan): LogicalPlan = {
+    plan transformAllExpressions {
+      case Sum(e @ DecimalType.Expression(prec , scale ))
+              if prec + 10 <= MAX_LONG_DIGITS =>
+        MakeDecimal(Sum(LongValue(e)), prec+10, scale)
+    }
+}
+```
+
+再举一个例子，一个 12 行的规则使用简单的正则表达式将 LIKE 表达式优化为 String.startsWith 或 String.contains 方法。
+在规则中自由使用任意 Scala 代码使得这些类型的优化变得容易表达，这些优化超越了子树结构的模式匹配。
+逻辑优化规则总共有 800 行代码。
+
+##### 4.3.3 物理计划
+
+在物理规划阶段，Spark SQL 使用与 Spark 执行引擎匹配的物理运算符，获取一个逻辑计划并生成一个或多个物理计划。
+然后使用成本模型选择计划。
+目前，基于成本的优化仅用于 select 和 join 算法：对于已知较小的关系，Spark SQL 会使用 Spark 中可用的点对点广播工具进行广播连接。
+然而，该框架支持更广泛地使用基于成本的优化，因为可以使用规则递归地估计整个树的成本。
+因此，我们打算在未来实施更丰富的基于成本的优化。
+
+> 注：估计表大小的方式为：判断表是否缓存在内存中或来自外部文件，或者它是具有 LIMIT 的子查询的结果。
+
+物理规划器还执行基于规则的物理优化，例如将投影或过滤器流水线化为一个 Spark 映射操作。
+此外，它还可以将逻辑计划中的操作推送到支持谓词或投影下推的数据源中。
+我们将在第 4.4.1 节中描述这些数据源的 API。
+总的来说，物理规划规则大约有 500 行代码。
+
+##### 4.3.4 代码生成
+
+查询优化的最后阶段涉及生成 Java 字节码以在每台机器上运行。
+由于 Spark SQL 经常在内存数据集上运行，其中处理受 CPU 限制，我们希望支持代码生成以加快执行速度。
+尽管如此，代码生成引擎的构建通常很复杂，本质上相当于一个编译器。
+Catalyst 依靠 Scala 语言的一个特殊功能 quasiquotes `[34]` 来简化代码生成。
+Quasiquotes 允许在 Scala 语言中以编程方式构建抽象语法树 (AST)，然后可以在运行时将其提供给 Scala 编译器以生成字节码。
+我们使用 Catalyst 将表示 SQL 中表达式的树转换为 AST 以供 Scala 代码评估该表达式，然后编译并运行生成的代码。
+
+作为一个简单的例子，参考第 4.2 节中介绍的 Add、Attribute 和 Literal 树节点，它们允许我们编写诸如 (x+y)+1 之类的表达式。
+如果没有代码生成，则必须通过沿着 Add、Attribute 和 Literal 节点的树为每一行数据解释此类表达式。
+这会引入大量分支和虚函数调用，从而减慢执行速度。
+通过代码生成，我们可以编写一个函数来将特定的表达式树转换为 Scala AST，如下所示：
+
+```text
+def compile(node: Node): AST = node match {
+  case Literal(value) => q"$value"
+  case Attribute(name) => q"row.get($name)"
+  case Add(left, right) =>
+    q"${compile(left)} + ${compile(right)}"
+}
+```
+
+以 q 开头的字符串是 quasiquotes，这意味着虽然它们看起来像字符串，但它们在编译时被 Scala 编译器解析并代表其中代码的 AST。
+Quasiquotes 可以将变量或其他 AST 拼接到其中，使用 $ 符号表示。
+例如，Literal(1) 将成为 1 的 Scala AST，而 Attribute("x") 将成为 row.get("x")。
+最后，像 Add(Literal(1), Attribute("x")) 这样的树变成了像 1+row.get("x") 这样的 Scala 表达式的 AST。
+
+Quasiquotes 在编译时进行类型检查，以确保只替换适当的 AST 或文字，使它们比字符串连接更有用，
+并且它们直接生成 Scala AST，而不是在运行时依靠 Scala 解析器。
+此外，它们是高度可组合的，因为每个节点的代码生成规则不需要知道其子节点返回的树是如何构建的。
+最后，如果存在 Catalyst 遗漏的表达式级优化，Scala 编译器会进一步优化生成的代码。
+图 4 显示 quasiquotes 让我们生成性能类似于手动调整程序的代码。
+
+![图 4：评估表达式 x+x+x 的性能比较，其中 x 是整数，10 亿次](https://i.loli.net/2021/07/01/Nnf6kvHAZeJ8MOq.png)
+
+我们发现 quasiquotes 用于代码生成非常简单，并且我们观察到即使是 Spark SQL 的新贡献者也可以快速为新类型的表达式添加规则。
+Quasiquotes 也适用于我们在原生 Java 对象上运行的目标：从这些对象访问字段时，我们可以通过代码生成对所需字段的直接访问，
+而不必将对象复制到 Spark SQL Row 中并使用 Row 的访问方法。
+最后，将代码生成的评估与我们尚未为其生成代码的表达式的解释评估结合起来很简单，因为我们编译的 Scala 代码可以直接调用我们的表达式解释器。
+
+Catalyst 的代码生成器总共大约有 700 行代码。
+
+#### 4.4 执行点
+
+Catalyst 围绕可组合规则的设计使用户和第三方库可以轻松扩展。
+开发人员可以在运行时向查询优化的每个阶段添加批量规则，只要他们遵守每个阶段的约定(例如，确保分析解决所有属性)。
+但是，为了在不了解 Catalyst 规则的情况下更简单地添加某些类型的扩展，我们还定义了两个更窄的公共扩展点：数据源和用户定义类型。
+这些仍然依赖于核心引擎中的设施与优化器的其余部分进行交互。
+
+##### 4.4.1 数据源
+
+开发人员可以使用多个 API 为 Spark SQL 定义新的数据源，这些 API 公开了不同程度的可能优化。
+所有数据源都必须实现一个 createRelation 函数，该函数接受一组键值参数并返回该关系的 BaseRelation 对象(如果可以成功加载)。
+每个 BaseRelation 都包含一个模式和一个可选的估计大小(以字节为单位)。
+例如，代表 MySQL 的数据源可以将表名作为参数，并要求 MySQL 估计表大小。
+
+> 注：非结构化数据源也可以将所需的模式作为参数； 例如，有一个 CSV 文件数据源可让用户指定列名称和类型。
+
+为了让 Spark SQL 读取数据，BaseRelation 可以实现几个接口之一，让它们暴露不同程度的复杂性。
+最简单的 TableScan 需要关系返回表中所有数据的 Row 对象的 RDD。
+更高级的 PrunedScan 需要读取一组列名，并且应该返回仅包含这些列的行。
+第三个接口 PrunedFilteredScan 接受所需的列名和 Filter 对象数组，它们是 Catalyst 表达式语法的子集，允许谓词下推。
+过滤器是建议性的，即数据源应尝试仅返回通过每个过滤器的行，但在无法评估的过滤器的情况下允许返回误报。
+最后，为 CatalystScan 接口提供了一个完整的 Catalyst 表达式树序列，用于谓词下推，尽管它们再次是建议性的。
+
+> 注：目前，过滤器包括相等、与常量的比较、和 IN 子句，每个子句都在一个属性上。
+
+这些接口允许数据源实现不同程度的优化，同时仍然使开发人员可以轻松添加几乎任何类型的简单数据源。
+我们和其他人已经使用该接口实现了以下数据源：
+
+- CSV 文件，它只是扫描整个文件，但允许用户指定结构。
+- Avro `[4]`，一种用于嵌套数据的自描述二进制格式。
+- Parquet `[5]`，一种柱状文件格式，我们支持列修剪和过滤器。
+- JDBC 数据源，它并行扫描来自 RDBMS 的表的范围并将过滤器推送到 RDBMS 以达到最小化通信。
+
+为了使用这些数据源，程序员在 SQL 语句中指定他们的包名，为配置选项传递键值对。
+例如，Avro 数据源采用文件的路径：
+
+```text
+CREATE TEMPORARY TABLE messages
+USING com. databricks .spark.avro
+OPTIONS (path "messages.avro ")
+```
+
+所有数据源也可以公开网络位置信息，即数据的每个分区从哪个机器读取最有效。
+这是通过它们返回的 RDD 对象公开的，因为 RDD 具有用于数据局部性的内置 API [39]。
+
+最后，可以使用将数据写入现有表或新表的类似接口。
+这些更简单，因为 Spark SQL 只提供要写入的 Row 对象的 RDD。
+
+##### 4.4.2 用户定义的类型(UDTs)
+
+我们希望在 Spark SQL 中允许高级分析的一项功能是支持用户定义的类型。
+例如，机器学习应用程序可能需要向量类型，而图算法可能需要用于表示图的类型，这在关系表上是可能的 `[15]`。
+然而，添加新类型可能具有挑战性，因为数据类型遍及执行引擎的所有方面。
+例如，在 Spark SQL 中，内置数据类型以列式压缩格式存储，用于内存缓存(第 3.6 节)，而在上一节的数据源 API 中，我们需要公开所有可能的数据类型给数据源作者。
+
+在 Catalyst 中，我们通过将用户定义的类型映射到由 Catalyst 的内置类型组成的结构来解决这个问题，如第 3.2 节所述。
+要将 Scala 类型注册为 UDT，用户需要提供从其类的对象到内置类型的 Catalyst 行的映射，以及反向映射。
+在用户代码中，他们现在可以在使用 Spark SQL 查询的对象中使用 Scala 类型，并且它会在幕后转换为内置类型。
+同样，它们可以注册直接对其类型进行操作的 UDF(参见第 3.7 节)。
+
+作为一个简短的例子，假设我们想要将二维点(x, y) 注册为 UDT。
+我们可以将这些向量表示为两个 DOUBLE 值。
+要注册 UDT，我们需要编写以下内容:
+
+```text
+class PointUDT extends UserDefinedType [Point] {
+  def dataType = StructType (Seq( // Our native structure
+    StructField("x", DoubleType),
+    StructField("y", DoubleType)
+  ))
+  def serialize (p: Point) = Row(p.x, p.y)
+  def deserialize (r: Row) =
+    Point(r.getDouble (0), r.getDouble (1))
+}
+```
+
+注册此类型后，Spark SQL 转换为 DataFrames 时 Point 会在本机对象中识别，并将传递给 UDF。
+此外，Spark SQL 将在缓存数据时以列格式存储 Points(将 x 和 y 压缩为单独的列)，
+并且 Points 将可写入 Spark SQL 的所有数据源，这些数据源会将它们视为 DOUBLE 键值对。
+我们在 Spark 的机器学习库中使用此功能，如第 5.2 节所述。
+
+### 5 高级分析功能
+
+在本节中，我们将描述我们添加到 Spark SQL 的三个特性，专门用于处理“大数据”环境中的挑战。
+首先，在这些环境中，数据通常是非结构化或半结构化的。
+虽然按程序解析此类数据是可能的，但它会导致冗长的样板代码。
+为了让用户立即查询数据，Spark SQL 包含了一种用于 JSON 和其他半结构化数据的模式推理算法。
+其次，大规模处理通常需要机器学习超过聚合和链接。
+我们描述了 Spark SQL 如何被整合到 Spark 机器学习库的新高级 API 中 `[26]`。
+最后，数据管道通常结合来自不同存储系统的数据。
+基于第 4.4.1 节中的数据源 API，Spark SQL 支持查询联邦，允许单个程序高效地查询不同的数据源。
+这些功能都建立在 Catalyst 框架之上。
+
+#### 5.1 半结构化数据的结构推断
+
+```text
+{
+  "text": "This is a tweet about #Spark",
+  "tags": ["#Spark"],
+  "loc": {"lat": 45.1 , "long": 90}
+}
+
+{
+  "text": "This is another tweet",
+  "tags": [],
+  "loc": {"lat": 39, "long": 88.5}
+}
+
+{
+  "text": "A #tweet without #location",
+  "tags": ["#tweet", "#location"]
+}
+```
+
+> 图 5：一组示例 JSON 记录，表示推文。
+
+```text
+text STRING NOT NULL,
+tags ARRAY <STRING NOT NULL > NOT NULL,
+loc STRUCT <lat FLOAT NOT NULL, long FLOAT NOT NULL>
+```
+
+> 图 6：为图 5 中的推文推断的结构。
+
+半结构化数据在大规模环境中很常见，因为随着时间的推移，它易于生成和添加字段。
+在 Spark 用户中，我们看到 JSON 用于输入数据的使用率非常高。
+不幸的是，在 Spark 或 MapReduce 等程序环境中使用 JSON 很麻烦：
+大多数用户求助于类似 ORM 的库(例如，Jackson `[21]`)将 JSON 结构映射到 Java 对象，或者一些尝试直接使用低级库。
+
+在 Spark SQL 中，我们添加了一个 JSON 数据源，它可以从一组记录中自动推断出结构。
+例如，图 5 中的 JSON 对象，经过库推断得出了图 6 中所示的结构。
+用户可以简单地将 JSON 文件注册为表，并使用按路径访问字段的语法进行查询，例如：
+
+```text
+SELECT loc.lat ,loc.long FROM tweets
+WHERE text LIKE ’%Spark%’ AND tags IS NOT NULL
+```
+
+我们的结构推断算法会一次性的处理数据，但也可以在数据样本上运行。
+它与之前关于 XML 和对象数据库 `[9, 18, 27]` 结构推断的工作有关，但更简单，因为它只推断静态树结构，不允许在任意深度递归嵌套元素。
+
