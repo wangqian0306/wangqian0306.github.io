@@ -147,7 +147,7 @@ RDD 是容错的，因为系统可以使用 RDD 的 lineage 图恢复丢失的�
 
 关于 API 的最后一个注意事项是 RDD 是惰性求值的。
 每个 RDD 代表一个计算数据集的“逻辑计划”，但 Spark 会等到某些输出操作(例如计数)启动计算。
-这允许引擎做一些简单的查询优化，例如流水线操作。
+这允许引擎做一些简单的查询优化，例如管道操作。
 例如，在上面的示例中，Spark 将通过应用过滤器并计算运行计数来管道从 HDFS 文件读取行，因此它永远不需要具体化中间行和错误结果。
 虽然这种优化非常有用，但它也有局限性，因为引擎不理解 RDD 中数据的结构(任意 Java/Python 对象)或用户函数的语义(包含任意代码)。
 
@@ -709,3 +709,424 @@ WHERE text LIKE ’%Spark%’ AND tags IS NOT NULL
 具体来说，该算法尝试推断 STRUCT 类型的树，每个类型可能包含原子、数组或其他 STRUCT。
 Foreach 字段由根 JSON 对象(例如，tweet.loc.latitude)的不同路径定义，该算法找到与该字段的观察实例匹配的最具体的 Spark SQL 数据类型。
 例如，如果该字段的所有出现都是适合 32 位的整数，它将推断为 INT；如果它们更大，它将使用 LONG(64 位)或 DECIMAL(任意精度) 如果还有小数值，它将使用 FLOAT。
+
+具体来说，该算法尝试推断 STRUCT 类型的树，每个类型可能包含原子、数组或其他 STRUCT。
+对于由 JSON 对象根(例如，tweet.loc.latitude)的不同路径定义的每个字段，该算法会找到与该字段的观察到的实例匹配的 Spark SQL 数据类型。
+例如，如果该字段的所有出现都是适合 32 位的整数，它将推断为 INT；如果它们更大，它将使用 LONG(64 位)或 DECIMAL(任意精度)；
+如果还有小数值，它将使用 FLOAT。
+对于显示多种类型的字段，Spark SQL 使用 STRING 作为最通用的类型，保留原始 JSON 格式。
+对于包含数组的字段，它使用相同的“最具体的超类型”逻辑从所有观察到的元素中确定元素类型。
+我们使用对数据的单个归约操作来实现该算法，该操作从每个单独记录的模式(即类型树)开始，并使用关联的“最具体的超类型”函数合并它们，该函数概括了每个字段的类型。
+这使得该算法既是单次传递又是高效通信，因为在每个节点上都发生了高度的减少。
+
+作为一个简短的例子，请注意在图 5 和图 6 中，该算法如何概括 loc.lat 和 loc.long 的类型。
+每个字段在一个记录中显示为整数，在另一个记录中显示为浮点数，因此算法返回 FLOAT。
+另请注意，对于 tags 字段，算法如何推断出一个不能为 null 的字符串数组。
+
+在实践中，我们发现该算法可以很好地处理实际的 JSON 数据集。
+例如，它正确地为 Twitter 的 firehouse 中的 JSON tweets 标识了一个可用的模式，其中包含大约 100 个不同的字段和高度嵌套。
+多个 Databricks 客户也成功地将其应用于其内部 JSON 格式。
+
+在 Spark SQL 中，我们也使用相同的算法来推断 Python 对象的 RDD 模式(参见第 3 节)，因为 Python 不是静态类型的，因此 RDD 可以包含多种对象类型。
+未来，我们计划为 CSV 文件和 XML 添加类似的推理。
+开发人员发现能够将这些类型的数据集视为表格，并立即查询它们或将它们与其他对提高生产力非常有价值的数据结合起来。
+
+#### 5.2 与 Spark 机器学习库进行集成
+
+> 注：此处机器学习相关专业名词可能有翻译错误。
+
+作为 Spark SQL 在其他 Spark 模块中的实用程序的示例，Spark 的机器学习库 MLlib 引入了使用 DataFrames `[26]` 的新高级 API。
+这个新 API 基于机器学习管道的概念，这是其他高级 ML 库(如 SciKit-Learn `[33]` )中的抽象。
+管道是数据转换的图，例如特征提取、归一化、降维和模型训练，每一个都交换数据集。
+管道是一种有用的抽象，因为 ML 工作流有很多步骤；将这些步骤表示为可组合元素，可以轻松更改管道的各个部分或在整个工作流程级别搜索调整参数。
+
+![图 7：一个简短的 MLlib 管道和运行它的 Python 代码。](https://i.loli.net/2021/07/05/V4WJSn7zp65sZdy.png)
+
+> 注：我们从 (text, label) 组成的 DataFrame 开始，将文本标记为单词，运行词频特征化器(HashingTF)以获取特征向量，然后训练逻辑回归。
+
+为了在管道阶段之间交换数据，MLlib 的开发人员需要一种紧凑(因为数据集可能很大)但又灵活的格式，允许为每条记录存储多种类型的字段。
+例如，用户可能从包含文本字段和数字字段的记录开始，然后在文本上运行特征化算法(例如 TF-IDF)将其转换为向量，
+对其他字段之一进行归一化，对文本执行降维整套功能等。
+为了表示数据集，新 API 使用 DataFrames，其中每一列代表数据的一个特征。
+可以在管道中调用的所有算法都为输入列和输出列命名，因此可以在字段的任何子集上调用并生成新的集合。
+这使开发人员可以轻松构建复杂的管道，同时保留每条记录的原始数据。
+为了说明 API，图 7 显示了一个简短的管道和创建的 DataFrame 的架构。
+
+MLlib 使用 Spark SQL 必须做的主要工作是为向量创建用户定义的类型。
+这个向量 UDT 可以存储稀疏向量和密集向量，并将它们表示为四个原始字段：类型(密集或解析)的布尔值、向量的大小、
+索引数组(用于稀疏坐标)和数组 double 值(稀疏向量的非零坐标或其他所有坐标)。
+除了 DataFrames 用于跟踪和操作列的实用程序之外，我们还发现它们还有另一个用处：它们使在 Spark 支持的所有编程语言中公开 MLlib 的新 API 变得更加容易。
+以前，MLlib 中的每个算法都采用特定领域概念的对象(例如，用于分类的标记点或用于推荐的(用户、产品)评级)，
+并且这些类中的每一个都必须以各种语言实现(例如，从 Scala 复制到 Python)。
+在任何地方使用 DataFrames 使得以所有语言公开所有算法变得更加简单，因为它们已经存在所以我们只需要在 Spark SQL 中进行数据转换就可以了。
+这一点尤其重要，因为 Spark 为新的编程语言添加了绑定的特性。
+
+最后，在 MLlib 中使用 DataFrames 存储也可以很容易地在 SQL 中公开其所有算法。
+我们可以简单地定义一个 MADlib 风格的 UDF，如 3.7 节所述，它将在内部调用表上的算法。
+我们还在探索 API 来将管道构建相关内容在 SQL 中开放出来。
+
+#### 5.3 查询联合到外部数据库
+
+数据管道通常结合来自异构源的数据。
+例如，推荐管道可能会将流量日志与用户配置文件数据库和用户的社交媒体流结合起来。
+由于这些数据源通常位于不同的机器或地理位置，因此单纯地查询它们可能会非常昂贵。
+Spark SQL 数据源利用 Catalyst 尽可能将谓词下推到数据源中。
+
+例如，下面使用 JDBC 数据源和 JSON 数据源将两个表连接在一起，以查找最近注册用户的流量日志。
+方便的是，两个数据源都可以自动推断模式，而无需用户定义它。
+JDBC 数据源还将过滤谓词下推到 MySQL 中以减少传输的数据量。
+
+```text
+CREATE TEMPORARY TABLE users USING jdbc
+OPTIONS(driver "mysql" url "jdbc:mysql :// userDB/users")
+
+CREATE TEMPORARY TABLE logs
+USING json OPTIONS (path "logs.json")
+
+SELECT users.id , users.name, logs.message
+FROM users JOIN logs WHERE users.id = logs.userId
+AND users.registrationDate > "2015-01-01"
+```
+
+在后台，JDBC 数据源使用第 4.4.1 节中的 PrunedFilteredScan 接口，该接口为其提供了请求列的名称和这些列上的简单谓词(相等、比较和 IN 子句)。
+在这种情况下，JDBC 数据源将在 MySQL 上运行以下查询：
+
+```text
+SELECT users.id ,users.name FROM users
+WHERE users.registrationDate > "2015-01-01"
+```
+
+> 注：JDBC 数据源还支持按特定列“分片”源表并并行读取它的不同范围。
+
+在未来的 Spark SQL 版本中，我们还希望为 HBase 和 Cassandra 等键值存储添加谓词下推，它们支持某些形式的过滤。
+
+### 6 评估
+
+我们从两个维度评估 Spark SQL 的性能：SQL 查询处理性能和 Spark 程序性能。
+特别是，我们证明了 Spark SQL 的可扩展架构不仅支持更丰富的功能集，而且比以前基于 Spark 的 SQL 引擎带来了显着的性能改进。
+此外，对于 Spark 应用程序开发人员而言，DataFrame API 可以比原生 Spark API 带来显着的加速，同时使 Spark 程序更加简洁和易于理解。
+最后，与将 SQL 和过程代码作为单独的并行作业运行相比，将关系查询和过程查询相结合的应用程序在集成的 Spark SQL 引擎上运行得更快。
+
+#### 6.1 SQL 性能
+
+我们使用 AMPLab 大数据基准测试 `[3]` 将 Spark SQL 与 Shark 和 Impala `[23]` 的性能进行了比较，
+该基准测试使用 Pavlo 等人开发的 Web 分析工作负载。`[31]`
+基准包含四种类型的查询，具有不同的参数，执行扫描、聚合、连接和基于 UDF 的 MapReduce 工作。
+我们使用了六台 EC2 i2.xlarge 机器(一台主机，五台工作器)的集群，每台机器有 4 个内核、30 GB 内存和 800 GB SSD，
+运行 HDFS 2.4、Spark 1.3、Shark 0.9.1 和 Impala 2.1.1。
+使用柱状 Parquet 格式 `[5]` 压缩后的数据集是 110 GB 的数据。
+
+![图 8：Shark、Impala 和 Spark SQL 在大数据基准查询上的性能](https://i.loli.net/2021/07/05/fs97XU24aACRGqH.png)
+
+> 注：参见 `[31]`
+
+图 8 显示了每个查询的结果，按查询类型分组。
+查询 1-3 具有不同的参数来改变它们的选择性，其中 1a、2a 等是最具选择性的，而 1c、2c 等是最不具有选择性并处理更多数据的。
+查询 4 使用基于 Python 的 Hive UDF，它在 Impala 中不直接支持，但很大程度上受 UDF 的 CPU 性能限制。
+
+我们看到，在所有查询中，Spark SQL 比 Shark 快得多，并且通常与 Impala 竞争。
+与 Shark 不同的主要原因是 Catalyst 中的代码生成(第 4.3.4 节)，它减少了 CPU 开销。
+此功能使 Spark SQL 在许多此类查询中与基于 C++ 和 LLVM 的 Impala 引擎竞争。
+与 Impala 最大的差距是在查询 3a 中，Impala 选择了更好的连接计划，因为查询的选择性使得其中一个表非常小。
+
+#### 6.2 DataFrames 和原生 Spark 代码的对比
+
+除了运行 SQL 查询之外，Spark SQL 还可以通过 DataFrame API 帮助非 SQL 开发人员编写更简单、更高效的 Spark 代码。
+Catalyst 可以对手写代码难以完成的 DataFrame 操作执行优化，例如谓词下推、管道和自动连接选择。
+即使没有这些优化，DataFrame API 也可以通过代码生成实现更高效的执行。
+对于 Python 应用程序尤其如此，因为 Python 通常比 JVM 慢。
+
+对于本次评估，我们比较了执行分布式聚合的 Spark 程序的两种实现。
+数据集由 10 亿个整数对 (a, b) 组成，具有 100,000 个不同的 a 值，位于与上一节相同的五个 i2.xlarge 集群上。
+我们测量为每个 a 值计算 b 的平均值所花费的时间。
+首先，我们看一个使用 Python API for Spark 中的 map 和 reduce 函数计算平均值的版本：
+
+```text
+sum_and_count = \
+  data.map(lambda x: (x.a, (x.b, 1))) \
+      .reduceByKey(lambda x, y: (x[0]+y[0], x[1]+y[1])) \
+      .collect()
+[(x[0], x[1][0] / x[1][1]) for x in sum_and_count ]
+```
+
+相比之下，相同的程序可以使用 DataFrame API 编写为一个简单的操作：
+
+```text
+df.groupBy("a").avg("b")
+```
+
+![图 9：使用本机 Spark Python 和 Scala API 与 DataFrame API 编写的聚合的性能](https://i.loli.net/2021/07/05/iengLS7KUXPTRwd.png)
+
+图 9 显示代码的 DataFrame 版本比手写 Python 版本高 12 倍，而且更加简洁。
+这是因为在 DataFrame API 中，Python 只构建了逻辑计划，所有物理执行都被编译成原生 Spark 代码作为 JVM 字节码，从而提高执行效率。
+事实上，DataFrame 版本的性能也比上述 Spark 代码的 Scala 版本高 2 倍。
+这主要是由于代码生成：DataFrame 版本中的代码避免了在手写 Scala 代码中发生的键值对的昂贵分配。
+
+#### 6.3 管道性能
+
+DataFrame API 还可以让开发人员在单个程序中跨越关系和逻辑代码来编写业务逻辑并优化性能。
+作为一个简单的例子，我们考虑一个两阶段管道，它从语料库中选择文本消息的子集并计算最常用的词。
+虽然非常简单，但这可以模拟一些现实世界的管道，例如，计算特定人群在推文中使用的最流行的词。
+
+在这个实验中，我们在 HDFS 中生成了一个包含 100 亿条消息的合成数据集。
+每条消息平均包含 10 个从英语词典中提取的单词。
+管道的第一阶段使用关系过滤器来选择大约 90% 的消息。
+第二阶段计算字数。
+
+![图 10：作为单独的 Spark SQL 查询和 Spark 作业(上方)以及集成的 DataFrame 作业(下方)编写的两阶段管道的性能](https://i.loli.net/2021/07/05/UagFWYSjm5Nrz7K.png)
+
+首先，我们使用单独的 SQL 查询和基于 Scala 的 Spark 作业来实现管道，这可能发生在运行单独的关系和过程引擎(例如，Hive 和 Spark)的环境中。
+然后我们使用 DataFrame API 实现了一个组合管道，即使用 DataFrame 的关系运算符执行过滤器，并使用 RDD API 对结果执行字数统计。
+与第一个管道相比，第二个管道避免了在将 SQL 查询的整个结果传递到 Spark 作业之前将其保存到 HDFS 文件作为中间数据集的成本，
+因为 SparkSQL 使用关系运算符进行过滤并管道化了统计单词数的 map 。
+图 10 比较了两种方法的运行时性能。
+除了更容易理解和操作，基于 DataFrame 的管道还将性能提升了 2 倍。
+
+### 7 研究应用
+
+除了 Spark SQL 的即时实际生产用例之外，我们还看到了从事更多实验项目的研究人员的浓厚兴趣。
+我们概述了两个利用 Catalyst 可扩展性的研究项目：一个是近似查询处理，一个是基因组学。
+
+#### 7.1 广义在线聚合
+
+曾和他的团队，已经在工作中使用了 Catalyst，以提高在线聚合的通用性 `[40]`。
+这项工作概括了在线聚合的执行，以支持任意嵌套的聚合查询。
+它允许用户通过查看在总数据的一小部分上计算的结果来查看执行查询的进度。
+这些部分结果还包括准确性度量，让用户在达到足够的准确性时停止查询。
+
+为了在 Spark SQL 内部实现这个系统，作者添加了一个新的操作符来表示一个被分解为采样批次的关系。
+在查询规划期间，调用转换用于将原始完整查询替换为多个查询，每个查询对数据的连续样本进行操作。
+
+然而，简单地用样本替换完整数据集不足以让在线方式计算出准确的答案。
+标准聚合等操作必须替换为同时考虑当前样本和先前批次结果的有状态对应项。
+此外，可能会根据近似答案过滤掉元组的操作必须替换为可以考虑当前估计错误的版本。
+
+这些转换中的每一个都可以表示为 Catalyst 规则，这些规则修改算子树，直到它产生正确的在线答案。
+不基于采样数据的树片段会被这些规则忽略，并且可以使用标准代码路径执行。
+通过使用 Spark SQL 作为基础，作者能够用大约 2000 行代码实现一个相当完整的原型。
+
+#### 7.2 计算基因组学
+
+计算基因组学中的一个常见操作涉及基于数值偏移检查重叠区域。
+这个问题可以表示为不等式谓词的连接。
+考虑两个数据集 a 和 b，其结构为 (start LONG, end LONG)。
+范围连接操作可以用如下 SQL 表示：
+
+```text
+SELECT * FROM a JOIN b
+WHERE a.start < a.end
+  AND b.start < b.end
+  AND a.start < b.start
+  AND b.start < a.end
+```
+
+如果没有特殊优化，前面的查询将被许多系统使用低效算法(例如嵌套循环连接)执行。
+相比之下，专门的系统可以使用区间树计算这个连接的答案。
+ADAM 项目 `[28]` 中的研究人员能够在 Spark SQL 版本中构建一个特殊的规划规则，以有效地执行此类计算，
+从而使他们能够利用标准数据操作能力以及专门的处理代码。
+所需的更改大约是 100 行代码。
+
+### 8 相关工作
+
+**编程模型** 
+一些系统试图将关系处理与最初用于大型集群的程序处理引擎相结合。
+其中，Shark `[38]` 最接近 Spark SQL，运行在相同的引擎上并提供相同的关系查询和高级分析组合。
+Spark SQL 通过更丰富且对程序员更友好的 API DataFrames 改进了 Shark，其中可以使用宿主编程语言中的构造以模块化方式组合查询(参见第 3.4 节)。
+它还允许直接在本机 RDD 上运行关系查询，并支持 Hive 之外的广泛数据源。
+
+启发 Spark SQL 设计的一个系统是 DryadLINQ `[20]`，它将 C# 中的语言集成查询编译为分布式 DAG 执行引擎。
+LINQ 查询也是关系查询，但可以直接对 C# 对象进行操作。
+Spark SQL 超越了 DryadLINQ，还提供类似于常见数据科学库 `[32, 30]` 的 DataFrame 接口、数据源和类型的 API，以及通过在 Spark 上执行来支持迭代算法。
+
+其他系统仅在内部使用关系数据模型，并将过程代码委托给 UDF。
+例如，Hive 和 Pig `[36, 29]` 提供关系查询语言，但已广泛使用 UDF 接口。
+ASTERIX `[8]` 内部有一个半结构化数据模型。
+Stratosphere `[2]` 也有一个半结构化模型，但提供了 Scala 和 Java 的 API，让用户可以轻松调用 UDF。
+PIQL `[7]` 同样提供了 Scala DSL。
+与这些系统相比，Spark SQL 通过能够直接查询用户定义类(原生 Java/Python 对象)，并让开发人员可以在同一语言中混合使用过程 API 和关系 API。
+此外，通过 Catalyst 优化器，Spark SQL 实现了大多数大型计算框架中不存在的优化(例如，代码生成)和其他功能(例如，JSON 和机器学习数据类型的模式推断)。
+我们相信，这些功能对于为大数据提供集成的、易于使用的环境至关重要。
+
+最后 DataFrame API 已经适用于单机 `[32,30]` 和集群 `[13,10]`
+与以前的 API 不同，Spark SQL 优化器使用关系优化器进行 DataFrame 计算。
+
+**高级分析**
+Spark SQL 以最近的工作为基础，在大型集群上运行高级分析算法，包括迭代算法平台 `[39]` 和图分析 `[15, 24]`。
+MADlib `[12]` 也希望公开分析功能，尽管方法不同，因为 MADlib 必须使用 Postgres UDF 的有限接口，而 Spark SQL 的 UDF 可以是成熟的 Spark 程序。
+最后，包括 Sinew 和 Invisible Loading `[35, 1]` 在内的技术试图提供和优化对 JSON 等半结构化数据的查询。
+我们希望在我们的 JSON 数据源中应用其中一些技术。
+
+### 9 结论
+
+我们展示了 Spark SQL，这是 Apache Spark 中的一个新模块，提供与关系处理的丰富集成。
+Spark SQL 使用声明性 DataFrame API 扩展了 Spark，以允许进行关系处理，提供自动优化等优势，并让用户编写混合关系分析和复杂分析的复杂管道。
+它支持为大规模数据分析量身定制的各种功能，包括半结构化数据、联邦查询和用于机器学习的数据类型。
+为了启用这些功能，Spark SQL 基于名为 Catalyst 的可扩展优化器，通过嵌入 Scala 编程语言，可以轻松添加优化规则、数据源和数据类型。
+用户反馈和基准测试表明，Spark SQL 使编写混合关系和过程处理的数据管道变得更加简单和高效，同时与以前的 SQL-on-Spark 引擎相比提供了显着的加速。
+
+Spark SQL 在如下地址开源: [http://spark.apache.org](http://spark.apache.org)
+
+### 10 致谢
+
+We would like to thank Cheng Hao, Tayuka Ueshin, Tor Myklebust,
+Daoyuan Wang, and the rest of the Spark SQL contributors so far.
+We would also like to thank John Cieslewicz and the other members
+of the F1 team at Google for early discussions on the Catalyst
+optimizer. The work of authors Franklin and Kaftan was supported
+in part by: NSF CISE Expeditions Award CCF-1139158, LBNL
+Award 7076018, and DARPA XData Award FA8750-12-2-0331,
+and gifts from Amazon Web Services, Google, SAP, The Thomas
+and Stacey Siebel Foundation, Adatao, Adobe, Apple, Inc., Blue
+Goji, Bosch, C3Energy, Cisco, Cray, Cloudera, EMC2, Ericsson,
+Facebook, Guavus, Huawei, Informatica, Intel, Microsoft, NetApp,
+Pivotal, Samsung, Schlumberger, Splunk, Virdata and VMware.
+
+### 11 参考资料
+
+`[1]` A. Abouzied, D. J. Abadi, and A. Silberschatz.
+Invisible loading: Access-driven data transfer from raw files into database systems.
+In EDBT, 2013.
+
+`[2]` A. Alexandrov et al.
+The Stratosphere platform for big data analytics.
+The VLDB Journal, 23(6):939–964, Dec. 2014.
+
+`[3]` AMPLab big data benchmark.
+https://amplab.cs.berkeley.edu/benchmark.
+
+`[4]` Apache Avro project.
+http://avro.apache.org.
+
+`[5]` Apache Parquet project.
+http://parquet.incubator.apache.org.
+
+`[6]` Apache Spark project.
+http://spark.apache.org.
+
+`[7]` M. Armbrust, N. Lanham, S. Tu, A. Fox, M. J. Franklin, and D. A. Patterson.
+The case for PIQL: a performance insightful query language.
+In SOCC, 2010.
+
+`[8]` A. Behm et al.
+Asterix: towards a scalable, semistructured data platform for evolving-world models.
+Distributed and Parallel Databases, 29(3):185–216, 2011.
+
+`[9]` G. J. Bex, F. Neven, and S. Vansummeren.
+Inferring XML schema definitions from XML data.
+In VLDB, 2007.
+
+`[10]` BigDF project.
+https://github.com/AyasdiOpenSource/bigdf.
+
+`[11]` C. Chambers, A. Raniwala, F. Perry, S. Adams, R. R. Henry, R. Bradshaw, and N. Weizenbaum.
+FlumeJava: Easy, efficient data-parallel pipelines.
+In PLDI, 2010.
+
+`[12]` J. Cohen, B. Dolan, M. Dunlap, J. Hellerstein, and C. Welton.
+MAD skills: new analysis practices for big data.
+VLDB, 2009.
+
+`[13]` DDF project.
+http://ddf.io.
+
+`[14]` B. Emir, M. Odersky, and J. Williams.
+Matching objects with patterns.
+In ECOOP 2007 – Object-Oriented Programming, volume 4609 of LNCS, pages 273–298. Springer, 2007.
+
+`[15]` J. E. Gonzalez, R. S. Xin, A. Dave, D. Crankshaw, M. J. Franklin, and I. Stoica.
+GraphX: Graph processing in a distributed dataflow framework.
+In OSDI, 2014.
+
+`[16]` G. Graefe.
+The Cascades framework for query optimization.
+IEEE Data Engineering Bulletin, 18(3), 1995.
+
+`[17]` G. Graefe and D. DeWitt.
+The EXODUS optimizer generator.
+In SIGMOD, 1987.
+
+`[18]` J. Hegewald, F. Naumann, and M. Weis.
+XStruct: efficient schema extraction from multiple and large XML documents.
+In ICDE Workshops, 2006.
+
+`[19]` Hive data definition language.
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL.
+
+`[20]` M. Isard and Y. Yu.
+Distributed data-parallel computing using a high-level programming language.
+In SIGMOD, 2009.
+
+`[21]` Jackson JSON processor.
+http://jackson.codehaus.org.
+
+`[22]` Y. Klonatos, C. Koch, T. Rompf, and H. Chafi.
+Building efficient query engines in a high-level language.
+PVLDB, 7(10):853–864, 2014.
+
+`[23]` M. Kornacker et al.
+Impala: A modern, open-source SQL engine for Hadoop.
+In CIDR, 2015.
+
+`[24]` Y. Low et al.
+Distributed GraphLab: a framework for machine learning and data mining in the cloud.
+VLDB, 2012.
+
+`[25]` S. Melnik et al.
+Dremel: interactive analysis of web-scale datasets.
+Proc. VLDB Endow., 3:330–339, Sept 2010.
+
+`[26]` X. Meng, J. Bradley, E. Sparks, and S. Venkataraman.
+ML pipelines: a new high-level API for MLlib.
+https://databricks.com/blog/2015/01/07/ml-pipelines-a-newhigh-level-api-for-mllib.html.
+
+`[27]` S. Nestorov, S. Abiteboul, and R. Motwani.
+Extracting schema from semistructured data. In ICDM, 1998.
+
+`[28]` F. A. Nothaft, M. Massie, T. Danford, Z. Zhang, U. Laserson, C. Yeksigian, J. Kottalam, A. Ahuja, J. Hammerbacher,
+M. Linderman, M. J. Franklin, A. D. Joseph, and D. A. Patterson.
+Rethinking data-intensive science using scalable analytics systems.
+In SIGMOD, 2015.
+
+`[29]` C. Olston, B. Reed, U. Srivastava, R. Kumar, and A. Tomkins.
+Pig Latin: a not-so-foreign language for data processing.
+In SIGMOD, 2008.
+
+`[30]` pandas Python data analysis library.
+http://pandas.pydata.org.
+
+`[31]` A. Pavlo et al.
+A comparison of approaches to large-scale data analysis.
+In SIGMOD, 2009.
+
+`[32]` R project for statistical computing.
+http://www.r-project.org.
+
+`[33]` scikit-learn: machine learning in Python.
+http://scikit-learn.org.
+
+`[34]` D. Shabalin, E. Burmako, and M. Odersky.
+Quasiquotes for Scala, a technical report.
+Technical Report 185242, École Polytechnique Fédérale de Lausanne, 2013.
+
+`[35]` D. Tahara, T. Diamond, and D. J. Abadi. 
+Sinew: A SQL system for multi-structured data.
+In SIGMOD, 2014.
+
+`[36]` A. Thusoo et al. Hive–a petabyte scale data warehouse using
+Hadoop. In ICDE, 2010.
+
+`[37]` P. Wadler.
+Monads for functional programming.
+In Advanced Functional Programming, pages 24–52. Springer, 1995.
+
+`[38]` R. S. Xin, J. Rosen, M. Zaharia, M. J. Franklin, S. Shenker, and I. Stoica.
+Shark: SQL and rich analytics at scale.
+In SIGMOD, 2013.
+
+`[39]` M. Zaharia et al. 
+Resilient distributed datasets: a fault-tolerant abstraction for in-memory cluster computing.
+In NSDI, 2012.
+
+`[40]` K. Zeng et al.
+G-OLA: Generalized online aggregation for interactive analysis on big data.
+In SIGMOD, 2015.
