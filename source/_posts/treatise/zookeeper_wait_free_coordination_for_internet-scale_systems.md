@@ -331,3 +331,22 @@ ZooKeeper 虽然不是锁服务，但是可以用来实现锁。
 以下两个原语展示如何克服这两个问题。
 
 **解决羊群效应简单锁**
+我们定义了一个锁 znode l 来实现这样的锁。
+直观地，我们将所有请求锁定的客户端排列起来，每个客户端按照请求到达的顺序获得锁定。
+
+**加锁**
+
+```text
+n = create(l+“/lock-”, EPHEMERAL|SEQUENTIAL)
+C = getChildren(l, false)
+if n is lowest znode in C, exit
+p = znode in C ordered just before n
+if exists(p, true) wait for watch event
+goto 2
+```
+
+**解锁**
+
+```text
+delete(n)
+```
