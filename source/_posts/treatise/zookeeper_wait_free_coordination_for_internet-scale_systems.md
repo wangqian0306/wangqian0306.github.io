@@ -484,14 +484,441 @@ ZooKeeper 通过在组成服务的每个服务器上复制 ZooKeeper 数据来�
 如前所述，读取请求由每个服务器数据库的本地副本提供服务。
 改变服务状态的请求，写请求，由协议协议处理。
 
-作为协议协议的一部分，写请求被转发到单个服务器，称为 leader1。
-其余的 ZooKeeper 服务器，称为追随者，从领导者接收由状态变化组成的消息提议，并就状态变化达成一致。
+作为协议协议的一部分，写请求被转发到单个服务器，称为领导者(leader)。
+其余的 ZooKeeper 服务器，称为追随者(follower)，从领导者接收由状态变化组成的消息提议，并就状态变化达成一致。
 
 #### 4.1 请求处理器
 
-由于消息传递层是原子的，我们保证本地副本永远不会发散，尽管在任何时间点某些服务器可能比其他服务器应用了更多的事务。
+由于消息传递层是原子性的，我们保证本地副本永远不会发散，尽管在任何时间点某些服务器可能比其他服务器应用了更多的事务。
 与客户端发送的请求不同，事务是幂等的。
 当 leader 收到写入请求时，它会计算应用写入时系统的状态，并将其转换为捕获此新状态的事务。
 必须计算未来状态，因为可能存在尚未应用到数据库的未完成事务。
 例如，如果客户端执行条件 setData 并且请求中的版本号与正在更新的 znode 的未来版本号匹配，则服务生成一个 setDataTXN，其中包含新数据、新版本号和更新的时间戳。
 如果出现错误，例如版本号不匹配或要更新的 znode 不存在，则生成一个 errorTXN。
+
+#### 4.2 原子性的广播
+
+所有更新 ZooKeeper 状态的请求都会转发给领导者。
+领导者执行请求并通过原子广播协议 Zab `[24]` 广播对 ZooKeeper 状态执行更改。
+收到客户端请求的服务器在收到相应的状态变化的请求时响应客户端。
+Zab 默认使用简单多数仲裁来决定提案，因此 Zab 和 ZooKeeper 只能在大多数服务器正确时才能工作
+(即，集群中的总量为 2f+1 个服务器，我们可以容忍 f 个服务器故障)
+
+为了实现高吞吐量，ZooKeeper 尝试保持完整的请求处理管道。
+在处理管道的不同部分可能有数千个请求。
+由于状态变化依赖于先前状态变化的应用，Zab 提供了比常规原子广播更强的顺序保证。
+更具体地说，Zab 保证领导者广播的更改请求按照发送的顺序进行传递，并且在广播自己的更改之前，将先前领导者的所有更改传递给已建立的领导者。
+
+有一些实现细节可以简化我们的实现并为我们提供出色的性能。
+我们使用 TCP 进行传输，因此消息顺序由网络维护，这使我们能够简化我们的实现。
+我们使用 Zab 选择的领导者作为 ZooKeeper 领导者，以便创建事务的相同过程也提出它们。
+我们使用日志来跟踪建议作为内存数据库的预写日志，这样我们就不必将消息两次写入磁盘。
+
+在正常操作期间，Zab 确实按顺序传递所有消息，并且只传递一次，但由于 Zab 不会持久记录每个传递的消息的 id，因此 Zab 可能会在恢复期间重新传递消息。
+因为我们使用幂等交易，所以只要按顺序交付，多次交付是可以接受的。
+事实上，ZooKeeper 要求 Zab 至少重新传递在上一个快照开始后传递的所有消息。
+
+#### 4.3 数据库副本
+
+每个副本在 ZooKeeper 状态的内存中都有一个副本。
+当 ZooKeeper 服务器从崩溃中恢复时，它需要恢复这个内部状态。
+在服务器运行一段时间后，重放所有已传递的消息以恢复状态将花费非常长的时间，因此 ZooKeeper 使用定期快照，并且只需要从快照开始后重新传递消息。
+我们称 ZooKeeper 快照为模糊快照，因为我们不锁定 ZooKeeper 状态来拍摄快照；
+相反，我们对树进行深度优先扫描，以原子方式读取每个 znode 的数据和元数据并将它们写入磁盘。
+由于生成的模糊快照可能应用了快照生成期间传递的状态更改的某些子集，因此结果可能与 ZooKeeper 在任何时间点的状态都不对应。
+但是，由于状态更改是幂等的，只要我们按顺序应用状态更改两次就可以确定的恢复状态。
+
+例如，假设在 ZooKeeper 数据树中，两个节点 `/foo` 和 `/goo` 分别具有值 f1 和 g1，并且在模糊快照开始时都处于版本 1，
+状态变更流以如下形式到达：`<htransactionType, path, value, new-version>`
+
+```text
+<SetDataTXN, /foo, f2, 2>
+<SetDataTXN, /goo, g2, 2>
+<SetDataTXN, /foo, f3, 3>
+```
+
+处理这些状态更改后，`/foo` 和 `/goo` 分别具有版本 3 和 2 的值 f3 和 g2。
+但是，模糊快照可能记录了 `/foo` 和 `/foo` 分别具有版本 3 和 1 的值 f3 和 g1，这不是 ZooKeeper 数据树的有效状态。
+如果服务器崩溃并使用此快照恢复，并且 Zab 重新传递状态更改，则结果状态对应于崩溃前服务的状态。
+
+#### 4.4 客户端-服务器交互
+
+当服务器处理写入请求时，它还会发送并清除与该更新对应的任何监视相关的通知。
+服务器按顺序处理写入，不会同时处理其他写入或读取。
+这确保了严格的通知连续性。
+请注意，服务器在本地处理通知。
+只有客户端连接到的服务器会跟踪和触发该客户端的通知。
+
+读取请求在每个服务器本地处理。
+每个读取请求都被处理并用一个 zxid 标记，该 zxid 对应于服务器看到的最后一个事务。
+这个 zxid 定义了读请求相对于写请求的部分顺序。
+通过在本地处理读取，我们获得了出色的读取性能，因为它只是本地服务器上的内存操作，没有磁盘活动或协议要运行。
+这种设计选择是我们在读取占主导地位的工作负载下实现卓越性能目标的关键。
+
+使用快速读取的一个缺点是不能保证读取操作的优先顺序。
+也就是说，即使已提交对同一 znode 的更新操作，读取操作也可能返回陈旧值。
+并非我们所有的应用程序都需要优先顺序，但对于确实需要它的应用程序，我们已经实现了 sync 源语。
+该原语异步执行，并在所有未写入的操作写入本地副本后由领导者进行排序。
+为了保证给定的读取操作返回最新更新的值，客户端调用 sync 源语，然后进行读取操作。
+客户端操作的 FIFO 顺序保证以及 sync 源语的全局保证使读取操作可以反映出变更发布之前的任何更改。
+在我们的实现中，我们不需要原子性的广播同步，因为我们使用基于领导者的算法，我们只需将同步操作放在领导者和执行同步调用的服务器之间的请求队列的末尾。
+为了使其工作，追随者必须确保领导者仍然是领导者。
+如果有待提交的事务进行提交，则服务器不会怀疑领导者。
+如果待处理队列为空，则领导者需要发出并提交一个空事务并在该事务之后对 sync 源语进行排序。
+这有一个很好的特性，即当领导者处于负载状态时，不会产生额外的广播流量。
+在我们的实现中，超时设置为使领导者在追随者放弃他们之前意识到他们不是领导者，因此我们不会发出空事务。
+
+ZooKeeper 服务器以 FIFO 顺序处理来自客户端的请求。
+响应包括响应相关的 zxid。
+甚至在没有活动的间隔期间的心跳消息也包括客户端连接到的服务器看到的最后一个 zxid。
+如果客户端连接到新服务器，该新服务器通过检查客户端的最后一个 zxid 与其最后一个 zxid 来确保它的 ZooKeeper 数据视图至少与客户端的视图一样新。
+如果客户端拥有比服务器更新的视图，则服务器不会与客户端重新建立会话，直到服务器的版本与客户端相同。
+保证客户端能够找到另一个具有系统最新视图的服务器，因为客户端只能看到已复制到大多数 ZooKeeper 服务器的更改。
+这种行为对于保证持久性很重要。
+
+ZooKeeper 使用超时机制来检测客户端会话失败。
+如果在会话超时内没有其他服务器从客户端会话接收任何内容，则领导者确定其存在故障。
+如果客户端发送请求的频率足够高，则无需发送任何其他消息。
+否则，客户端会在低活动期间发送心跳消息。
+如果客户端无法与服务器通信以发送请求或心跳，它会连接到不同的 ZooKeeper 服务器以重新建立其会话。
+为了防止会话超时，ZooKeeper 客户端库在会话空闲 s/3 ms 后发送心跳，如果 2s/3ms 没有收到服务器的消息，则切换到新服务器，其中 s 是会话超时参数以毫秒为单位。
+
+### 5 评估
+
+为了评估我们的系统，我们对系统饱和时的吞吐量以及各种注入故障的吞吐量变化进行了基准测试。
+我们改变了组成 ZooKeeper 服务的服务器数量，但始终保持客户端数量不变。
+为了模拟大量客户端，我们使用了 35 台机器来模拟 250 个并发客户端。
+
+我们使用 Java 实现的 ZooKeeper 服务器，以及 Java 和 C 客户端。
+对于这些实验，我们使用一个 Java 服务器将日志记录到一个磁盘上并在另一个磁盘上拍摄快照。
+我们的基准测试客户端使用异步 Java 客户端 API，每个客户端至少有 100 个未完成的请求。
+每个请求都包含对 1K 数据的读取或写入。
+我们没有显示其他操作的基准，因为所有修改状态的操作的性能大致相同，非状态修改操作的性能(不包括同步)大致相同。
+(同步的性能接近于轻量级写入，因为请求必须发送到领导者，但不会被广播。)
+客户端每 300 毫秒发送一次已完成操作的计数，我们每 6 秒采样一次。
+为了防止内存溢出，服务器会限制系统中并发请求的数量。
+ZooKeeper 使用请求限制来防止服务器不堪重负。
+对于这些实验，我们将 ZooKeeper 服务器配置为最多处理 2,000 个请求。
+
+![图 5：饱和系统的吞吐量性能随着读写比率的变化](https://i.loli.net/2021/07/09/q8gvBWt6xnUTrQX.png)
+
+|服务器数量|100% 读取|0% 读取|
+|:---:|:---:|:---:|
+|13|460k|8k|
+|9|296k|12k|
+|7|257k|14k|
+|5|165k|18k|
+|3|87k|21k|
+
+> 表 1：饱和系统的极端吞吐量性能
+
+在图 5 中，我们显示了我们改变读写请求比率时的吞吐量，每条曲线对应于提供 ZooKeeper 服务的不同数量的服务器。
+表 1 显示了读取负载极端情况下的数据。
+读取吞吐量高于写入吞吐量，因为读取不使用原子广播。
+该图还显示，服务器数量也对广播协议的性能产生负面影响。
+从这些图中，我们观察到系统中的服务器数量不仅会影响服务可以处理的故障数量，还会影响服务可以处理的工作负载。
+请注意，三台服务器的曲线与其他服务器的交叉率约为 60%。
+这种情况不仅限于三服务器配置，并且由于启用了并行本地读取，所有配置都会发生这种情况。
+然而，对于图中的其他配置无法观察到，因为我们已经限制了最大 y 轴吞吐量以提高可读性。
+
+以下两个原因导致写请求比读请求花费更长的时间。
+首先，写请求必须经过原子广播，这需要一些额外的处理并增加请求的延迟。
+更长处理写入请求的另一个原因是服务器必须确保在将确认发送回领导者之前将事务记录到非易失性存储中。
+原则上，这个要求是多余的，但对于我们的生产系统，我们用性能换取可靠性，因为 ZooKeeper 构成了应用程序的基本事实。
+我们使用更多的服务器来容忍更多的故障。
+我们通过将 ZooKeeper 数据划分为多个 ZooKeeper 集合来增加写入吞吐量。
+Gray 等人先前已经观察到复制和分区之间的这种性能权衡 `[12]`。
+
+![图 6：饱和系统的吞吐量，当所有客户端连接到领导者时，会改变读取与写入的比率](https://i.loli.net/2021/07/09/j8JKyts1fCAHVTI.png)
+
+ZooKeeper 能够通过在构成服务的服务器之间分配负载来实现如此高的吞吐量。
+由于我们宽松的一致性保证，我们可以分配负载。
+Chubby 客户端将所有请求发送给领导者。
+图 6 显示了如果我们不利用这种放松并强制客户端只连接到领导者会发生什么。
+正如预期的那样，读取主导的工作负载的吞吐量要低得多，但即使是写入主导的工作负载，吞吐量也更低。
+由服务客户端引起的额外 CPU 和网络负载会影响领导者协调提案广播的能力，进而对整体写入性能产生不利影响。
+
+![图 7：独立的原子广播组件的平均吞吐量](https://i.loli.net/2021/07/09/k9rVXY2jQCJlsFm.png)
+
+> 注：误差线表示最小值和最大值
+
+原子广播协议完成了系统的大部分工作，因此比任何其他组件都更能限制 ZooKeeper 的性能。
+图 7 显示了原子广播组件的吞吐量。
+为了对其性能进行基准测试，我们通过直接在领导者处生成交易来模拟客户端，因此没有客户端连接或客户端请求和回复。
+在最大吞吐量下，原子广播组件变得受 CPU 限制。
+理论上，图 7 的性能将与 ZooKeeper 100% 写入的性能相匹配。
+CPU 的争用将 ZooKeeper 的吞吐量降低到远低于孤立的原子广播组件。
+因为 ZooKeeper 是一个关键的生产组件，到目前为止，我们对 ZooKeeper 的开发重点一直是正确性和健壮性。
+通过消除额外副本、同一对象的多个序列化、更高效的内部数据结构等，有很多机会可以显着提高性能。
+
+![图 8：失败时的吞吐量](https://i.loli.net/2021/07/09/x39zofIHcQ6Lh7R.png)
+
+为了显示系统在注入故障时随时间的行为，我们运行了一个由 5 台机器组成的 ZooKeeper 服务。
+我们运行了与之前相同的饱和基准测试，但这次我们将写入百分比保持在 30% 不变，这是我们预期工作负载的保守比例。
+我们定期杀死一些服务器进程。
+图 8 显示了随时间变化的系统吞吐量。
+图中标注的事件如下：
+
+1. 一个追随者的故障和恢复
+2. 不同追随者的故障和恢复
+3. 领导者故障
+4. 前两个标记(a,b)中的两个追随者故障，在第三个标记(c)恢复；
+5. 领导者故障
+6. 领导者恢复
+
+从这张图中有一些重要的观察结果。
+首先，如果跟随者失败并快速恢复，那么即使出现故障，ZooKeeper 也能够维持高吞吐量。
+单个跟随者的失败并不会阻止服务器形成仲裁，并且只会大致降低服务器在失败前处理的读取请求份额的吞吐量。
+其次，我们的领导者选举算法能够足够快地恢复以防止吞吐量大幅下降。
+在我们的观察中，ZooKeeper 花费不到 200 毫秒的时间来选举一个新的领导者。
+因此，尽管服务器在几分之一秒内停止服务请求，但由于我们的采样周期，我们没有观察到零吞吐量，这是几秒的数量级。
+第三，即使追随者需要更多时间来恢复，一旦他们开始处理请求，ZooKeeper 也能够再次提高吞吐量。
+在事件 1、2 和 4 之后我们没有恢复到完整吞吐量级别的一个原因是客户端仅在与跟随者的连接中断时才切换跟随者。
+因此，在事件 4 之后，客户端不会重新分配自己，直到领导者在事件 3 和 5 中失败。
+在实践中，随着客户的来来去去，这种不平衡会随着时间的推移而自行解决。
+
+#### 5.2 请求延迟
+
+为了评估请求的延迟，我们创建了一个以 Chubby 基准 `[6]` 为模型的基准。
+我们创建一个工作进程，它只是发送一个创建操作，然后等待它完成，之后发送一个新节点的异步删除请求，然后开始下一个创建。
+我们相应地改变了进程的数量，对于每次运行，我们让每个进程创建 50,000 个节点。
+我们通过将完成的创建请求数除以所有进程完成所需的总时间来计算吞吐量。
+
+|工作进程数量|3台服务器|5台服务器|7台服务器|9台服务器|
+|:---:|:---:|:---:|:---:|:---:|
+|1|776|748|758|711|
+|10|2074|1832|1572|1540|
+|20|2740|2336|1934|1890|
+
+> 表 2：创建每秒处理的请求
+
+表 2 显示了我们的基准测试结果。
+创建请求包括 1K 数据，而不是 Chubby 基准测试中的 5 个字节，以更好地符合我们的预期用途。
+即使有这些更大的请求，ZooKeeper 的吞吐量也比 Chubby 公布的吞吐量高出 3 倍以上。
+单个 ZooKeeper worker 基准测试的吞吐量表明，三台服务器的平均请求延迟为 1.2ms，9 台服务器为 1.4ms。
+
+#### 5.3 屏障的性能表现
+
+在这个实验中，我们依次执行了许多屏障来评估使用 ZooKeeper 实现的原语的性能。
+对于给定数量的障碍 b，每个客户端首先进入所有 b 个障碍，然后依次离开所有 b 个障碍。
+当我们使用第 2.4 节的双屏障算法时，客户端首先等待所有其他客户端执行 enter() 过程，然后再进入下一个调用(类似于 leave())。
+
+|屏障数量|50 个客户端|100 个客户端|200 个客户端|
+|:---:|:---:|:---:|:---:|
+|200|9.4|19.8|41.0|
+|400|16.4|34.1|62.0|
+|800|28.9|55.9|112.1|
+|1600|54.0|102.7|234.4|
+
+我们在表 3 中报告了我们的实验结果。
+在这个实验中，我们有 50、100 和 200 个客户端连续进入 b 个障碍，b ∈ {200, 400, 800, 1600}。
+尽管一个应用程序可以有数千个 ZooKeeper 客户端，但通常只有更小的子集参与每个协调操作，因为客户端通常根据应用程序的细节进行分组。
+
+该实验的两个有趣观察结果是，处理所有屏障的时间与屏障的数量大致呈线性增长，这表明对数据树同一部分的并发访问不会产生任何意外延迟，并且延迟与增加的客户端数量成正比。
+事实上，我们观察到，即使客户端以锁步方式进行，在所有情况下，屏障操作(进入和离开)的吞吐量在每秒 1,950 到 3,100 次操作之间。
+在 ZooKeeper 操作中，这对应于每秒 10,700 到 17,000 次操作之间的吞吐量值。
+由于在我们的实现中，读取与写入的比率为 4:1（读取操作的 80%），与 ZooKeeper 可以实现的原始吞吐量(根据图 5 超过 40,000)相比，我们的基准代码使用的吞吐量要低得多。
+这是因为客户端在等待其他客户端。
+
+### 6 相关的工作
+
+ZooKeeper 的目标是提供一种服务，以缓解分布式应用程序中协调进程的问题。
+为了实现这个目标，它的设计使用了以前的协调服务、容错系统、分布式算法和文件系统的思想。
+
+我们并不是第一个提出分布式应用程序协调系统的人。
+一些早期系统为事务应用程序 `[13]` 和在计算机集群中共享信息 `[19]` 提出了分布式锁服务。
+最近，Chubby 提出了一个系统来管理分布式应用程序的咨询锁 `[6]`。
+Chubby 分享了 ZooKeeper 的几个目标。
+它还具有类似文件系统的接口，并使用协议协议来保证副本的一致性。
+但是，ZooKeeper 不是锁服务。
+客户端可以使用它来实现锁，但它的 API 中没有锁操作。
+与 Chubby 不同，ZooKeeper 允许客户端连接到任何 ZooKeeper 服务器，而不仅仅是领导者。
+ZooKeeper 客户端可以使用其本地副本来提供数据和管理 watches，因为它的一致性模型比 Chubby 宽松得多。
+这使得 ZooKeeper 能够提供比 Chubby 更高的性能，允许应用程序更广泛地使用 ZooKeeper。
+
+文献中提出了容错系统，目的是减轻构建容错分布式应用程序的问题。
+一种早期系统是 ISIS `[5]`。
+ISIS 系统将抽象类型规范转化为容错的分布式对象，从而使容错机制对用户透明。
+Horus `[30]` 和 Ensemble `[31]` 是从 ISIS 演变而来的系统。
+ZooKeeper 采用了 ISIS 虚拟同步的概念。
+最后，Totem 在利用局域网硬件广播的体系结构中保证消息传递的总顺序 `[22]`。
+ZooKeeper 与各种网络拓扑一起工作，这促使我们依赖服务器进程之间的 TCP 连接，而不假设任何特殊的拓扑或硬件功能。
+我们也不公开 ZooKeeper 内部使用的任何集成通信。
+
+构建容错服务的一项重要技术是状态机复制 `[26]`，而 Paxos `[20]` 是一种算法，可以为异步系统有效实现复制状态机。
+我们使用的算法具有 Paxos 的一些特征，但它将共识所需的事务日志记录与数据树恢复所需的预写日志记录相结合，以实现高效的实现。
+目前已经存在用于实现 Byzantine 灾难冗余复制状态机的协议 `[7, 10, 18, 1, 28]`。
+ZooKeeper 不假设服务器可以是 Byzantine 式的，但我们确实采用了校验和和健全性检查等机制来捕获非恶意的 Byzantine 式故障。
+克莱门特等人讨论了一种在不修改当前服务器代码库的情况下使 ZooKeeper 完全具有 Byzantine 灾难冗余的方法 `[9]`。
+迄今为止，我们还没有观察到使用完全 Byzantine 灾难冗余协议可以防止的生产故障。 `[29]`。
+
+Boxwood `[21]` 是一个使用分布式锁服务器的系统。
+Boxwood 为应用程序提供了更高级别的抽象，它依赖于基于 Paxos 的分布式锁服务。
+和 Boxwood 一样，ZooKeeper 也是一个用于构建分布式系统的组件。
+但是，ZooKeeper 具有高性能要求，在客户端应用程序中使用更广泛。
+ZooKeeper 公开应用程序用于实现更高级别原语的较低级别原语。
+
+ZooKeeper 类似于一个小型文件系统，但它仅提供文件系统操作的一小部分，并添加了大多数文件系统中不存在的功能，例如排序保证和条件写入。
+然而，ZooKeeper 监视在本质上类似于 AFS `[16]` 的缓存回调。
+
+Sinfonia `[2]` 引入了迷你交易，这是一种构建可扩展分布式系统的新范例。
+Sinfonia 旨在存储应用程序数据，而 ZooKeeper 存储应用程序元数据。
+ZooKeeper 将其状态完全复制并保存在内存中，以实现高性能和一致的延迟。
+我们使用像操作和排序这样的文件系统可以实现类似于小交易的功能。
+znode 是一种方便的抽象，我们可以在其上添加监视，这是 Sinfonia 中缺少的功能。
+Dynamo `[11]` 允许客户端在分布式键值存储中获取和放置相对少量(小于 1M)的数据。
+与 ZooKeeper 不同，Dynamo 中的密钥空间不是分层的。
+Dynamo 也不为写入提供强大的持久性和一致性保证，而是解决读取冲突。
+
+DepSpace `[4]` 使用元组空间提供Byzantine 灾难冗余服务。
+像 ZooKeeper 一样，DepSpace 使用简单的服务器接口在客户端实现强同步原语。
+虽然 DepSpace 的性能远低于 ZooKeeper，但它提供了更强的容错和机密性保证。
+
+### 7 结论
+
+ZooKeeper 通过向客户端公开无等待对象，采用无等待方法来解决分布式系统中协调进程的问题。
+我们发现 ZooKeeper 对无论是雅虎内部或外部的多个应用程序非常有用。
+ZooKeeper 通过使用带 watches 的快速读取(两者都由本地副本提供服务)为工作负载主要为读取的应用实现每秒数十万次操作的吞吐量值。
+尽管我们对读取和监视的一致性保证似乎很弱，但我们已经通过我们的用例表明，这种组合允许我们在客户端实现高效和复杂的协调协议，
+即使读取不是优先顺序的并且使用免等待的数据结构进行实现。
+事实证明，免等待特性对于高性能至关重要。
+
+尽管我们只描述了几个应用程序，但还有许多其他应用程序使用 ZooKeeper。
+我们相信这样的成功是由于其简单的接口以及可以通过该接口实现的强大抽象。
+此外，由于 ZooKeeper 的高吞吐量，应用程序可以广泛使用它，而不仅仅是粗粒度的锁定。
+
+### 致谢
+
+```text
+We would like to thank Andrew Kornev and Runping Qi for their contributions to ZooKeeper;
+Zeke Huang and Mark Marchukov for valuable feedback;
+Brian Cooper and Laurence Ramontianu for their early contributions to ZooKeeper;
+Brian Bershad and Geoff Voelker made important comments on the presentation.
+```
+
+### 参考文献
+
+`[1]` M. Abd-El-Malek, G. R. Ganger, G. R. Goodson, M. K. Reiter, and J. J. Wylie.
+Fault-scalable byzantine fault-tolerant services.
+In SOSP ’05: Proceedings of the twentieth ACM symposium on Operating systems principles, pages 59–74, New York, NY, USA, 2005. ACM.
+
+`[2]` M. Aguilera, A. Merchant, M. Shah, A. Veitch, and C. Karamanolis. 
+Sinfonia: A new paradigm for building scalable distributed systems.
+In SOSP ’07: Proceedings of the 21st ACM symposium on Operating systems principles, New York, NY, 2007.
+
+`[3]` Amazon. Amazon simple queue service.
+http://aws.amazon.com/sqs/, 2008.
+
+`[4]` A. N. Bessani, E. P. Alchieri, M. Correia, and J. da Silva Fraga.
+Depspace: A byzantine fault-tolerant coordination service.
+In Proceedings of the 3rd ACM SIGOPS/EuroSys European Systems Conference - EuroSys 2008, Apr. 2008.
+
+`[5]` K. P. Birman.
+Replication and fault-tolerance in the ISIS system.
+In SOSP ’85: Proceedings of the 10th ACM symposium on Operating systems principles, New York, USA, 1985. ACM Press.
+
+`[6]` M. Burrows.
+The Chubby lock service for loosely-coupled distributed systems.
+In Proceedings of the 7th ACM/USENIX Symposium on Operating Systems Design and Implementation (OSDI), 2006.
+
+`[7]` M. Castro and B. Liskov.
+Practical byzantine fault tolerance and proactive recovery.
+ACM Transactions on Computer Systems, 20(4), 2002.
+
+`[8]` T. Chandra, R. Griesemer, and J. Redstone. 
+Paxos made live: An engineering perspective.
+In Proceedings of the 26th annual ACM symposium on Principles of distributed computing (PODC), Aug.2007.
+
+`[9]` A. Clement, M. Kapritsos, S. Lee, Y. Wang, L. Alvisi, M. Dahlin, and T. Riche.
+UpRight cluster services.
+In Proceedings of the 22 nd ACM Symposium on Operating Systems Principles (SOSP), Oct. 2009.
+
+`[10]` J. Cowling, D. Myers, B. Liskov, R. Rodrigues, and L. Shira.
+Hqreplication: A hybrid quorum protocol for byzantine fault tolerance.
+In SOSP ’07: Proceedings of the 21st ACM symposium on Operating systems principles, New York, NY, USA, 2007.
+
+`[11]` G. DeCandia, D. Hastorun, M. Jampani, G. Kakulapati, A. Lakshman, A. Pilchin, S. Sivasubramanian,
+P. Vosshall, and W. Vogels. 
+Dynamo: Amazons highly available key-value store.
+In SOSP ’07: Proceedings of the 21st ACM symposium on Operating systems principles, New York, NY, USA, 2007. ACM Press.
+
+`[12]` J. Gray, P. Helland, P. O’Neil, and D. Shasha.
+The dangers of replication and a solution.
+In Proceedings of SIGMOD ’96, pages 173–182, New York, NY, USA, 1996. ACM.
+
+`[13]` A. Hastings.
+Distributed lock management in a transaction processing environment.
+In Proceedings of IEEE 9th Symposium on Reliable Distributed Systems, Oct. 1990.
+
+`[14]` M. Herlihy.
+Wait-free synchronization.
+ACM Transactions on Programming Languages and Systems, 13(1), 1991.
+
+`[15]` M. Herlihy and J. Wing.
+Linearizability: A correctness condition for concurrent objects.
+ACM Transactions on Programming Languages and Systems, 12(3), July 1990.
+
+`[16]` J. H. Howard, M. L. Kazar, S. G. Menees, D. A. Nichols, M. Satyanarayanan, R. N. Sidebotham, and M. J. West.
+Scale and performance in a distributed file system.
+ACM Trans. Comput. Syst., 6(1), 1988.
+
+`[17]` Katta.
+Katta - distribute lucene indexes in a grid.
+http://katta.wiki.sourceforge.net/, 2008.
+
+`[18]` R. Kotla, L. Alvisi, M. Dahlin, A. Clement, and E. Wong. 
+Zyzzyva: speculative byzantine fault tolerance.
+SIGOPS Oper. Syst. Rev., 41(6):45–58, 2007.
+
+`[19]` N. P. Kronenberg, H. M. Levy, and W. D. Strecker.
+Vaxclusters (extended abstract): a closely-coupled distributed system. 
+SIGOPS Oper. Syst. Rev., 19(5), 1985.
+
+`[20]` L. Lamport.
+The part-time parliament.
+ACM Transactions on Computer Systems, 16(2), May 1998.
+
+`[21]` J. MacCormick, N. Murphy, M. Najork, C. A. Thekkath, and L. Zhou.
+Boxwood: Abstractions as the foundation for storage infrastructure.
+In Proceedings of the 6th ACM/USENIX Symposium on Operating Systems Design and Implementation (OSDI), 2004.
+
+`[22]` L. Moser, P. Melliar-Smith, D. Agarwal, R. Budhia, C. LingleyPapadopoulos, and T. Archambault.
+The totem system.
+In Proceedings of the 25th International Symposium on Fault-Tolerant Computing, June 1995.
+
+`[23]` S. Mullender, editor. 
+Distributed Systems, 2nd edition. 
+ACM Press, New York, NY, USA, 1993.
+
+`[24]` B. Reed and F. P. Junqueira. 
+A simple totally ordered broadcast protocol.
+In LADIS ’08: Proceedings of the 2nd Workshop on Large-Scale Distributed Systems and Middleware, pages 1–6,
+New York, NY, USA, 2008. ACM.
+
+`[25]` N. Schiper and S. Toueg.
+A robust and lightweight stable leader election service for dynamic systems.
+In DSN, 2008.
+
+`[26]` F. B. Schneider.
+Implementing fault-tolerant services using the state machine approach: A tutorial.
+ACM Computing Surveys, 22(4), 1990.
+
+`[27]` A. Sherman, P. A. Lisiecki, A. Berkheimer, and J. Wein.
+ACMS:The Akamai configuration management system.
+In NSDI, 2005.
+
+`[28]` A. Singh, P. Fonseca, P. Kuznetsov, R. Rodrigues, and P. Maniatis.
+Zeno: eventually consistent byzantine-fault tolerance. 
+In NSDI’09: Proceedings of the 6th USENIX symposium on Networked systems design and implementation, pages 169–184,
+Berkeley, CA, USA, 2009. USENIX Association.
+
+`[29]` Y. J. Song, F. Junqueira, and B. Reed.
+BFT for the skeptics. 
+http://www.net.t-labs.tu-berlin.de/˜petr/BFTW3/abstracts/talk-abstract.pdf.
+
+`[30]` R. van Renesse and K. Birman.
+Horus, a flexible group communication systems.
+Communications of the ACM, 39(16), Apr.1996.
+
+`[31]` R. van Renesse, K. Birman, M. Hayden, A. Vaysburd, and D. Karr. 
+Building adaptive systems using ensemble. Software- Practice and Experience, 28(5), July 1998.
