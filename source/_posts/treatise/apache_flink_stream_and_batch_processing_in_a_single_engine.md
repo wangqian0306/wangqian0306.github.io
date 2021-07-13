@@ -287,5 +287,173 @@ stream
     .evict(Count.of(100))
 ```
 
-请注意，如果上面的流在窗口化之前在一个键上分区，上面的窗口操作是本地的，因此不需要工作人员之间的协调。
+请注意，如果上面的流在窗口化之前在一个键上分区，上面的窗口操作是本地的，因此不需要工作节点之间的协调。
 该机制可用于实现多种窗口功能 `[3]`。
+
+#### 4.4 异步流迭代
+
+流中的循环对于多个应用程序至关重要，例如增量构建和训练机器学习模型、强化学习和图形近似 `[9, 15]`。
+在大多数情况下，反馈循环不需要协调。
+异步迭代涵盖了流应用程序的通信需求，并且不同于基于有限数据结构化迭代的并行优化问题。
+如第 3.4 节和图 6 所示，当未启用迭代控制机制时，Apache Flink 的执行模型已经涵盖了异步迭代。
+此外，为了遵守容错保证，反馈流被视为隐式迭代头中的操作状态运算符，并且是全局快照 `[7]` 的一部分。
+DataStream API 允许对反馈流进行明确定义，并且可以简单地包含对流 `[23`] 上的结构化循环以及进度跟踪 `[9]` 的支持。
+
+### 5 基于数据流的批量数据分析
+
+有界数据集是无界数据流的特例。
+因此，一个将所有输入数据插入窗口的流程序可以形成一个批处理程序，批处理应该完全被 Flink 上面介绍的特性所含盖。
+然而，i)可以简化语法(即用于批量计算的 API，例如，不需要定义人工全局窗口)和 ii)处理有界数据集的程序可以进行额外的优化，
+更高效的完成记录保持容错性完成分阶段调度。
+
+Flink 批处理的方式如下：
+
+- 批处理计算由与流计算相同的运行时执行。运行时可执行文件可以使用阻塞的数据流进行参数化，以将大型计算分解为连续调度的孤立阶段。
+- 定期快照在其开销很高时会被关闭。相反，可以通过从最新的物化中间流(可能是源)重放丢失的流分区来实现故障恢复。
+- 阻塞运算(例如，排序)只是运算的实现，直到它们消费了全部输入才结束阻塞状态。运行时不知道操作是否阻塞。
+  这些操作使用 Flink 提供的托管内存(无论是在 JVM 堆上还是在 JVM 堆外)，如果他们的输入超出其内存界限，则可能溢写到磁盘。
+- 专用的数据集 API 为批量计算提供了熟悉的抽象，即有界容错数据集数据结构和数据集上的转换(例如，连接、聚合、迭代)。
+- 查询优化层将 DataSet 程序转换为高效的可执行文件。
+
+下面我们更详细地描述这些方面。
+
+#### 5.1 查询优化
+
+Flink 的优化器建立在并行数据库系统的技术之上，例如计划等效(plan equivalence)、成本建模(cost modeling)和兴趣属性传播(interesting property propagation)。
+然而，构成 Flink 数据流程序的任意 UDF-heavy DAG 不允许传统优化器使用开箱即用的数据库技术 `[17]`，因为操作符对优化器隐藏了它们的语义。
+出于同样的原因，基数和成本估计方法同样难以使用。
+Flink 的运行时支持各种执行策略，包括重新分区和广播数据传输，以及基于排序的分组和基于排序和哈希的方式实现连接。
+Flink 的优化器基于有趣的属性传播概念枚举不同的物理计划 `[26]`，使用基于成本的方法在多个物理计划中进行选择。
+成本包括网络和磁盘 I/O 以及 CPU 成本。
+为了克服 UDF 存在时的基数估计问题，Flink 的优化器可以使用程序员提供的提示。
+
+#### 5.2 内存管理
+
+基于数据库技术，Flink 将数据序列化到内存段中，而不是在 JVM 堆中分配对象来表示缓冲的动态数据记录。
+排序和连接等操作尽可能直接对二进制数据进行操作，将序列化和反序列化开销保持在最低限度，并在需要时将部分数据溢出到磁盘。
+为了处理任意对象，Flink 使用类型推断和自定义序列化机制。
+通过将数据处理保持在二进制表示和堆外，Flink 设法减少了垃圾收集的开销，并使用缓存高效且健壮的算法在内存压力下优雅地扩展。
+
+#### 5.3 批量迭代
+
+迭代图分析、并行梯度下降和优化技术过去已经在批量同步并行(BSP)和陈旧同步并行(SSP)模型等基础上实现。
+Flink 的执行模型允许通过使用迭代控制事件在顶部实现任何类型的结构化迭代逻辑。
+例如，在 BSP 执行的情况下，迭代控制事件标记了迭代计算中超步的开始和结束。
+最后，Flink 引入了更多新颖的优化技术，例如 delta 迭代的概念 `[14]`，它可以利用稀疏的计算依赖关系 Delta 迭代已经被 Flink 的 Graph API Gelly 所利用。
+
+### 6 相关工作
+
+今天，有大量用于分布式批处理和流分析处理的引擎。我们将主要系统分类如下。 
+
+**批处理**
+Apache Hadoop 是最流行的大规模数据分析开源系统之一，它基于 MapReduce 范式 `[12]`。
+Dryad `[18]` 引入了嵌入式用户定义函数一般基于 DAG 的数据流，并由 SCOPE `[26]` 丰富，它是一种语言和基于它的 SQL 优化器。
+Apache Tez `[24]` 可以看作是 Dryad 提出的想法的开源实现。
+MPP 数据库 `[13]` 以及最近的开源实现(如 Apache Drill 和 Impala `[19]`)将其 API 限制为 SQL 变体。
+与 Flink 类似，Apache Spark `[25]` 是一个数据处理框架，它实现了基于 DAG 的执行引擎，提供了 SQL 优化器，执行基于驱动程序的迭代，并将无界计算视为微批次。
+相比之下，Flink 是唯一一个包含 i) 分布式数据流运行时的系统，该运行时利用流水线流式执行来处理批处理和流工作负载，
+ii) 通过轻量级检查点实现一次状态一致性，iii) 本地迭代处理，iv) 复杂的窗口语义，支持乱序处理。
+
+**流处理**
+在学术和商业流处理系统(例如 SEEP、Naiad、Microsoft StreamInsight 和 IBM Streams)方面有大量的先前工作。
+其中许多系统都基于数据库社区的研究 `[1, 5, 8, 10, 16, 22, 23]`。
+上述大多数系统要么是 i) 学术原型，ii) 闭源商业产品，或 iii) 不在商品服务器集群上水平扩展计算。
+最新的数据流方法支持水平可扩展性和组合数据流运算符，并具有较弱的状态一致性保证(例如，Apache Storm 和 Samza 中的至少一次处理)。
+值得注意的是，诸如“乱序处理”(OOP) `[20]` 之类的概念获得了极大的吸引力，并被 MillWheel `[2]` 所采用，
+它是后来提供的 Apache Beam/Google Dataflow `[3]` 商业执行器的 Google 内部版本。
+Millwheel 充当了一次性低延迟流处理和 OOP 的概念证明，因此对 Flink 的演变非常有影响。
+据我们所知，Flink 是唯一一个开源项目：i) 支持事件时间和无序事件处理 ii) 提供一致的托管状态，并保证只执行一次 iii) 实现高吞吐量和低延迟，提供批处理和流处理服务。
+
+### 7 致谢
+
+```text
+The development of the Apache Flink project is overseen by a self-selected team of active contributors to the project.
+A Project Management Committee (PMC) guides the project’s ongoing operations, including community development and product releases.
+At the current time of writing this, the list of Flink committers are : Marton Balassi, Paris Carbone, Ufuk Celebi, Stephan Ewen, Gyula F ´ ora, Alan Gates, Greg Hogan, ´Fabian Hueske, Vasia Kalavri, Aljoscha Krettek, ChengXiang Li, Andra Lungu, Robert Metzger, Maximilian Michels, Chiwan Park, Till Rohrmann, Henry Saputra, Matthias J. Sax, Sebastian Schelter, Kostas Tzoumas, Timo Walther and Daniel Warneke.
+In addition to these individuals, we want to acknowledge the broader Flink community of more than 180 contributors.
+```
+
+### 8 结论
+
+在本文中，我们介绍了 Apache Flink，这是一个实现通用数据流引擎的平台，旨在执行流分析和批处理分析。
+Flink 的数据流引擎将操作符状态和逻辑中间结果视为一等公民，并由具有不同参数的批处理和数据流 API 进行处理。
+构建在 Flink 流数据流引擎之上的流 API 提供了保持可恢复状态以及分区、转换和聚合数据流窗口的方法。
+虽然理论上批处理计算是流式计算的一个特例，但 Flink 对它们进行了特殊处理，通过使用查询优化器优化它们的执行并实现在没有内存的情况下优雅地溢出到磁盘的阻塞运算。
+
+### 参考资料
+
+[1] D. J. Abadi, Y. Ahmad, M. Balazinska, U. Cetintemel, M. Cherniack, J.-H. Hwang, W. Lindner, A. Maskey, A. Rasin,
+E. Ryvkina, et al. The design of the Borealis stream processing engine. CIDR, 2005.
+
+[2] T. Akidau, A. Balikov, K. Bekiroglu, S. Chernyak, J. Haberman, R. Lax, S. McVeety, D. Mills, P. Nordstrom, and
+˘S. Whittle. Millwheel: fault-tolerant stream processing at Internet scale. PVLDB, 2013.
+
+[3] T. Akidau, R. Bradshaw, C. Chambers, S. Chernyak, R. J. Fernandez-Moctezuma, R. Lax, S. McVeety, D. Mills,
+´F. Perry, E. Schmidt, et al. The dataflow model: a practical approach to balancing correctness, latency, and cost in
+massive-scale, unbounded, out-of-order data processing. PVLDB, 2015.
+
+[4] A. Alexandrov, R. Bergmann, S. Ewen, J.-C. Freytag, F. Hueske, A. Heise, O. Kao, M. Leich, U. Leser, V. Markl,
+F. Naumann, M. Peters, A. Rheinlaender, M. J. Sax, S. Schelter, M. Hoeger, K. Tzoumas, and D. Warneke. The
+stratosphere platform for big data analytics. VLDB Journal, 2014.
+
+[5] A. Arasu, B. Babcock, S. Babu, J. Cieslewicz, M. Datar, K. Ito, R. Motwani, U. Srivastava, and J. Widom. Stream:
+The stanford data stream management system. Technical Report, 2004.
+
+[6] Y. Bu, B. Howe, M. Balazinska, and M. D. Ernst. HaLoop: Efficient Iterative Data Processing on Large Clusters.
+PVLDB, 2010.
+
+[7] P. Carbone, G. Fora, S. Ewen, S. Haridi, and K. Tzoumas. Lightweight asynchronous snapshots for distributed ´
+dataflows. arXiv:1506.08603, 2015.
+
+[8] B. Chandramouli, J. Goldstein, M. Barnett, R. DeLine, D. Fisher, J. C. Platt, J. F. Terwilliger, and J. Wernsing. Trill:
+a high-performance incremental query processor for diverse analytics. PVLDB, 2014.
+
+[9] B. Chandramouli, J. Goldstein, and D. Maier. On-the-fly progress detection in iterative stream queries. PVLDB, 2009.
+
+[10] S. Chandrasekaran and M. J. Franklin. Psoup: a system for streaming queries over streaming data. VLDB Journal, 2003.
+
+[11] K. M. Chandy and L. Lamport. Distributed snapshots: determining global states of distributed systems. ACM TOCS, 1985.
+
+[12] J. Dean et al. MapReduce: simplified data processing on large clusters. Communications of the ACM, 2008.
+
+[13] D. J. DeWitt, S. Ghandeharizadeh, D. Schneider, A. Bricker, H.-I. Hsiao, R. Rasmussen, et al.
+The gamma database machine project. IEEE TKDE, 1990.
+
+[14] S. Ewen, K. Tzoumas, M. Kaufmann, and V. Markl. Spinning Fast Iterative Data Flows. PVLDB, 2012.
+
+[15] J. Feigenbaum, S. Kannan, A. McGregor, S. Suri, and J. Zhang. On graph problems in a semi-streaming model.
+Theoretical Computer Science, 2005.
+
+[16] B. Gedik, H. Andrade, K.-L. Wu, P. S. Yu, and M. Doo. Spade: the system s declarative stream processing engine.
+ACM SIGMOD, 2008.
+
+[17] F. Hueske, M. Peters, M. J. Sax, A. Rheinlander, R. Bergmann, A. Krettek, and K. Tzoumas. 
+Opening the Black Boxes in Data Flow Optimization. PVLDB, 2012.
+
+[18] M. Isard, M. Budiu, Y. Yu, A. Birrell, and D. Fetterly.
+Dryad: distributed data-parallel programs from sequential building blocks. ACM SIGOPS, 2007.
+
+[19] M. Kornacker, A. Behm, V. Bittorf, T. Bobrovytsky, C. Ching, A. Choi, J. Erickson, M. Grund, D. Hecht, M. Jacobs,
+et al. Impala: A modern, open-source sql engine for hadoop. CIDR, 2015.
+
+[20] J. Li, K. Tufte, V. Shkapenyuk, V. Papadimos, T. Johnson, and D. Maier.
+Out-of-order processing: a new architecture for high-performance stream systems. PVLDB, 2008.
+
+[21] N. Marz and J. Warren. Big Data: Principles and best practices of scalable realtime data systems.
+Manning Publications Co., 2015.
+
+[22] M. Migliavacca, D. Eyers, J. Bacon, Y. Papagiannis, B. Shand, and P. Pietzuch. 
+Seep: scalable and elastic event processing. ACM Middleware’10 Posters and Demos Track, 2010.
+
+[23] D. G. Murray, F. McSherry, R. Isaacs, M. Isard, P. Barham, and M. Abadi. Naiad: a timely dataflow system.
+ACM SOSP, 2013.
+
+[24] B. Saha, H. Shah, S. Seth, G. Vijayaraghavan, A. Murthy, and C. Curino.
+Apache tez: A unifying framework for modeling and building data processing applications. ACM SIGMOD, 2015.
+
+[25] M. Zaharia, M. Chowdhury, M. J. Franklin, S. Shenker, and I. Stoica.
+Spark: Cluster Computing with Working Sets. USENIX HotCloud, 2010.
+
+[26] J. Zhou, P.-A. Larson, and R. Chaiken. Incorporating partitioning and parallel plans into the scope optimizer. IEEE
+ICDE, 2010.
+
