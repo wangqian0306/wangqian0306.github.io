@@ -18,7 +18,7 @@ categories: 算法
 - Depth-first search
 - Parallel algorithms
 
-### Kahn's algorithm 
+### Kahn's algorithm
 
 概念原理：
 
@@ -44,10 +44,8 @@ else
 
 ```python
 class Node:
-    id = None
-    name = None
 
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int, name):
         self.id = id
         self.name = name
 
@@ -59,9 +57,6 @@ class Node:
 
 
 class Relation:
-    from_node = None
-    to_node = None
-    id = None
 
     def __init__(self, id: int, from_node: Node, to_node: Node):
         self.from_node = from_node
@@ -76,11 +71,9 @@ class Relation:
 
 
 class Graph:
-    node_list = []
-    relation_list = []
-    require_map = {}
 
     def __init__(self, node_list: list[Node], relation_list: list[Relation]):
+        self.require_map = {}
         self.node_list = node_list
         self.relation_list = relation_list
         for node in self.node_list:
@@ -180,7 +173,82 @@ function visit(node n)
 简单实现：
 
 ```python
+class Node:
 
+    def __init__(self, id: int, name):
+        self.id = id
+        self.name = name
+        self.temporary_mark = False
+        self.permanent_mark = False
+
+    def __str__(self):
+        return f"Node({self.id},{self.name})"
+
+    def __repr__(self):
+        return f"Node({self.id},{self.name})"
+
+
+class Relation:
+
+    def __init__(self, id: int, from_node: Node, to_node: Node):
+        self.from_node = from_node
+        self.to_node = to_node
+        self.id = id
+
+    def __str__(self):
+        return f"Relation({self.id},{self.from_node},{self.to_node})"
+
+    def __repr__(self):
+        return f"Relation({self.id},{self.from_node},{self.to_node})"
+
+
+class Graph:
+
+    def __init__(self, node_list: list[Node], relation_list: list[Relation]):
+        self.node_list = node_list
+        self.relation_list = relation_list
+        self.l = []
+
+    def topological_sort(self):
+        # Depth-first search
+        unmarked_node = self.node_list.copy()
+        while unmarked_node:
+            n = unmarked_node.pop()
+            self.visit(n)
+        return self.l
+
+    def visit(self, n: Node):
+        if n.permanent_mark:
+            return
+        if n.temporary_mark:
+            raise RuntimeError("图中至少含有一个环")
+
+        n.temporary_mark = True
+
+        for m in self.get_each_node_m_with_an_edge_e_from_n_to_m(n):
+            self.visit(m)
+
+        n.temporary_mark = False
+        n.permanent_mark = True
+        self.l.insert(0, n)
+
+    def get_each_node_m_with_an_edge_e_from_n_to_m(self, n: Node) -> list[Node]:
+        for relation in self.relation_list:
+            if relation.from_node == n:
+                yield relation.to_node
+
+
+if __name__ == "__main__":
+    y = Node(1, "y")
+    x = Node(2, "x")
+    b = Node(3, "b")
+    a = Node(4, "a")
+    r1 = Relation(1, y, x)
+    r2 = Relation(2, y, b)
+    r3 = Relation(3, x, a)
+    r4 = Relation(4, b, a)
+    g = Graph([x, y, b, a], [r1, r2, r3, r4])
+    print(g.topological_sort())
 ```
 
 ### Parallel algorithms
@@ -192,7 +260,7 @@ Output: topological sorting of G
 
 function traverseDAGDistributed
     δ incoming degree of local vertices V
-    Q = {v ∈ V | δ[v] = 0}                     // All vertices with indegree 0
+    Q = {v ∈ V | δ[v] = 0}                     // All vertices with in degree 0
     nrOfVerticesProcessed = 0
 
     do                 
@@ -211,12 +279,6 @@ function traverseDAGDistributed
     while global size of Q > 0
 
     return localOrder
-```
-
-简单实现：
-
-```python
-
 ```
 
 ### 参考资料
