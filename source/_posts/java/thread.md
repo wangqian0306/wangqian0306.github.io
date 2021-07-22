@@ -1,5 +1,5 @@
 ---
-title: JAVA的进程与线程
+title: JAVA 的进程与线程
 date: 2020-06-25 21:39:12
 tags: "JAVA"
 id: java-thread
