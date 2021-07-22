@@ -5,7 +5,7 @@ tags: "JAVA"
 id: design-pattern-factory
 no_word_count: true
 no_toc: false
-categories: JAVA
+categories: 设计模式
 ---
 
 ### 简单工厂模式

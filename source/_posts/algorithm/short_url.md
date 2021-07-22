@@ -5,7 +5,7 @@ tags: "JAVA"
 id: short_url
 no_word_count: true
 no_toc: false
-categories: JAVA
+categories: 算法
 ---
 
 ## 简介
