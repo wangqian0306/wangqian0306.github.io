@@ -1,10 +1,8 @@
 ---
 title: 大数据平台常见文件格式 date: 2021-07-16 22:26:13 tags:
-
 - "Parquet"
 - "Avro"
   id: filetype no_word_count: true no_toc: false categories: 大数据
-
 ---
 
 ## 大数据平台常见文件格式
