@@ -18,7 +18,20 @@ Neo4j 是一款图数据库，相较于其他数据库可以轻松的查询数�
 
 请参照[官方文档](https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/)
 
-或者可以试试 [Docker 版](https://hub.docker.com/_/neo4j)
+或者可以试试 Docker 版
+
+```yaml
+version: '3'
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    privileged: true
+    restart: always
+    ports:
+    - "7474:7474"
+    - "7687:7687"
+```
 
 ## 配置文件说明
 
