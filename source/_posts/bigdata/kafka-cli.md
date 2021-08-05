@@ -12,6 +12,47 @@ categories: 大数据
 
 ## Kafka 相关命令梳理
 
+### 容器化试用
+
+编写 `docker-compose.yaml` 文件，然后输入如下内容
+
+```yaml
+version: "2"
+
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: docker.io/bitnami/kafka:2
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+```
+
+开启容器
+
+```bash
+docker-compose up -d
+```
+
 ### kafka-topics.sh
 
 参数解释:
