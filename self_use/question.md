@@ -1,0 +1,8 @@
+- difference between these applications
+  - Offshore Wind Power
+  - data synchronization between cloud and edge
+  - Customized application
+- What configuration items did you modify
+  - jmx
+  - thread
+  - flush
