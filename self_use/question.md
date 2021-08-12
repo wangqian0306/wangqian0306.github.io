@@ -3,6 +3,23 @@
   - data synchronization between cloud and edge
   - Customized application
 - What configuration items did you modify
-  - jmx
-  - thread
-  - flush
+  - enable jmx
+  - configure threads
+  - flush strategy
+- describe about consumer group
+- what dose the zookeeper do
+- how offset work
+- difference between leader-replica and follower replica
+- how to config max message size
+- how to monitor it
+- how to estimate cluster size
+- how to solve leader is -1
+- what dose leo,lso,ar,isr,hw means
+- how to delete message in hand
+- what dose __consumer_offsets do
+- leader electron strategy
+- zero copy use case
+- why kafka doesn't support isolate read and write 
+- how to do performance tuning
+- Controller Network Partitioning
+- Follower replica work flow
