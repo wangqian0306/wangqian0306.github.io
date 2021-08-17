@@ -101,6 +101,22 @@ docker-compose up -d
 |`--partition`|分区|
 |`--topic <name>`|话题名|
 
+### kafka-reassign-partitions
+
+参数解释:
+
+|参数名|说明|
+|:---:|:---:|
+|`--bootstrap-server <kafka_host>:<kafka_port>`|Kafka 地址及端口(必填)|
+|`--topics-to-move-json-file <config_file>`|移动配置项|
+|`--broker-list <broker_id>,<broker_id>`|目标设备 ID|
+|`--generate`|依据配置文件生成分配计划|
+|`--execute`|执行重新分配计划|
+|`--verify`|检查分区计划是否成功|
+|`--throttle`|限速大小(Byte)|
+
+> 注：--execute 和 --verify 参数所采用的配置项是 --generate 参数生成的。
+
 ## 强制删除话题
 
 在某些话题无法删除完成的时候可以直接操作 zookeeper 实现数据清除。
