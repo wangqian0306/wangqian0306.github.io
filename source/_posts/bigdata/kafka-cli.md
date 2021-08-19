@@ -73,6 +73,34 @@ docker-compose up -d
 
 > 注：如果需要删除话题需要在 `server.properties` 配置文件中编辑 `delete.topic.enable=true` 配置项。在标记删除的话题停止使用后 Kafka 才会真正清除话题。
 
+config 配置项目如下：
+
+|参数名|说明|
+|:---:|:---:|
+|`cleanup.policy`|数据清理策略|
+|`compression.type`|压缩类型|
+|`delete.retention.ms`|删除时间周期|
+|`file.delete.delay.ms`|文件删除延时|
+|`flush.messages`|写入磁盘的消息数量|
+|`flush.ms`|写入磁盘的时间间隔|
+|`follower.replication.throttled.replicas`|应在从属节点端限制日志复制的副本列表|
+|`index.interval.bytes`|索引间隔文件大小|
+|`leader.replication.throttled.replicas`|应在领导节点端限制日志复制的副本列表|
+|`max.compaction.lag.ms`|消息在日志中不符合压缩条件的最长时间|
+|`max.message.bytes`|允许的最大记录批量大小|
+|`message.format.version`|消息格式版本呢|
+|`message.timestamp.difference.max.ms`|broker 接收消息时的时间戳与消息中指定的时间戳之间允许的最大差异|
+|`message.timestamp.type`|消息时间戳的类型|
+|`min.cleanable.dirty.ratio`|日志压缩频率|
+|`min.compaction.lag.ms`|未压缩日志的保存时间|
+|`min.insync.replicas`|最少的同步副本数(ack=-1)|
+|`preallocate`|预分配磁盘文件|
+|`retention.bytes`|保留文件大小|
+|`retention.ms`|保留文件时间长度|
+|`segment.bytes`|日志文件分片大小|
+
+具体内容请参见官方手册。
+
 ### kafka-console-producer.sh
 
 参数解释:
