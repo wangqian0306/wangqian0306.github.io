@@ -18,11 +18,14 @@ categories: MQ
 version: "3"
 services:
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3-management
     container_name: rabbit
     ports:
       - "5672:5672"
+      - "15672:15672"
 ```
+
+> 注：management 代表自带的管理工具，可以使用网页的方式进行管理。
 
 ### 简单使用
 
