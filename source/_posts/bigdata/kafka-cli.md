@@ -4,10 +4,7 @@ date: 2020-06-09 22:43:13
 tags:
 - "Kafka"
 - "Zookeeper"
-id: zookeeper
-no_word_count: true
-no_toc: false
-categories: 大数据
+  id: kafka-cli no_word_count: true no_toc: false categories: 大数据
 ---
 
 ## Kafka 相关命令梳理
