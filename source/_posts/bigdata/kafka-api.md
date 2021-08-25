@@ -1,9 +1,7 @@
 ---
 title: Kafka API date: 2021-08-24 22:43:13 tags:
-
 - "Kafka"
   id: kafka-api no_word_count: true no_toc: false categories: 大数据
-
 ---
 
 ## Kafka API
@@ -26,3 +24,8 @@ Produce API 使用了异步发送消息的方式，在发送过程中涉及的�
 
 ![Kafka 发送数据流程](https://i.loli.net/2021/08/24/YgBIm7HbrFNcvPp.png)
 
+### Consumer API
+
+Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
+
+![Kafka 消费数据流程](https://i.loli.net/2021/08/25/lp5OYrdqkW6vBNa.png)
