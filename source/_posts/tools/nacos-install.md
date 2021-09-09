@@ -47,3 +47,15 @@ services:
 ```bash
 docker-compose up -d
 ```
+
+### 注意事项
+
+#### Docker Swarm
+
+在 Docker Swarm 平台上部署 Nacos 相关服务时需要声明使用的网卡和网段，防止注册时使用了 Ingress 网段。
+
+SpringCloud 框架下的配置样例如下：
+
+```text
+spring.cloud.inetutils.preferred-networks=<network>
+```
