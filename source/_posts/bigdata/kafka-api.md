@@ -53,14 +53,31 @@ Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
 
 ![Kafka 消费数据流程](https://i.loli.net/2021/08/25/lp5OYrdqkW6vBNa.png)
 
-在接收数据时也可以采用以下三种方式提交 offset:
+> 注：在同一个群组里，我们无法让一个线程运行多个消费者，也无法让多个线程安全的共享一个消费者。如有需要可以使用 Java 的 Executor Service 启动多个线程，使每个消费者运行在自己的线程上。
+
+在接收数据时也可以采用以下几种种方式提交偏移量(offset):
 
 - 自动提交
-- 异步提交
-- 同步和异步组合提交
+
+在 `enable.auto.commit` 参数设置为 true 时，每过 5 秒(`auto.commit.interval.ms`)，消费者会把 `poll()` 方法接收到的最大偏移量提交上去。
+
+可能会有数据重复，但一般情况下不会有什么问题，不过在处理异常或提前退出轮询时要格外小心。
+
 - 手动提交
 
-> 注：在同一个群组里，我们无法让一个线程运行多个消费者，也无法让多个线程安全的共享一个消费者。如有需要可以使用 Java 的 Executor Service 启动多个线程，使每个消费者运行在自己的线程上。
+在手动提交时需要将 `enable.auto.commit` 参数设置为 false，然后使用 `commitSync()` 方法提交偏移量。
+
+- 异步提交
+
+`commitSync()` 方法在成功提交或碰到无怯恢复的错误之前都会一直重试，但 `commitAsync()` 方法不会。
+
+与此同时带来的问题是可能会造成消息重复。需要尤其注意偏移量的提交顺序。
+
+- 同步和异步组合提交
+
+消费者关闭前一般会组合使用 `commitSync()` 和 `commitAsync()`。
+
+如果一切正常，我们使用 `commitAsync()` 方法提交，若如果直接关闭消费者则会使用 `commitSync()` 方法。
 
 ### Streams API
 
@@ -69,6 +86,10 @@ Kafka Streams 是用于构建应用程序和微服务的客户端库，其中输
 ### Connect API
 
 Connect API 允许实现从某个源数据系统不断拉入 Kafka 或从 Kafka 推送到某个接收器数据系统的连接器。
+
+在此时我们可以把 Kafka 看成一个数据管道。
+
+
 
 ### Admin API
 

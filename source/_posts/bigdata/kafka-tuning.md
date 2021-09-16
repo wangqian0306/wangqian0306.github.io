@@ -1,5 +1,5 @@
 ---
-title: Kafka 性能调优
+title: Kafka 性能和高可用性调整
 date: 2021-09-15 22:43:13
 tags:
 - "Kafka"
@@ -9,7 +9,7 @@ no_toc: false
 categories: 大数据
 ---
 
-## Kafka 性能调优
+## Kafka 性能和高可用性调整
 
 ### 操作系统部分
 
@@ -49,12 +49,35 @@ cat /proc/vmstat | grep "dirty|writeback"
 
 - 建议使用 Java 11
 
-### 集群配置部分
+### 配置部分
 
-#### broker 启动参数
+#### Broker 启动参数
 
 ```text
   -Xmx6g -Xms6g -XX:MetaspaceSize=96m -XX:+UseG1GC
   -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M
   -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent
 ```
+
+#### 机架名
+
+为了防止单个机架的故障导致服务不可用，可以设置 `broker.rack` 参数。这样一来 Kafka 会保证分区的副本被分布在多个机架上，从而获得更高的可用性。
+
+#### 副本选举策略
+
+`unclean.leader.election` 参数默认为 true，表示允许不同步的副本成为首领，可能会造成消息丢失。如果业务场景不能接受消息丢失则需要修改为 false。
+
+### 监控部分
+
+对于生产者来说需要监控如下参数：
+
+- error-rate
+- retry-rate
+
+> 注：通过这两项参数明确生产者的错误率。
+
+对于消费者来说需要监控如下参数：
+
+- consumer-lag
+
+> 注：距离最新消息还有多少积压。

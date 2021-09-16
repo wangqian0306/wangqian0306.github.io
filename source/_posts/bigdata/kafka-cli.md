@@ -4,7 +4,10 @@ date: 2020-06-09 22:43:13
 tags:
 - "Kafka"
 - "Zookeeper"
-  id: kafka-cli no_word_count: true no_toc: false categories: 大数据
+id: kafka-cli
+no_word_count: true
+no_toc: false
+categories: 大数据
 ---
 
 ## Kafka 相关命令梳理
@@ -188,11 +191,3 @@ rmr /admin/delete_topics/<name>
 ```
 
 然后在文件夹中删除真实的数据文件即可。
-
-### Kafka Connect
-
-Kafka Connect 是一款接收数据库记录到 Kafka (source)和从 Kafka 将数据写入数据库(sink)的工具。
-
-使用样例如下：
-
-![Kafka Connect](https://help-static-aliyun-doc.aliyuncs.com/assets/img/zh-CN/7219853951/p68623.png)
