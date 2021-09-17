@@ -129,7 +129,7 @@ config 配置项目如下：
 |`--partition`|分区|
 |`--topic <name>`|话题名|
 
-### kafka-reassign-partitions
+### kafka-reassign-partitions.sh
 
 参数解释:
 
@@ -144,6 +144,21 @@ config 配置项目如下：
 |`--throttle`|限速大小(Byte)|
 
 > 注：--execute 和 --verify 参数所采用的配置项是 --generate 参数生成的。
+
+### kafka-preferred-replica-election.sh
+
+此工具使每个分区的领导权转移回“首选副本”，它可用于平衡服务器之间的领导权。
+
+|参数名|说明|
+|:---:|:---:|
+|`--zookeeper <zk_host>:<zk_port>/kafka-cluster`| zookeeper 地址|
+|`--path-to-json-file`|配置文件地址|
+
+### 存储消息(日志)片段
+
+```bash
+kafka-run-class.sh kafka.tools.DullplogSegllents --files 00000000000052368601.log --print-data-log
+```
 
 ### 自动创建主题
 

@@ -69,6 +69,13 @@ cat /proc/vmstat | grep "dirty|writeback"
 
 ### 监控部分
 
+对于服务器需要监控如下参数：
+
+- CPU 使用率
+- 网络输入/输出吞吐量
+- 磁盘平均等待时间
+- 磁盘剩余空间
+
 对于生产者来说需要监控如下参数：
 
 - error-rate
@@ -81,3 +88,17 @@ cat /proc/vmstat | grep "dirty|writeback"
 - consumer-lag
 
 > 注：距离最新消息还有多少积压。
+
+对于 broker 来说需要监控如下参数：
+
+- UnderReplicatedPartitions(未同步的分区)
+- ActiveControllerCount(活跃度控制器数量)
+- RequestHandlerAvgIdlePercent(请求处理器空闲率)
+- BytesInPerSec(主题输入字节/秒)
+- BytesOutPerSec(主题输出字节/秒)
+- MessagesInPerSec(主题接收消息/秒)
+- PartitionCount(分区数量)
+- LeaderCount(首领数量)
+- OfflinePartitionsCount(离线分区数量)
+
+> 注：详情参阅 [官方文档](http://kafka.apache.org/documentation.html#monitoring)。
