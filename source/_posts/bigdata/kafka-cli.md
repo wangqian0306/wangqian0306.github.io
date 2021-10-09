@@ -151,7 +151,7 @@ config 配置项目如下：
 
 |参数名|说明|
 |:---:|:---:|
-|`--zookeeper <zk_host>:<zk_port>/kafka-cluster`| zookeeper 地址|
+|`--zookeeper <zk_host_1>:<zk_port_1>,<zk_host_2>:<zk_port_2>/<chroot>`| zookeeper 地址|
 |`--path-to-json-file`|配置文件地址|
 
 ### 存储消息(日志)片段

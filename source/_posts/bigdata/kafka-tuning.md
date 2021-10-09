@@ -13,6 +13,10 @@ categories: 大数据
 
 ### 操作系统部分
 
+#### 文件描述符限制
+
+- `ulimit -n 1000000`
+
 #### 交换内存(swap)
 
 - 打开交换内存 `vm.swapiness` 应当设置为 1
@@ -67,6 +71,8 @@ cat /proc/vmstat | grep "dirty|writeback"
 
 `unclean.leader.election` 参数默认为 true，表示允许不同步的副本成为首领，可能会造成消息丢失。如果业务场景不能接受消息丢失则需要修改为 false。
 
+`auto.leader.rebalance.enable` 参数设置为 false，表示禁止定期进行的重新选举。
+
 ### 监控部分
 
 对于服务器需要监控如下参数：
@@ -86,8 +92,10 @@ cat /proc/vmstat | grep "dirty|writeback"
 对于消费者来说需要监控如下参数：
 
 - consumer-lag
+- records-lag-max
+- records-lead-min
 
-> 注：距离最新消息还有多少积压。
+> 注：Lag 表示距离最新消息还有多少积压。Lead 值是指消费者最新消费消息的位移与分区当前第一条消息位移的差值。一旦你监测到 Lead 越来越小，甚至是快接近于 0 了，你就一定要小心了，这可能预示着消费者端要丢消息了
 
 对于 broker 来说需要监控如下参数：
 

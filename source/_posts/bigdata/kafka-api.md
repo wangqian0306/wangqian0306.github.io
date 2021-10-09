@@ -89,8 +89,6 @@ Connect API 允许实现从某个源数据系统不断拉入 Kafka 或从 Kafka 
 
 在此时我们可以把 Kafka 看成一个数据管道。
 
-
-
 ### Admin API
 
 Admin API 支持管理和检查主题、broker、acl 和其他 Kafka 对象。
