@@ -70,4 +70,6 @@ scrape_configs:
 prometheus_target_interval_length_seconds
 ```
 
+- 执行查询进行测试
+
 > 注：此处后续内容可参照 [官方文档](https://prometheus.io/docs/prometheus/latest/getting_started/)
