@@ -1,6 +1,6 @@
 ---
 title: JMX 使用
-date: 2021-10-11 23:09:32
+date: 2021-10-14 23:09:32
 tags:
 - "JConsul"
 - "JMX Exporter"
@@ -74,6 +74,5 @@ java -cp collector/target/collector*.jar io.prometheus.jmx.JmxScraper service:jm
 调试完成后可以在 `jmx_prometheus_httpserver` 构建出的文件夹内找到可安装的 deb 包和 jar 包，或者使用如下脚本直接运行服务器：
 
 ```bash
-java -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5555 -jar jmx_prometheus_httpserver/target/jmx_prometheus_httpserver-${version}-jar-with-dependencies.jar <port> example_configs/httpserver_sample_config.yml
+java -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=<port> -jar jmx_prometheus_httpserver/target/jmx_prometheus_httpserver-${version}-jar-with-dependencies.jar <port> example_configs/httpserver_sample_config.yml
 ```
-

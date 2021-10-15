@@ -262,3 +262,7 @@ minivaline:
     - https://cdn.jsdelivr.net/gh/MiniValine/tieba@latest
     - https://cdn.jsdelivr.net/gh/MiniValine/twemoji@latest
     - https://cdn.jsdelivr.net/gh/MiniValine/weibo@latest
+
+lock:
+  enable: false
+  password: 123456

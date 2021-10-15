@@ -1,6 +1,11 @@
 ---
-title: I/O 多路复用 date: 2021-07-23 21:57:04 tags: "Linux"
-id: io-multiplexing no_word_count: true no_toc: false categories: Linux
+title: I/O 多路复用
+date: 2021-07-23 21:57:04
+tags: "Linux"
+id: io-multiplexing
+no_word_count: true
+no_toc: false
+categories: Linux
 ---
 
 ## I/O 多路复用
