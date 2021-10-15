@@ -58,7 +58,7 @@ rules:
 java -javaagent:./jmx_prometheus_javaagent-0.16.1.jar=8080:config.yaml -jar yourJar.jar
 ```
 
-#### 远程访问方式
+#### HTTP Server 方式
 
 使用如下命令进行调试
 
