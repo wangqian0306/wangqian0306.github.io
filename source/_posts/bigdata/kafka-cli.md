@@ -154,6 +154,50 @@ config 配置项目如下：
 |`--zookeeper <zk_host_1>:<zk_port_1>,<zk_host_2>:<zk_port_2>/<chroot>`| zookeeper 地址|
 |`--path-to-json-file`|配置文件地址|
 
+### kafka-consumer-groups.sh
+
+此工具可以列出所有的消费组详情，删除位移(offset)，重置消费组位移。
+
+消费组的重设策略如下：
+
+|纬度|策略|含义| 
+|:---:|:---:|:---:|
+|位移维度|Earliest|最早|
+|位移维度|Latest|当前最新|
+|位移维度|Current|最新一次提交|
+|位移维度|Specified-Offset|指定位移|
+|位移维度|Shift-By-N|当前位移 +N|
+|时间维度|DateTime|调整到大于给定时间的最小位移处|
+|时间维度|Duration|调整到距离当前时间间隔的位移处|
+
+|参数名|说明|
+|:---:|:---:|
+|`--all-topics`|管理所有话题|
+|`--bootstrap-server <kafka_host>:<kafka_port>`|Kafka 地址及端口(必填)|
+|`--by-duration`| Duration 策略，格式为 `PnDTnHnMnS`|
+|`--command-config <conf_path>`|配置文件地址|
+|`--delete`|删除位移(将目标组以如下形式传递 `--group g1 --group g2`)|
+|`--describe`|显示位移信息|
+|`--dry-run`|展示运行之后的情况(支持参数 reset-offsets)|
+|`--execute`|执行操作(支持参数 reset-offsets)|
+|`--export`|导出到csv(支持参数 reset-offsets)|
+|`--from-file <conf_path>`|将导入位移|
+|`--group`|目标消费组|
+|`--list`|列出消费组|
+|`--members`|列出组成员|
+|`--offsets`|查看位移|
+|`--reset-offsets`|重置位移，可以配合试运行，执行操作，导出csv一起使用|
+|`--shift-by <Long: N>`|Shift-By-N策略，移动 N 个|
+|`--state`|显示状态|
+|`--timeout <Long: timeout (ms)>`|超时时间，默认 5000|
+|`--to-current`|Current 策略|
+|`--to-datetime <String: datetime>`|DateTime 策略|
+|`--to-earliest`|Earliest 策略|
+|`--to-latest`|Latest 策略|
+|`--to-offset <Long: offset>`|Specified-Offset 策略|
+|`--topic <String: topic>`|目标主题，在“重置偏移量”时，可以使用以下格式指定分区：`topic1:0,1,2`，其中0,1,2是要包括在进程中的分区。|
+|`--verbose`|提供详细信息|
+
 ### 存储消息(日志)片段
 
 ```bash
