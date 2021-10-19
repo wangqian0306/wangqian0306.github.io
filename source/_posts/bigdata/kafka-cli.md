@@ -198,6 +198,26 @@ config 配置项目如下：
 |`--topic <String: topic>`|目标主题，在“重置偏移量”时，可以使用以下格式指定分区：`topic1:0,1,2`，其中0,1,2是要包括在进程中的分区。|
 |`--verbose`|提供详细信息|
 
+### kafka-log-dirs.sh
+
+查询各个 Broker 上的日志路径磁盘占用情况。
+
+|参数名|说明|
+|:---:|:---:|
+|`--bootstrap-server <kafka_host>:<kafka_port>`|Kafka 地址及端口(必填)|
+|`--broker-list <String: Broker list>`|Broker 列表，样例如下 `0,1,2`|
+|`--command-config <conf_path>`|配置文件地址|
+|`--describe`|查看详情|
+|`--topic-list <String: Topic list>`|话题列表，样例如下 `topic1,topic2,topic3`|
+
+### kafka-consumer-perf-test.sh
+
+消费者性能测试
+
+### kafka-producer-pref-test.sh
+
+生产者性能测试
+
 ### 存储消息(日志)片段
 
 ```bash
