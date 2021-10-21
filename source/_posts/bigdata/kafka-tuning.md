@@ -17,10 +17,16 @@ categories: 大数据
 
 - `ulimit -n 1000000`
 
+- `vim /etc/sysctl.conf`
+
+```text
+vm.max_map_count=655360
+```
+
 #### 交换内存(swap)
 
 - 打开交换内存 `vm.swapiness` 应当设置为 1
-- 设置内存可以填充脏页的百分比 `vm.dirty_background_ratio` 应当设置为小于 10 大部分情况下可以直接设为 5 
+- 设置内存可以填充脏页的百分比 `vm.dirty_background_ratio` 应当设置为小于 10 大部分情况下可以直接设为 5
 - 设置脏页填充的绝对最大系统内存量`vm.dirty_ratio` 应当设置为大于 20，60~80 是一个比较合理的区间
 
 在使用的过程中可以针对 swap 内的脏页数量进行监控，防止集群崩溃造成数据丢失。
@@ -37,14 +43,14 @@ cat /proc/vmstat | grep "dirty|writeback"
 #### 网络配置
 
 - socket 读写缓冲区配置为 131072 (128 KB)
-  - `net.core.wmem_default`
-  - `net.core.wmem_default`
+    - `net.core.wmem_default`
+    - `net.core.wmem_default`
 - socket 读写缓冲最大值为 2097152 (2 MB)
-  - `net.core.wmen_max`
-  - `net.core.rmem_max`
+    - `net.core.wmen_max`
+    - `net.core.rmem_max`
 - TCP socket 读写缓冲区大小设置为 4096 65536 2048000 (最小值 默认值 最大值)
-  - `net.ipv4.tcp_wmem`
-  - `net.ipv4.tcp_rmem`
+    - `net.ipv4.tcp_wmem`
+    - `net.ipv4.tcp_rmem`
 - 打开 TCP 时间窗扩展 `net.ipv4.tcp_window_scaling` 设置为 1
 - 提升并发量 `net.ipv4.tcp_max_syn_backlog` 设置为比 1024 更大的值
 - 允许更多的数据包进入内核 `net.core.netdev_max_backlog` 设置为比 1000 更大的值
@@ -81,6 +87,16 @@ cat /proc/vmstat | grep "dirty|writeback"
 - 网络输入/输出吞吐量
 - 磁盘平均等待时间
 - 磁盘剩余空间
+- 内存使用率
+- TCP 链接数
+- 打开文件数
+- inode 使用情况
+
+对于 JVM 需要监控如下内容：
+
+- Full GC 发生频率和时间长度
+- 活跃对象大小
+- 应用线程总数
 
 对于生产者来说需要监控如下参数：
 
@@ -110,3 +126,35 @@ cat /proc/vmstat | grep "dirty|writeback"
 - OfflinePartitionsCount(离线分区数量)
 
 > 注：详情参阅 [官方文档](http://kafka.apache.org/documentation.html#monitoring)。
+
+### 性能指标调优
+
+#### 调优吞吐量
+
+|参数位置|参数描述|
+|:---:|:---:|
+|Broker 端|适当增加 `num.replica.fetchers` 参数值，但不用超过 CPU 核心数|
+|Broker 端|调优 GC 参数以避免经常性的 Full GC|
+|Producer 端|适当增加 `batch.size` 参数值，比如从默认的 16 KB 增加到 512 KB 或 1MB|
+|Producer 端|适当增加 `linger.ms` 参数值，比如 10~100 |
+|Producer 端|设置 `compression.type=lz4` 或者 `zstd`|
+|Producer 端|设置 `acks=0` 或 `1`|
+|Producer 端|设置 `retries=0`|
+|Producer 端|如果多线程共享同一个 Producer 实例，就增加 `buffer.memory` 参数值|
+|Consumer 端|采用多 Consumer 进程或线程同时消费数据|
+|Consumer 端|增加 `fetch.min.bytes` 参数值，比如设置成 1KB 或更大|
+
+#### 调优延时
+
+|参数位置|参数描述|
+|:---:|:---:|
+|Broker 端|适当增加 `num.replica.fetchers` 参数值|
+|Producer 端|设置 `linger.ms=0`|
+|Producer 端|不启用压缩，即设置 `compression.type=none`|
+|Producer 端|设置 `acks=1`|
+|Consumer 端|设置 `fetch.min.bytes=1`|
+
+### 参考资料
+
+- [Kafka 官方文档](http://kafka.apache.org/documentation/)
+- [Kafka 核心技术与实战](https://time.geekbang.org/column/intro/100029201)
