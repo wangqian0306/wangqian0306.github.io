@@ -218,6 +218,42 @@ config 配置项目如下：
 
 生产者性能测试
 
+### kafka-dump-log.sh
+
+此工具有助于解析日志文件并将其内容转储到控制台，这对于调试看似损坏的日志段非常有用。
+
+|参数名|说明|
+|:---:|:---:|
+|`--files <String: file1,file2,...>`|储存文件列表|
+|`--max-message-size <Integer: size>`|最大消息长度|
+|`--print-data-log`|同时打印至控制台|
+|`--print-data-log`|不输出元数据|
+
+### kafka-delete-records.sh
+
+此工具有助于将给定分区的记录向下删除到指定的偏移量。
+
+|参数名|说明|
+|:---:|:---:|
+|`--bootstrap-server <kafka_host>:<kafka_port>`|Kafka 地址及端口(必填)|
+|`--command-config <conf_path>`|配置文件地址|
+|`--offset-json-file <path>`|删除位移文件地址|
+
+删除位移配置文件：
+
+```json
+{
+  "partitions": [
+    {
+      "topic": "foo",
+      "partition": 1,
+      "offset": 1
+    }
+  ],
+  "version": 1
+}
+```
+
 ### 存储消息(日志)片段
 
 ```bash
