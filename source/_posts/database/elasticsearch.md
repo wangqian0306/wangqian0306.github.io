@@ -78,7 +78,7 @@ services:
 
 ```bash
 docker-compose up -d
-```
+``` 
 
 #### 集群运行
 
@@ -173,7 +173,7 @@ docker-compose up -d
 
 `POST`: `http://<host>:<port>/_settings`
 
-```
+```json
 {
   "index": {
     "blocks": {
