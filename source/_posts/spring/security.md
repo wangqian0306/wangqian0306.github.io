@@ -1,13 +1,10 @@
 ---
-title: Spring Security
-date: 2021-10-27 21:32:58
-tags:
+title: Spring Security date: 2021-10-27 21:32:58 tags:
+
 - "Java"
 - "Spring Boot"
-id: caching
-no_word_count: true
-no_toc: false
-categories: Spring
+  id: caching no_word_count: true no_toc: false categories: Spring
+
 ---
 
 ## Spring Security
@@ -21,15 +18,15 @@ Spring Security 是一款安全框架。本文会使用
 引入依赖包：
 
 - Developer Tools
-  - Lombok
+    - Lombok
 - Web
-  - Spring Web
+    - Spring Web
 - Security
-  - Spring Security
-  - OAuth2 Resource Server
+    - Spring Security
+    - OAuth2 Resource Server
 - SQL
-  - Spring Data JPA / MyBatis Framework 
-  - MySQL Driver / ...
+    - Spring Data JPA / MyBatis Framework
+    - MySQL Driver / ...
 
 书写配置文件：
 
@@ -67,20 +64,20 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     private String firstName;
-    
+
     private String lastName;
-    
+
     private String email;
-    
+
     private String mobile;
 
     @JsonIgnore
     private String password;
-    
+
     private Boolean enabled;
-    
+
     private Boolean tokenExpired;
 
     @JsonIgnore
@@ -121,7 +118,7 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     private String name;
 
     @JsonIgnore
@@ -272,7 +269,7 @@ public class RestConfig extends WebSecurityConfigurerAdapter {
     @Bean("authenticationManager")
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
+        return super.authenticationManagerBean();
     }
 }
 ```
@@ -312,7 +309,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (alreadySetup)
-          return;
+            return;
         Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
         Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
         List<Privilege> adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);
@@ -349,17 +346,17 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
     @Transactional
     void createUserIfNotFound(Role adminRole) {
-      Optional<User> optional = userRepository.findByEmailOrPhoneOrName("admin");
-      if (optional.isEmpty()) {
-        User user = new User();
-        user.setName("admin");
-        user.setPhone("12312341234");
-        user.setPassword(passwordEncoder.encode("rbfish123.."));
-        user.setEmail("admin@admin.com");
-        user.setRoles(List.of(adminRole));
-        user.setEnabled(true);
-        userRepository.save(user);
-      }
+        Optional<User> optional = userRepository.findByEmailOrPhoneOrName("admin");
+        if (optional.isEmpty()) {
+            User user = new User();
+            user.setName("admin");
+            user.setPhone("12312341234");
+            user.setPassword(passwordEncoder.encode("admin"));
+            user.setEmail("admin@admin.com");
+            user.setRoles(List.of(adminRole));
+            user.setEnabled(true);
+            userRepository.save(user);
+        }
     }
 }
 ```
@@ -387,7 +384,7 @@ public class MyUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
-  
+
     public MyUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -398,8 +395,8 @@ public class MyUserDetailsService implements UserDetailsService {
         Optional<User> optional = userRepository.findByEmailOrPhoneOrName(text);
         if (optional.isEmpty()) {
             return new org.springframework.security.core.userdetails.User(
-                  " ", " ", true, true, true,
-                  true, getAuthorities(List.of(roleRepository.findByName("ROLE_USER"))));
+                    " ", " ", true, true, true,
+                    true, getAuthorities(List.of(roleRepository.findByName("ROLE_USER"))));
         }
         User user = optional.get();
         return new org.springframework.security.core.userdetails.User(
@@ -563,7 +560,12 @@ public class HelloController {
 ### 使用方式
 
 ```bash
-curl -XPOST -u test@test.com:test "http://localhost:8080/token"
+curl --location --request POST 'localhost:8080/login' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username":"admin",
+    "password":"admin"
+}'
 ```
 
 ```bash
