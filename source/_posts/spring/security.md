@@ -38,6 +38,7 @@ spring.datasource.url=${MYSQL_URI:jdbc:mysql://192.168.2.77:3306/health_test}
 spring.datasource.username=${JDBC_USERNAME:root}
 spring.datasource.password=${JDBC_PASSWORD:Rb123456!}
 spring.datasource.driver-class-name=${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 jwt.public.key=classpath:pub.key
 jwt.private.key=classpath:pri.key
 spring.jpa.hibernate.ddl-auto=update
@@ -50,6 +51,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -64,27 +66,24 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID")
     private Long id;
-
-    @Column(name = "FIRST_NAME")
+    
     private String firstName;
-
-    @Column(name = "LAST_NAME")
+    
     private String lastName;
-
-    @Column(name = "EMAIL")
+    
     private String email;
+    
+    private String mobile;
 
-    @Column(name = "PASSWORD")
+    @JsonIgnore
     private String password;
-
-    @Column(name = "ENABLE")
+    
     private Boolean enabled;
-
-    @Column(name = "TOKEN_EXPIRED")
+    
     private Boolean tokenExpired;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "users_roles",
@@ -106,6 +105,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -119,16 +119,16 @@ import java.util.Collection;
 public class Role {
 
     @Id
-    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @Column(name = "NAME")
+    
     private String name;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private Collection<User> users;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "roles_privileges",
@@ -146,6 +146,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -164,6 +165,7 @@ public class Privilege {
 
     private String name;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "privileges")
     private Collection<Role> roles;
 
@@ -208,6 +210,7 @@ public interface PrivilegeRepository extends JpaRepository<Privilege, Long> {
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -243,6 +246,7 @@ public class RestConfig extends WebSecurityConfigurerAdapter {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             // other
+            "/login"
     };
 
     @Override
@@ -263,6 +267,12 @@ public class RestConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder(11);
+    }
+
+    @Bean("authenticationManager")
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+      return super.authenticationManagerBean();
     }
 }
 ```
@@ -301,29 +311,15 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
-
         if (alreadySetup)
-            return;
-        Privilege readPrivilege
-                = createPrivilegeIfNotFound("READ_PRIVILEGE");
-        Privilege writePrivilege
-                = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
-
-        List<Privilege> adminPrivileges = Arrays.asList(
-                readPrivilege, writePrivilege);
+          return;
+        Privilege readPrivilege = createPrivilegeIfNotFound("READ_PRIVILEGE");
+        Privilege writePrivilege = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
+        List<Privilege> adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);
         createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
         createRoleIfNotFound("ROLE_USER", List.of(readPrivilege));
-
         Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-        User user = new User();
-        user.setFirstName("Test");
-        user.setLastName("Test");
-        user.setPassword(passwordEncoder.encode("test"));
-        user.setEmail("test@test.com");
-        user.setRoles(List.of(adminRole));
-        user.setEnabled(true);
-        userRepository.save(user);
-
+        createUserIfNotFound(adminRole);
         alreadySetup = true;
     }
 
@@ -350,13 +346,27 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         }
         return role;
     }
+
+    @Transactional
+    void createUserIfNotFound(Role adminRole) {
+      Optional<User> optional = userRepository.findByEmailOrPhoneOrName("admin");
+      if (optional.isEmpty()) {
+        User user = new User();
+        user.setName("admin");
+        user.setPhone("12312341234");
+        user.setPassword(passwordEncoder.encode("rbfish123.."));
+        user.setEmail("admin@admin.com");
+        user.setRoles(List.of(adminRole));
+        user.setEnabled(true);
+        userRepository.save(user);
+      }
+    }
 }
 ```
 
 新建登录验证程序：
 
 ```java
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -368,42 +378,40 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-@Service("userDetailsService")
+@Service
 @Transactional
 public class MyUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            return new org.springframework.security.core.userdetails.User(
-                    " ", " ", true, true, true, true,
-                    getAuthorities(List.of(
-                            roleRepository.findByName("ROLE_USER"))));
-        }
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(), user.isEnabled(), true, true,
-                true, getAuthorities(user.getRoles()));
+    private final RoleRepository roleRepository;
+  
+    public MyUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(
-            Collection<Role> roles) {
+    @Override
+    public UserDetails loadUserByUsername(String text) throws UsernameNotFoundException {
+        Optional<User> optional = userRepository.findByEmailOrPhoneOrName(text);
+        if (optional.isEmpty()) {
+            return new org.springframework.security.core.userdetails.User(
+                  " ", " ", true, true, true,
+                  true, getAuthorities(List.of(roleRepository.findByName("ROLE_USER"))));
+        }
+        User user = optional.get();
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(), user.isEnabled(), true,
+                true, true, getAuthorities(user.getRoles()));
+    }
 
+    private Collection<? extends GrantedAuthority> getAuthorities(Collection<Role> roles) {
         return getGrantedAuthorities(getPrivileges(roles));
     }
 
     private List<String> getPrivileges(Collection<Role> roles) {
-
         List<String> privileges = new ArrayList<>();
         List<Privilege> collection = new ArrayList<>();
         for (Role role : roles) {
@@ -426,7 +434,29 @@ public class MyUserDetailsService implements UserDetailsService {
 }
 ```
 
-新建获取令牌控制器：
+新建登录请求和返回类：
+
+```java
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+    private String username;
+    private String password;
+}
+```
+
+```java
+import lombok.Data;
+
+@Data
+public class LoginResponse {
+    private String token;
+    private User user;
+}
+```
+
+新建登录控制器：
 
 ```java
 import com.nimbusds.jose.JWSAlgorithm;
@@ -434,29 +464,54 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
-@RequestMapping("/token")
-public class TokenController {
+@RequestMapping("/login")
+public class LoginController {
 
     @Value("${jwt.private.key}")
     RSAPrivateKey key;
 
+    @Value("${jwt.expiry:36000}")
+    Long expiry;
+
+    private final AuthenticationManager authManager;
+    private final UserRepository userRepository;
+
+    public LoginController(AuthenticationManager authManager, UserRepository userRepository) {
+        this.authManager = authManager;
+        this.userRepository = userRepository;
+    }
+
     @PostMapping
-    public String token(Authentication authentication) {
+    public HttpEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        LoginResponse loginResponse = new LoginResponse();
+        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+        Authentication authentication = authManager.authenticate(authReq);
+        SecurityContext sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(authentication);
+        log.error(authentication.toString());
         Instant now = Instant.now();
-        long expiry = 36000L;
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
@@ -469,7 +524,10 @@ public class TokenController {
                 .build();
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
         SignedJWT jwt = new SignedJWT(header, claims);
-        return sign(jwt).serialize();
+        loginResponse.setToken(sign(jwt).serialize());
+        Optional<User> optional = userRepository.findByEmailOrPhoneOrName(loginRequest.getUsername());
+        optional.ifPresent(loginResponse::setUser);
+        return new HttpEntity<>(loginResponse);
     }
 
     SignedJWT sign(SignedJWT jwt) {
@@ -480,8 +538,8 @@ public class TokenController {
             throw new IllegalArgumentException(ex);
         }
     }
-
 }
+
 ```
 
 新建查看用户名控制器：
@@ -504,11 +562,11 @@ public class HelloController {
 
 ### 使用方式
 
-```text
+```bash
 curl -XPOST -u test@test.com:test "http://localhost:8080/token"
 ```
 
-```text
+```bash
 curl --request GET 'http://localhost:8080/api/v1/hello' --header 'Authorization: Bearer <token>'
 ```
 
