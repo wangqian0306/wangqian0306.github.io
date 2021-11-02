@@ -1,10 +1,13 @@
 ---
-title: Spring Security date: 2021-10-27 21:32:58 tags:
-
+title: Spring Security
+date: 2021-10-27 21:32:58
+tags:
 - "Java"
 - "Spring Boot"
-  id: caching no_word_count: true no_toc: false categories: Spring
-
+id: caching
+no_word_count: true
+no_toc: false
+categories: Spring
 ---
 
 ## Spring Security
@@ -536,7 +539,6 @@ public class LoginController {
         }
     }
 }
-
 ```
 
 新建查看用户名控制器：
@@ -574,6 +576,6 @@ curl --request GET 'http://localhost:8080/api/v1/hello' --header 'Authorization:
 
 ### 参考资料
 
-[Spring Security 例程](https://github.com/spring-projects/spring-security-samples0)
+[Spring Security 例程](https://github.com/spring-projects/spring-security-samples)
 
 [baeldung 教程](https://www.baeldung.com/security-spring)
