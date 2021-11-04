@@ -14,7 +14,7 @@ categories: Spring
 
 ### 简介
 
-Spring Security 是一款安全框架。本文会使用
+Spring Security 是一款安全框架。
 
 ### 初步使用
 
