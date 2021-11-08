@@ -57,7 +57,7 @@ systemctl enable mariadb --now
 
 ```sql
 create user mysync@'%' identified by '123456';
-grant REPLICATION SLAVE ON *.* to mysync@'%' identified by '123456';
+grant REPLICATION SLAVE ON *.* to mysync@'%';
 FLUSH PRIVILEGES;
 ```
 
@@ -96,7 +96,7 @@ start slave;
 - 状态检查
 
 ```sql
-show slave status \G
+show slave status;
 ```
 
 如果观察到如下内容则代表配置正常。
@@ -137,7 +137,6 @@ fi
 ```bash
 chmod +x /etc/keepalived/check_mysql.sh
 ```
-
 
 - 获取网卡信息
 
