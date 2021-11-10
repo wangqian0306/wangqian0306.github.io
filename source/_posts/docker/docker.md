@@ -195,7 +195,7 @@ docker save -o <文件名>.tar <镜像名>
 
 将tar包导入为镜像
 
-```
+```bash
 docker load -i <文件名>.tar
 ```
 
