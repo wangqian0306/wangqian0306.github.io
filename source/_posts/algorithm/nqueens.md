@@ -46,36 +46,45 @@ Leetcode 上有两种回溯法分别如下
 
 ```python
 # 确定输入参数
-n = 4
+queens = 4
 
-# 定义结果缓存
-queens = [-1] * n
+# 确保皇后不能处于同一行
+column = set()
+# 确保皇后不能处于同一斜线(右下方向)
+d1 = set()
+# 确保皇后不能处于同一斜线(左下方向)
+d2 = set()
+
+# 皇后落子的每一列的坐标
+result = [0, 0, 0, 0]
 
 
 # 递归遍历方法
-def solve(row: int, columns: int, diagonals1: int, diagonals2: int):
+def backtrack(row: int):
     # 若所有棋子已经放下则输出结果
-    if row == n:
-        print(queens)
-    else:
-        # 获取可以放置棋子的位置
-        availablePositions = ((1 << n) - 1) & (~(columns | diagonals1 | diagonals2))
-        # 遍历可以放置棋子的位置
-        while availablePositions:
-            # 获取最低位的位置
-            position = availablePositions & (-availablePositions)
-            # 将最低位放置为 0
-            availablePositions = availablePositions & (availablePositions - 1)
-            # 确定列的位置
-            column = bin(position - 1).count("1")
-            # 记录缓存结果
-            queens[row] = column
-            # 完成递归调用
-            solve(row + 1, columns | position, (diagonals1 | position) << 1, (diagonals2 | position) >> 1)
+    if row == queens:
+        print(result)
+    # 遍历当前列
+    for i in range(queens):
+        # 若当前位置已经无法落子则跳往下一位置
+        if (i in column) or (row - i in d1) or (row + i in d2):
+            continue
+        # 将皇后放置在此位置
+        result[row] = i
+        # 记录此位置的冲突数据
+        column.add(i)
+        d1.add(row - i)
+        d2.add(row + i)
+        # 前往下一行进行遍历
+        backtrack(row + 1)
+        # 移除此位置的冲突数据
+        column.remove(i)
+        d1.remove(row - i)
+        d2.remove(row + i)
 
 
-# 递归遍历方法
-solve(0, 0, 0, 0)
+# 开始遍历第 0 行
+backtrack(0)
 ```
 
 官方解法：
@@ -140,46 +149,39 @@ class Solution:
 
 ```python
 # 确定输入参数
-queens = 4
+n = 4
 
-# 确保皇后不能处于同一行
-column = set()
-# 确保皇后不能处于同一斜线(右下方向)
-d1 = set()
-# 确保皇后不能处于同一斜线(左下方向)
-d2 = set()
-
-# 皇后落子的每一列的坐标
-result = [0, 0, 0, 0]
+# 定义结果缓存
+queens = [-1] * n
 
 
 # 递归遍历方法
-def backtrack(row: int):
+def solve(row: int, columns: int, diagonals1: int, diagonals2: int):
     # 若所有棋子已经放下则输出结果
-    if row == queens:
-        print(result)
-    # 遍历当前列
-    for i in range(queens):
-        # 若当前位置已经无法落子则跳往下一位置
-        if (i in column) or (row - i in d1) or (row + i in d2):
-            continue
-        # 将皇后放置在此位置
-        result[row] = i
-        # 记录此位置的冲突数据
-        column.add(i)
-        d1.add(row - i)
-        d2.add(row + i)
-        # 前往下一行进行遍历
-        backtrack(row + 1)
-        # 移除此位置的冲突数据
-        column.remove(i)
-        d1.remove(row - i)
-        d2.remove(row + i)
+    if row == n:
+        print(queens)
+    else:
+        # 获取可以放置棋子的位置
+        availablePositions = ((1 << n) - 1) & (~(columns | diagonals1 | diagonals2))
+        # 遍历可以放置棋子的位置
+        while availablePositions:
+            # 获取最低位的位置
+            position = availablePositions & (-availablePositions)
+            # 将最低位放置为 0
+            availablePositions = availablePositions & (availablePositions - 1)
+            # 确定列的位置
+            column = bin(position - 1).count("1")
+            # 记录缓存结果
+            queens[row] = column
+            # 完成递归调用
+            solve(row + 1, columns | position, (diagonals1 | position) << 1, (diagonals2 | position) >> 1)
 
 
-# 开始遍历第 0 行
-backtrack(0)
+# 递归遍历方法
+solve(0, 0, 0, 0)
 ```
+
+> 注：如果需要打印中间结果可以采用此语句 `bin(availablePositions)[2:].zfill(n)`
 
 官方解法：
 
