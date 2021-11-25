@@ -1,6 +1,11 @@
 ---
-title: 平衡二叉树 date: 2021-11-18 20:32:58 tags: "Python"
-id: balanced_binary_tree no_word_count: true no_toc: false categories: 数据结构
+title: 平衡二叉树
+date: 2021-11-18 20:32:58
+tags: "Python"
+id: balanced_binary_tree
+no_word_count: true
+no_toc: false
+categories: 数据结构
 ---
 
 ## 平衡二叉树(Balanced Binary Tree,AVL Tree)
