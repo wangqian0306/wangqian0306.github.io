@@ -12,6 +12,8 @@ categories: 大数据
 
 ### 简述
 
+> 注：CDH 已经关闭了免费下载途径。此文档仅供参考。
+
 本文只是简要描述了 CDH 集群的搭建步骤，适用于测试和研发环境。如在安装过程中遇到问题可以参照 [官方文档](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/installation.html) 。
 
 ### 基础环境准备

@@ -18,7 +18,7 @@ Atlas 是一组可扩展和可扩展的核心基础治理服务——使企业�
 
 ### 版本说明
 
-CDH 版本：6.2.0
+CDH 版本：6.3.2
 
 Atlas 版本：2.1.0
 
@@ -64,12 +64,11 @@ cd apache-atlas-sources-2.1.0/
 - 在 `pom.xml` 文件的 `properties` 部分，修改如下版本包
 
 ```text
-<hadoop.version>3.0.0-cdh6.2.0</hadoop.version>
-<hbase.version>2.1.0-cdh6.2.0</hbase.version>
-<hive.version>2.1.1-cdh6.2.0</hive.version>
-<kafka.version>2.1.0-cdh6.2.0</kafka.version>
-<sqoop.version>1.4.7-cdh6.2.0</sqoop.version>
-<zookeeper.version>3.4.5-cdh6.2.0</zookeeper.version>
+<hadoop.version>3.0.0-cdh6.3.2</hadoop.version>
+<hbase.version>2.1.0-cdh6.3.2</hbase.version>
+<hive.version>2.1.1-cdh6.3.2</hive.version>
+<kafka.version>2.1.0-cdh6.3.2</kafka.version>
+<zookeeper.version>3.4.5-cdh6.3.2</zookeeper.version>
 ```
 
 - 在 `pom.xml` 文件的 `repository` 部分，新增 Cloudera 软件源
@@ -84,6 +83,7 @@ cd apache-atlas-sources-2.1.0/
 - 修改配置文件 `distro/src/conf/atlas-env.sh` 并新增如下内容
 
 ```bash
+export HBASE_CONF_DIR=/etc/hbase/conf
 export MANAGE_LOCAL_SOLR=false
 export MANAGE_LOCAL_HBASE=false
 ```
@@ -136,7 +136,13 @@ atlas.audit.hbase.zookeeper.quorum=<zookeeper-1>:2181,<zookeeper-2>:2181,<zookee
 
 - 同步 `hbase`,`solr`,`zookeeper` 配置文件至 `conf` 目录下
 
-> 注：由于 CDH 每次启动程序都会重新生成配置文件，所以此处的配置需要手动维护。最新的配置文件参见 `/run/cloudera-scm-agent/process/`
+### 与各组件集成
+
+参照官方文档
+
+[与 HBase 集成](http://atlas.apache.org/#/HookHBase)
+
+> 注：其他组件请在左侧导航栏中寻找
 
 ### 参考资料
 
