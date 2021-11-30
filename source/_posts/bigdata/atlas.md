@@ -22,7 +22,7 @@ CDH 版本：6.3.2
 
 Atlas 版本：2.1.0
 
-> 注：由于 Atlas 2.2.0 与 Hive 2.1.0 
+> 注：构建时请使用部署了服务的 CDH 集群内的任意主机。
 
 ### 前置依赖
 
@@ -88,6 +88,30 @@ export MANAGE_LOCAL_SOLR=false
 export MANAGE_LOCAL_HBASE=false
 ```
 
+- 修改 Hive Hook 适配代码
+
+`org/apache/atlas/hive/bridge/HiveMetaStoreBridge.java(577)`
+
+```text
+String catalogName = hiveDB.getCatalogName() != null ? hiveDB.getCatalogName().toLowerCase() : null;
+```
+
+改为
+
+```text
+String catalogName = null;
+```
+
+`org/apache/atlas/hive/hook/AtlasHiveHookContext.java(81)`
+
+```text
+this.metastoreHandler = (listenerEvent != null) ? metastoreEvent.getIHMSHandler() : null;
+```
+
+```text
+this.metastoreHandler = null;
+```
+
 - 编译打包
 
 > 注：如果此处编译出现配置相关问题，则查看软件安装部分中的修改配置文件小节并编辑 `distro/src/conf/atlas-application.properties` 文件
@@ -138,9 +162,38 @@ atlas.audit.hbase.zookeeper.quorum=<zookeeper-1>:2181,<zookeeper-2>:2181,<zookee
 
 ### 与各组件集成
 
-参照官方文档
+在如下配置项中新增配置：
 
-[与 HBase 集成](http://atlas.apache.org/#/HookHBase)
+- hive-site.xml 的 Hive 服务高级配置代码段（安全阀）
+- hive-site.xml 的 Hive 客户端高级配置代码段（安全阀）
+- hive-site.xml 的 HiveServer2 高级配置代码段（安全阀）
+
+配置如下内容：
+
+```xml
+<property>
+    <name>hive.exec.post.hooks</name>
+    <value>org.apache.atlas.hive.hook.HiveHook</value>
+</property>
+```
+
+在 hive-env.sh 的 Gateway 客户端环境高级配置代码段（安全阀）中新增如下内容:
+
+```text
+HIVE_AUX_JARS_PATH=<atlas_path>/hook/hive
+```
+
+在 Hive 辅助 JAR 目录中新增如下内容:
+
+```text
+<atlas_path>/hook/hive
+```
+
+重启 Hive 和 Atlas 即可
+
+如果遇到问题请参照官方文档
+
+[与 Hive 集成](http://atlas.apache.org/#/HookHive)
 
 > 注：其他组件请在左侧导航栏中寻找
 
