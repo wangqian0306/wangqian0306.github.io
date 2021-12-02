@@ -162,6 +162,14 @@ atlas.audit.hbase.zookeeper.quorum=<zookeeper-1>:2181,<zookeeper-2>:2181,<zookee
 
 ### 与各组件集成
 
+此处需要将 Atals 配置文件放入各个组件中，但是由于 CDH 每次运行的配置文件是动态生成的所以需要将配置文件使用如下命令压缩至 jar 包中
+
+```bash
+zip -u <atlas_home>/hook/hive/atlas-plugin-classloader-2.1.0.jar atlas-application.properties
+```
+
+> 注：此条压缩命令不可改变，如果变更会导致 jar 包内的文件路径映射问题，导致 Hook 无法读取配置文件以至于组件启动失败。
+
 在如下配置项中新增配置：
 
 - hive-site.xml 的 Hive 服务高级配置代码段（安全阀）
