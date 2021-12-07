@@ -205,6 +205,155 @@ HIVE_AUX_JARS_PATH=<atlas_path>/hook/hive
 
 > 注：其他组件请在左侧导航栏中寻找
 
+### 手动添加元数据
+
+请求方式： POST
+
+请求地址： `http://<atlas_host>:21000/api/atlas/v2/entity`
+
+- 创建数据库实例
+
+```json
+{
+  "entity": {
+    "attributes": {
+      "owner": "<user>",
+      "ownerName": "<user>",
+      "name": "mysql_instance",
+      "qualifiedName": "mysql_instance@<mysql_host>",
+      "rdbms_type": "mysql",
+      "description": "dashboard database",
+      "contact_info": "jdbc://<mysql_host>:3306/<mysql_db>",
+      "platform": "Linux",
+      "hostname": "<mysql_host>",
+      "protocol": "mysql protocol",
+      "port": "3306"
+    },
+    "typeName": "rdbms_instance",
+    "status": "ACTIVE"
+  }
+}
+```
+
+- 创建数据库
+
+```json
+{
+  "entity": {
+    "attributes": {
+      "owner": "<user>",
+      "ownerName": "<user>",
+      "name": "<database>",
+      "displayText": "",
+      "qualifiedName": "<database>@<mysql_host>",
+      "description": "",
+      "instance": {
+        "guid": "<数据库实例 ID>",
+        "typeName": "rdbms_instance",
+        "entityStatus": "ACTIVE"
+      }
+    },
+    "typeName": "rdbms_db",
+    "status": "ACTIVE"
+  }
+}
+```
+
+- 创建数据表
+
+```json
+{
+  "entity": {
+    "attributes": {
+      "owner": "<user>",
+      "ownerName": "<user>",
+      "name": "<table_name>",
+      "db": {
+        "guid": "<数据库 ID>",
+        "typeName": "rdbms_db"
+      },
+      "qualifiedName": "<database>.<table>@<host>",
+      "description": "",
+      "replicatedTo": null,
+      "replicatedFrom": null
+    },
+    "typeName": "rdbms_table",
+    "status": "ACTIVE"
+  }
+}
+```
+
+- 创建列
+
+```json
+{
+  "entity": {
+    "attributes": {
+      "owner": "<user>",
+      "ownerName": "<user>",
+      "name": "<column>",
+      "qualifiedName": "<database>.<table>.<column>@<host>",
+      "default_value": null,
+      "isPrimaryKey": false,
+      "indexes": [],
+      "isNullable": false,
+      "data_type": "datetime",
+      "comment": "",
+      "table": {
+        "guid": "<table>",
+        "typeName": "rdbms_table"
+      }
+    },
+    "typeName": "rdbms_column",
+    "status": "ACTIVE"
+  }
+}
+```
+
+- 创建变化关系
+
+```json
+{
+  "entity": {
+    "attributes": {
+      "owner": null,
+      "ownerName": null,
+      "outputs": [
+        {
+          "guid": "<output_id>",
+          "typeName": "<output_type>"
+        }
+      ],
+      "queryGraph": null,
+      "replicatedTo": null,
+      "userDescription": null,
+      "replicatedFrom": null,
+      "recentQueries": [],
+      "qualifiedName": "<name>",
+      "displayName": null,
+      "inputs": [
+        {
+          "guid": "<input_id>",
+          "typeName": "<input_type>"
+        }
+      ],
+      "description": null,
+      "userName": "",
+      "queryId": "",
+      "clusterName": "primary",
+      "name": "<name>",
+      "queryText": "",
+      "startTime": 1638773124750,
+      "operationType": " ",
+      "queryPlan": "Not Supported",
+      "endTime": 1638773124750
+    },
+    "typeName": "Process",
+    "status": "ACTIVE"
+  }
+}
+```
+
 ### 参考资料
 
 [环境篇：Atlas2.0.0兼容CDH6.2.0部署](https://www.cnblogs.com/ttzzyy/p/12853572.html)
