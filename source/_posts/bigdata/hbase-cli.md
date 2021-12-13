@@ -82,3 +82,16 @@ drop '<table>'
 ```bash
 hbase org.apache.hadoop.hbase.mapreduce.RowCounter '<table>'
 ```
+### 常见问题
+
+#### Python 链接出现 TSocket read 0 bytes
+
+进入 HBase Thrift Server 配置项当中，关闭如下配置项：
+
+- `hbase.regionserver.thrift.compact`
+- `hbase.regionserver.thrift.framed`
+
+然后进入 HBase 配置项中，关闭如下配置项：
+
+- `hbase.regionserver.thrift.http`
+- `hbase.thrift.support.proxyuser`
