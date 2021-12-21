@@ -267,8 +267,8 @@ TT.now() 方法返回一个 TTinterval，它保证包含调用 TT.now() 的绝�
 定义瞬时误差界为 `ϵ`，它是区间宽度的一半，平均误差界为 `⋷`。
 TT.after() 和 TT.before() 方法是围绕 TT.now() 的便捷包装器。
 
-用函数 t <sub>abs</sub>(e) 表示事件 `e` 的绝对时间。
-在更正式的情况下，TrueTime 保证对于调用 tt = TT.now()，tt.earliest ≤ t <sub>abs</sub>(e <sub>now</sub>) ≤ tt.latest，其中 e <sub>now</sub> 是调用事件。
+用函数 t<sub>abs</sub>(e) 表示事件 `e` 的绝对时间。
+在更正式的情况下，TrueTime 保证对于调用 tt = TT.now()，tt.earliest ≤ t<sub>abs</sub>(e<sub>now</sub>) ≤ tt.latest，其中 e<sub>now</sub> 是调用事件。
 
 TrueTime 使用的基础时间参考是 GPS 和原子钟。
 TrueTime 使用两种形式的时间参考，因为它们具有不同的故障模式。
@@ -349,9 +349,9 @@ Spanner 依赖于以下不相交不变量：对于每个 Paxos 组，每个 Paxo
 
 Spanner 的实现允许 Paxos 领导节点通过释放其从租约投票来移除从属节点。
 为了保持不相交性不变，Spanner 限制了何时允许移除节点。
-将 s <sub>max</sub> 定义为领导者使用的最大时间戳。
-后续部分将描述何时推进 s <sub>max</sub> 。
-在退位之前，领导节点必须等到 TT.after(s <sub>max</sub>) 的返回结果为真。
+将 s<sub>max</sub> 定义为领导者使用的最大时间戳。
+后续部分将描述何时推进 s<sub>max</sub> 。
+在退位之前，领导节点必须等到 TT.after(s<sub>max</sub>) 的返回结果为真。
 
 ##### 4.1.2 为 RW 事务分配时间戳
 
@@ -362,7 +362,35 @@ Spanner 的实现允许 Paxos 领导节点通过释放其从租约投票来移�
 Spanner 依赖于以下单调不变量：在每个 Paxos 组中，Spanner 以单调递增的顺序为 Paxos 写入分配时间戳，甚至跨越领导者。
 单个领导副本可以按单调递增的顺序轻松分配时间戳。
 这个不变性通过使用不相交不变性在领导节点之间强制执行：领导节点必须只在其领导节点租用的间隔内分配时间戳。
-请注意，每当分配时间戳 s 时，s <sub>max</sub> 都会前进到 s 以保持不相交性。
+请注意，每当分配时间戳 s 时，s<sub>max</sub> 都会前进到 s 以保持不相交性。
 
-Spanner 还强制执行以下外部一致性不变量：如果事务 T <sub>2</sub> 的开始发生在事务 T <sub>1</sub> 提交之后，则 T<sub>2</sub> 的提交时间戳必须大于 T <sub>1</sub> 的提交时间戳。
-我们定义事务 T <sub>i</sub> 的起始时间为 e<sub>i</sub><sup style="margin-left:-6px">start</sup> 和提交
+Spanner 还强制执行以下外部一致性不变量：如果事务 T<sub>2</sub> 的开始发生在事务 T <sub>1</sub> 提交之后，则 T<sub>2</sub> 的提交时间戳必须大于 T <sub>1</sub> 的提交时间戳。
+我们定义事务 T<sub>i</sub> 的起始时间为 {% mathjax %} e_{i}^{start} {% endmathjax %} 和提交时间为 {% mathjax %} e_{i}^{commit} {% endmathjax %}；并且在 T <sub>i</sub> 事务的提交时间戳为 s <sub>i</sub>。、
+我们可以得出如下结论 {% mathjax %} t_{abs}(e_{1}^{commit}) < t_{abs}(e_{2}^{commit}) \Rightarrow s_1 < s_2 {% endmathjax %}。
+用于执行事务和分配时间戳的协议遵循两条规则，这两条规则共同保证了该不变量，如下所示。
+协调者节点定义了到达时间 T<sub>i</sub> 的提交请求为 {% mathjax %} e_{i}^{server} {% endmathjax %}。
+
+在起始阶段中：协调者节点写入 T<sub>i</sub> 事务时分配的提交时间 s<sub>i</sub> 不得小于在 {% mathjax %} e_{i}^{server} {% endmathjax %} 计算之后的 TT.now().latest。
+请注意，是否有领导者作为参与在这里无关紧要；第 4.2.1 节描述了它们如何参与下一条规则的实现。
+
+在提交等待阶段中：协调者节点保证了客户端无法看到任何在 T<sub>i</sub> 时提交的数据，仅当在 TT.after(s<sub>i</sub>) 返回内容为真时才能可见。
+提交等待阶段保证了在 s<sub>i</sub> 小于提交时间 T<sub>i</sub>，或者 {% mathjax %} s_{i} < t_{abs}(e_{i}^{commit}) {% endmathjax %}。
+第 4.2.1 节描述了提交等待的实现。证明如下：
+
+{% mathjax %} s_1 < t_{abs}(e_{1}^{commit}) {% endmathjax %} (提交等待)
+
+{% mathjax %} t_{abs}(e_{1}^{commit}) < t_{abs}(e_{2}^{start}) {% endmathjax %} (假设)
+
+{% mathjax %} t_{abs}(e_{2}^{start}) \leq t_{abs}(e_{2}^{server}) <= {% endmathjax %} (因果关系)
+
+{% mathjax %} t_{abs}(e_{2}^{server}) \leq s_{2} {% endmathjax %} (起始)
+
+{% mathjax %} s_{1} < s_{2} {% endmathjax %} (传递性)
+
+##### 4.1.3 在某一时间点的服务器读取
+
+第 4.1.2 节中描述的单调不变性允许 Spanner 确定副本的状态是否足以满足读取的要求。
+每个副本都追踪名为 safe time 的参数 t<sub>safe</sub>，此参数说明了副本最大的更新时间戳。
+此副本可以安全的被读取，仅需满足读取时间戳为 t ，t <= t<sub>safe</sub>。
+
+定义如下 {% mathjax %} t_safe = min(t_{safe}^{Paxos}, t_{safe}^{TM}) {% endmathjax %} ，Paxos 状态机当中的安全时间为 {% mathjax %}  t_{safe}^{Paxos} {% endmathjax %} 每个事务管理器的安全时间为 {% mathjax %}  t_{safe}^{TM} {% endmathjax %}。
