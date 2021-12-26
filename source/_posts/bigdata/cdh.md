@@ -102,9 +102,21 @@ cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
 
 - 安装软件源
 
+> 注：此处需要修改为本地源
+
 ```bash
-wget https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/cloudera-manager.repo -P /etc/yum.repos.d/
-rpm --import https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPM-GPG-KEY-cloudera
+vim /etc/yum.repos.d/clouder-scm.repo
+```
+
+```text
+[cloudera-manager]
+name=Cloudera Manager 6.3.1
+baseurl=http://<server_ip>/cloudera-repos/cm6/6.3.1/redhat7/yum/
+gpgkey=http://<server_ip>/cloudera-repos/cm6/6.3.1/redhat7/yum/RPM-GPG-KEY-cloudera
+gpgcheck=0
+enabled=1
+autorefresh=0
+type=rpm-md
 ```
 
 ### 安装数据库

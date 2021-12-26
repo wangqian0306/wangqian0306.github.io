@@ -35,27 +35,23 @@ yum install -y httpd
 mkdir -p /var/www/html/cloudera-repos/cm6
 ```
 
-- 拉取并解压软件包
+- 拉取软件包
 
-```bash
-cd /var/www/html/cloudera-repos/cm6
-wget https://archive.cloudera.com/cm6/version/repo-as-tarball/cm6.3.1-redhat7.tar.gz
-tar xvfz cm6.3.1-redhat7.tar.gz -C /var/www/html/cloudera-repos/cm6 --strip-components=1
-```
-
-- 同步软件源
-
-```bash
-wget https://archive.cloudera.com/cm6/6.3.1/allkeys.asc
-wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/cdh6/<version>/<operating_system>/ -P /var/www/html/cloudera-repos
-wget --recursive --no-parent --no-host-directories https://archive.cloudera.com/gplextras6/<version>/<operating_system>/ -P /var/www/html/cloudera-repos
-```
+> 注：Cloudera 官方已经关闭了免费下载源，所以需要自行寻找让软件包。
 
 - 修改文件权限
 
 ```bash
 chmod -R ugo+rX /var/www/html/cloudera-repos/cdh6
 chmod -R ugo+rX /var/www/html/cloudera-repos/gplextras6
+```
+
+- 补充 repo(若出现 repo 访问异常)
+
+> 注：进入报错的文件夹输入如下命令。
+
+```bash
+createrepo -g repodata/repomd.xml .
 ```
 
 - 启动服务
@@ -88,7 +84,7 @@ autorefresh=0
 type=rpm-md
 ```
 
-### Nexus 软件源方式
+### Nexus 软件源方式(已经失效)
 
 Neuxs 可以作为 Proxy 缓存外网上的软件包。
 
