@@ -83,7 +83,7 @@ Spanner 支持通用事务，并提供基于 SQL 的查询语言。
 
 这些功能是由 Spanner 为事务分配全局有意义的提交时间戳这一事实所启用的，即使事务可能是分布式的。
 时间戳反映了序列化顺序。
-此外，序列化顺序满足外部一致性(或等效的线性化 `[Herlihy and Wing 1990])：如果事务 T1 在另一个事务 T2 开始之前提交，则 T1 的提交时间戳小于 T2 的。
+此外，序列化顺序满足外部一致性(或等效的线性化 `[Herlihy and Wing 1990]`)：如果事务 T1 在另一个事务 T2 开始之前提交，则 T1 的提交时间戳小于 T2 的。
 Spanner 是第一个在全球范围内提供此类保证的系统。
 
 这些属性的关键促成因素是新的 TrueTime API 及其实现。
@@ -590,7 +590,10 @@ TrueTime 可用于确保不相交，而无需这些额外的日志写入。
 |  100  | 55.9 ± 1.2  |  88.859 ± 5.9  |
 |  200  | 122.5 ± 6.7 | 206.443 ± 15.8 |
 
-表 4 显示了两阶段提交可以扩展到合理数量的参与者：它是对一系列实验的总结，这些实验运行在3个zone上，每个zone具有25个spanserver。扩展到50个参与者，无论在平均值还是第99个百分位方面，都是合理的。在100个参与者的情形下，延迟开始明显增加。
+> 表 4：两阶段提交可扩展性。10 次运行的平均偏差和标准偏差
+
+表 4 显示了两阶段提交可以扩展到合理数量的参与者：它是对一系列实验的总结，这些实验运行在 3 个 zone 上，每个 zone 具有 25 个 spanserver。
+扩展到 50 个参与者，无论在平均值还是第 99 个百分位方面，都是合理的。在100个参与者的情形下，延迟开始明显增加。
 
 #### 5.2 可用性
 
@@ -617,3 +620,251 @@ TrueTime 可用于确保不相交，而无需这些额外的日志写入。
 我们正在设计和实施一种机制，该机制将导致从属节点在领导节点关闭时释放 Paxos 领导租约。
 
 #### 5.3 TrueTime
+
+关于 TrueTime，有两个问题必须回答：`ϵ` 是否就是时钟不确定性的边界？`ϵ`在最差的情况下会怎么样？
+对于前者，最严重的问题是如果本地时钟的漂移大于 200 us/sec：这将打破 TrueTime 的假设。
+我们的机器统计数据显示，CPU 损坏的可能性是时钟损坏的 6 倍。
+也就是说，相对于更严重的硬件问题，时钟问题非常罕见。
+因此，我们相信 TrueTime 的实现与 Spanner 所依赖的任何其他软件一样值得信赖。
+
+![image.png](https://s2.loli.net/2021/12/27/NzGPFkDm83UeIgf.png)
+
+图 6 显示了在相距最远 2200 公里的数据中心内的数千个 spanserver 机器上获取的 TrueTime 数据。
+它绘制了 `ϵ` 的第 90 个、第 99 个和第 99.9 个百分位数，在轮询时间主进程后立即在时间从进程中采样。
+由于本地时钟的不确定性，这种采样消除了 `ϵ` 中的锯齿波，因此测量时间主控器的不确定性（通常为 0）加上与时间主控器的通信延迟。
+
+数据表明，这两个因素在确定 `ϵ` 的基值时一般不成问题。
+然而，可能存在导致 `ϵ` 值较高的显着尾部延迟问题。
+从 3 月 30 日开始，尾部延迟的减少是由于网络改进减少了瞬态网络链路拥塞。
+4 月 13 日的 `ϵ` 出现了升高，持续时间约为 1 小时，原因是数据中心的 2 次主站关闭进行日常维护。
+我们将继续调查并消除 TrueTime 峰值的原因。
+
+#### 5.4 F1
+
+Spanner 于 2011 年初开始在生产工作负载下进行实验评估，作为重写 Google 广告后端 F1 的一部分 `[Shute et al. 2012]`。
+这个后端最初是基于一个手动分片的 MySQL 数据库。
+未压缩的数据集有数十 TB，与许多 NoSQL 实例相比很小，但大到足以导致分片 MySQL 出现问题。
+MySQL 分片方案将每个客户和所有相关数据分配到一个固定分片。
+这种布局允许在每个客户的基础上使用索引和复杂的查询处理，但需要一些应用程序业务逻辑中的分片知识。
+随着客户数量和数据规模的增长，重新分配这个对收入至关重要的数据库的成本非常高。
+上一次重新分片花费了两年的努力，涉及数十个团队之间的协调和测试，以最大限度地降低风险。
+此操作过于复杂，无法定期执行：因此，团队不得不通过将一些数据存储在外部 Bigtable 中来限制 MySQL 数据库的增长，但这会损害事务行为和查询所有数据的能力。
+
+F1 团队选择使用 Spanner 有几个原因。
+首先，Spanner 无需手动重新分片。
+其次，Spanner 提供同步复制和自动故障转移。
+使用 MySQL 主从复制，故障转移很困难，并且有数据丢失和停机的风险。
+第三，F1 需要强大的事务语义，这使得使用其他 NoSQL 系统不切实际。
+应用程序语义需要跨任意数据的事务，和一致性的读取功能。
+F1 团队还需要对他们的数据进行二级索引(因为 Spanner 尚未提供对二级索引的自动支持)，并且能够使用 Spanner 事务实现自己的一致全局索引。
+
+所有应用程序写入现在默认通过 F1 发送到 Spanner，而不是基于 MySQL 的应用程序栈。
+F1在美国西海岸有 2 个副本，在东海岸有 3 个。
+选择副本站点是为了应对潜在的重大自然灾害造成的中断，以及他们前端站点的选择。
+有趣的是，他们几乎看不到 Spanner 的自动故障转移。
+在过去的几个月中，尽管有不在计划内的机群失效，但是，F1团队最需要做的工作仍然是更新他们的数据库模式，来告诉 Spanner 在哪里放置 Paxos 领导节点，从而使得它们尽量靠近应用前端。
+
+Spanner 的时间戳语义使 F1 能够有效地维护从数据库状态计算出的内存中数据结构。
+F1 维护所有更改的逻辑历史日志，该日志作为每个事务的一部分写入 Spanner 本身。
+F1 在时间戳上获取数据的完整快照以初始化其数据结构，然后读取增量更改以更新它们。
+
+|   片段    |  目录   |
+|:-------:|:-----:|
+|    1    | >100M |
+|   2-4   |  341  |
+|   5-9   | 5336  |
+|  10-14  |  232  |
+|  15-99  |  34   |
+| 100-500 |   7   |
+
+> 表 5：F1 中目录片段计数的分布。
+
+表 5 说明了 F1 中每个目录的片段数量分布。
+每个目录通常对应于 F1 之上的应用程序堆栈中的一个客户。
+绝大多数目录（以及客户）仅包含 1 个片段，这意味着对这些客户数据的读取和写入保证仅发生在单个服务器上。
+超过 100 个分片的目录都是包含 F1 二级索引的表：写入这些表的多个分片是非常罕见的。
+F1 团队仅在将批量数据加载作为事务进行调优时才看到这种行为。
+
+|  操作  | 平均延迟(ms) | 延迟标准差 |  总大小  |
+|:----:|:--------:|:-----:|:-----:|
+| 所有读取 |   8.7    | 376.4 | 21.5B |
+| 单点提交 |   72.3   | 112.8 | 31.2M |
+| 多点提交 |  103.0   | 52.2  | 32.1M |
+
+> 表 6：F1-24 小时内测量的可感知操作延迟。
+
+表 6 显示了从 F1 服务器测量的 Spanner 操作延迟。
+东海岸数据中心的副本在选择 Paxos 领导节点时具有更高的优先级。
+表中的数据是从这些数据中心的 F1 服务器测量的。
+写入延迟的大标准偏差是由于锁冲突导致的肥尾效应(pretty fat tail)造成的。
+读取延迟更大的标准偏差部分是由于 Paxos 的领导节点分布在两个数据中心，其中只有一个有配备 SSD 的机器。
+此外，测量包括系统中来自两个数据中心的每次读取：读取的字节的平均值和标准差分别约为 1.6KB 和 119KB。
+
+### 6 相关工作
+
+跨数据中心的一致复制作为存储服务已由 Megastore 和 DynamoDB 提供 `[Baker et al. 2011]`。
+DynamoDB 呈现一个key-value 接口，并且只在一个区域内复制。
+Spanner 跟随 Megastore 提供了一个半关系数据模型，甚至是一种类似的模式语言。
+Megastore 没有实现高性能。 它位于 Bigtable 之上，这带来了高昂的通信成本。
+它也不支持长时间的领导节点：多个副本可能会启动写入。
+来自不同副本的所有写入都必然会在 Paxos 协议中发生冲突，即使它们在逻辑上没有冲突：Paxos 组的吞吐量会以每秒多次写入的速度崩溃。
+Spanner 提供更高的性能、通用事务和外部一致性。
+
+Pavlo et al. `[2009]` 比较了数据库和 MapReduce `[Dean and Ghemawat 2010]` 的性能。
+他们指出了为探索分布式键值存储分层的数据库功能而做出的其他一些努力 `[Abouzeidet al. 2009; Armbrust et al. 2011; Brantner et al. 2008; Thusoo et al. 2010]` 二者可以实现充分的融合。
+我们同意这个结论，但证明集成多个层有其优势：例如，将并发控制与复制集成降低了 Spanner 中的提交等待成本。
+
+在复制存储之上分层交易的概念至少可以追溯到 Gifford 的论文 `[Gifford 1982]`。
+Scatter `[Glendenning et al. 2011]` 是最近的基于 DHT 的键值存储，它在一致复制之上分层事务。
+Spanner 专注于提供比 Scatter 更高级别的接口。
+Gray 和 Lamport [2006] 描述了一种基于 Paxos 的非阻塞提交协议。
+他们的协议比两阶段提交产生更多的消息传递成本，这会加剧广泛分布的组的提交成本。
+Walter `[Sovran et al. 2011]` 提供了一种在数据中心内但不能跨数据中心工作的快照隔离变体。
+相比之下，我们的快照事务提供了更自然的语义，因为我们支持外部一致性整体操作。
+
+最近有大量关于减少或消除锁定开销的工作。
+Calvin `[Thomson et al. 2012]` 消除了并发控制：它会重新分配时间戳，然后以时间戳的顺序执行事务。
+H-Store `[Stonebraker et al.2007]` 和 Granola `[Cowling and Liskov 2012]` 都支持他们自己的交易类型分类，其中一些可以避免锁定。
+这些系统都没有提供外部一致性。 Spanner 通过提供对快照隔离的支持来解决争用问题。
+
+VoltDB `[2012]` 是一个分片内存数据库，它支持大范围内的主从复制以进行灾难恢复，但不支持更通用的复制配置。
+它是所谓的 NewSQL 的一个实例，这是实现可扩展的 SQL 的强大的市场推动力 `[Stonebraker 2010a]`。
+许多商业数据库过去都实现了读取功能，例如 MarkLogic `[2012]` 和 Oracle 的 Total Recall `[Oracle2012]`。
+Lomet 和 Li `[2009]` 描述了这种时态数据库的实现策略。
+
+Farsite 衍生出的时钟不确定性边界(比 TrueTime 更宽松)相对于受信任的时钟参考 `[Douceur and Howell 2003]`：Farsite 中的服务器租用与 Spanner 维护 Paxos 租期的方式相同。
+在先前的工作中，松散同步的时钟已被用于并发控制目的 `[Adya et al.1995; Liskov 1993]`。
+我们已经证明 TrueTime 可以让一个关于跨 Paxos 状态机集的全局时间的原因。
+
+### 7 未来的工作
+
+我们去年大部分时间都在与 F1 团队合作，将 Google 的广告后端从 MySQL 过渡到 Spanner。
+我们正在积极改进其监控和支持工具，并调整其性能。
+此外，我们一直致力于改进备份/恢复系统的功能和性能。
+Wear 目前正在实施 Spanner 模式语言、二级索引的自动维护和基于负载的自动重新分片。
+从长远来看，我们计划研究几个功能。
+乐观地并行读取可能是一种有价值的策略，但最初的实验表明，正确的实现并非易事。
+此外，我们计划最终支持 Paxos 配置的直接更改 `[Lamport et al. 2010; Shraer et al. 2012]`。
+
+鉴于我们预计许多应用程序会在彼此相对靠近的数据中心之间复制其数据，TrueTime `ϵ` 可能会显着影响性能。我们认为将 `ϵ` 降低到 1 毫秒以下没有不可逾越的障碍。
+可以减少时间主查询间隔，并且更好的时钟晶体相对便宜。
+时间主查询延迟可以通过改进的网络技术来减少，或者甚至可以通过替代时间分配技术来避免。
+
+最后，还有明显需要改进的地方。
+尽管 Spanner 在节点数量上具有可扩展性，但节点本地数据结构在复杂 SQL 查询上的性能相对较差，因为它们是为简单的键值访问而设计的。
+DB 文献中的算法和数据结构可以大大提高单节点性能。
+其次，在数据中心之间自动移动数据以响应客户端负载的变化一直是我们的目标，但为了使该目标有效，我们还需要能够以自动化、协调的方式在数据中心之间移动客户端应用程序进程。
+移动进程带来了更困难的问题，即管理数据中心之间的资源获取和分配。
+
+### 8 结论
+
+总而言之，Spanner 结合并扩展了来自两个研究社区的想法：来自数据库社区、熟悉的、易于使用的半关系界面、事务和基于 SQL 的查询语言；来自系统社区、可扩展性、自动分片、容错、一致复制、外部一致性和广域分布。
+自 Spanner 成立以来，我们已经用了 5 年多的时间来迭代到当前的设计和实现。
+这个漫长的迭代阶段的一部分是因为人们缓慢地意识到 Spanner 不仅应该解决全局复制命名空间的问题，还应该关注 Bigtable 缺少的数据库功能。
+
+我们设计的一个方面脱颖而出：Spanner 功能集的关键是 TrueTime。
+我们已经证明，在时间 API 中具体化时钟不确定性使得构建具有更强时间语义的分布式系统成为可能。
+此外，随着底层系统对时钟不确定性实施更严格的界限，更强语义的开销减少。
+作为一个社区，我们在设计分布式算法时不应再依赖松散同步的时钟和弱时间 API。
+
+### 致谢
+
+```text
+Many people have helped to improve this article: our shepherd Jon Howell, who went above and beyond hisresponsibilities;
+ the anonymous referees; and many Googlers: Atul Adya, Fay Chang, Frank Dabek, SeanDorward, Bob Gruber, David Held, 
+ Nick Kline, Alex Thomson, and Joel Wein. Our management has beenvery supportive of both our work and of publishing this article: 
+ Aristotle Balogh, Bill Coughran, Urs H¨olzle,Doron Meyer, Cos Nicolaou, Kathy Polizzi, Sridhar Ramaswany, and Shivakumar Venkataraman. 
+ We havebuilt upon the work of the Bigtable and Megastore teams. The F1 team, and Jeff Shute in particular,
+ workedclosely with us in developing our data model and helped immensely in tracking down performance andcorrectness bugs.
+ The Platforms team, and Luiz Barroso and Bob Felderman in particular, helped to makeTrueTime happen.
+ Finally, a lot of Googlers used to be on our team: Ken Ashcraft, Paul Cychosz, KrzysztofOstrowski, Amir Voskoboynik,
+ Matthew Weaver, Theo Vassilakis, and Eric Veach; or have joined our teamrecently: Nathan Bales, Adam Beberg, Vadim Borisov,
+ Ken Chen, Brian Cooper, Cian Cullinan, Robert-JanHuijsman, Milind Joshi, Andrey Khorlin, Dawid Kuroczko, Laramie Leavitt,
+ Eric Li, Mike Mammarella,Sunil Mushran, Simon Nielsen, Ovidiu Platon, Ananth Shrinivas, Vadim Suvorov, and Marcel van der Holst.
+```
+
+### 参考资料
+
+[1] Azza Abouzeid et al. “HadoopDB: an architectural hybrid of MapReduce and DBMS technologies for analytical workloads”. Proc. of VLDB. 2009, pp. 922–933.
+
+[2] A. Adya et al. “Efficient optimistic concurrency control using loosely synchronized clocks”. Proc. of SIGMOD. 1995, pp. 23–34.
+
+[3] Amazon. Amazon DynamoDB. 2012.
+
+[4] Michael Armbrust et al. “PIQL: Success-Tolerant Query Processing in the Cloud”. Proc. of VLDB. 2011, pp. 181–192.
+
+[5] Jason Baker et al. “Megastore: Providing Scalable, Highly Available Storage for Interactive Services”. Proc. of CIDR. 2011, pp. 223–234.
+
+[6] Hal Berenson et al. “A critique of ANSI SQL isolation levels”. Proc. of SIGMOD. 1995, pp. 1–10.
+
+[7] Matthias Brantner et al. “Building a database on S3”. Proc. of SIGMOD. 2008, pp. 251–264.
+
+[8] A. Chan and R. Gray. “Implementing Distributed Read-Only Transactions”. IEEE TOSE SE-11.2 (Feb. 1985), pp. 205–212.
+
+[9] Fay Chang et al. “Bigtable: A Distributed Storage System for Structured Data”. ACM TOCS 26.2 (June 2008), 4:1–4:26.
+
+[10] Brian F. Cooper et al. “PNUTS: Yahoo!’s hosted data serving platform”. Proc. of VLDB. 2008, pp. 1277–1288.
+
+[11] James Cowling and Barbara Liskov. “Granola: Low-Overhead Distributed Transaction Coordination”. Proc. of USENIX ATC. 2012, pp. 223–236.
+
+[12] Jeffrey Dean and Sanjay Ghemawat. “MapReduce: a flexible data processing tool”. CACM 53.1 (Jan. 2010), pp. 72–77.
+
+[13] John Douceur and Jon Howell. Scalable Byzantine-Fault-Quantifying Clock Synchronization. Tech. rep. MSR-TR-2003-67. MS Research, 2003.
+
+[14] John R. Douceur and Jon Howell. “Distributed directory service in the Farsite file system”. Proc. of OSDI. 2006, pp. 321–334.
+
+[15] Sanjay Ghemawat, Howard Gobioff, and Shun-Tak Leung. “The Google file system”. Proc. of SOSP. Dec. 2003, pp. 29–43.
+
+[16] David K. Gifford. Information Storage in a Decentralized Computer System. Tech. rep. CSL-81-8. PhD dissertation. Xerox PARC, July 1982.
+
+[17] Lisa Glendenning et al. “Scalable consistency in Scatter”. Proc. of SOSP. 2011.
+
+[18] Jim Gray and Leslie Lamport. “Consensus on transaction commit”. ACM TODS 31.1 (Mar. 2006), pp. 133–160.
+
+[19] Pat Helland. “Life beyond Distributed Transactions: an Apostate’s Opinion”. Proc. of CIDR. 2007, pp. 132–141.
+
+[20] Maurice P. Herlihy and Jeannette M. Wing. “Linearizability: a correctness condition for concurrent objects”. ACM TOPLAS 12.3 (July 1990), pp. 463–492.
+
+[21] Leslie Lamport. “The part-time parliament”. ACM TOCS 16.2 (May 1998), pp. 133–169.
+
+[22] Leslie Lamport, Dahlia Malkhi, and Lidong Zhou. “Reconfiguring a state machine”. SIGACT News 41.1 (Mar. 2010), pp. 63–73.
+
+[23] Barbara Liskov. “Practical uses of synchronized clocks in distributed systems”. Distrib. Comput. 6.4 (July 1993), pp. 211–219.
+
+[24] David B. Lomet and Feifei Li. “Improving Transaction-Time DBMS Performance and Functionality”. Proc. of ICDE (2009), pp. 581–591.
+
+[25] Jacob R. Lorch et al. “The SMART way to migrate replicated stateful services”. Proc. of EuroSys. 2006, pp. 103–115.
+
+[26] MarkLogic. MarkLogic 5 Product Documentation. 2012.
+
+[27] Keith Marzullo and Susan Owicki. “Maintaining the time in a distributed system”. Proc. of PODC. 1983, pp. 295–305.
+
+[28] Sergey Melnik et al. “Dremel: Interactive Analysis of Web-Scale Datasets”. Proc. of VLDB. 2010, pp. 330–339.
+
+[29] D.L. Mills. Time synchronization in DCNET hosts. Internet Project Report IEN–173. COMSAT Laboratories, Feb. 1981.
+
+[30] Oracle. Oracle Total Recall. 2012.
+
+[31] Andrew Pavlo et al. “A comparison of approaches to large-scale data analysis”. Proc. of SIGMOD. 2009, pp. 165–178.
+
+[32] Daniel Peng and Frank Dabek. “Large-scale incremental processing using distributed transactions and notifications”. Proc. of OSDI. 2010, pp. 1–15.
+
+[33] Daniel J. Rosenkrantz, Richard E. Stearns, and Philip M. Lewis II. “System level concurrency control for distributed database systems”. ACM TODS 3.2 (June 1978), pp. 178–198.
+
+[34] Alexander Shraer et al. “Dynamic Reconfiguration of Primary/Backup Clusters”. Proc. of  SENIX ATC. 2012, pp. 425–438.
+
+[35] Jeff Shute et al. “F1—The Fault-Tolerant Distributed RDBMS Supporting Google’s Ad Business”. Proc. of SIGMOD. May 2012, pp. 777–778.
+
+[36] Yair Sovran et al. “Transactional storage for geo-replicated systems”. Proc. of SOSP. 2011, pp. 385–400.
+
+[37] Michael Stonebraker. Why Enterprises Are Uninterested in NoSQL. 2010.
+
+[38] Michael Stonebraker. Six SQL Urban Myths. 2010.
+
+[39] Michael Stonebraker et al. “The end of an architectural era: (it’s time for a complete rewrite)”. Proc. of VLDB. 2007, pp. 1150–1160.
+
+[40] Alexander Thomson et al. “Calvin: Fast Distributed Transactions for Partitioned Database Systems”. Proc. of SIGMOD.2012, pp. 1–12.
+
+[41] Ashish Thusoo et al. “Hive — A Petabyte Scale Data Warehouse Using Hadoop”. Proc. of ICDE. 2010, pp. 996–1005.
+
+[42] VoltDB. VoltDB Resources. 2012.
