@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Kafka CLI |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-bigdata/kafka-cli"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Kafka CLI
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/kafka-cli/" class="article-date">
+  <time datetime="2020-06-09T14:43:13.000Z" itemprop="datePublished">2020-06-09</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Kafka-相关命令梳理">Kafka 相关命令梳理</h2>
+<h3 id="容器化试用">容器化试用</h3>
+<p>编写 <code>docker-compose.yaml</code> 文件，然后输入如下内容</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;2&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">docker.io/bitnami/zookeeper:3.7</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;2181:2181&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;zookeeper_data:/bitnami&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ALLOW_ANONYMOUS_LOGIN=yes</span></span><br><span class="line">  <span class="attr">kafka:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">docker.io/bitnami/kafka:2</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9092:9092&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;kafka_data:/bitnami&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">ALLOW_PLAINTEXT_LISTENER=yes</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line"></span><br><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="attr">zookeeper_data:</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">local</span></span><br><span class="line">  <span class="attr">kafka_data:</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">local</span></span><br></pre></td></tr></table></figure>
+<p>开启容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+<h3 id="kafka-topics-sh"><a target="_blank" rel="noopener" href="http://kafka-topics.sh">kafka-topics.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--alter</code></td>
+<td style="text-align:center">增加主题分区数量(在已经使用的话题中永远不要增加新分区)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--config &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--create</code></td>
+<td style="text-align:center">创建话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--delete</code></td>
+<td style="text-align:center">删除话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">展示话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--list</code></td>
+<td style="text-align:center">话题列表的标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--replication-factor &lt;num&gt;</code></td>
+<td style="text-align:center">副本因子</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--partitions &lt;num&gt;</code></td>
+<td style="text-align:center">数据分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：如果需要删除话题需要在 <code>server.properties</code> 配置文件中编辑 <code>delete.topic.enable=true</code> 配置项。在标记删除的话题停止使用后 Kafka 才会真正清除话题。</p>
+</blockquote>
+<p>config 配置项目如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>cleanup.policy</code></td>
+<td style="text-align:center">数据清理策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>compression.type</code></td>
+<td style="text-align:center">压缩类型</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>delete.retention.ms</code></td>
+<td style="text-align:center">删除时间周期</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>file.delete.delay.ms</code></td>
+<td style="text-align:center">文件删除延时</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>flush.messages</code></td>
+<td style="text-align:center">写入磁盘的消息数量</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>flush.ms</code></td>
+<td style="text-align:center">写入磁盘的时间间隔</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>follower.replication.throttled.replicas</code></td>
+<td style="text-align:center">应在从属节点端限制日志复制的副本列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>index.interval.bytes</code></td>
+<td style="text-align:center">索引间隔文件大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>leader.replication.throttled.replicas</code></td>
+<td style="text-align:center">应在领导节点端限制日志复制的副本列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>max.compaction.lag.ms</code></td>
+<td style="text-align:center">消息在日志中不符合压缩条件的最长时间</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>max.message.bytes</code></td>
+<td style="text-align:center">允许的最大记录批量大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.format.version</code></td>
+<td style="text-align:center">消息格式版本呢</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.timestamp.difference.max.ms</code></td>
+<td style="text-align:center">broker 接收消息时的时间戳与消息中指定的时间戳之间允许的最大差异</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.timestamp.type</code></td>
+<td style="text-align:center">消息时间戳的类型</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.cleanable.dirty.ratio</code></td>
+<td style="text-align:center">日志压缩频率</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.compaction.lag.ms</code></td>
+<td style="text-align:center">未压缩日志的保存时间</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.insync.replicas</code></td>
+<td style="text-align:center">最少的同步副本数(ack=-1)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>preallocate</code></td>
+<td style="text-align:center">预分配磁盘文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>retention.bytes</code></td>
+<td style="text-align:center">保留文件大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>retention.ms</code></td>
+<td style="text-align:center">保留文件时间长度</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>segment.bytes</code></td>
+<td style="text-align:center">日志文件分片大小</td>
+</tr>
+</tbody>
+</table>
+<p>具体内容请参见官方手册。</p>
+<h3 id="kafka-console-producer-sh"><a target="_blank" rel="noopener" href="http://kafka-console-producer.sh">kafka-console-producer.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--batch-size &lt;num&gt;</code></td>
+<td style="text-align:center">发送缓冲区,默认为200</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;kafka_host&gt;:&lt;kafka_port&gt;,&lt;kafka_host1&gt;:&lt;kafka_port1&gt;</code></td>
+<td style="text-align:center">kafka Broker</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--compression-codec</code></td>
+<td style="text-align:center">数据压缩,可选 none,gzip,snappy,lz4,zstd 默认为 gzip</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--producer-property &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--producer.config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-console-consumer-sh"><a target="_blank" rel="noopener" href="http://kafka-console-consumer.sh">kafka-console-consumer.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--consumer-property &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--consumer.config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--from-beginning</code></td>
+<td style="text-align:center">从头开始消费</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--group &lt;name&gt;</code></td>
+<td style="text-align:center">消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offset &lt;offset&gt;</code></td>
+<td style="text-align:center">消费偏移量，可填入数字或者 earliest 和 latest，默认为 latest</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--partition</code></td>
+<td style="text-align:center">分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-reassign-partitions-sh"><a target="_blank" rel="noopener" href="http://kafka-reassign-partitions.sh">kafka-reassign-partitions.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topics-to-move-json-file &lt;config_file&gt;</code></td>
+<td style="text-align:center">移动配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;broker_id&gt;,&lt;broker_id&gt;</code></td>
+<td style="text-align:center">目标设备 ID</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--generate</code></td>
+<td style="text-align:center">依据配置文件生成分配计划</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--execute</code></td>
+<td style="text-align:center">执行重新分配计划</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--verify</code></td>
+<td style="text-align:center">检查分区计划是否成功</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--throttle</code></td>
+<td style="text-align:center">限速大小(Byte)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：–execute 和 --verify 参数所采用的配置项是 --generate 参数生成的。</p>
+</blockquote>
+<h3 id="kafka-preferred-replica-election-sh"><a target="_blank" rel="noopener" href="http://kafka-preferred-replica-election.sh">kafka-preferred-replica-election.sh</a></h3>
+<p>此工具使每个分区的领导权转移回“首选副本”，它可用于平衡服务器之间的领导权。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--zookeeper &lt;zk_host_1&gt;:&lt;zk_port_1&gt;,&lt;zk_host_2&gt;:&lt;zk_port_2&gt;/&lt;chroot&gt;</code></td>
+<td style="text-align:center">zookeeper 地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--path-to-json-file</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-consumer-groups-sh"><a target="_blank" rel="noopener" href="http://kafka-consumer-groups.sh">kafka-consumer-groups.sh</a></h3>
+<p>此工具可以列出所有的消费组详情，删除位移(offset)，重置消费组位移。</p>
+<p>消费组的重设策略如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">纬度</th>
+<th style="text-align:center">策略</th>
+<th style="text-align:center">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Earliest</td>
+<td style="text-align:center">最早</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Latest</td>
+<td style="text-align:center">当前最新</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Current</td>
+<td style="text-align:center">最新一次提交</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Specified-Offset</td>
+<td style="text-align:center">指定位移</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Shift-By-N</td>
+<td style="text-align:center">当前位移 +N</td>
+</tr>
+<tr>
+<td style="text-align:center">时间维度</td>
+<td style="text-align:center">DateTime</td>
+<td style="text-align:center">调整到大于给定时间的最小位移处</td>
+</tr>
+<tr>
+<td style="text-align:center">时间维度</td>
+<td style="text-align:center">Duration</td>
+<td style="text-align:center">调整到距离当前时间间隔的位移处</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--all-topics</code></td>
+<td style="text-align:center">管理所有话题</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--by-duration</code></td>
+<td style="text-align:center">Duration 策略，格式为 <code>PnDTnHnMnS</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--delete</code></td>
+<td style="text-align:center">删除位移(将目标组以如下形式传递 <code>--group g1 --group g2</code>)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">显示位移信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--dry-run</code></td>
+<td style="text-align:center">展示运行之后的情况(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--execute</code></td>
+<td style="text-align:center">执行操作(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--export</code></td>
+<td style="text-align:center">导出到csv(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--from-file &lt;conf_path&gt;</code></td>
+<td style="text-align:center">将导入位移</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--group</code></td>
+<td style="text-align:center">目标消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--list</code></td>
+<td style="text-align:center">列出消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--members</code></td>
+<td style="text-align:center">列出组成员</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offsets</code></td>
+<td style="text-align:center">查看位移</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--reset-offsets</code></td>
+<td style="text-align:center">重置位移，可以配合试运行，执行操作，导出csv一起使用</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--shift-by &lt;Long: N&gt;</code></td>
+<td style="text-align:center">Shift-By-N策略，移动 N 个</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--state</code></td>
+<td style="text-align:center">显示状态</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--timeout &lt;Long: timeout (ms)&gt;</code></td>
+<td style="text-align:center">超时时间，默认 5000</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-current</code></td>
+<td style="text-align:center">Current 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-datetime &lt;String: datetime&gt;</code></td>
+<td style="text-align:center">DateTime 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-earliest</code></td>
+<td style="text-align:center">Earliest 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-latest</code></td>
+<td style="text-align:center">Latest 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-offset &lt;Long: offset&gt;</code></td>
+<td style="text-align:center">Specified-Offset 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;String: topic&gt;</code></td>
+<td style="text-align:center">目标主题，在“重置偏移量”时，可以使用以下格式指定分区：<code>topic1:0,1,2</code>，其中0,1,2是要包括在进程中的分区。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--verbose</code></td>
+<td style="text-align:center">提供详细信息</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-log-dirs-sh"><a target="_blank" rel="noopener" href="http://kafka-log-dirs.sh">kafka-log-dirs.sh</a></h3>
+<p>查询各个 Broker 上的日志路径磁盘占用情况。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;String: Broker list&gt;</code></td>
+<td style="text-align:center">Broker 列表，样例如下 <code>0,1,2</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">查看详情</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic-list &lt;String: Topic list&gt;</code></td>
+<td style="text-align:center">话题列表，样例如下 <code>topic1,topic2,topic3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-consumer-perf-test-sh"><a target="_blank" rel="noopener" href="http://kafka-consumer-perf-test.sh">kafka-consumer-perf-test.sh</a></h3>
+<p>消费者性能测试</p>
+<h3 id="kafka-producer-pref-test-sh"><a target="_blank" rel="noopener" href="http://kafka-producer-pref-test.sh">kafka-producer-pref-test.sh</a></h3>
+<p>生产者性能测试</p>
+<h3 id="kafka-dump-log-sh"><a target="_blank" rel="noopener" href="http://kafka-dump-log.sh">kafka-dump-log.sh</a></h3>
+<p>此工具有助于解析日志文件并将其内容转储到控制台，这对于调试看似损坏的日志段非常有用。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--files &lt;String: file1,file2,...&gt;</code></td>
+<td style="text-align:center">储存文件列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--max-message-size &lt;Integer: size&gt;</code></td>
+<td style="text-align:center">最大消息长度</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--print-data-log</code></td>
+<td style="text-align:center">同时打印至控制台</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--print-data-log</code></td>
+<td style="text-align:center">不输出元数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-delete-records-sh"><a target="_blank" rel="noopener" href="http://kafka-delete-records.sh">kafka-delete-records.sh</a></h3>
+<p>此工具有助于将给定分区的记录向下删除到指定的偏移量。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offset-json-file &lt;path&gt;</code></td>
+<td style="text-align:center">删除位移文件地址</td>
+</tr>
+</tbody>
+</table>
+<p>删除位移配置文件：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;partitions&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;topic&quot;</span>: <span class="string">&quot;foo&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;partition&quot;</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">&quot;offset&quot;</span>: <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">&quot;version&quot;</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="存储消息-日志-片段">存储消息(日志)片段</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-run-class.sh kafka.tools.DullplogSegllents --files 00000000000052368601.log --print-data-log</span><br></pre></td></tr></table></figure>
+<h3 id="自动创建主题">自动创建主题</h3>
+<p>默认情况下，Kafka 会在如下几种情形下自动创建主题：</p>
+<ul>
+<li>当一个生产者开始往主题中写入消息时；</li>
+<li>当一个消费者开始从出题读取消息时；</li>
+<li>当任意一个客户端向主题发送元数据请求时。</li>
+</ul>
+<h3 id="如何选择分区数量">如何选择分区数量</h3>
+<p>为主题选定分区数量并不是一件可有可无的事情，在进行数量选择时，需要考虑如下几个因素。</p>
+<ul>
+<li>主题需要达到多大的吞吐量？例如，是希望每秒钟写入 1OO KB 还是 1GB?</li>
+<li>从单个分区读取数据的最大吞吐量是多少？每个分区一般都会有一个消费者，如果你知道消费者将数据写入数据库的速度不会超过每秒 50 MB，那么你也该知道，从一个分区读取数据的吞吐量不需要超过每秒 50 MB。</li>
+<li>可以通过类似的方法估算生产者向单个分区写入数据的吞吐量，不过生产者的速度一般比消费者快得多，所以最好为生产者多估算一些吞吐量。</li>
+<li>每个 broker 包含的分区个数、可用的磁盘空间和网络带宽。</li>
+<li>如果消息是按照不同的键采写入分区的，那么为已有的主题新增分区就会很困难。</li>
+<li>单个 broker 对分区个数是有限制的，因为分区越多，占用的内存越多，完成首领选举需要的时间也越长。</li>
+</ul>
+<p>根据经验，把分区的大小限制在 25 GB 以内可以得到比较理想的效果。</p>
+<h3 id="强制删除话题">强制删除话题</h3>
+<p>在某些话题无法删除完成的时候可以直接操作 zookeeper 实现数据清除。</p>
+<p>首先需要定位到数据存储路径，检查 <code>server.properties</code> 文件中的 <code>log.dirs</code> 配置项，然后记录下来。</p>
+<p>然后使用如下命令进入 zookeeper</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zookeeper-shell.sh &lt;zookeeper_host&gt;:&lt;zookeeper_port&gt;</span><br></pre></td></tr></table></figure>
+<p>然后使用下面的命令删除 zookeeper 数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rmr /brokers/topics/&lt;name&gt;</span><br></pre></td></tr></table></figure>
+<p>如果之前已经设置过了 marked for deletion 则需要运行下面的语句</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rmr /admin/delete_topics/&lt;name&gt;</span><br></pre></td></tr></table></figure>
+<p>然后在文件夹中删除真实的数据文件即可。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2020/kafka-cli/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Zookeeper/" rel="tag">Zookeeper</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/performance/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            大数据组件调优知识整理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/kafka-connect/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Kafka Connect</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>大数据组件调优知识整理 |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-bigdata/performance"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  大数据组件调优知识整理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/performance/" class="article-date">
+  <time datetime="2020-06-11T15:17:13.000Z" itemprop="datePublished">2020-06-11</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="HDFS-调优">HDFS 调优</h2>
+<h3 id="相关资料网站">相关资料网站</h3>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_19917081/article/details/54575644">hdfs+yarn 参数调优</a></p>
+<p><a target="_blank" rel="noopener" href="https://community.cloudera.com/t5/Community-Articles/HDFS-Settings-for-Better-Hadoop-Performance/ta-p/245799">HDFS Settings for Better Hadoop Performance</a></p>
+<h3 id="参数调整">参数调整</h3>
+<p>core-site.xml</p>
+<ul>
+<li><code>io.file.buffer.size</code> 建议值与<code>Ambari</code>默认值一致为<code>131072</code></li>
+</ul>
+<blockquote>
+<p>较大的缓存都可以提供更高的数据传输，但这也就意味着更大的内存消耗和延迟</p>
+</blockquote>
+<ul>
+<li>
+<p><code>fs.trash.interval</code> 文件的删除时间，建议值为<code>1440</code>默认值为<code>360</code></p>
+</li>
+<li>
+<p><code>dfs.namenode.handler.count</code> 默认值<code>40</code>建议修改值<code>400</code></p>
+</li>
+</ul>
+<blockquote>
+<p>每个 threads 使用 RPC 跟其他的 datanodes 沟通。当 datanodes 数量太多时会发現很容易出現 RPC timeout，解決方法是提升网络速度或提高这个值，但要注意的是 thread 数量多也表示 namenode 消耗的内存也随着增加。</p>
+</blockquote>
+<ul>
+<li>
+<p><code>dfs.datanode.readahead.bytes</code> 默认值<code>4M</code> 建议修改值<code>64M</code></p>
+</li>
+<li>
+<p>网络连接数</p>
+<ul>
+<li>系统内核的<code>net.core.somaxconn</code>默认值<code>128</code>建议修改值<code>1024</code></li>
+<li><code>ipc.server.listen.queue.size</code>与上文保持一致</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>增大打开文件数据和网络连接上限，提高hadoop集群读写速度和网络带宽使用率(对系统修改大，不建议修改)</p>
+</blockquote>
+<ul>
+<li><code>dfs.replication</code> 默认值<code>3</code>建议修改值<code>2</code></li>
+</ul>
+<blockquote>
+<p>减少副本块可以节约存储空间和时间</p>
+</blockquote>
+<p>hdfs-site.xml</p>
+<ul>
+<li><code>dfs.client.read.shortcircuit</code>建议值与<code>Ambari</code>默认值一致为<code>True</code></li>
+<li><code>dfs.domain.socket.path</code>建议值与<code>Ambari</code>默认值一致为<code>/var/lib/hadoop-hdfs/dn_socket</code></li>
+<li><code>dfs.namenode.avoid.read.stale.datanode</code>建议值与<code>Ambari</code>默认值一致为<code>True</code></li>
+<li><code>dfs.namenode.avoid.write.stale.datanode</code>建议值与<code>Ambari</code>默认值一致为<code>True</code></li>
+</ul>
+<h2 id="Yarn调优">Yarn调优</h2>
+<h3 id="相关资料网站-2">相关资料网站</h3>
+<p><a target="_blank" rel="noopener" href="http://blog.itpub.net/31496956/viewspace-2149054/">YARN的Memory和CPU调优配置详解</a></p>
+<h3 id="参数调整-2">参数调整</h3>
+<p><code>containers = min (2*CORES, 1.8*DISKS, (Total available RAM) / MIN_CONTAINER_SIZE)</code></p>
+<p><code>RAM-per-container = max(MIN_CONTAINER_SIZE, (Total Available RAM) / containers))</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">配置文件</th>
+<th style="text-align:center">配置设置</th>
+<th style="text-align:center">默认值</th>
+<th style="text-align:center">计算值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">yarn-site.xml</td>
+<td style="text-align:center">yarn.nodemanager.resource.memory-mb</td>
+<td style="text-align:center">8192 MB</td>
+<td style="text-align:center">= containers * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">yarn-site.xml</td>
+<td style="text-align:center">yarn.scheduler.minimum-allocation-mb</td>
+<td style="text-align:center">1024MB</td>
+<td style="text-align:center">= RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">yarn-site.xml</td>
+<td style="text-align:center">yarn.scheduler.maximum-allocation-mb</td>
+<td style="text-align:center">8192MB</td>
+<td style="text-align:center">= containers * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">yarn-site.xml(check)</td>
+<td style="text-align:center">yarn.app.mapreduce.am.resource.mb</td>
+<td style="text-align:center">1536MB</td>
+<td style="text-align:center">= 2 * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">yarn-site.xml(check)</td>
+<td style="text-align:center">yarn.app.mapreduce.am.command-opts</td>
+<td style="text-align:center">-Xmx1024m</td>
+<td style="text-align:center">= 0.8 * 2 * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">mapred-site.xml</td>
+<td style="text-align:center">mapreduce.map.memory.mb</td>
+<td style="text-align:center">1024MB</td>
+<td style="text-align:center">= RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">mapred-site.xml</td>
+<td style="text-align:center">mapreduce.reduce.memory.mb</td>
+<td style="text-align:center">1024MB</td>
+<td style="text-align:center">= 2 * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">mapred-site.xml</td>
+<td style="text-align:center">mapreduce.map.java.opts</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">= 0.8 * RAM-per-container</td>
+</tr>
+<tr>
+<td style="text-align:center">mapred-site.xml</td>
+<td style="text-align:center">mapreduce.reduce.java.opts</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">= 0.8 * 2 * RAM-per-container</td>
+</tr>
+</tbody>
+</table>
+<h3 id="参数计算">参数计算</h3>
+<p>参数调整计算脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> optparse</span><br><span class="line"><span class="keyword">from</span> pprint <span class="keyword">import</span> pprint</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> ast</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27; Reserved for OS + DN + NM, Map: Memory =&gt; Reservation &#x27;&#x27;&#x27;</span></span><br><span class="line">reservedStack = &#123; <span class="number">4</span>:<span class="number">1</span>, <span class="number">8</span>:<span class="number">2</span>, <span class="number">16</span>:<span class="number">2</span>, <span class="number">24</span>:<span class="number">4</span>, <span class="number">48</span>:<span class="number">6</span>, <span class="number">64</span>:<span class="number">8</span>, <span class="number">72</span>:<span class="number">8</span>, <span class="number">96</span>:<span class="number">12</span>, </span><br><span class="line">                   <span class="number">128</span>:<span class="number">24</span>, <span class="number">256</span>:<span class="number">32</span>, <span class="number">512</span>:<span class="number">64</span>&#125;</span><br><span class="line"><span class="string">&#x27;&#x27;&#x27; Reserved for HBase. Map: Memory =&gt; Reservation &#x27;&#x27;&#x27;</span></span><br><span class="line">  </span><br><span class="line">reservedHBase = &#123;<span class="number">4</span>:<span class="number">1</span>, <span class="number">8</span>:<span class="number">1</span>, <span class="number">16</span>:<span class="number">2</span>, <span class="number">24</span>:<span class="number">4</span>, <span class="number">48</span>:<span class="number">8</span>, <span class="number">64</span>:<span class="number">8</span>, <span class="number">72</span>:<span class="number">8</span>, <span class="number">96</span>:<span class="number">16</span>, </span><br><span class="line">                   <span class="number">128</span>:<span class="number">24</span>, <span class="number">256</span>:<span class="number">32</span>, <span class="number">512</span>:<span class="number">64</span>&#125;</span><br><span class="line">GB = <span class="number">1024</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getMinContainerSize</span>(<span class="params">memory</span>):</span></span><br><span class="line">  <span class="keyword">if</span> (memory &lt;= <span class="number">4</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">256</span></span><br><span class="line">  <span class="keyword">elif</span> (memory &lt;= <span class="number">8</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">512</span></span><br><span class="line">  <span class="keyword">elif</span> (memory &lt;= <span class="number">24</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1024</span></span><br><span class="line">  <span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2048</span></span><br><span class="line">  <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getReservedStackMemory</span>(<span class="params">memory</span>):</span></span><br><span class="line">  <span class="keyword">if</span> (reservedStack.has_key(memory)):</span><br><span class="line">    <span class="keyword">return</span> reservedStack[memory]</span><br><span class="line">  <span class="keyword">if</span> (memory &lt;= <span class="number">4</span>):</span><br><span class="line">    ret = <span class="number">1</span></span><br><span class="line">  <span class="keyword">elif</span> (memory &gt;= <span class="number">512</span>):</span><br><span class="line">    ret = <span class="number">64</span></span><br><span class="line">  <span class="keyword">else</span>:</span><br><span class="line">    ret = <span class="number">1</span></span><br><span class="line">  <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getReservedHBaseMem</span>(<span class="params">memory</span>):</span></span><br><span class="line">  <span class="keyword">if</span> (reservedHBase.has_key(memory)):</span><br><span class="line">    <span class="keyword">return</span> reservedHBase[memory]</span><br><span class="line">  <span class="keyword">if</span> (memory &lt;= <span class="number">4</span>):</span><br><span class="line">    ret = <span class="number">1</span></span><br><span class="line">  <span class="keyword">elif</span> (memory &gt;= <span class="number">512</span>):</span><br><span class="line">    ret = <span class="number">64</span></span><br><span class="line">  <span class="keyword">else</span>:</span><br><span class="line">    ret = <span class="number">2</span></span><br><span class="line">  <span class="keyword">return</span> ret</span><br><span class="line">                    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">  log = logging.getLogger(__name__)</span><br><span class="line">  out_hdlr = logging.StreamHandler(sys.stdout)</span><br><span class="line">  out_hdlr.setFormatter(logging.Formatter(<span class="string">&#x27; %(message)s&#x27;</span>))</span><br><span class="line">  out_hdlr.setLevel(logging.INFO)</span><br><span class="line">  log.addHandler(out_hdlr)</span><br><span class="line">  log.setLevel(logging.INFO)</span><br><span class="line">  parser = optparse.OptionParser()</span><br><span class="line">  memory = <span class="number">0</span></span><br><span class="line">  cores = <span class="number">0</span></span><br><span class="line">  disks = <span class="number">0</span></span><br><span class="line">  hbaseEnabled = <span class="literal">True</span></span><br><span class="line">  parser.add_option(<span class="string">&#x27;-c&#x27;</span>, <span class="string">&#x27;--cores&#x27;</span>, default = <span class="number">16</span>,</span><br><span class="line">                     <span class="built_in">help</span> = <span class="string">&#x27;Number of cores on each host&#x27;</span>)</span><br><span class="line">  parser.add_option(<span class="string">&#x27;-m&#x27;</span>, <span class="string">&#x27;--memory&#x27;</span>, default = <span class="number">64</span>, </span><br><span class="line">                    <span class="built_in">help</span> = <span class="string">&#x27;Amount of Memory on each host in GB&#x27;</span>)</span><br><span class="line">  parser.add_option(<span class="string">&#x27;-d&#x27;</span>, <span class="string">&#x27;--disks&#x27;</span>, default = <span class="number">4</span>, </span><br><span class="line">                    <span class="built_in">help</span> = <span class="string">&#x27;Number of disks on each host&#x27;</span>)</span><br><span class="line">  parser.add_option(<span class="string">&#x27;-k&#x27;</span>, <span class="string">&#x27;--hbase&#x27;</span>, default = <span class="string">&quot;True&quot;</span>,</span><br><span class="line">                    <span class="built_in">help</span> = <span class="string">&#x27;True if HBase is installed, False is not&#x27;</span>)</span><br><span class="line">  (options, args) = parser.parse_args()</span><br><span class="line">  </span><br><span class="line">  cores = <span class="built_in">int</span> (options.cores)</span><br><span class="line">  memory = <span class="built_in">int</span> (options.memory)</span><br><span class="line">  disks = <span class="built_in">int</span> (options.disks)</span><br><span class="line">  hbaseEnabled = ast.literal_eval(options.hbase)</span><br><span class="line">  </span><br><span class="line">  log.info(<span class="string">&quot;Using cores=&quot;</span> + <span class="built_in">str</span>(cores) + <span class="string">&quot; memory=&quot;</span> + <span class="built_in">str</span>(memory) + <span class="string">&quot;GB&quot;</span> +</span><br><span class="line">            <span class="string">&quot; disks=&quot;</span> + <span class="built_in">str</span>(disks) + <span class="string">&quot; hbase=&quot;</span> + <span class="built_in">str</span>(hbaseEnabled))</span><br><span class="line">  minContainerSize = getMinContainerSize(memory)</span><br><span class="line">  reservedStackMemory = getReservedStackMemory(memory)</span><br><span class="line">  reservedHBaseMemory = <span class="number">0</span></span><br><span class="line">  <span class="keyword">if</span> (hbaseEnabled):</span><br><span class="line">    reservedHBaseMemory = getReservedHBaseMem(memory)</span><br><span class="line">  reservedMem = reservedStackMemory + reservedHBaseMemory</span><br><span class="line">  usableMem = memory - reservedMem</span><br><span class="line">  memory -= (reservedMem)</span><br><span class="line">  <span class="keyword">if</span> (memory &lt; <span class="number">2</span>):</span><br><span class="line">    memory = <span class="number">2</span></span><br><span class="line">    reservedMem = <span class="built_in">max</span>(<span class="number">0</span>, memory - reservedMem)</span><br><span class="line">    </span><br><span class="line">  memory *= GB</span><br><span class="line">  </span><br><span class="line">  containers = <span class="built_in">int</span> (<span class="built_in">min</span>(<span class="number">2</span> * cores,</span><br><span class="line">                         <span class="built_in">min</span>(math.ceil(<span class="number">1.8</span> * <span class="built_in">float</span>(disks)),</span><br><span class="line">                              memory/minContainerSize)))</span><br><span class="line">  <span class="keyword">if</span> (containers &lt;= <span class="number">2</span>):</span><br><span class="line">    containers = <span class="number">3</span></span><br><span class="line"></span><br><span class="line">  log.info(<span class="string">&quot;Profile: cores=&quot;</span> + <span class="built_in">str</span>(cores) + <span class="string">&quot; memory=&quot;</span> + <span class="built_in">str</span>(memory) + <span class="string">&quot;MB&quot;</span></span><br><span class="line">           + <span class="string">&quot; reserved=&quot;</span> + <span class="built_in">str</span>(reservedMem) + <span class="string">&quot;GB&quot;</span> + <span class="string">&quot; usableMem=&quot;</span></span><br><span class="line">           + <span class="built_in">str</span>(usableMem) + <span class="string">&quot;GB&quot;</span> + <span class="string">&quot; disks=&quot;</span> + <span class="built_in">str</span>(disks))</span><br><span class="line">    </span><br><span class="line">  container_ram = <span class="built_in">abs</span>(memory/containers)</span><br><span class="line">  <span class="keyword">if</span> (container_ram &gt; GB):</span><br><span class="line">    container_ram = <span class="built_in">int</span>(math.floor(container_ram / <span class="number">512</span>)) * <span class="number">512</span></span><br><span class="line">  log.info(<span class="string">&quot;Num Container=&quot;</span> + <span class="built_in">str</span>(containers))</span><br><span class="line">  log.info(<span class="string">&quot;Container Ram=&quot;</span> + <span class="built_in">str</span>(container_ram) + <span class="string">&quot;MB&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;Used Ram=&quot;</span> + <span class="built_in">str</span>(<span class="built_in">int</span> (containers*container_ram/<span class="built_in">float</span>(GB))) + <span class="string">&quot;GB&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;Unused Ram=&quot;</span> + <span class="built_in">str</span>(reservedMem) + <span class="string">&quot;GB&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;yarn.scheduler.minimum-allocation-mb=&quot;</span> + <span class="built_in">str</span>(container_ram))</span><br><span class="line">  log.info(<span class="string">&quot;yarn.scheduler.maximum-allocation-mb=&quot;</span> + <span class="built_in">str</span>(containers*container_ram))</span><br><span class="line">  log.info(<span class="string">&quot;yarn.nodemanager.resource.memory-mb=&quot;</span> + <span class="built_in">str</span>(containers*container_ram))</span><br><span class="line">  map_memory = container_ram</span><br><span class="line">  reduce_memory = <span class="number">2</span>*container_ram <span class="keyword">if</span> (container_ram &lt;= <span class="number">2048</span>) <span class="keyword">else</span> container_ram</span><br><span class="line">  am_memory = <span class="built_in">max</span>(map_memory, reduce_memory)</span><br><span class="line">  log.info(<span class="string">&quot;mapreduce.map.memory.mb=&quot;</span> + <span class="built_in">str</span>(map_memory))</span><br><span class="line">  log.info(<span class="string">&quot;mapreduce.map.java.opts=-Xmx&quot;</span> + <span class="built_in">str</span>(<span class="built_in">int</span>(<span class="number">0.8</span> * map_memory)) +<span class="string">&quot;m&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;mapreduce.reduce.memory.mb=&quot;</span> + <span class="built_in">str</span>(reduce_memory))</span><br><span class="line">  log.info(<span class="string">&quot;mapreduce.reduce.java.opts=-Xmx&quot;</span> + <span class="built_in">str</span>(<span class="built_in">int</span>(<span class="number">0.8</span> * reduce_memory)) + <span class="string">&quot;m&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;yarn.app.mapreduce.am.resource.mb=&quot;</span> + <span class="built_in">str</span>(am_memory))</span><br><span class="line">  log.info(<span class="string">&quot;yarn.app.mapreduce.am.command-opts=-Xmx&quot;</span> + <span class="built_in">str</span>(<span class="built_in">int</span>(<span class="number">0.8</span>*am_memory)) + <span class="string">&quot;m&quot;</span>)</span><br><span class="line">  log.info(<span class="string">&quot;mapreduce.task.io.sort.mb=&quot;</span> + <span class="built_in">str</span>(<span class="built_in">int</span>(<span class="number">0.4</span> * map_memory)))</span><br><span class="line">  <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">  <span class="keyword">try</span>:</span><br><span class="line">    main()</span><br><span class="line">  <span class="keyword">except</span>(KeyboardInterrupt, EOFError):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\nAborting ... Keyboard Interrupt.&quot;</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>用法示例</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python test.py -c 32 -m 128 -d 2 -k True</span><br></pre></td></tr></table></figure>
+<p>样例输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Using cores=32 memory=128GB disks=2 hbase=True</span><br><span class="line">Profile: cores=32 memory=81920MB reserved=48GB usableMem=80GB disks=2</span><br><span class="line">Num Container=4</span><br><span class="line">Container Ram=20480MB</span><br><span class="line">Used Ram=80GB</span><br><span class="line">Unused Ram=48GB</span><br><span class="line">yarn.scheduler.minimum-allocation-mb=20480</span><br><span class="line">yarn.scheduler.maximum-allocation-mb=81920</span><br><span class="line">yarn.nodemanager.resource.memory-mb=81920</span><br><span class="line">mapreduce.map.memory.mb=20480</span><br><span class="line">mapreduce.map.java.opts=-Xmx16384m</span><br><span class="line">mapreduce.reduce.memory.mb=20480</span><br><span class="line">mapreduce.reduce.java.opts=-Xmx16384m</span><br><span class="line">yarn.app.mapreduce.am.resource.mb=20480</span><br><span class="line">yarn.app.mapreduce.am.command-opts=-Xmx16384m</span><br><span class="line">mapreduce.task.io.sort.mb=8192</span><br></pre></td></tr></table></figure>
+<h2 id="Kafka调优">Kafka调优</h2>
+<h3 id="broker-处理消息的最大线程数（默认为3）">broker 处理消息的最大线程数（默认为3）</h3>
+<p>num.network.threads=cpu核数+1</p>
+<h3 id="broker-处理磁盘IO的线程数">broker 处理磁盘IO的线程数</h3>
+<p>num.io.threads=cpu核数*2</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2020/performance/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hadoop/" rel="tag">Hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/nfs/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            NFS 服务安装及配置流程
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/kafka-cli/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Kafka CLI</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

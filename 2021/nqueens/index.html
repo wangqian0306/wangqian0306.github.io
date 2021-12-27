@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>N 皇后问题 |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-algorithm/nqueens"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  N 皇后问题
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/nqueens/" class="article-date">
+  <time datetime="2021-11-15T14:26:13.000Z" itemprop="datePublished">2021-11-15</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="N-皇后问题">N 皇后问题</h2>
+<h3 id="简介">简介</h3>
+<p><strong>N 皇后问题</strong> 研究的是如何将 N 个皇后放置在 N*N 大小的棋盘上，并且使皇后彼此之间不能相互攻击。</p>
+<p>皇后的走法是：可以横直斜走，格数不限。因此要求皇后彼此之间不能相互攻击，等价于要求任何两个皇后都不能在同一行、同一列以及同一条斜线上。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">   0 1 2 3</span><br><span class="line">0 | | |Q| |</span><br><span class="line">1 |Q| | | |</span><br><span class="line">2 | | | |Q|</span><br><span class="line">3 | |Q| | |</span><br></pre></td></tr></table></figure>
+<h3 id="解答方法">解答方法</h3>
+<p>Leetcode 上有两种回溯法分别如下</p>
+<h4 id="基于集合的回溯">基于集合的回溯</h4>
+<blockquote>
+<p>为了防止混淆，下面的内容使用按列填入皇后的方式进行说明。</p>
+</blockquote>
+<p>问题分析：</p>
+<ul>
+<li>总列数等于皇后棋子的数量且皇后不能处于同一列，所以每一列都需要有一个皇后。</li>
+<li>两个皇后不能处于同一斜线上，所以
+<ul>
+<li>行下标与列下标之差不能相等(右下方向)。</li>
+<li>行下标与列下标之和不能相等(左下方向)。</li>
+</ul>
+</li>
+<li>确保上述过程重复执行直至遍历整个棋盘即可。</li>
+</ul>
+<p>简化注释版代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 确定输入参数</span></span><br><span class="line">queens = <span class="number">4</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 确保皇后不能处于同一行</span></span><br><span class="line">column = <span class="built_in">set</span>()</span><br><span class="line"><span class="comment"># 确保皇后不能处于同一斜线(右下方向)</span></span><br><span class="line">d1 = <span class="built_in">set</span>()</span><br><span class="line"><span class="comment"># 确保皇后不能处于同一斜线(左下方向)</span></span><br><span class="line">d2 = <span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 皇后落子的每一列的坐标</span></span><br><span class="line">result = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归遍历方法</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">backtrack</span>(<span class="params">row: <span class="built_in">int</span></span>):</span></span><br><span class="line">    <span class="comment"># 若所有棋子已经放下则输出结果</span></span><br><span class="line">    <span class="keyword">if</span> row == queens:</span><br><span class="line">        <span class="built_in">print</span>(result)</span><br><span class="line">    <span class="comment"># 遍历当前列</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(queens):</span><br><span class="line">        <span class="comment"># 若当前位置已经无法落子则跳往下一位置</span></span><br><span class="line">        <span class="keyword">if</span> (i <span class="keyword">in</span> column) <span class="keyword">or</span> (row - i <span class="keyword">in</span> d1) <span class="keyword">or</span> (row + i <span class="keyword">in</span> d2):</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="comment"># 将皇后放置在此位置</span></span><br><span class="line">        result[row] = i</span><br><span class="line">        <span class="comment"># 记录此位置的冲突数据</span></span><br><span class="line">        column.add(i)</span><br><span class="line">        d1.add(row - i)</span><br><span class="line">        d2.add(row + i)</span><br><span class="line">        <span class="comment"># 前往下一行进行遍历</span></span><br><span class="line">        backtrack(row + <span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 移除此位置的冲突数据</span></span><br><span class="line">        column.remove(i)</span><br><span class="line">        d1.remove(row - i)</span><br><span class="line">        d2.remove(row + i)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开始遍历第 0 行</span></span><br><span class="line">backtrack(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>官方解法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">solveNQueens</span>(<span class="params">self, n: <span class="built_in">int</span></span>) -&gt; <span class="type">List</span>[<span class="type">List</span>[<span class="built_in">str</span>]]:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">generateBoard</span>():</span></span><br><span class="line">            board = <span class="built_in">list</span>()</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">                row[queens[i]] = <span class="string">&quot;Q&quot;</span></span><br><span class="line">                board.append(<span class="string">&quot;&quot;</span>.join(row))</span><br><span class="line">                row[queens[i]] = <span class="string">&quot;.&quot;</span></span><br><span class="line">            <span class="keyword">return</span> board</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">backtrack</span>(<span class="params">row: <span class="built_in">int</span></span>):</span></span><br><span class="line">            <span class="keyword">if</span> row == n:</span><br><span class="line">                board = generateBoard()</span><br><span class="line">                solutions.append(board)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">                    <span class="keyword">if</span> i <span class="keyword">in</span> columns <span class="keyword">or</span> row - i <span class="keyword">in</span> diagonal1 <span class="keyword">or</span> row + i <span class="keyword">in</span> diagonal2:</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    queens[row] = i</span><br><span class="line">                    columns.add(i)</span><br><span class="line">                    diagonal1.add(row - i)</span><br><span class="line">                    diagonal2.add(row + i)</span><br><span class="line">                    backtrack(row + <span class="number">1</span>)</span><br><span class="line">                    columns.remove(i)</span><br><span class="line">                    diagonal1.remove(row - i)</span><br><span class="line">                    diagonal2.remove(row + i)</span><br><span class="line"></span><br><span class="line">        solutions = <span class="built_in">list</span>()</span><br><span class="line">        queens = [-<span class="number">1</span>] * n</span><br><span class="line">        columns = <span class="built_in">set</span>()</span><br><span class="line">        diagonal1 = <span class="built_in">set</span>()</span><br><span class="line">        diagonal2 = <span class="built_in">set</span>()</span><br><span class="line">        row = [<span class="string">&quot;.&quot;</span>] * n</span><br><span class="line">        backtrack(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> solutions</span><br></pre></td></tr></table></figure>
+<h4 id="基于位运算的回溯">基于位运算的回溯</h4>
+<blockquote>
+<p>此方法采用按行填写的方案完成。</p>
+</blockquote>
+<p>问题分析：</p>
+<ul>
+<li>总行数等于皇后棋子的数量且皇后不能处于同一行，所以每一行都需要有一个皇后。</li>
+<li>两个皇后不能处于同一斜线上，所以左右位移落子之后的点来确定跳过的目标位置。</li>
+<li>将不能放置棋子的位置标记设置为 1 将可以放置棋子的位置标记为 0，就可以利用二进制记录放置信息
+<ul>
+<li>左移取得左下不能放置的点。</li>
+<li>右移取得右下不能放置的点。</li>
+<li>记录当前放置的点。</li>
+</ul>
+</li>
+<li>使用二进制的或操作就可以确定不能放置棋子的位置。</li>
+<li>在获取到可以放置的位置之后可以通过如下手段获取单个棋子的位置。
+<ul>
+<li><code>x&amp;(-x)</code> 可以获得 x 的二进制表示中的最低位的 1 的位置。</li>
+<li><code>x&amp;(x-1)</code> 可以将二进制中最低位的 1 置成 0。</li>
+</ul>
+</li>
+<li>确保上述过程重复执行直至遍历整个棋盘即可。</li>
+</ul>
+<p>简化注释版代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 确定输入参数</span></span><br><span class="line">n = <span class="number">4</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义结果缓存</span></span><br><span class="line">queens = [-<span class="number">1</span>] * n</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归遍历方法</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">solve</span>(<span class="params">row: <span class="built_in">int</span>, columns: <span class="built_in">int</span>, diagonals1: <span class="built_in">int</span>, diagonals2: <span class="built_in">int</span></span>):</span></span><br><span class="line">    <span class="comment"># 若所有棋子已经放下则输出结果</span></span><br><span class="line">    <span class="keyword">if</span> row == n:</span><br><span class="line">        <span class="built_in">print</span>(queens)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 获取可以放置棋子的位置</span></span><br><span class="line">        availablePositions = ((<span class="number">1</span> &lt;&lt; n) - <span class="number">1</span>) &amp; (~(columns | diagonals1 | diagonals2))</span><br><span class="line">        <span class="comment"># 遍历可以放置棋子的位置</span></span><br><span class="line">        <span class="keyword">while</span> availablePositions:</span><br><span class="line">            <span class="comment"># 获取最低位的位置</span></span><br><span class="line">            position = availablePositions &amp; (-availablePositions)</span><br><span class="line">            <span class="comment"># 将最低位放置为 0</span></span><br><span class="line">            availablePositions = availablePositions &amp; (availablePositions - <span class="number">1</span>)</span><br><span class="line">            <span class="comment"># 确定列的位置</span></span><br><span class="line">            column = <span class="built_in">bin</span>(position - <span class="number">1</span>).count(<span class="string">&quot;1&quot;</span>)</span><br><span class="line">            <span class="comment"># 记录缓存结果</span></span><br><span class="line">            queens[row] = column</span><br><span class="line">            <span class="comment"># 完成递归调用</span></span><br><span class="line">            solve(row + <span class="number">1</span>, columns | position, (diagonals1 | position) &lt;&lt; <span class="number">1</span>, (diagonals2 | position) &gt;&gt; <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 递归遍历方法</span></span><br><span class="line">solve(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：如果需要打印中间结果可以采用此语句 <code>bin(availablePositions)[2:].zfill(n)</code></p>
+</blockquote>
+<p>官方解法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">solveNQueens</span>(<span class="params">self, n: <span class="built_in">int</span></span>) -&gt; <span class="type">List</span>[<span class="type">List</span>[<span class="built_in">str</span>]]:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">generateBoard</span>():</span></span><br><span class="line">            board = <span class="built_in">list</span>()</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">                row[queens[i]] = <span class="string">&quot;Q&quot;</span></span><br><span class="line">                board.append(<span class="string">&quot;&quot;</span>.join(row))</span><br><span class="line">                row[queens[i]] = <span class="string">&quot;.&quot;</span></span><br><span class="line">            <span class="keyword">return</span> board</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">solve</span>(<span class="params">row: <span class="built_in">int</span>, columns: <span class="built_in">int</span>, diagonals1: <span class="built_in">int</span>, diagonals2: <span class="built_in">int</span></span>):</span></span><br><span class="line">            <span class="keyword">if</span> row == n:</span><br><span class="line">                board = generateBoard()</span><br><span class="line">                solutions.append(board)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                availablePositions = ((<span class="number">1</span> &lt;&lt; n) - <span class="number">1</span>) &amp; (~(columns | diagonals1 | diagonals2))</span><br><span class="line">                <span class="keyword">while</span> availablePositions:</span><br><span class="line">                    position = availablePositions &amp; (-availablePositions)</span><br><span class="line">                    availablePositions = availablePositions &amp; (availablePositions - <span class="number">1</span>)</span><br><span class="line">                    column = <span class="built_in">bin</span>(position - <span class="number">1</span>).count(<span class="string">&quot;1&quot;</span>)</span><br><span class="line">                    queens[row] = column</span><br><span class="line">                    solve(row + <span class="number">1</span>, columns | position, (diagonals1 | position) &lt;&lt; <span class="number">1</span>, (diagonals2 | position) &gt;&gt; <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        solutions = <span class="built_in">list</span>()</span><br><span class="line">        queens = [-<span class="number">1</span>] * n</span><br><span class="line">        row = [<span class="string">&quot;.&quot;</span>] * n</span><br><span class="line">        solve(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> solutions</span><br></pre></td></tr></table></figure>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/n-queens/solution/nhuang-hou-by-leetcode-solution/">Leetcode 官方题解</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cs.usfca.edu/~galles/visualization/RecQueens.html">交互过程试验</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/nqueens/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/search/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            查找算法
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/ncu/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">ncu</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

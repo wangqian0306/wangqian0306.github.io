@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Kafka 性能和高可用性调整 |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-bigdata/kafka-tuning"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Kafka 性能和高可用性调整
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/kafka-tuning/" class="article-date">
+  <time datetime="2021-09-15T14:43:13.000Z" itemprop="datePublished">2021-09-15</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Kafka-性能和高可用性调整">Kafka 性能和高可用性调整</h2>
+<h3 id="操作系统部分">操作系统部分</h3>
+<h4 id="文件描述符限制">文件描述符限制</h4>
+<ul>
+<li>
+<p><code>ulimit -n 1000000</code></p>
+</li>
+<li>
+<p><code>vim /etc/sysctl.conf</code></p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.max_map_count=655360</span><br></pre></td></tr></table></figure>
+<h4 id="交换内存-swap">交换内存(swap)</h4>
+<ul>
+<li>打开交换内存 <code>vm.swapiness</code> 应当设置为 1</li>
+<li>设置内存可以填充脏页的百分比 <code>vm.dirty_background_ratio</code> 应当设置为小于 10 大部分情况下可以直接设为 5</li>
+<li>设置脏页填充的绝对最大系统内存量<code>vm.dirty_ratio</code> 应当设置为大于 20，60~80 是一个比较合理的区间</li>
+</ul>
+<p>在使用的过程中可以针对 swap 内的脏页数量进行监控，防止集群崩溃造成数据丢失。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/vmstat | grep <span class="string">&quot;dirty|writeback&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="磁盘及挂载参数">磁盘及挂载参数</h4>
+<ul>
+<li>建议采用 XFS 文件系统</li>
+<li>在挂载 Kafka 数据盘时建议采用 <code>noatime</code> 参数(屏蔽最后访问时间的更改，提高性能)</li>
+</ul>
+<h4 id="网络配置">网络配置</h4>
+<ul>
+<li>socket 读写缓冲区配置为 131072 (128 KB)
+<ul>
+<li><code>net.core.wmem_default</code></li>
+<li><code>net.core.wmem_default</code></li>
+</ul>
+</li>
+<li>socket 读写缓冲最大值为 2097152 (2 MB)
+<ul>
+<li><code>net.core.wmen_max</code></li>
+<li><code>net.core.rmem_max</code></li>
+</ul>
+</li>
+<li>TCP socket 读写缓冲区大小设置为 4096 65536 2048000 (最小值 默认值 最大值)
+<ul>
+<li><code>net.ipv4.tcp_wmem</code></li>
+<li><code>net.ipv4.tcp_rmem</code></li>
+</ul>
+</li>
+<li>打开 TCP 时间窗扩展 <code>net.ipv4.tcp_window_scaling</code> 设置为 1</li>
+<li>提升并发量 <code>net.ipv4.tcp_max_syn_backlog</code> 设置为比 1024 更大的值</li>
+<li>允许更多的数据包进入内核 <code>net.core.netdev_max_backlog</code> 设置为比 1000 更大的值</li>
+</ul>
+<h3 id="JVM-部分">JVM 部分</h3>
+<ul>
+<li>建议使用 Java 11</li>
+</ul>
+<h3 id="配置部分">配置部分</h3>
+<h4 id="Broker-启动参数">Broker 启动参数</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-Xmx6g -Xms6g -XX:MetaspaceSize=96m -XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M</span><br><span class="line">-XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent</span><br></pre></td></tr></table></figure>
+<h4 id="机架名">机架名</h4>
+<p>为了防止单个机架的故障导致服务不可用，可以设置 <code>broker.rack</code> 参数。这样一来 Kafka 会保证分区的副本被分布在多个机架上，从而获得更高的可用性。</p>
+<h4 id="副本选举策略">副本选举策略</h4>
+<p><code>unclean.leader.election</code> 参数默认为 true，表示允许不同步的副本成为首领，可能会造成消息丢失。如果业务场景不能接受消息丢失则需要修改为 false。</p>
+<p><code>auto.leader.rebalance.enable</code> 参数设置为 false，表示禁止定期进行的重新选举。</p>
+<h3 id="监控部分">监控部分</h3>
+<p>对于服务器需要监控如下参数：</p>
+<ul>
+<li>CPU 使用率</li>
+<li>网络输入/输出吞吐量</li>
+<li>磁盘平均等待时间</li>
+<li>磁盘剩余空间</li>
+<li>内存使用率</li>
+<li>TCP 链接数</li>
+<li>打开文件数</li>
+<li>inode 使用情况</li>
+</ul>
+<p>对于 JVM 需要监控如下内容：</p>
+<ul>
+<li>Full GC 发生频率和时间长度</li>
+<li>活跃对象大小</li>
+<li>应用线程总数</li>
+</ul>
+<p>对于生产者来说需要监控如下参数：</p>
+<ul>
+<li>error-rate</li>
+<li>retry-rate</li>
+</ul>
+<blockquote>
+<p>注：通过这两项参数明确生产者的错误率。</p>
+</blockquote>
+<p>对于消费者来说需要监控如下参数：</p>
+<ul>
+<li>consumer-lag</li>
+<li>records-lag-max</li>
+<li>records-lead-min</li>
+</ul>
+<blockquote>
+<p>注：Lag 表示距离最新消息还有多少积压。Lead 值是指消费者最新消费消息的位移与分区当前第一条消息位移的差值。一旦你监测到 Lead 越来越小，甚至是快接近于 0 了，你就一定要小心了，这可能预示着消费者端要丢消息了</p>
+</blockquote>
+<p>对于 broker 来说需要监控如下参数：</p>
+<ul>
+<li>UnderReplicatedPartitions(未同步的分区)</li>
+<li>ActiveControllerCount(活跃度控制器数量)</li>
+<li>RequestHandlerAvgIdlePercent(请求处理器空闲率)</li>
+<li>BytesInPerSec(主题输入字节/秒)</li>
+<li>BytesOutPerSec(主题输出字节/秒)</li>
+<li>MessagesInPerSec(主题接收消息/秒)</li>
+<li>PartitionCount(分区数量)</li>
+<li>LeaderCount(首领数量)</li>
+<li>OfflinePartitionsCount(离线分区数量)</li>
+</ul>
+<blockquote>
+<p>注：详情参阅 <a target="_blank" rel="noopener" href="http://kafka.apache.org/documentation.html#monitoring">官方文档</a>。</p>
+</blockquote>
+<h3 id="性能指标调优">性能指标调优</h3>
+<h4 id="调优吞吐量">调优吞吐量</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数位置</th>
+<th style="text-align:center">参数描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">适当增加 <code>num.replica.fetchers</code> 参数值，但不用超过 CPU 核心数</td>
+</tr>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">调优 GC 参数以避免经常性的 Full GC</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">适当增加 <code>batch.size</code> 参数值，比如从默认的 16 KB 增加到 512 KB 或 1MB</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">适当增加 <code>linger.ms</code> 参数值，比如 10~100</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>compression.type=lz4</code> 或者 <code>zstd</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>acks=0</code> 或 <code>1</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>retries=0</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">如果多线程共享同一个 Producer 实例，就增加 <code>buffer.memory</code> 参数值</td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">采用多 Consumer 进程或线程同时消费数据</td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">增加 <code>fetch.min.bytes</code> 参数值，比如设置成 1KB 或更大</td>
+</tr>
+</tbody>
+</table>
+<h4 id="调优延时">调优延时</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数位置</th>
+<th style="text-align:center">参数描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">适当增加 <code>num.replica.fetchers</code> 参数值</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>linger.ms=0</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">不启用压缩，即设置 <code>compression.type=none</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>acks=1</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">设置 <code>fetch.min.bytes=1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="参考资料">参考资料</h3>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://kafka.apache.org/documentation/">Kafka 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100029201">Kafka 核心技术与实战</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/kafka-tuning/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/" rel="tag">Kafka</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/grafana-install/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Grafana 安装
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/docker-swarm%20%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Docker Swarm 初步使用</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

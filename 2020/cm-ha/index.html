@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Cloudera Manager HA 搭建流程整理 |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-bigdata/cm-ha"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Cloudera Manager HA 搭建流程整理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/cm-ha/" class="article-date">
+  <time datetime="2020-12-03T14:26:13.000Z" itemprop="datePublished">2020-12-03</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Cloudera-Manager-HA-搭建流程整理">Cloudera Manager HA 搭建流程整理</h2>
+<h3 id="简介">简介</h3>
+<p>Cloudera Manager 有以下五个部分：</p>
+<ul>
+<li>Cloudera Manager Server</li>
+<li>Cloudera Management Service
+<ul>
+<li>Activity Monitor</li>
+<li>Alert Publisher</li>
+<li>Event Server</li>
+<li>Host Monitor</li>
+<li>Service Monitor</li>
+<li>Reports Manager</li>
+<li>Cloudera Navigator Audit Server</li>
+</ul>
+</li>
+<li>关系型数据库</li>
+<li>文件存储</li>
+<li>Cloudera Manager Agent</li>
+</ul>
+<blockquote>
+<p>注：目前 Cloudera Manager 的 HA 方式是采用负载均衡器实现的且目前仅支持主备的HA方案，并不支持双活。HAProxy 和 NFS 等服务的 HA 在 Cloudera 官方文档中并未进行说明。</p>
+</blockquote>
+<p>为了实现 HA 的效果需要如下三种服务</p>
+<ul>
+<li>HAProxy (端口转发)</li>
+<li>NFS(文件同步)</li>
+<li>Pacemaker, Corosync (故障转移)</li>
+</ul>
+<p><img src="https://docs.cloudera.com/documentation/enterprise/6/6.3/images/cm_ha_lb_setup.png" alt="cm-ha"></p>
+<p>注意事项：</p>
+<ul>
+<li>不要在现有 CDH 集群中的任何主机上托管 Cloudera Manager 或 Cloudera Management Service 角色，因为这会使故障转移配置变得复杂，并且重叠的故障域可能导致故障和错误跟踪的问题。</li>
+<li>采用相同配置的硬件设备部署主备服务。这样做能确保故障转移不会导致性能下降。</li>
+<li>为主机和备机配置不同的电源和网络，这样做能限制重叠的故障域。</li>
+<li>其中 Cloudera Management Service 所在设备会有 Hostname 修改,CDH 集群会无法对其进行管理故不能安装任何大数据组件。</li>
+<li>本次部署时的 NFS 服务不能搭建在 MGMT 主机上。</li>
+</ul>
+<p>为了方便说明，下面将采用如下所示的简写</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">简写</th>
+<th style="text-align:center">主机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">CMS</td>
+<td style="text-align:center">CMSHostname</td>
+</tr>
+<tr>
+<td style="text-align:center">MGMT</td>
+<td style="text-align:center">MGMTHostname</td>
+</tr>
+<tr>
+<td style="text-align:center">NFS</td>
+<td style="text-align:center">NFS Store</td>
+</tr>
+<tr>
+<td style="text-align:center">DB</td>
+<td style="text-align:center">Databases</td>
+</tr>
+</tbody>
+</table>
+<p>如果在配置过程中遇到了问题请参阅 <a target="_blank" rel="noopener" href="https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/admin_cm_ha_steps.html">官方文档</a></p>
+<h3 id="前置准备">前置准备</h3>
+<p>如果之前已经安装了 CDH 集群则需要在界面上停止集群并且使用如下命令关闭集群和服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop cloudera-scm-server</span><br><span class="line">sysyemctl stop cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<p>并且在新部署的设备上执行如下命令：</p>
+<ul>
+<li>配置主机名</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl set-hostname &lt;hostname&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置域内解析</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts</span><br></pre></td></tr></table></figure>
+<p>或者使用 DNS 。</p>
+<ul>
+<li>配置网络主机名</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysconfig/network</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HOSTNAME=&lt;hostname&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭防火墙</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭 SELinux</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">vim /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<p>将状态设置为 <code>disable</code></p>
+<ul>
+<li>时钟同步</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ntp</span><br><span class="line">systemctl start ntpd</span><br><span class="line">systemctl <span class="built_in">enable</span> ntpd</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置内存交换比例</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sysctl vm.swappiness=10</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;\nvm.swappiness=10&quot;</span> &gt; /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置THP</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> never &gt; /sys/kernel/mm/transparent_hugepage/defrag</span><br><span class="line"><span class="built_in">echo</span> never &gt; /sys/kernel/mm/transparent_hugepage/enabled</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;\necho never &gt; /sys/kernel/mm/transparent_hugepage/defrag\necho never &gt; /sys/kernel/mm/transparent_hugepage/enabled\n&quot;</span> &gt; /etc/rc.local</span><br></pre></td></tr></table></figure>
+<ul>
+<li>JDK 安装及配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel</span><br><span class="line">alternatives --config java</span><br></pre></td></tr></table></figure>
+<ul>
+<li>JDBC 配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz</span><br><span class="line">tar -zxvf mysql-connector-java-5.1.46.tar.gz</span><br><span class="line">mkdir -p /usr/share/java/</span><br><span class="line"><span class="built_in">cd</span> mysql-connector-java-5.1.46</span><br><span class="line">cp mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装软件源</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/cloudera-manager.repo -P /etc/yum.repos.d/</span><br><span class="line">rpm --import https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPM-GPG-KEY-cloudera</span><br></pre></td></tr></table></figure>
+<h3 id="CMS-配置">CMS 配置</h3>
+<ul>
+<li>安装服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install haproxy -y</span><br></pre></td></tr></table></figure>
+<ul>
+<li>服务初始化配置(可选)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/haproxy/haproxy.cfg</span><br></pre></td></tr></table></figure>
+<p>在服务检测部分有转发限定的相关的配置，为了方便测试可以通过注释下面的内容来关闭此项检测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">option forwardfor       except 127.0.0.0/8</span><br></pre></td></tr></table></figure>
+<p>在服务安装完成后内部存在默认样例，在实际环境中可以注释如下内容关闭此样例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">frontend  main *:5001</span><br><span class="line">    acl url_static       path_beg       -i /static /images /javascript /stylesheets</span><br><span class="line">    acl url_static       path_end       -i .jpg .gif .png .css .js</span><br><span class="line"></span><br><span class="line">    use_backend static          if url_static</span><br><span class="line">    default_backend             app</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">backend static</span><br><span class="line">    balance     roundrobin</span><br><span class="line">    server      static 127.0.0.1:4331 check</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">backend app</span><br><span class="line">    balance     roundrobin</span><br><span class="line">    server  app1 127.0.0.1:5001 check</span><br><span class="line">    server  app2 127.0.0.1:5002 check</span><br><span class="line">    server  app3 127.0.0.1:5003 check</span><br><span class="line">    server  app4 127.0.0.1:5004 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭 SE-Linux</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">vim /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<ul>
+<li>开放连接</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setsebool -P haproxy_connect_any=1</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑 HAProxy 配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/haproxy/haproxy.cnf</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Cloudera Manager Server 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">listen cmf :7180</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cmfhttp1 &lt;CMS1&gt;:7180 check</span><br><span class="line">    server cmfhttp2 &lt;CMS2&gt;:7180 check</span><br><span class="line"></span><br><span class="line">listen cmfavro :7182</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cmfavro1 &lt;CMS1&gt;:7182 check</span><br><span class="line">    server cmfavro2 &lt;CMS2&gt;:7182 check</span><br><span class="line"></span><br><span class="line">listen cmfhttps :7183</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cmfhttps1 &lt;CMS1&gt;:7183 check</span><br><span class="line">    server cmfhttps2 &lt;CMS2&gt;:7183 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检测配置项</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">haproxy -f /etc/haproxy/haproxy.cfg -c</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> haproxy --now</span><br></pre></td></tr></table></figure>
+<h3 id="MGMT-配置">MGMT 配置</h3>
+<ul>
+<li>安装服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install haproxy -y</span><br></pre></td></tr></table></figure>
+<ul>
+<li>服务初始化配置(可选)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/haproxy/haproxy.cfg</span><br></pre></td></tr></table></figure>
+<p>在服务检测部分有转发限定的相关的配置，为了方便测试可以通过注释下面的内容来关闭此项检测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">option forwardfor       except 127.0.0.0/8</span><br></pre></td></tr></table></figure>
+<p>在服务安装完成后内部存在默认样例，在实际环境中可以注释如下内容关闭此样例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">frontend  main *:5001</span><br><span class="line">    acl url_static       path_beg       -i /static /images /javascript /stylesheets</span><br><span class="line">    acl url_static       path_end       -i .jpg .gif .png .css .js</span><br><span class="line"></span><br><span class="line">    use_backend static          if url_static</span><br><span class="line">    default_backend             app</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">backend static</span><br><span class="line">    balance     roundrobin</span><br><span class="line">    server      static 127.0.0.1:4331 check</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">backend app</span><br><span class="line">    balance     roundrobin</span><br><span class="line">    server  app1 127.0.0.1:5001 check</span><br><span class="line">    server  app2 127.0.0.1:5002 check</span><br><span class="line">    server  app3 127.0.0.1:5003 check</span><br><span class="line">    server  app4 127.0.0.1:5004 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭 SE-Linux</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">vim /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<ul>
+<li>开放连接</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setsebool -P haproxy_connect_any=1</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑 HAProxy 配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/haproxy/haproxy.cfg</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Activity Monitor 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">listen am1 :8087</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server am1a &lt;MGMT1&gt;:8087 check</span><br><span class="line">    server am1b &lt;MGMT2&gt;:8087 check</span><br><span class="line">listen am2 :9087</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server am2a &lt;MGMT1&gt;:9087 check</span><br><span class="line">    server am2b &lt;MGMT2&gt;:9087 check</span><br><span class="line">listen am3 :9998</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server am3a &lt;MGMT1&gt;:9998 check</span><br><span class="line">    server am3b &lt;MGMT2&gt;:9998 check</span><br><span class="line">listen am4 :9999</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server am4a &lt;MGMT1&gt;:9999 check</span><br><span class="line">    server am4b &lt;MGMT2&gt;:9999 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Alert Publisher 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">listen ap1 :10101</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server ap1a &lt;MGMT1&gt;:10101 check</span><br><span class="line">    server ap1b &lt;MGMT2&gt;:10101 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Event Server 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">listen es1 :7184</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server es1a &lt;MGMT1&gt;:7184 check</span><br><span class="line">    server es1b &lt;MGMT2&gt;:7184 check</span><br><span class="line">listen es2 :7185</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server es2a &lt;MGMT1&gt;:7185 check</span><br><span class="line">    server es2b &lt;MGMT2&gt;:7185 check</span><br><span class="line">listen es3 :8084</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server es3a &lt;MGMT1&gt;:8084 check</span><br><span class="line">    server es3b &lt;MGMT2&gt;:8084 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Host Monitor 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">listen hm1 :8091</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server hm1a &lt;MGMT1&gt;:8091 check</span><br><span class="line">    server hm1b &lt;MGMT2&gt;:8091 check</span><br><span class="line">listen hm2 :9091</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server hm2a &lt;MGMT1&gt;:9091 check</span><br><span class="line">    server hm2b &lt;MGMT2&gt;:9091 check</span><br><span class="line">listen hm3 :9994</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server hm3a &lt;MGMT1&gt;:9994 check</span><br><span class="line">    server hm3b &lt;MGMT2&gt;:9994 check</span><br><span class="line">listen hm4 :9995</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server hm4a &lt;MGMT1&gt;:9995 check</span><br><span class="line">    server hm4b &lt;MGMT2&gt;:9995 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Service Monitor 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">listen sm1 :8086</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server sm1a &lt;MGMT1&gt;:8086 check</span><br><span class="line">    server sm1b &lt;MGMT2&gt;:8086 check</span><br><span class="line">listen sm2 :9086</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server sm2a &lt;MGMT1&gt;:9086 check</span><br><span class="line">    server sm2b &lt;MGMT2&gt;:9086 check</span><br><span class="line">listen sm3 :9996</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server sm3a &lt;MGMT1&gt;:9996 check</span><br><span class="line">    server sm3b &lt;MGMT2&gt;:9996 check</span><br><span class="line">listen sm4 :9997</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server sm4a &lt;MGMT1&gt;:9997 check</span><br><span class="line">    server sm4b &lt;MGMT2&gt;:9997 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Cloudera Manager Agent  端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">listen mgmt-agent :9000</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server mgmt-agenta &lt;MGMT1&gt;:9000 check</span><br><span class="line">    server mgmt-agentb &lt;MGMT2&gt;:9000 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Reports Manager 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">listen rm1 :5678</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server rm1a &lt;MGMT1&gt;:5678 check</span><br><span class="line">    server rm1b &lt;MGMT2&gt;:5678 check</span><br><span class="line">listen rm2 :8083</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server rm2a &lt;MGMT1&gt;:8083 check</span><br><span class="line">    server rm2b &lt;MGMT2&gt;:8083 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Cloudera Navigator Audit Server 端口转发配置</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">listen cn1 :7186</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cn1a &lt;MGMT1&gt;:7186 check</span><br><span class="line">    server cn1b &lt;MGMT2&gt;:7186 check</span><br><span class="line">listen cn2 :7187</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cn2a &lt;MGMT1&gt;:8083 check</span><br><span class="line">    server cn2b &lt;MGMT2&gt;:8083 check</span><br><span class="line">listen cn3 :8089</span><br><span class="line">    mode tcp</span><br><span class="line">    option tcplog</span><br><span class="line">    server cn3a &lt;MGMT1&gt;:8089 check</span><br><span class="line">    server cn3b &lt;MGMT2&gt;:8089 check</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检测配置项</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">haproxy -f /etc/haproxy/haproxy.cfg -c</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> haproxy --now</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查服务状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status haproxy</span><br></pre></td></tr></table></figure>
+<h3 id="NFS-配置">NFS 配置</h3>
+<blockquote>
+<p>注：NFS 设备最好搭建在 CDH 集群之外，方便后期维护。</p>
+</blockquote>
+<ul>
+<li>服务安装</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建挂载文件夹</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /home/cloudera-scm-server</span><br><span class="line">mkdir -p /home/cloudera-host-monitor</span><br><span class="line">mkdir -p /home/cloudera-scm-agent</span><br><span class="line">mkdir -p /home/cloudera-scm-eventserver</span><br><span class="line">mkdir -p /home/cloudera-scm-headlamp</span><br><span class="line">mkdir -p /home/cloudera-service-monitor</span><br><span class="line">mkdir -p /home/cloudera-scm-navigator</span><br><span class="line">mkdir -p /home/etc-cloudera-scm-agent</span><br><span class="line">mkdir -p /home/cloudera-scm-csd</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写连接配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/exports.d/cloudera-manager.exports</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/home/cloudera-scm-server *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-host-monitor *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-scm-agent *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-scm-eventserver *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-scm-headlamp *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-service-monitor *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-scm-navigator *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/etc-cloudera-scm-agent *(rw,sync,no_root_squash,no_subtree_check)</span><br><span class="line">/home/cloudera-scm-csd *(rw,sync,no_root_squash,no_subtree_check)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --permanent --add-service=mountd</span><br><span class="line">firewall-cmd --permanent --add-service=rpc-bind</span><br><span class="line">firewall-cmd --permanent --add-service=nfs</span><br><span class="line">firewall-cmd --reload</span><br><span class="line">systemctl <span class="built_in">enable</span> rpcbind --now</span><br><span class="line">systemctl <span class="built_in">enable</span> nfs --now</span><br></pre></td></tr></table></figure>
+<ul>
+<li>查看服务运行状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">showmount -e</span><br></pre></td></tr></table></figure>
+<p>若显示的出上文中配置的文件夹则证明服务运行正常，如果遇到问题可以试试下面的命令。</p>
+<ul>
+<li>刷新挂载列表</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exportfs -a</span><br></pre></td></tr></table></figure>
+<h3 id="Cloudera-Manager-Server-偏移测试">Cloudera Manager Server 偏移测试</h3>
+<p>在完成上述内容后就可以进行 Cloudera Manager Server 偏移测试了。</p>
+<p><strong>千万注意主备不能同时启动，如果主备同时启动可能损坏数据库</strong></p>
+<h4 id="CMS-1-配置（主）">CMS 1 配置（主）</h4>
+<ul>
+<li>安装服务并初始化数据库</li>
+</ul>
+<p>若 CMS 1 之前已经安装过了 Cloudera Manager Server 则可以跳过此步骤。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server</span><br><span class="line">/opt/cloudera/cm/schema/scm_prepare_database.sh -h &lt;db_host&gt; mysql scm mariadb &lt;password&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装 NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br></pre></td></tr></table></figure>
+<ul>
+<li>拷贝原有文件</li>
+</ul>
+<p>若 CMS 1 没有装过 Cloudera Manager Server 则可以执行如下命令将配置文件备份传输至  NFS 服务器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -r /var/lib/cloudera-scm-server/* &lt;user&gt;@&lt;NFS&gt;:/home/cloudera-scm-server/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：如果 CDH 集群中安装过扩展 Parcels 则需要同步主备两台设备上的 csd 授权文件。具体位置位于  Administration &gt; Settings &gt; Custom Service Descriptors &gt; Local Descriptor Repository Path。</p>
+</blockquote>
+<ul>
+<li>创建挂载目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /var/lib/cloudera-scm-server</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>挂载存储目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-server /var/lib/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置开机挂载</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;NFS&gt;:/home/cloudera-scm-server /var/lib/cloudera-scm-server nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查服务状态</li>
+</ul>
+<p>访问 <code>http://&lt;CMS1&gt;:7180</code> 查看服务运行情况</p>
+<ul>
+<li>关闭 HTTP Referer Check</li>
+</ul>
+<p>进入 <code>Administration</code>-&gt;<code>Settings</code>-&gt;<code>Category</code>-&gt;<code>Security</code> 配置中</p>
+<p>关闭 <code>HTTP Referer Check</code> 属性</p>
+<ul>
+<li>检查负载均衡服务状态</li>
+</ul>
+<p>访问 <code>http://&lt;CMS&gt;:7180</code> 查看服务运行情况</p>
+<ul>
+<li>关闭主机</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<h4 id="CMS-2-配置（备）">CMS 2 配置（备）</h4>
+<ul>
+<li>安装服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装 NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建挂载目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /var/lib/cloudera-scm-server</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>挂载存储目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-server /var/lib/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置开机挂载</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;NFS&gt;:/home/cloudera-scm-server /var/lib/cloudera-scm-server nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure>
+<ul>
+<li>拷贝数据库配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/cloudera-scm-server</span><br><span class="line">scp &lt;ssh-user&gt;@&lt;CMS1&gt;:/etc/cloudera-scm-server/db.properties /etc/cloudera-scm-server/db.properties</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭开机启动</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动备机</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查服务状态</li>
+</ul>
+<p>访问 <code>http://CMS2:7180</code> 查看服务运行情况</p>
+<ul>
+<li>检查负载均衡服务状态</li>
+</ul>
+<p>访问 <code>http://CMS:7180</code> 查看服务运行情况</p>
+<ul>
+<li>关闭备机</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>完成测试</li>
+</ul>
+<p>在备机关闭完成后，需要返回至主机，开启<strong>主机</strong>上的 <code>cloudera-scm-server</code> 服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<h4 id="Agent-配置">Agent 配置</h4>
+<ul>
+<li>修改 Agent 连接的目标主机</li>
+</ul>
+<p>修改 CDH 集群中除了 MGMT1,MGMT2,CMS1,CMS2 设备上的所有 Agent 配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/cloudera-scm-agent/config.ini</span><br></pre></td></tr></table></figure>
+<p>修改如下配置项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_host=&lt;CMS&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>重启 Agent 服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<h3 id="Cloudera-Mangement-Service-偏移测试">Cloudera Mangement Service 偏移测试</h3>
+<p>由于 Cloudera Management Service 当中存储的内容没什么用，所以此处采用了删除重新安装的方式。</p>
+<h4 id="MGMT-1-配置">MGMT 1  配置</h4>
+<ul>
+<li>安装服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y cloudera-manager-daemons cloudera-manager-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>拷贝配置文件至 NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -R /etc/cloudera-scm-agent &lt;user&gt;@&lt;NFS&gt;:/home/etc-cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装 NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建存储目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/lib/cloudera-host-monitor</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-agent</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-eventserver</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-headlamp</span><br><span class="line">mkdir -p /var/lib/cloudera-service-monitor</span><br><span class="line">mkdir -p /var/lib/cloudera-scm-navigator</span><br><span class="line">mkdir -p /etc/cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>挂载存储目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-host-monitor /var/lib/cloudera-host-monitor</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-agent /var/lib/cloudera-scm-agent</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-eventserver /var/lib/cloudera-scm-eventserver</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-headlamp /var/lib/cloudera-scm-headlamp</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-service-monitor /var/lib/cloudera-service-monitor</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-navigator /var/lib/cloudera-scm-navigator</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/etc-cloudera-scm-agent /etc/cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置开机挂载</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;NFS&gt;:/home/cloudera-host-monitor /var/lib/cloudera-host-monitor nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-agent /var/lib/cloudera-scm-agent nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-eventserver /var/lib/cloudera-scm-eventserver nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-headlamp /var/lib/cloudera-scm-headlamp nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-service-monitor /var/lib/cloudera-service-monitor nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-navigator /var/lib/cloudera-scm-navigator nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/etc-cloudera-scm-agent /etc/cloudera-scm-agent nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改 Agent 配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/cloudera-scm-agent/config.ini</span><br></pre></td></tr></table></figure>
+<p>修改如下配置项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server_host=&lt;CMS&gt;</span><br><span class="line">listening_hostname=&lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置 Hosts</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts</span><br></pre></td></tr></table></figure>
+<p>新增如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;MGMT1_IP&gt; &lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查 Hosts</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping &lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<p>若目标地址 IP 与 MGMT1_IP(本机 IP) 相同则证明配置无误。</p>
+<ul>
+<li>配置 UID 和 GID</li>
+</ul>
+<blockquote>
+<p>注：此处需要和 MGMT1 完成统一配置且与两台设备的其他服务不冲突。</p>
+</blockquote>
+<p>检查设备上<code>cloudera-scm</code>用户的 UID 和 GID</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/passwd</span><br></pre></td></tr></table></figure>
+<p>配置设备上的 UID 和 GID</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">usermod -u &lt;UID&gt; cloudera-scm</span><br><span class="line">groupmod -g &lt;UID&gt; cloudera-scm</span><br></pre></td></tr></table></figure>
+<p>检查之前用户的遗留文件夹</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -user &lt;UID_Origin&gt; -<span class="built_in">type</span> d</span><br></pre></td></tr></table></figure>
+<p>切换权限至当前用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown -R cloudear-scm:cloudear-scm &lt;dir&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改文件夹所属用户</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-scm-eventserver</span><br><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-scm-navigator</span><br><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-service-monitor</span><br><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-host-monitor</span><br><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-scm-agent</span><br><span class="line">chown -R cloudera-scm:cloudera-scm /var/lib/cloudera-scm-headlamp</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查注册情况</li>
+</ul>
+<p>访问 <code>http://&lt;CMS&gt;:7180</code> 查看主机列表，若 <code>&lt;MGMT&gt;</code> 出现在列表中则证明安装成功。</p>
+<ul>
+<li>删除并重新安装服务</li>
+</ul>
+<p>在页面当中删除 <code>Cloudera Management Service</code> 服务，然后点击右上角的 <code>Add</code> 按钮在新设备上安装服务</p>
+<ul>
+<li>关闭 MGMT系列设备上的 Hostname 检查</li>
+</ul>
+<p>由于此处采用了 Hosts 文件完成了解析所以需要根据页面上的红色提示关闭 Hostname 检查</p>
+<ul>
+<li>服务启动测试</li>
+</ul>
+<p>在安装完成后需要开启集群和<code>Cloudera Management Service</code> 服务进行检查。</p>
+<ul>
+<li>关闭服务</li>
+</ul>
+<p>在界面上关闭集群和 <code>Cloudera Management Service</code> 服务</p>
+<ul>
+<li>关闭 Agent 服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<h4 id="MGMT-2-配置">MGMT 2 配置</h4>
+<ul>
+<li>安装服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y cloudera-manager-daemons cloudera-manager-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装 NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br></pre></td></tr></table></figure>
+<ul>
+<li>挂载存储目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-host-monitor /var/lib/cloudera-host-monitor</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-agent /var/lib/cloudera-scm-agent</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-eventserver /var/lib/cloudera-scm-eventserver</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-headlamp /var/lib/cloudera-scm-headlamp</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-service-monitor /var/lib/cloudera-service-monitor</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/cloudera-scm-navigator /var/lib/cloudera-scm-navigator</span><br><span class="line">mount -t nfs &lt;NFS&gt;:/home/etc-cloudera-scm-agent /etc/cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置开机挂载</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/fstab</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;NFS&gt;:/home/cloudera-host-monitor /var/lib/cloudera-host-monitor nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-agent /var/lib/cloudera-scm-agent nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-eventserver /var/lib/cloudera-scm-eventserver nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-headlamp /var/lib/cloudera-scm-headlamp nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-service-monitor /var/lib/cloudera-service-monitor nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/cloudera-scm-navigator /var/lib/cloudera-scm-navigator nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br><span class="line">&lt;NFS&gt;:/home/etc-cloudera-scm-agent /etc/cloudera-scm-agent nfs auto,noatime,nolock,intr,tcp,actimeo=1800 0 0</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改 Agent 配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/cloudera-scm-agent/config.ini</span><br></pre></td></tr></table></figure>
+<p>修改如下配置项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server_host=&lt;CMS&gt;</span><br><span class="line">listening_hostname=&lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>配置 Hosts</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hosts</span><br></pre></td></tr></table></figure>
+<p>新增如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;MGMT2_IP&gt; &lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查 Hosts</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping &lt;MGMT&gt;</span><br></pre></td></tr></table></figure>
+<p>若目标地址 IP 与 MGMT2_IP(本机 IP) 相同则证明配置无误。</p>
+<ul>
+<li>配置 UID 和 GID</li>
+</ul>
+<blockquote>
+<p>注：此处需要和 MGMT1 完成统一配置且与两台设备的其他服务不冲突。</p>
+</blockquote>
+<p>检查设备上<code>cloudera-scm</code>用户的 UID 和 GID</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/passwd</span><br></pre></td></tr></table></figure>
+<p>配置设备上的 UID 和 GID</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">usermod -u &lt;UID&gt; cloudera-scm</span><br><span class="line">groupmod -g &lt;UID&gt; cloudera-scm</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：如果因为用户修改的情况造成启动失败，可以尝试重启设备。</p>
+</blockquote>
+<ul>
+<li>检查注册情况</li>
+</ul>
+<p>访问 <code>http://&lt;CMS&gt;:7180</code> 查看主机列表，若 <code>&lt;MGMT&gt;</code> 出现在列表中并且 IP 地址变为了 <code>MGMT2_IP</code>则证明安装成功。</p>
+<ul>
+<li>服务启动测试</li>
+</ul>
+<p>在页面上启动 <code>Cloudera Management Service</code> 服务，然后在本机执行下列语句查看是否服务运行在本机上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -elf | grep <span class="string">&quot;scm&quot;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭服务</li>
+</ul>
+<p>在页面上关闭服务，然后输入如下命令关闭备机上的所有服务。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>完成测试</li>
+</ul>
+<p>在备机关闭完成后，需要返回至主机，开启<strong>主机</strong>上的 <code>cloudera-scm-agent</code> 服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<h3 id="故障检测配置">故障检测配置</h3>
+<p>在 CMS1,CMS2,MGMT1,MGMT2 四台设备上都需要执行下面的命令：</p>
+<ul>
+<li>安装软件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http://download.opensuse.org/repositories/network:/ha-clustering:/Stable/CentOS_CentOS-7/network:ha-clustering:Stable.repo -P /etc/yum.repos.d/</span><br><span class="line">yum install -y pacemaker corosync crmsh</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>corosync</code> 配置</li>
+</ul>
+<p>如果存在 <code>/etc/default/corosync</code> 文件则需要修改如下配置项</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">START=yes</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭<code>corosync</code>开机启动</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> corosync</span><br></pre></td></tr></table></figure>
+<h4 id="CMS1-和-CMS-2">CMS1 和 CMS 2</h4>
+<ul>
+<li>编辑 <code>corosync</code> 配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/corosync/corosync.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">totem &#123;</span><br><span class="line">version: 2</span><br><span class="line">secauth: off</span><br><span class="line">cluster_name: cmf</span><br><span class="line">transport: udpu</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">nodelist &#123;</span><br><span class="line">  node &#123;</span><br><span class="line">        ring0_addr: &lt;CMS1&gt;</span><br><span class="line">        nodeid: 1</span><br><span class="line">       &#125;</span><br><span class="line">  node &#123;</span><br><span class="line">        ring0_addr: &lt;CMS2&gt;</span><br><span class="line">        nodeid: 2</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">quorum &#123;</span><br><span class="line">provider: corosync_votequorum</span><br><span class="line">two_node: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建检测脚本</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/rc.d/init.d/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<p>填入如下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">  start)</span><br><span class="line">        systemctl start cloudera-scm-server.service</span><br><span class="line">        ;;</span><br><span class="line">  stop)</span><br><span class="line">        systemctl stop cloudera-scm-server.service</span><br><span class="line">        ;;</span><br><span class="line">  status)</span><br><span class="line">        systemctl status -l cloudera-scm-server.service</span><br><span class="line">        ;;</span><br><span class="line">  restart)</span><br><span class="line">        systemctl restart cloudera-scm-server.service</span><br><span class="line">        ;;</span><br><span class="line">  *)</span><br><span class="line">        echo &#x27;$1 = start|stop|status|restart&#x27;</span><br><span class="line">        ;;</span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改脚本权限</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 /etc/rc.d/init.d/cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start corosync</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭 <code>cloudera-scm-server</code> 服务自启动和服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> cloudera-scm-server</span><br><span class="line">systemctl stop cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动 <code>pacemaker</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start pacemaker</span><br><span class="line">systemctl <span class="built_in">enable</span> pacemaker</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查节点状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm status</span><br></pre></td></tr></table></figure>
+<p>若 CMS1 和 CMS2 都处在节点列表中则证明配置正确。</p>
+<ul>
+<li>配置 <code>pacemaker</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">crm configure property no-quorum-policy=ignore</span><br><span class="line">crm configure property stonith-enabled=<span class="literal">false</span></span><br><span class="line">crm configure rsc_defaults resource-stickiness=100</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将 <code>cloudera-scm-server</code> 进行托管</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm configure primitive cloudera-scm-server lsb:cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此处在第二台设备中运行此命令时提示任务已经存在。</p>
+</blockquote>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource start cloudera-scm-server</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检测服务状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm status</span><br></pre></td></tr></table></figure>
+<p>然后访问 <code>http://&lt;CMS&gt;:7180</code> 检查服务运行状态。</p>
+<ul>
+<li>测试服务迁移</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource move cloudera-scm-server &lt;CMS2&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检测服务状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm status</span><br></pre></td></tr></table></figure>
+<p>然后访问 <code>http://&lt;CMS&gt;:7180</code> 检查服务运行状态。</p>
+<blockquote>
+<p>注：在迁移完成后建议到备机上检测服务运行状态，确保服务运行正常。</p>
+</blockquote>
+<h4 id="MGMT1-和-MGMT2">MGMT1 和 MGMT2</h4>
+<ul>
+<li>编辑 <code>corosync</code> 配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/corosync/corosync.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">totem &#123;</span><br><span class="line">version: 2</span><br><span class="line">secauth: off</span><br><span class="line">cluster_name: mgmt</span><br><span class="line">transport: udpu</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">nodelist &#123;</span><br><span class="line">  node &#123;</span><br><span class="line">        ring0_addr: &lt;MGMT1&gt;</span><br><span class="line">        nodeid: 1</span><br><span class="line">       &#125;</span><br><span class="line">  node &#123;</span><br><span class="line">        ring0_addr: &lt;MGMT2&gt;</span><br><span class="line">        nodeid: 2</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">quorum &#123;</span><br><span class="line">provider: corosync_votequorum</span><br><span class="line">two_node: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建检测脚本</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/rc.d/init.d/cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<p>填入如下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">case &quot;$1&quot; in</span><br><span class="line">  start)</span><br><span class="line">        systemctl start cloudera-scm-agent.service</span><br><span class="line">        ;;</span><br><span class="line">  stop)</span><br><span class="line">        systemctl stop cloudera-scm-agent.service</span><br><span class="line">        ;;</span><br><span class="line">  status)</span><br><span class="line">        systemctl status -l cloudera-scm-agent.service</span><br><span class="line">        ;;</span><br><span class="line">  restart)</span><br><span class="line">        systemctl restart cloudera-scm-agent.service</span><br><span class="line">        ;;</span><br><span class="line">  *)</span><br><span class="line">        echo &#x27;$1 = start|stop|status|restart&#x27;</span><br><span class="line">        ;;</span><br><span class="line">esac</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改脚本权限</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 /etc/rc.d/init.d/cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start corosync</span><br></pre></td></tr></table></figure>
+<ul>
+<li>关闭 <code>cloudera-scm-agent</code> 服务自启动和服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> cloudera-scm-agent</span><br><span class="line">systemctl stop cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动 <code>pacemaker</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start pacemaker</span><br><span class="line">systemctl <span class="built_in">enable</span> pacemaker</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查节点状态</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm status</span><br></pre></td></tr></table></figure>
+<p>若 MGMT1 和 MGMT2 都处在节点列表中则证明配置正确。</p>
+<ul>
+<li>配置 <code>pacemaker</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">crm configure property no-quorum-policy=ignore</span><br><span class="line">crm configure property stonith-enabled=<span class="literal">false</span></span><br><span class="line">crm configure rsc_defaults resource-stickiness=100</span><br></pre></td></tr></table></figure>
+<ul>
+<li>创建 OCF( Open Cluster Framework)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /usr/lib/ocf/resource.d/cm</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /usr/lib/ocf/resource.d/cm/agent</span><br></pre></td></tr></table></figure>
+<p>填入如下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">#######################################################################</span><br><span class="line"># CM Agent OCF script</span><br><span class="line">#######################################################################</span><br><span class="line">#######################################################################</span><br><span class="line"># Initialization:</span><br><span class="line">: $&#123;__OCF_ACTION=$1&#125;</span><br><span class="line">OCF_SUCCESS=0</span><br><span class="line">OCF_ERROR=1</span><br><span class="line">OCF_STOPPED=7</span><br><span class="line">#######################################################################</span><br><span class="line"></span><br><span class="line">meta_data() &#123;</span><br><span class="line">        cat &lt;&lt;END</span><br><span class="line">&lt;?xml version=&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE resource-agent SYSTEM &quot;ra-api-1.dtd&quot;&gt;</span><br><span class="line">&lt;resource-agent name=&quot;Cloudera Manager Agent&quot; version=&quot;1.0&quot;&gt;</span><br><span class="line">&lt;version&gt;1.0&lt;/version&gt;</span><br><span class="line"></span><br><span class="line">&lt;longdesc lang=&quot;en&quot;&gt;</span><br><span class="line"> This OCF agent handles simple monitoring, start, stop of the Cloudera</span><br><span class="line"> Manager Agent, intended for use with Pacemaker/corosync for failover.</span><br><span class="line">&lt;/longdesc&gt;</span><br><span class="line">&lt;shortdesc lang=&quot;en&quot;&gt;Cloudera Manager Agent OCF script&lt;/shortdesc&gt;</span><br><span class="line"></span><br><span class="line">&lt;parameters /&gt;</span><br><span class="line"></span><br><span class="line">&lt;actions&gt;</span><br><span class="line">&lt;action name=&quot;start&quot;        timeout=&quot;20&quot; /&gt;</span><br><span class="line">&lt;action name=&quot;stop&quot;         timeout=&quot;20&quot; /&gt;</span><br><span class="line">&lt;action name=&quot;monitor&quot;      timeout=&quot;20&quot; interval=&quot;10&quot; depth=&quot;0&quot;/&gt;</span><br><span class="line">&lt;action name=&quot;meta-data&quot;    timeout=&quot;5&quot; /&gt;</span><br><span class="line">&lt;/actions&gt;</span><br><span class="line">&lt;/resource-agent&gt;</span><br><span class="line">END</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#######################################################################</span><br><span class="line"></span><br><span class="line">agent_usage() &#123;</span><br><span class="line">cat &lt;&lt;END</span><br><span class="line"> usage: $0 &#123;start|stop|monitor|meta-data&#125;</span><br><span class="line"> Cloudera Manager Agent HA OCF script - used for managing Cloudera Manager Agent and managed processes lifecycle for use with Pacemaker.</span><br><span class="line">END</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">agent_start() &#123;</span><br><span class="line">    systemctl start cloudera-scm-agent</span><br><span class="line">    if [ $? =  0 ]; then</span><br><span class="line">        return $OCF_SUCCESS</span><br><span class="line">    fi</span><br><span class="line">    return $OCF_ERROR</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">agent_stop() &#123;</span><br><span class="line">    systemctl stop cloudera-scm-agent</span><br><span class="line">    if [ $? =  0 ]; then</span><br><span class="line">        return $OCF_SUCCESS</span><br><span class="line">    fi</span><br><span class="line">    return $OCF_ERROR</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">agent_monitor() &#123;</span><br><span class="line">        # Monitor _MUST!_ differentiate correctly between running</span><br><span class="line">        # (SUCCESS), failed (ERROR) or _cleanly_ stopped (NOT RUNNING).</span><br><span class="line">        # That is THREE states, not just yes/no.</span><br><span class="line">        systemctl status cloudera-scm-agent </span><br><span class="line">        if [ $? = 0 ]; then</span><br><span class="line">            return $OCF_SUCCESS</span><br><span class="line">        fi</span><br><span class="line">        return $OCF_STOPPED</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">case $__OCF_ACTION in</span><br><span class="line">meta-data)      meta_data</span><br><span class="line">                exit $OCF_SUCCESS</span><br><span class="line">                ;;</span><br><span class="line">start)          agent_start;;</span><br><span class="line">stop)           agent_stop;;</span><br><span class="line">monitor)        agent_monitor;;</span><br><span class="line">usage|help)     agent_usage</span><br><span class="line">                exit $OCF_SUCCESS</span><br><span class="line">                ;;</span><br><span class="line">*)              agent_usage</span><br><span class="line">                exit $OCF_ERR_UNIMPLEMENTED</span><br><span class="line">                ;;</span><br><span class="line">esac</span><br><span class="line">rc=$?</span><br><span class="line">exit $rc</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改配置权限</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 770 /usr/lib/ocf/resource.d/cm/agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将 <code>cloudera-scm-server</code> 进行托管</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm configure primitive cloudera-scm-agent ocf:cm:agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>开启服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource start cloudera-scm-agent</span><br></pre></td></tr></table></figure>
+<ul>
+<li>测试服务偏移</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource move cloudera-scm-agent &lt;MGMT2&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="常见问题">常见问题</h3>
+<h4 id="crm-权限不足">crm 权限不足</h4>
+<p>如果出现这样的问题可以再次修改 crm 所需文件的权限，然后使用如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource cleanup &lt;service&gt;</span><br></pre></td></tr></table></figure>
+<p>然后重新管理服务即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">crm resource &lt;option&gt; &lt;service&gt;</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2020/cm-ha/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CDH/" rel="tag">CDH</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/cdh/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            CDH 搭建流程整理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/hue/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Hue 的配置</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

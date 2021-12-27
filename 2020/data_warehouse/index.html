@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>数据仓库概念梳理 |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-theory/data_warehouse"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  数据仓库概念梳理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/data_warehouse/" class="article-date">
+  <time datetime="2020-07-12T13:32:58.000Z" itemprop="datePublished">2020-07-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%A6%82%E5%BF%B5/">大数据概念</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="数据仓库概念梳理">数据仓库概念梳理</h2>
+<h3 id="简介">简介</h3>
+<blockquote>
+<p>注：此处内容来源于维基百科。</p>
+</blockquote>
+<p>在数据处理领域中，数据仓库(DW 或 DWH)，也被称为企业数据仓库(EDW)。
+它是一种用于业务报告和数据分析的系统，通常被认为是商业智能(BI)的核心组件。
+数据仓库是一个集成了来自于一个或者多个不同来源的系统数据的中央存储库。
+它将当前和历史数据存储在一个位置，用于为整个企业的员工创建分析报告。</p>
+<p>存储在仓库中的数据是从运营系统(如营销或者销售)上传的。
+数据可能会通过 ODS 与数据清理等操作来确保数据质量，然后再用于最终的分析报告。</p>
+<p>ETL 和 ELT 是两种建设数据仓库的主要方式。</p>
+<blockquote>
+<p>注：提取(Extract)、转换(Transform)、加载(Load)</p>
+</blockquote>
+<h3 id="建设数仓的好处">建设数仓的好处</h3>
+<p>数据仓库维护来自源系统的信息副本。这种架构提供了以下的好处：</p>
+<ul>
+<li>将来自多个来源的数据集成到单个数据库和数据模型中。因为我们将很多的数据聚合到单个数据库中，所以可以使用单个查询引擎在 ODS 中呈现数据。</li>
+<li>缓解由于在 OLTP 数据库中运行大型、长时间运行的分析查询而导致的数据库隔离级别锁争用问题。</li>
+<li>维护数据历史，即使源系统没有。</li>
+<li>集成来自多个源系统的数据，实现整个企业的中央视图。</li>
+<li>通过提供一致的代码和描述、标记甚至修复错误数据来提高数据质量。</li>
+<li>一致地呈现组织信息。</li>
+<li>不管数据的来源如何，统一为所有相关的数据提供单一通用的数据模型。</li>
+<li>重构数据模型，使其对业务有实际意义。</li>
+<li>重构数据模型，使其即使对于复杂的分析查询也能提供出色的查询性能，而不会影响原有系统。</li>
+<li>为运营业务应用程序增加价值。</li>
+<li>使决策支持查询更容易编写。</li>
+<li>组织和消除重复数据的歧义。</li>
+</ul>
+<h3 id="数据集市">数据集市</h3>
+<p>数据集市是在数据仓库环境中的一种数据结构或是访问模式，它经常被用于检索面向客户的数据。
+数据集市通常是数据仓库面向特定的业务线或团队的一个子集。
+数据仓库通常管理企业范围，而数据集市中的信息则属于单个部门。
+在某些情况中，每个部门或业务单位都被视为其数据集市的所有者，包括所有硬件、软件和数据。
+这使每个部门能够隔离其数据的使用、操作和开发。
+在使用一致维度的其他部署中，此业务单元所有权不适用于客户、产品等共享维度。</p>
+<p>建立仓库和数据集市是因为数据库中的信息没有按照易于访问的方式进行组织。
+这种组织方式过于复杂、以至于难以访问或进行资源密集型的查询。</p>
+<p>虽然 OLTP 旨在更新数据，但数据仓库或集市是只读的。
+数据仓库旨在访问大量相关记录。
+数据集市通过以支持一组用户的集体视图的方式提供数据，允许用户访问他们最常查看的特定类型的数据，从而缩短了最终用户的响应时间。</p>
+<p>数据集市基本上是数据仓库的浓缩和更集中的版本，它反映了组织内每个业务部门的法规和流程规范。
+每个数据集市专用于特定的业务功能或区域。
+该数据子集可能跨越企业的许多或所有功能主题领域。
+通常使用多个数据集市来满足各个业务部门的需求。</p>
+<h3 id="通用内容">通用内容</h3>
+<p>数据仓库和集市的通用环境包括以下内容：</p>
+<ul>
+<li>向仓库或集市提供数据的源系统</li>
+<li>数据集成技术和工作流</li>
+<li>在面对不同用户时提供不同的存储架构</li>
+<li>为各种用户提供不同的工具和应用程序</li>
+<li>充分的元数据、完整的数据质量和完善的治理流程，</li>
+</ul>
+<h3 id="特性">特性</h3>
+<p>数据仓库定义中数据的基本特性包括</p>
+<ul>
+<li>面向主题(特定的数据分析领域与目标)</li>
+<li>数据集成(数据仓库一般都要涉及多个分析主题)</li>
+<li>反应历史变化(数据仓库中的数据反映历史变化)</li>
+<li>稳定(数据仓库中的数据是稳定的)</li>
+</ul>
+<h3 id="数仓分层模型">数仓分层模型</h3>
+<p>在阿里巴巴的数据体系中数据仓库被分成了三层，自上而下为：</p>
+<ul>
+<li>数据应用层(ADS，Application Data Service)
+<ul>
+<li>个性化指标加工：定制化、复杂性指标(复合指标)</li>
+<li>基于应用的数据组装：宽表集市、趋势指标</li>
+</ul>
+</li>
+<li>数据公共层(CDM，Common Data Model)
+<ul>
+<li>纬度表(DIM，Dimension)：建立一致数据分析维表、降低数据计算口径和算法不统一风险</li>
+<li>公共汇总层(DWS，Data WareHouse Service)：构建命名规范、口径一致的统计指标，为上层提供公共指标，建立汇总宽表</li>
+<li>明细事实表(DWD，Data Warehouse Detail)：基于维表建模，明细宽表，服用关联计算，减少数据扫描</li>
+</ul>
+</li>
+<li>数据引入层(ODS，Operation Data Store)
+<ul>
+<li>同步：结构化数据增量或全量同步</li>
+<li>结构化：非结构化数据进行结构化处理</li>
+<li>保存历史、清洗：根据业务、审计、稽查的需求保留历史数据或进行清洗</li>
+</ul>
+</li>
+</ul>
+<p>在阿里的样例中数据流向如下图所示：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U2NyaXB0VHlwZT0iYXBwbGljYXRpb24vZWNtYXNjcmlwdCIgY29udGVudFN0eWxlVHlwZT0idGV4dC9jc3MiIGhlaWdodD0iMTAycHgiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHN0eWxlPSJ3aWR0aDo0MDdweDtoZWlnaHQ6MTAycHg7YmFja2dyb3VuZDojRkZGRkZGOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNDA3IDEwMiIgd2lkdGg9IjQwN3B4IiB6b29tQW5kUGFuPSJtYWduaWZ5Ij48ZGVmcz48ZmlsdGVyIGhlaWdodD0iMzAwJSIgaWQ9ImYxcnU1djNucWtnc3NoIiB3aWR0aD0iMzAwJSIgeD0iLTEiIHk9Ii0xIj48ZmVHYXVzc2lhbkJsdXIgcmVzdWx0PSJibHVyT3V0IiBzdGREZXZpYXRpb249IjIuMCIvPjxmZUNvbG9yTWF0cml4IGluPSJibHVyT3V0IiByZXN1bHQ9ImJsdXJPdXQyIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgLjQgMCIvPjxmZU9mZnNldCBkeD0iNC4wIiBkeT0iNC4wIiBpbj0iYmx1ck91dDIiIHJlc3VsdD0iYmx1ck91dDMiLz48ZmVCbGVuZCBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJibHVyT3V0MyIgbW9kZT0ibm9ybWFsIi8+PC9maWx0ZXI+PC9kZWZzPjxnPjwhLS1NRDU9WzNmMzJkYjRhZjM3NGMzYzc1Y2Q3ZWUwZGVmNThmMTg2XQplbnRpdHkgT0RTLS0+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2YxcnU1djNucWtnc3NoKSIgaGVpZ2h0PSIyMi4yOTY5IiBzdHlsZT0ic3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSI1MSIgeD0iNyIgeT0iMzYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMSIgeD0iMTciIHk9IjUxLjk5NTEiPk9EUzwvdGV4dD48IS0tTUQ1PVs0YWY0NTkyMDBkMjY4NDM2NjllN2Q5ODk4YjBkY2E4YV0KZW50aXR5IERXUy0tPjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmMXJ1NXYzbnFrZ3NzaCkiIGhlaWdodD0iMjIuMjk2OSIgc3R5bGU9InN0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjU7IiB3aWR0aD0iNTQiIHg9IjM0MSIgeT0iNyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM0IiB4PSIzNTEiIHk9IjIyLjk5NTEiPkRXUzwvdGV4dD48IS0tTUQ1PVs2OTJjZmM4MTQ2YTgyM2EyOThjNTdkNmIyNTQ1NWNkOF0KZW50aXR5IERXRC0tPjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmMXJ1NXYzbnFrZ3NzaCkiIGhlaWdodD0iMjIuMjk2OSIgc3R5bGU9InN0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjU7IiB3aWR0aD0iNTYiIHg9IjIyNSIgeT0iMzYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzNiIgeD0iMjM1IiB5PSI1MS45OTUxIj5EV0Q8L3RleHQ+PCEtLU1ENT1bYTAxZDgxNjUxYzIyYWIwNDc4YmFjNmEwMWFlZjI4ODRdCmVudGl0eSBESU0tLT48cmVjdCBmaWxsPSIjRkVGRUNFIiBmaWx0ZXI9InVybCgjZjFydTV2M25xa2dzc2gpIiBoZWlnaHQ9IjIyLjI5NjkiIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjQ3IiB4PSIxMTgiIHk9IjY4Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMjciIHg9IjEyOCIgeT0iODMuOTk1MSI+RElNPC90ZXh0PjwhLS1NRDU9WzFkYzEzODQ0ZmY5ZTc5YmYxMTcyMWY3Yzk4MDU4NWExXQplbnRpdHkgQURTLS0+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2YxcnU1djNucWtnc3NoKSIgaGVpZ2h0PSIyMi4yOTY5IiBzdHlsZT0ic3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSI1MCIgeD0iMzQzIiB5PSI2NCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjMwIiB4PSIzNTMiIHk9Ijc5Ljk5NTEiPkFEUzwvdGV4dD48IS0tTUQ1PVtjM2VmMjg4YjcxNmZiNjZjOGEzOGRiNmU5NThhMDkxM10KbGluayBPRFMgdG8gRElNLS0+PHBhdGggZD0iTTU4LjA0OCw1NC4zNDE0IEM3NC4zNzUxLDU5LjIyNDMgOTUuODUwNCw2NS42NDY5IDExMi43OTEsNzAuNzEzMSAiIGZpbGw9Im5vbmUiIGlkPSJPRFMtdG8tRElNIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjExNy44OTIsNzIuMjM4NywxMTAuNDE1OCw2NS44MjczLDExMy4xMDE3LDcwLjgwNTgsMTA4LjEyMzIsNzMuNDkxOCwxMTcuODkyLDcyLjIzODciIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1NRDU9W2UzMmZiZTJmNmQ1M2M3MTZiNjA3NDE1NTZiNjRkYTI4XQpsaW5rIE9EUyB0byBEV0QtLT48cGF0aCBkPSJNNTguMTQsNDcgQzk3LjcxNDYsNDcgMTc1LjQ1NSw0NyAyMTkuNTE2LDQ3ICIgZmlsbD0ibm9uZSIgaWQ9Ik9EUy10by1EV0QiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iMjI0LjcxOCw0NywyMTUuNzE4LDQzLDIxOS43MTgsNDcsMjE1LjcxOCw1MSwyMjQuNzE4LDQ3IiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48IS0tTUQ1PVtjYTllOTVkNDlmZTQ2ZWZhMjBlOWM4MTMzYjhlNzE1Yl0KbGluayBESU0gdG8gRFdELS0+PHBhdGggZD0iTTE2NS4xODgsNzIuMzY5NiBDMTgwLjk5Miw2Ny43NTEyIDIwMi4yOTksNjEuNTI0NiAyMTkuODQ4LDU2LjM5NiAiIGZpbGw9Im5vbmUiIGlkPSJESU0tdG8tRFdEIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjIyNC42OTEsNTQuOTgwOCwyMTQuOTMwMiw1My42NjY1LDIxOS44OTE4LDU2LjM4MzYsMjE3LjE3NDcsNjEuMzQ1MiwyMjQuNjkxLDU0Ljk4MDgiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1NRDU9WzU4ZDNkMDY4YWQ3YTFjN2Y0MjdhNDAwM2E0OWUwNjkxXQpsaW5rIERXRCB0byBEV1MtLT48cGF0aCBkPSJNMjgxLjA2Niw0MC4wNTM4IEMyOTcuNTE2LDM1LjgzMjIgMzE4LjU4NCwzMC40MjUzIDMzNS43NDIsMjYuMDIxOCAiIGZpbGw9Im5vbmUiIGlkPSJEV0QtdG8tRFdTIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjM0MC45MzMsMjQuNjg5OSwzMzEuMjIwNywyMy4wNTUzLDMzNi4wOTAzLDI1LjkzNDEsMzMzLjIxMTUsMzAuODAzNywzNDAuOTMzLDI0LjY4OTkiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1NRDU9Wzg2ZmM0NDhkMDNmMTg0NGI3MWYzMjIxNjlkMjQwMmU2XQpsaW5rIERXRCB0byBBRFMtLT48cGF0aCBkPSJNMjgxLjA2Niw1My43MDY3IEMyOTguMTA4LDU3LjkyOTQgMzIwLjEwNiw2My4zODAyIDMzNy41NzksNjcuNzA5NyAiIGZpbGw9Im5vbmUiIGlkPSJEV0QtdG8tQURTIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjM0Mi44NDUsNjkuMDE0OCwzMzUuMDcxNiw2Mi45NjcyLDMzNy45OTE4LDY3LjgxMiwzMzMuMTQ3LDcwLjczMjIsMzQyLjg0NSw2OS4wMTQ4IiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48IS0tTUQ1PVtmYzRkNDBjMjAxMGQ5MDFlNTAzNTA4NTM0YTczNzY0Yl0KQHN0YXJ0dW1sDQpsZWZ0IHRvIHJpZ2h0IGRpcmVjdGlvbg0KDQpjYXJkIE9EUw0KY2FyZCBEV1MNCmNhcmQgRFdEDQpjYXJkIERJTQ0KY2FyZCBBRFMNCg0KT0RTIC0gLT4gRElNDQpPRFMgLSAtPiBEV0QNCkRJTSAtIC0+IERXRA0KRFdEIC0gLT4gRFdTDQpEV0QgLSAtPiBBRFMNCkBlbmR1bWwNCgpQbGFudFVNTCB2ZXJzaW9uIDEuMjAyMS4xN2JldGE0KFVua25vd24gY29tcGlsZSB0aW1lKQooR1BMIHNvdXJjZSBkaXN0cmlidXRpb24pCkphdmEgUnVudGltZTogSmF2YShUTSkgU0UgUnVudGltZSBFbnZpcm9ubWVudApKVk06IEphdmEgSG90U3BvdChUTSkgNjQtQml0IFNlcnZlciBWTQpEZWZhdWx0IEVuY29kaW5nOiBVVEYtOApMYW5ndWFnZTogZW4KQ291bnRyeTogVVMKLS0+PC9nPjwvc3ZnPg=='>
+<p>此外在其他文章中还有这样的数据流向：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U2NyaXB0VHlwZT0iYXBwbGljYXRpb24vZWNtYXNjcmlwdCIgY29udGVudFN0eWxlVHlwZT0idGV4dC9jc3MiIGhlaWdodD0iMjA1cHgiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHN0eWxlPSJ3aWR0aDoyNDZweDtoZWlnaHQ6MjA1cHg7YmFja2dyb3VuZDojRkZGRkZGOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMjQ2IDIwNSIgd2lkdGg9IjI0NnB4IiB6b29tQW5kUGFuPSJtYWduaWZ5Ij48ZGVmcz48ZmlsdGVyIGhlaWdodD0iMzAwJSIgaWQ9ImZqOHZ6c3Y4bGR1NDQiIHdpZHRoPSIzMDAlIiB4PSItMSIgeT0iLTEiPjxmZUdhdXNzaWFuQmx1ciByZXN1bHQ9ImJsdXJPdXQiIHN0ZERldmlhdGlvbj0iMi4wIi8+PGZlQ29sb3JNYXRyaXggaW49ImJsdXJPdXQiIHJlc3VsdD0iYmx1ck91dDIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAuNCAwIi8+PGZlT2Zmc2V0IGR4PSI0LjAiIGR5PSI0LjAiIGluPSJibHVyT3V0MiIgcmVzdWx0PSJibHVyT3V0MyIvPjxmZUJsZW5kIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImJsdXJPdXQzIiBtb2RlPSJub3JtYWwiLz48L2ZpbHRlcj48L2RlZnM+PGc+PCEtLU1ENT1bMWRjMTM4NDRmZjllNzliZjExNzIxZjdjOTgwNTg1YTFdCmVudGl0eSBBRFMtLT48cmVjdCBmaWxsPSIjRkVGRUNFIiBmaWx0ZXI9InVybCgjZmo4dnpzdjhsZHU0NCkiIGhlaWdodD0iMjIuMjk2OSIgc3R5bGU9InN0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxLjU7IiB3aWR0aD0iNTAiIHg9Ijk5IiB5PSI3Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMzAiIHg9IjEwOSIgeT0iMjIuOTk1MSI+QURTPC90ZXh0PjwhLS1NRDU9WzRhZjQ1OTIwMGQyNjg0MzY2OWU3ZDk4OThiMGRjYThhXQplbnRpdHkgRFdTLS0+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2ZqOHZ6c3Y4bGR1NDQpIiBoZWlnaHQ9IjIyLjI5NjkiIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjU0IiB4PSI3IiB5PSI4OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM0IiB4PSIxNyIgeT0iMTA0Ljk5NTEiPkRXUzwvdGV4dD48IS0tTUQ1PVs2OTJjZmM4MTQ2YTgyM2EyOThjNTdkNmIyNTQ1NWNkOF0KZW50aXR5IERXRC0tPjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmajh2enN2OGxkdTQ0KSIgaGVpZ2h0PSIyMi4yOTY5IiBzdHlsZT0ic3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSI1NiIgeD0iOTYiIHk9Ijg5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMzYiIHg9IjEwNiIgeT0iMTA0Ljk5NTEiPkRXRDwvdGV4dD48IS0tTUQ1PVthMDFkODE2NTFjMjJhYjA0NzhiYWM2YTAxYWVmMjg4NF0KZW50aXR5IERJTS0tPjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmajh2enN2OGxkdTQ0KSIgaGVpZ2h0PSIyMi4yOTY5IiBzdHlsZT0ic3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSI0NyIgeD0iMTg3LjUiIHk9Ijg5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMjciIHg9IjE5Ny41IiB5PSIxMDQuOTk1MSI+RElNPC90ZXh0PjwhLS1NRDU9WzNmMzJkYjRhZjM3NGMzYzc1Y2Q3ZWUwZGVmNThmMTg2XQplbnRpdHkgT0RTLS0+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2ZqOHZ6c3Y4bGR1NDQpIiBoZWlnaHQ9IjIyLjI5NjkiIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjUxIiB4PSI1My41IiB5PSIxNzEiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMSIgeD0iNjMuNSIgeT0iMTg2Ljk5NTEiPk9EUzwvdGV4dD48IS0tTUQ1PVs1NzU1NzI4ODUwOTEwNmUzY2RkODA0ZmMwZTkzMWViNV0KcmV2ZXJzZSBsaW5rIEFEUyB0byBEV0QtLT48cGF0aCBkPSJNMTI0LDM0LjIxNiBDMTI0LDUwLjI4OCAxMjQsNzUuMTY5IDEyNCw4OC45NSAiIGZpbGw9Im5vbmUiIGlkPSJBRFMtYmFja3RvLURXRCIgc3R5bGU9InN0cm9rZTojQTgwMDM2O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIxMjQsMjkuMTMyLDEyMCwzOC4xMzIsMTI0LDM0LjEzMiwxMjgsMzguMTMyLDEyNCwyOS4xMzIiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1NRDU9WzI0MGViZmE4YmE1N2M5OGQwNDhjMzE1OWM4YWYzZjJlXQpyZXZlcnNlIGxpbmsgQURTIHRvIERXUy0tPjxwYXRoIGQ9Ik0xMDguNzMyLDMyLjU3MiBDOTAuNzYzOCw0OC41NDMgNjEuMzQ5NCw3NC42ODkgNDUuMzA2LDg4Ljk1ICIgZmlsbD0ibm9uZSIgaWQ9IkFEUy1iYWNrdG8tRFdTIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjExMi42MDEsMjkuMTMyLDEwMy4yMTY2LDMyLjEyMSwxMDguODYzNywzMi40NTM2LDEwOC41MzExLDM4LjEwMDYsMTEyLjYwMSwyOS4xMzIiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1NRDU9WzAwNTBkYWJjNGU0NTgzNGMyZGZjNmI0ZDFlM2I0NzEyXQpyZXZlcnNlIGxpbmsgQURTIHRvIERJTS0tPjxwYXRoIGQ9Ik0xMzguNzU5LDMyLjU3MiBDMTU2LjEyOCw0OC41NDMgMTg0LjU2Miw3NC42ODkgMjAwLjA3MSw4OC45NSAiIGZpbGw9Im5vbmUiIGlkPSJBRFMtYmFja3RvLURJTSIgc3R5bGU9InN0cm9rZTojQTgwMDM2O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIxMzUuMDE5LDI5LjEzMiwxMzguOTM3NiwzOC4xNjc3LDEzOC43LDMyLjUxNTksMTQ0LjM1MTgsMzIuMjc4MiwxMzUuMDE5LDI5LjEzMiIgc3R5bGU9InN0cm9rZTojQTgwMDM2O3N0cm9rZS13aWR0aDoxLjA7Ii8+PCEtLU1ENT1bMjAwZGZiYzE3NWUwODYzMDM0MjFlNzAyNTNkM2NhMTFdCnJldmVyc2UgbGluayBEV0QgdG8gT0RTLS0+PHBhdGggZD0iTTExNS42NzYsMTE1Ljc5ODcgQzEwNi42NDQ2LDEzMS44NTQgOTIuNDcyNSwxNTcuMDQ4OSA4NC42NTMsMTcwLjk1MDIgIiBmaWxsPSJub25lIiBpZD0iRFdELWJhY2t0by1PRFMiIHN0eWxlPSJzdHJva2U6I0E4MDAzNjtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iMTE4LjMwMSwxMTEuMTMyMSwxMTAuNDAyOCwxMTcuMDE1OCwxMTUuODUsMTE1LjQ5MDIsMTE3LjM3NTcsMTIwLjkzNzQsMTE4LjMwMSwxMTEuMTMyMSIgc3R5bGU9InN0cm9rZTojQTgwMDM2O3N0cm9rZS13aWR0aDoxLjA7Ii8+PCEtLU1ENT1bM2M2YmJkMmJkZDk3YzJjNjY5OTY1MjI3MzkzYzIzOTldCnJldmVyc2UgbGluayBEV1MgdG8gT0RTLS0+PHBhdGggZD0iTTQyLjMyNDMsMTE1Ljc5ODcgQzUxLjM1NTQsMTMxLjg1NCA2NS41Mjc1LDE1Ny4wNDg5IDczLjM0NywxNzAuOTUwMiAiIGZpbGw9Im5vbmUiIGlkPSJEV1MtYmFja3RvLU9EUyIgc3R5bGU9InN0cm9rZTojQTgwMDM2O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIzOS42OTkzLDExMS4xMzIxLDQwLjYyNTMsMTIwLjkzNzMsNDIuMTUwNiwxMTUuNDksNDcuNTk3OSwxMTcuMDE1MiwzOS42OTkzLDExMS4xMzIxIiBzdHlsZT0ic3Ryb2tlOiNBODAwMzY7c3Ryb2tlLXdpZHRoOjEuMDsiLz48IS0tTUQ1PVs3Yzk5YjQyNDRiZDYzNzQzODg3MDdjMDhmOGY1MzY5N10KQHN0YXJ0dW1sDQpjYXJkIEFEUw0KY2FyZCBEV1MNCmNhcmQgRFdEDQpjYXJkIERJTQ0KY2FyZCBPRFMNCg0KQURTIDwtIC0gRFdEDQpBRFMgPC0gLSBEV1MNCkFEUyA8LSAtIERJTQ0KRFdEIDwtIC0gT0RTDQpEV1MgPC0gLSBPRFMNCkBlbmR1bWwNCgpQbGFudFVNTCB2ZXJzaW9uIDEuMjAyMS4xN2JldGE0KFVua25vd24gY29tcGlsZSB0aW1lKQooR1BMIHNvdXJjZSBkaXN0cmlidXRpb24pCkphdmEgUnVudGltZTogSmF2YShUTSkgU0UgUnVudGltZSBFbnZpcm9ubWVudApKVk06IEphdmEgSG90U3BvdChUTSkgNjQtQml0IFNlcnZlciBWTQpEZWZhdWx0IEVuY29kaW5nOiBVVEYtOApMYW5ndWFnZTogZW4KQ291bnRyeTogVVMKLS0+PC9nPjwvc3ZnPg=='>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2020/data_warehouse/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Data-Mart/" rel="tag">Data Mart</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Data-warehouse/" rel="tag">Data warehouse</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93/" rel="tag">数据仓库</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E9%9B%86%E5%B8%82/" rel="tag">数据集市</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/caching/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Spring Boot 缓存
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/design-pattern-proxy/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">代理模式</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
