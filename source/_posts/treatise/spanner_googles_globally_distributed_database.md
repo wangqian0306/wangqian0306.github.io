@@ -3,6 +3,7 @@ title: "Spanner: Google’s Globally Distributed Database 中文翻译版"
 date: 2021-12-15 22:26:13
 tags:
 - "论文"
+- "Spanner"
 id: spanner_googles_globally_distributed_database
 no_word_count: true
 no_toc: false
