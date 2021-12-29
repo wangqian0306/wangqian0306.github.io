@@ -18,6 +18,7 @@ categories: Windows
 ## 软件配置
 
 1. 在 Windows Terminal 中选择设置，在 `profiles` 配置项中的 `list`中新增如下内容
+
 ```json
 {
     // guid 需要单独生成，参见注释
