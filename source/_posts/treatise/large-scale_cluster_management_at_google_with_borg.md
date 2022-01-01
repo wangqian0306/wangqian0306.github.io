@@ -552,7 +552,7 @@ Borg 的设计理念是相似的，它使我们能够支持每个操作员(SRE)�
 
 我们从 Borg 的一些作为警示故事的功能开始，并为 Kubernetes 中的替代设计提供了参考。
 
-作业作为任务的唯一分组机制是有限制性的。
+**作业作为任务的唯一分组机制是有局限性的。**
 Borg 没有一流的方法来将整个多作业服务作为单个实体进行管理，或者引用服务的相关实例(例如，金丝雀(Canary)和生产轨道)。
 作为一个黑客，用户在作业名称中编码他们的服务拓扑，并构建更高级别的管理工具来解析这些名称。
 另一方面，不可能引用作业的任意子集，这会导致诸如滚动更新和作业调整大小不灵活的语义等问题。
@@ -562,11 +562,11 @@ Borg 没有一流的方法来将整个多作业服务作为单个实体进行管
 Kubernetes 中的操作通过标签查询来识别它们的目标，该标签查询选择操作应该应用到的对象。
 这种方法比单一的固定作业分组具有更大的灵活性。
 
-每台机器一个 IP 地址会使事情复杂化。在 Borg 中，机器上的所有任务都使用其主机的单个 IP 地址，因此共享主机的端口空间。
+**每台机器一个 IP 地址会使事情复杂化。** 在 Borg 中，机器上的所有任务都使用其主机的单个 IP 地址，因此共享主机的端口空间。
 这导致了许多困难：Borg 必须将端口作为资源进行调度； 任务必须预先声明它们需要多少端口，并愿意在启动时被告知使用哪些端口；Borglet 必须强制执行端口隔离；命名和 RPC 系统必须处理端口和 IP 地址。
 由于 Linux 命名空间、VM、IPv6 和软件定义网络的出现，Kubernetes 可以采用更加用户友好的方法来消除这些复杂性：每个 pod 和服务都有自己的 IP 地址，允许开发人员选择端口而不是要求他们的软件适应基础设施选择的软件，并消除了管理端口的基础设施复杂性。
 
-以牺牲临时用户为代价为高级用户进行优化。
+**以牺牲临时用户为代价为高级用户进行优化。**
 Borg 提供了大量针对“高级用户”的功能，因此他们可以微调其程序的运行方式(BCL 规范列出了大约 230 个参数)：最初的重点是支持 Google 最大的资源消费者，为他们提高效率 收益是最重要的。
 不幸的是，这个 API 的丰富性使“临时”用户的工作变得更加困难，并限制了它的发展。
 我们的解决方案是构建在 Borg 之上运行的自动化工具和服务，并通过实验确定适当的设置。
@@ -576,4 +576,367 @@ Borg 提供了大量针对“高级用户”的功能，因此他们可以微调
 
 另一方面，Borg 的许多设计特点非常有益，并且经受住了时间的考验。
 
-**Alloc 很有用**。
+**Alloc 很有用。** Borg alloc 抽象产生了广泛使用的日志保存模式(第 2.4 节)和另一种流行的模式，其中一个简单的数据加载器任务定期更新 Web 服务器使用的数据。
+Alloc 和包允许由不同的团队开发此类帮助服务。Kubernetes 相当于 alloc 是 pod，它是一个或多个容器的资源信封，这些容器总是被调度到同一台机器上并且可以共享资源。
+Kubernetes 在同一个 pod 中使用辅助容器，而不是在 alloc 中使用任务，但想法是一样的。
+
+**集群管理不仅仅是任务管理。** 尽管 Borg 的主要角色是管理任务和机器的生命周期，但在 Borg 上运行的应用程序受益于许多其他集群服务，包括命名和负载平衡。
+Kubernetes 使用服务抽象支持命名和负载平衡：服务具有名称和由标签选择器定义的动态 pod 集。集群中的任何容器都可以使用服务名称连接到服务。
+在幕后，Kubernetes 会自动在与标签选择器匹配的 pod 之间平衡与服务的连接，并在 pod 因故障而重新调度时跟踪它们的运行位置。
+
+**内省至关重要。** 尽管 Borg 几乎总是“正常工作”，但当出现问题时，找到根本原因可能具有挑战性。
+Borg 的一个重要设计决策是向所有用户显示调试信息而不是隐藏它：Borg 有成千上万的用户，因此“自助”必须是调试的第一步。
+尽管这让我们更难弃用功能并更改用户所依赖的内部策略，但这仍然是一个胜利，我们没有找到现实的替代方案。
+为了处理海量数据，我们提供了多个级别的 UI 和调试工具，因此用户可以快速识别与其作业相关的异常事件，然后从其应用程序和基础架构本身深入了解详细的事件和错误日志。
+
+Kubernetes 旨在复制 Borg 的许多内省技术。例如，它附带了用于资源监控的 cAdvisor `[15]` 等工具，以及基于 Elasticsearch/Kibana `[30]` 和 Fluentd `[32]` 的日志聚合。
+可以查询 master 以获取其对象状态的快照。Kubernetes 有一个统一的机制，所有组件都可以使用该机制来记录可供客户端使用的事件(例如，一个 pod 被调度，一个容器失败)。
+
+**Master是分布式系统的内核。** Borgmaster 最初被设计为一个整体系统，但随着时间的推移，它更像是一个内核，位于合作管理用户作业的服务生态系统的核心。
+例如，我们将调度程序和主 UI(Sigma)拆分为单独的进程，并添加了用于准入控制、垂直和水平自动缩放、重新打包任务、定期作业提交(corn)、工作流管理和归档系统操作的服务用于离线查询。
+总之，这些使我们能够在不牺牲性能或可维护性的情况下扩展工作负载和功能集。
+
+Kubernetes 架构更进一步：它的核心有一个 API 服务器，它只负责处理请求和操作底层状态对象。
+群集管理逻辑构建为小型、可组合的微服务，这些服务是此 API 服务器的客户端，例如 replication controller (在出现故障时维护 pod 的所需副本数量)和 node controller(管理机器生命周期)。
+
+#### 8.3 结论
+
+在过去十年中，几乎所有 Google 的集群工作负载都转而使用 Borg。我们将继续改进它，并将从中学到的经验应用到 Kubernetes 中。
+
+### 致谢
+
+```text
+The authors of this paper performed the evaluations and
+wrote the paper, but the dozens of engineers who designed, implemented, and maintained Borg’s components
+and ecosystem are the key to its success. We list here just
+those who participated most directly in the design, implementation, and operation of the Borgmaster and Borglets.
+Our apologies if we missed anybody.
+
+The initial Borgmaster was primarily designed and implemented by Jeremy Dion and Mark Vandevoorde, with
+Ben Smith, Ken Ashcraft, Maricia Scott, Ming-Yee Iu, and
+Monika Henzinger. The initial Borglet was primarily designed and implemented by Paul Menage.
+
+Subsequent contributors include Abhishek Rai, Abhishek
+Verma, Andy Zheng, Ashwin Kumar, Beng-Hong Lim,
+Bin Zhang, Bolu Szewczyk, Brian Budge, Brian Grant,
+Brian Wickman, Chengdu Huang, Cynthia Wong, Daniel
+Smith, Dave Bort, David Oppenheimer, David Wall, Dawn
+Chen, Eric Haugen, Eric Tune, Ethan Solomita, Gaurav Dhiman, Geeta Chaudhry, Greg Roelofs, Grzegorz Czajkowski,
+James Eady, Jarek Kusmierek, Jaroslaw Przybylowicz, Jason Hickey, Javier Kohen, Jeremy Lau, Jerzy Szczepkowski,
+John Wilkes, Jonathan Wilson, Joso Eterovic, Jutta Degener, Kai Backman, Kamil Yurtsever, Kenji Kaneda, Kevan Miller, Kurt Steinkraus, Leo Landa, Liza Fireman,
+Madhukar Korupolu, Mark Logan, Markus Gutschke, Matt
+Sparks, Maya Haridasan, Michael Abd-El-Malek, Michael
+Kenniston, Mukesh Kumar, Nate Calvin, Onufry Wojtaszczyk,
+Patrick Johnson, Pedro Valenzuela, Piotr Witusowski, Praveen
+Kallakuri, Rafal Sokolowski, Richard Gooch, Rishi Gosalia, Rob Radez, Robert Hagmann, Robert Jardine, Robert
+Kennedy, Rohit Jnagal, Roy Bryant, Rune Dahl, Scott Garriss, Scott Johnson, Sean Howarth, Sheena Madan, Smeeta
+Jalan, Stan Chesnutt, Temo Arobelidze, Tim Hockin, Todd
+Wang, Tomasz Blaszczyk, Tomasz Wozniak, Tomek Zielonka,
+Victor Marmol, Vish Kannan, Vrigo Gokhale, Walfredo
+Cirne, Walt Drummond, Weiran Liu, Xiaopan Zhang, Xiao
+Zhang, Ye Zhao, and Zohaib Maya.
+
+The Borg SRE team has also been crucial, and has included Adam Rogoyski, Alex Milivojevic, Anil Das, Cody
+Smith, Cooper Bethea, Folke Behrens, Matt Liggett, James
+Sanford, John Millikin, Matt Brown, Miki Habryn, Peter Dahl, Robert van Gent, Seppi Wilhelmi, Seth Hettich,
+Torsten Marek, and Viraj Alankar. The Borg configuration
+language (BCL) and borgcfg tool were originally developed
+by Marcel van Lohuizen and Robert Griesemer.
+
+We thank our reviewers (especially Eric Brewer, Malte
+Schwarzkopf and Tom Rodeheffer), and our shepherd, Christos Kozyrakis, for their feedback on this paper.
+```
+
+### 参考资料
+
+[1] O. A. Abdul-Rahman and K. Aida.
+Towards understanding the usage behavior of Google cloud users: the mice and elephants phenomenon.
+In Proc. IEEE Int’l Conf. on Cloud Computing Technology and Science (CloudCom), pages 272–277, Singapore, Dec. 2014.
+
+[2] Adaptive Computing Enterprises Inc., Provo, UT. Maui Scheduler Administrator’s Guide, 3.2 edition, 2011.
+
+[3] T. Akidau, A. Balikov, K. Bekiroglu, S. Chernyak, J. Haberman, R. Lax, S. McVeety, D. Mills, P. Nordstrom, and S. Whittle.
+MillWheel: fault-tolerant stream processing at internet scale.
+In Proc. Int’l Conf. on Very Large Data Bases (VLDB), pages 734–746, Riva del Garda, Italy, Aug.2013
+
+
+[4] Y. Amir, B. Awerbuch, A. Barak, R. S. Borgstrom, and A. Keren.
+An opportunity cost approach for job assignment in a scalable computing cluster.
+IEEE Trans. Parallel Distrib. Syst., 11(7):760–768, July 2000.
+
+[5] Apache Aurora. http://aurora.incubator.apache.org/, 2014.
+
+[6] Aurora Configuration Tutorial. https://aurora.incubator.apache.org/documentation/latest/configuration-tutorial/, 2014
+
+[7] AWS. Amazon Web Services VM Instances.http://aws.amazon.com/ec2/instance-types/, 2014.
+
+[8] J. Baker, C. Bond, J. Corbett, J. Furman, A. Khorlin, J. Larson, J.-M. Leon, Y. Li, A. Lloyd, and V. Yushprakh.
+Megastore: Providing scalable, highly available storage for interactive services.
+In Proc. Conference on Innovative Data Systems Research (CIDR), pages 223–234, Asilomar, CA, USA, Jan. 2011.
+
+[9] M. Baker and J. Ousterhout.
+Availability in the Sprite distributed file system.
+Operating Systems Review, 25(2):95–98, Apr. 1991.
+
+[10] L. A. Barroso, J. Clidaras, and U. Holzle.
+The datacenter as a computer: an introduction to the design of warehouse-scale machines.
+Morgan Claypool Publishers, 2nd edition, 2013.
+
+[11] L. A. Barroso, J. Dean, and U. Holzle.
+Web search for a planet: the Google cluster architecture.
+In IEEE Micro, pages 22–28, 2003.
+
+[12] I. Bokharouss.
+GCL Viewer: a study in improving the understanding of GCL programs.
+Technical report, Eindhoven Univ. of Technology, 2008. MS thesis.
+
+[13] E. Boutin, J. Ekanayake, W. Lin, B. Shi, J. Zhou, Z. Qian, M. Wu, and L. Zhou.
+Apollo: scalable and coordinated scheduling for cloud-scale computing.
+In Proc. USENIX Symp. on Operating Systems Design and Implementation(OSDI), Oct. 2014.
+
+[14] M. Burrows.
+The Chubby lock service for loosely-coupled distributed systems.
+In Proc. USENIX Symp. on Operating Systems Design and Implementation (OSDI), pages 335–350, Seattle, WA, USA, 2006.
+
+[15] cAdvisor. https://github.com/google/cadvisor,2014.
+
+[16] CFS per-entity load patches. http://lwn.net/Articles/531853, 2013.
+
+[17] cgroups. http://en.wikipedia.org/wiki/Cgroups,2014.
+
+[18] C. Chambers, A. Raniwala, F. Perry, S. Adams, R. R. Henry, R. Bradshaw, and N. Weizenbaum. 
+FlumeJava: easy, efficient data-parallel pipelines.
+In Proc. ACM SIGPLAN Conf. on Programming Language Design and Implementation (PLDI), pages 363–375, Toronto, Ontario, Canada, 2010.
+
+[19] F. Chang, J. Dean, S. Ghemawat, W. C. Hsieh, D. A. Wallach, M. Burrows, T. Chandra, A. Fikes, and R. E. Gruber.
+Bigtable: a distributed storage system for structured data.
+ACM Trans. on Computer Systems, 26(2):4:1–4:26, June 2008.
+
+[20] Y. Chen, S. Alspaugh, and R. H. Katz.
+Design insights for MapReduce from diverse production workloads.
+Technical Report UCB/EECS–2012–17, UC Berkeley, Jan. 2012.
+
+[21] C. Curino, D. E. Difallah, C. Douglas, S. Krishnan, R. Ramakrishnan, and S. Rao.
+Reservation-based scheduling: if you’re late don’t blame us! 
+In Proc. ACM Symp. on Cloud Computing (SoCC), pages 2:1–2:14, Seattle, WA, USA,2014.
+
+[22] J. Dean and L. A. Barroso.
+The tail at scale.
+Communications of the ACM, 56(2):74–80, Feb. 2012.
+
+[23] J. Dean and S. Ghemawat.
+MapReduce: simplified data processing on large clusters.
+Communications of the ACM, 51(1):107–113, 2008.
+
+[24] C. Delimitrou and C. Kozyrakis.
+Paragon: QoS-aware scheduling for heterogeneous datacenters.
+In Proc. Int’l Conf. on Architectural Support for Programming Languages and Operating Systems (ASPLOS), Mar. 201.
+
+[25] C. Delimitrou and C. Kozyrakis. Quasar: resource-efficient and QoS-aware cluster management.
+In Proc. Int’l Conf. on Architectural Support for Programming Languages and Operating Systems (ASPLOS), pages 127–144, Salt Lake City, UT, USA, 2014.
+
+[26] S. Di, D. Kondo, and W. Cirne. Characterization and comparison of cloud versus Grid workloads.
+In International Conference on Cluster Computing (IEEE CLUSTER), pages 230–238, Beijing, China, Sept. 2012.
+
+[27] S. Di, D. Kondo, and C. Franck. Characterizing cloud applications on a Google data center.
+In Proc. Int’l Conf. on Parallel Processing (ICPP), Lyon, France, Oct. 2013.
+
+[28] Docker Project. https://www.docker.io/, 2014.
+
+[29] D. Dolev, D. G. Feitelson, J. Y. Halpern, R. Kupferman, and N. Linial.
+No justified complaints: on fair sharing of multiple resources.
+In Proc. Innovations in Theoretical Computer Science (ITCS), pages 68–75, Cambridge, MA, USA, 2012.
+
+[30] ElasticSearch. http://www.elasticsearch.org, 2014.
+
+[31] D. G. Feitelson.
+Workload Modeling for Computer Systems Performance Evaluation.
+Cambridge University Press, 2014.
+
+[32] Fluentd. http://www.fluentd.org/, 2014.
+
+[33] GCE. Google Compute Engine. http://cloud.google.com/products/compute-engine/
+
+[34] S. Ghemawat, H. Gobioff, and S.-T. Leung.
+The Google File System.
+In Proc. ACM Symp. on Operating Systems Principles (SOSP), pages 29–43, Bolton Landing, NY, USA, 2003. ACM.
+
+
+[35] A. Ghodsi, M. Zaharia, B. Hindman, A. Konwinski, S. Shenker, and I. Stoica.
+Dominant Resource Fairness: fair allocation of multiple resource types.
+In Proc. USENIX Symp. on Networked Systems Design and Implementation (NSDI), pages 323–326, 2011.
+
+[36] A. Ghodsi, M. Zaharia, S. Shenker, and I. Stoica. 
+Choosy:max-min fair sharing for datacenter jobs with constraints.
+In Proc. European Conf. on Computer Systems (EuroSys), pages 365–378, Prague, Czech Republic, 2013.
+
+[37] D. Gmach, J. Rolia, and L. Cherkasova.
+Selling T-shirts and time shares in the cloud.
+In Proc. IEEE/ACM Int’l Symp. on Cluster, Cloud and Grid Computing (CCGrid), pages 539–546, Ottawa, Canada, 2012.
+
+[38] Google App Engine.http://cloud.google.com/AppEngine, 2014.
+
+[39] Google Container Engine (GKE). https://cloud.google.com/container-engine/,2015.
+
+[40] R. Grandl, G. Ananthanarayanan, S. Kandula, S. Rao, and A. Akella.
+Multi-resource packing for cluster schedulers.
+In Proc. ACM SIGCOMM, Aug. 2014.
+
+[41] Apache Hadoop Project. http://hadoop.apache.org/,2009.
+
+[42] Hadoop MapReduce Next Generation – Capacity Scheduler.
+http://hadoop.apache.org/docs/r2.2.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html, 2013.
+
+[43] J. Hamilton.
+On designing and deploying internet-scale services.
+In Proc. Large Installation System Administration Conf. (LISA), pages 231–242, Dallas, TX, USA, Nov. 2007.
+
+[44] P. Helland. Cosmos: big data and big challenges.
+http://research.microsoft.com/en-us/events/fs2011/helland\_cosmos\_big\_data\_and\_big\_challenges.pdf, 2011.
+
+[45] B. Hindman, A. Konwinski, M. Zaharia, A. Ghodsi, A. Joseph, R. Katz, S. Shenker, and I. Stoica.
+Mesos: a platform for fine-grained resource sharing in the data center.
+In Proc. USENIX Symp. on Networked Systems Design and Implementation (NSDI), 2011.
+
+[46] IBM Platform Computing. http://www-03.ibm.com/systems/technicalcomputing/platformcomputing/ products/clustermanager/index.html.
+
+[47] S. Iqbal, R. Gupta, and Y.-C. Fang.
+Planning considerations for job scheduling in HPC clusters.
+Dell Power Solutions, Feb. 2005.
+
+[48] M. Isaard. Autopilot: Automatic data center management. 
+ACM SIGOPS Operating Systems Review, 41(2), 2007.
+
+[49] M. Isard, V. Prabhakaran, J. Currey, U. Wieder, K. Talwar, and A. Goldberg.
+Quincy: fair scheduling for distributed
+computing clusters. In Proc. ACM Symp. on Operating Systems Principles (SOSP), 2009.
+
+[50] D. B. Jackson, Q. Snell, and M. J. Clement.
+Core algorithms of the Maui scheduler.
+In Proc. Int’l Workshop on Job Scheduling Strategies for Parallel Processing, pages 87–102. Springer-Verlag, 2001.
+
+[51] M. Kambadur, T. Moseley, R. Hank, and M. A. Kim.
+Measuring interference between live datacenter applications.
+In Proc. Int’l Conf. for High Performance Computing, Networking, Storage and Analysis (SC), Salt Lake City, UT, Nov. 2012.
+
+[52] S. Kavulya, J. Tan, R. Gandhi, and P. Narasimhan. 
+An analysis of traces from a production MapReduce cluster.
+In Proc. IEEE/ACM Int’l Symp. on Cluster, Cloud and Grid Computing (CCGrid), pages 94–103, 2010.
+
+[53] Kubernetes. http://kubernetes.io, Aug. 2014.
+
+[54] Kernel Based Virtual Machine. http://www.linux-kvm.org.
+
+[55] L. Lamport. The part-time parliament.
+ACM Trans. on Computer Systems, 16(2):133–169, May 1998.
+
+[56] J. Leverich and C. Kozyrakis.
+Reconciling high server utilization and sub-millisecond quality-of-service.
+In Proc. European Conf. on Computer Systems (EuroSys), page 4, 2014.
+
+[57] Z. Liu and S. Cho.
+Characterizing machines and workloads on a Google cluster.
+In Proc. Int’l Workshop on Scheduling and Resource Management for Parallel and Distributed Systems (SRMPDS), Pittsburgh, PA, USA, Sept. 2012.
+
+[58] Google LMCTFY project (let me contain that for you).
+http://github.com/google/lmctfy, 2014.
+
+[59] G. Malewicz, M. H. Austern, A. J. Bik, J. C. Dehnert, I. Horn, N. Leiser, and G. Czajkowski. 
+Pregel: a system for large-scale graph processing.
+In Proc. ACM SIGMOD Conference, pages 135–146, Indianapolis, IA, USA, 2010.
+
+[60] J. Mars, L. Tang, R. Hundt, K. Skadron, and M. L. Soffa.
+Bubble-Up: increasing utilization in modern warehouse scale computers via sensible co-locations.
+In Proc. Int’l Symp. on Microarchitecture (Micro), Porto Alegre, Brazil, 2011.
+
+[61] S. Melnik, A. Gubarev, J. J. Long, G. Romer, S. Shivakumar, M. Tolton, and T. Vassilakis.
+Dremel: interactive analysis of web-scale datasets.
+In Proc. Int’l Conf. on Very Large Data Bases (VLDB), pages 330–339, Singapore, Sept. 2010.
+
+[62] P. Menage. Linux control groups.
+http://www.kernel.org/doc/Documentation/cgroups/cgroups.txt, 2007–2014.
+
+[63] A. K. Mishra, J. L. Hellerstein, W. Cirne, and C. R. Das.
+Towards characterizing cloud backend workloads: insights from Google compute clusters.
+ACM SIGMETRICS Performance Evaluation Review, 37:34–41, Mar. 2010.
+
+[64] A. Narayanan.
+Tupperware: containerized deployment at Facebook.
+http://www.slideshare.net/dotCloud/tupperware-containerized-deployment-at-facebook, June 2014.
+
+[65] K. Ousterhout, P. Wendell, M. Zaharia, and I. Stoica.
+Sparrow: distributed, low latency scheduling.
+In Proc. ACM Symp. on Operating Systems Principles (SOSP), pages 69–84, Farminton, PA, USA, 2013.
+
+[66] D. C. Parkes, A. D. Procaccia, and N. Shah.
+Beyond Dominant Resource Fairness: extensions, limitations, and indivisibilities.
+In Proc. Electronic Commerce, pages 808–825, Valencia, Spain, 2012.
+
+[67] Protocol buffers. 
+https://developers.google.com/protocol-buffers/, and https://github.com/google/protobuf/., 2014.
+
+[68] C. Reiss, A. Tumanov, G. Ganger, R. Katz, and M. Kozuch.
+Heterogeneity and dynamicity of clouds at scale: Google trace analysis.
+In Proc. ACM Symp. on Cloud Computing(SoCC), San Jose, CA, USA, Oct. 2012.
+
+[69] M. Schwarzkopf, A. Konwinski, M. Abd-El-Malek, and J. Wilkes.
+Omega: flexible, scalable schedulers for large compute clusters.
+In Proc. European Conf. on Computer Systems (EuroSys), Prague, Czech Republic, 2013.
+
+[70] B. Sharma, V. Chudnovsky, J. L. Hellerstein, R. Rifaat, and C. R. Das.
+Modeling and synthesizing task placement constraints in Google compute clusters.
+In Proc. ACM Symp. on Cloud Computing (SoCC), pages 3:1–3:14, Cascais, Portugal, Oct. 2011.
+
+[71] E. Shmueli and D. G. Feitelson.
+On simulation and design of parallel-systems schedulers: are we doing the right thing?
+IEEE Trans. on Parallel and Distributed Systems, 20(7):983–996, July 2009.
+
+[72] A. Singh, M. Korupolu, and D. Mohapatra. Server-storage
+virtualization: integration and load balancing in data centers.
+In Proc. Int’l Conf. for High Performance Computing, Networking, Storage and Analysis (SC), pages 53:1–53:12, Austin, TX, USA, 2008.
+
+[73] Apache Spark Project.
+http://spark.apache.org/, 2014.
+
+[74] A. Tumanov, J. Cipar, M. A. Kozuch, and G. R. Ganger.
+Alsched: algebraic scheduling of mixed workloads in heterogeneous clouds.
+In Proc. ACM Symp. on Cloud Computing (SoCC), San Jose, CA, USA, Oct. 2012.
+
+[75] P. Turner, B. Rao, and N. Rao.
+CPU bandwidth control for CFS.
+In Proc. Linux Symposium, pages 245–254, July 2010.
+
+[76] V. K. Vavilapalli, A. C. Murthy, C. Douglas, S. Agarwal, M. Konar, R. Evans, T. Graves, J. Lowe, H. Shah, S. Seth, B. Saha, C. Curino, O. O’Malley, S. Radia, B. Reed, and E. Baldeschwieler.
+Apache Hadoop YARN: Yet Another Resource Negotiator.
+In Proc. ACM Symp. on Cloud Computing (SoCC), Santa Clara, CA, USA, 2013.
+
+[77] VMware VCloud Suite.
+http://www.vmware.com/products/vcloud-suite/.
+
+[78] A. Verma, M. Korupolu, and J. Wilkes.
+Evaluating job packing in warehouse-scale computing.
+In IEEE Cluster, pages 48–56, Madrid, Spain, Sept. 2014.
+
+[79] W. Whitt.
+Open and closed models for networks of queues. 
+AT&T Bell Labs Technical Journal, 63(9), Nov. 1984.
+
+[80] J. Wilkes.
+More Google cluster data.
+http://googleresearch.blogspot.com/2011/11/more-google-cluster-data.html, Nov. 2011.
+
+[81] Y. Zhai, X. Zhang, S. Eranian, L. Tang, and J. Mars.
+HaPPy: Hyperthread-aware power profiling dynamically.
+In Proc. USENIX Annual Technical Conf. (USENIX ATC), pages 211–217, Philadelphia, PA, USA, June 2014. USENIX Association.
+
+[82] Q. Zhang, J. Hellerstein, and R. Boutaba. 
+Characterizing task usage shapes in Google’s compute clusters.
+In Proc. Int’l Workshop on Large-Scale Distributed Systems and Middleware (LADIS), 2011.
+
+[83] X. Zhang, E. Tune, R. Hagmann, R. Jnagal, V. Gokhale, and J. Wilkes.
+CPI2: CPU performance isolation for shared compute clusters.
+In Proc. European Conf. on Computer Systems (EuroSys), Prague, Czech Republic, 2013.
+
+[84] Z. Zhang, C. Li, Y. Tao, R. Yang, H. Tang, and J. Xu.
+Fuxi: a fault-tolerant resource management and job scheduling system at internet scale. 
+In Proc. Int’l Conf. on Very Large Data Bases (VLDB), pages 1393–1404. VLDB Endowment Inc., Sept. 2014.
