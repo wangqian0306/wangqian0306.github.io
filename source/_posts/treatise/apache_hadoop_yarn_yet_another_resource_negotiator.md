@@ -398,3 +398,296 @@ YARN 提供的资源利用率的显着提高增加了每个集群可以维持的
 这在下面的引用中得到了很好的总结：“升级到 YARN 相当于添加 1000 台机器(到这个 2500 台机器集群)”。
 
 #### 4.2 应用程序和框架
+
+YARN 的一个关键要求是实现更大的编程模型灵活性。尽管在撰写本文时 YARN 处于新的测试状态，但 YARN 已经吸引的许多编程框架已经验证了这一点。我们简要总结了一些 YARN 原生或移植到平台的项目，以说明其架构的通用性。
+
+Apache Hadoop MapReduce 已经在具有几乎相同功能集的 YARN 之上运行。
+它经过大规模测试，其余生态系统项目(如 Pig、Hive、Oozie 等)经过修改以在 YARN 上的 MR 之上工作，以及与经典 Hadoop 相比性能相当或更好的标准基准测试。
+MapReduce 社区已确保针对 1.x 编写的应用程序可以以完全二进制兼容的方式(mapred API)或仅通过重新编译(mapreduce API 的源代码兼容性)在 YARN 之上运行。
+
+Apache Tez 是一个 Apache 项目(在撰写本文时为孵化器)，旨在提供一个通用的有向循环图(DAG) 执行框架。
+它的目标之一是提供一组可以组合成任意 DAG 的构建块(包括一个简单的 2 阶段(Map 和 Reduce) DAG，以保持与 MapReduce 的兼容性)。
+Tez 为 Hive 和 Pig 等查询执行系统提供了更自然的执行计划模型，而不是强制将这些计划转换为 MapReduce。
+当前的重点是加速复杂的 Hive 和 Pig 查询，这些查询通常需要多个 MapReduce 作业，允许作为单个 Tez 作业运行。
+未来将考虑丰富的功能，例如对交互式查询的通用支持和通用 DAG。
+
+Spark 是加州大学伯克利分校 `[32]` 的一个开源研究项目，其目标是机器学习和交互式查询工作负载。
+利用弹性分布式数据集 (RDD) 的中心思想来实现对此类应用程序的经典 MapReduce 的显着性能改进。
+spark 最近已被移植到 YARN `[?]`。
+
+Dryad `[18]` 提供了 DAG 作为执行流的抽象，并且已经与 LINQ `[31]` 集成。
+移植到 YARN 的版本是 100% 本地 C++ 和 C# 用于工作节点，而 ApplicationMaster 利用 Java 的薄层与本地 Dryad 图管理器周围的 ResourceManager 接口。
+最终，Java 层将被与协议缓冲区接口的直接交互所取代。 Dryad-on-YARN 与其非 YARN 版本完全兼容。
+
+Giraph 是一个高度可扩展、以顶点为中心的图计算框架。它最初设计为在 Hadoop 1.0 之上作为仅 map 作业运行，其中一个 map 是特殊的并且充当协调器。
+Giraph 到 YARN 的接口很自然，执行协调器的角色由 ApplicationMaster 承担，资源是动态请求的。
+
+Storm 是一种开源分布式实时处理引擎，旨在跨机器集群进行扩展并提供并行流处理。一个常见的用例结合了用于在线计算的 Storm 和作为批处理器的 MapReduce。
+通过在 YARN 上移植 Storm，可以解除资源分配的极大灵活性。此外，对底层 HDFS 存储层的共享访问简化了多框架工作负载的设计。
+
+REEF 元框架：YARN 的灵活性为应用程序实现者带来了潜在的巨大努力。编写 ApplicationMaster 并处理容错、执行流程、协调等各个方面的工作是一项不平凡的工作。
+REEF 项目 `[10]` 认识到了这一点，并排除了许多应用程序通用的几个难以构建的组件。这包括存储管理、缓存、故障检测、检查点、基于推送的控制流(稍后通过实验展示)和容器重用。
+框架设计者可以在 REEF 之上构建，比直接在 YARN 上构建更容易，并且可以重用 REEF 提供的许多公共服务/库。REEF 设计使其适用于 MapReduce 和 DAG 之类的执行以及迭代和交互式计算。
+
+Hoya 是一个 Java 工具，旨在利用 YARN 按需启动动态 HBase 集群 `[21]`。
+在 YARN 上运行的 HBase 集群也可以动态增长和收缩(在我们的测试集群中，可以在不到 20 秒的时间内添加/删除 RegionServers)。
+虽然仍在探索在 YARN 中混合服务和批处理工作负载的影响，但该项目的早期结果令人鼓舞。
+
+### 5 实验
+
+在上一节中，我们通过报告大型生产部署和蓬勃发展的框架生态系统，确立了 YARN 在现实世界中的成功。在本节中，我们将展示更具体的实验结果来展示 YARN 的一些胜利。
+
+#### 5.1 打破排序记录
+
+在撰写本文时，YARN 上的 MapReduce 实现正式 12 持有 Daytona 和 Indy GraySort 基准记录，排序 1.42TB/分钟。
+同一系统还报告(在比赛之外)MinuteSort 结果在一分钟内排序 1.61TB 和 1.50TB，优于当前记录。
+实验在 2100 个节点上运行，每个节点配备两个 2.3Ghz hexcore Xeon E5-2630、64 GB 内存和 12x3TB 磁盘。结果总结如下表所示：
+
+|        测试方式        |  数据类型   |    数据大小     |    耗费时间    |     速率     |
+|:------------------:|:-------:|:-----------:|:----------:|:----------:|
+|  Daytona GraySort  | no-skew |  102.5 TB   |   72min    | 1.42TB/min |
+|  Daytona GraySort  |  skew   |  102.5 TB   |   117min   | 0.87TB/min |
+| Daytona MinuteSort | no-skew | 11497.86 GB | 87.242 sec |     -      |
+| Daytona MinuteSort |  skew   | 1497.86 GB  | 59.223 sec |     -      |
+|  Indt MinuteSort   | no-skew | 1612.22 GB  | 58.027 sec |     -      |
+
+完整的报告 `[16]` 详细描述了此实验。
+
+#### 5.2 MapReduce 基准测试
+
+MapReduce 仍然是 YARN 之上最重要和最常用的应用程序。
+我们很高兴地报告，与当前稳定的 Hadoop-1 版本 1.2.1 相比，大多数标准 Hadoop 基准测试在 Hadoop 2.1.0 中的 YARN 上表现更好。
+下面提供了比较 1.2.1 和 2.1.0 的 260 节点集群上的 MapReduce 基准测试摘要。
+每个从节点都运行 2.27GHz Intel(R) Xeon(R) CPU，共 16 个内核，具有 38GB 物理内存，每个 6x1TB 7200 RPM 磁盘，格式化为 ext3 文件系统。
+每个节点的网络带宽为 1Gb/秒。 每个节点运行一个 DataNode 和一个 NodeManager，为容器分配 24GB RAM。
+我们在 1.2.1 中运行 6 个 map 和 3 个 reduce，在 2.1.0 中运行 9 个容器。每个 map 占用 1.5GB JVM heap 和 2GB 总内存，而每个 reduce 占用 3GB heap 总共 4GB。
+JobTracker/ResourceManager 在专用机器上运行，HDFS NameNode 也是如此。
+
+我们将这些基准测试的结果解释如下。排序基准测试使用默认设置测量 HDFS 中 1.52 TB(每个节点 6GB)排序的端到端时间。
+shuffle 基准校准仅使用合成数据将 m 个 map 的中间输出混洗到 n 个 reduce 的速度；记录既不从 HDFS 读取也不写入到 HDFS 的时间。
+虽然排序基准通常会从 HDFS 数据路径的改进中受益，但这两个基准在 YARN 上的表现更好，主要是由于 MapReduce 运行时本身的显着改进：映射端排序改进，减少了对映射输出进行管道和批量传输的客户端，以及基于 Netty `[3]` 的服务器端 shuffle。
+扫描和 DFSIO 作业是用于评估在 Hadoop MapReduce 下运行的 HDFS 和其他分布式文件系统的规范基准；表 1 中的结果是对我们实验中 HDFS 影响的粗略测量。我们对集群的访问时间太短，无法调试和表征 2.1.0 文件系统的中等性能。
+尽管有这种影响，尽管 YARN 的设计针对多租户吞吐量进行了优化，但它的单个作业的性能与中央协调器相比具有竞争力。
+
+|      测试方式      | 1.2.1 平均运行时长(s) | 2.1.0 平均运行时长(s) | 1.2.1 吞吐量(GB/s) | 2.1.0 吞吐量(GB/s) |
+|:--------------:|:---------------:|:---------------:|:---------------:|:---------------:|
+|  RandomWriter  |       222       |       228       |      7.03       |      6.84       |
+|      Sort      |       475       |       398       |      3.28       |      3.92       |
+|    Shuffle     |       951       |       648       |        -        |        -        |
+| AM Scalability |      1020       |     353/303     |        -        |        -        |
+|    Terasort    |      175.7      |      215.7      |      5.69       |      4.64       |
+|      Scan      |       59        |       65        |        -        |        -        |
+|   Read DFSIO   |      50.8       |      58.6       |        -        |        -        |
+|  Write DFSIO   |      50.82      |      57.74      |        -        |        -        |
+
+> 表 1：来自规范 Hadoop 基准测试的结果
+
+AM 可扩展性基准测试通过使 AM 充满容器簿记职责来衡量单个作业的稳健性。表 1 包括 MapReduce AM 的两个测量值。
+第一个实验限制可用资源以匹配 1.x 部署可用的插槽。当我们移除这个人为限制并允许 YARN 使用完整节点时，其性能会显着提高。
+这两个实验估计了类型插槽的开销。我们还将改进的性能归因于更频繁的节点心跳和更快的调度周期，我们将在下面更详细地讨论。
+由于 YARN 主要负责分发和启动应用程序，我们认为可扩展性基准是一个关键指标。
+
+YARN 中的一些架构选择针对我们在生产集群中观察到的瓶颈。
+如第 2.3 节所述，类型槽会在节点上的可替代资源供应与执行 Hadoop MapReduce 任务的语义之间造成人为的不匹配，从而损害吞吐量。
+虽然第 4.1 节涵盖了聚合工作负载的收益，但我们看到了调度甚至单个作业的好处。
+我们将大部分收益归因于改进的心跳处理。在 Hadoop-1 中，由于 JobTracker 中的粗粒度锁定，每个节点在大型集群中只能每 30-40 秒心跳一次。
+尽管有降低延迟的巧妙解决方法，例如用于处理轻量级更新的短路路径和用于加速重要通知的自适应延迟，但 JobTracker 中的协调状态仍然是大型集群中延迟的主要原因。
+相比之下，NodeManager 每 1-3 秒发送一次心跳。RM 代码更具可扩展性，但它也解决了每个请求处理一组更简单的约束。
+
+#### 5.3 抢占的好处
+
+![图 5：工作保护(work-preserving)抢占对 CapacityScheduler 效率的影响](https://s2.loli.net/2022/01/06/upJbVzKWIcQRLaN.png)
+
+在图 5 中，我们展示了 YARN 中最近添加的一项功能：使用工作保留抢占来强制执行全局属性的能力。我们在一个小型（10 台机器）集群上进行了实验，以突出工作保留抢占的潜在影响。
+集群运行 CapacityScheduler，配置了两个队列 A 和 B，分别享有 80% 和 20% 的容量。一个 MapReduce 作业在较小的队列 B 中提交，几分钟后另一个 MapReduce 作业在较大的队列 A 中提交。
+在图中，我们显示了在三种配置下分配给每个队列的容量：1) 不向队列提供超出其保证的容量(固定容量) 2) 队列可能会消耗 100% 的集群容量，但不执行抢占，3) 队列可能会消耗 100% 的集群容量，但容器可能会被抢占。
+工作保护抢占允许调度程序为队列 B 过度使用资源，而不必担心队列 A 中的应用程序会缺失资源而运行失败。
+当队列 A 中的应用程序请求资源时，调度程序发出抢占请求，由 ApplicationMaster 通过检查点其任务和让出容器来提供服务。
+这允许队列 A 在几秒钟内获得其所有保证容量(集群的 80%)，而不是在情况 (2) 中，容量重新平衡需要大约 20 分钟。
+最后，由于我们使用的抢占是基于检查点的并且不会浪费工作，因此在 B 中运行的作业可以从它们停止的地方重新启动任务，并且这样做很有效。
+
+#### 5.4 Apache Tez 相关的改进
+
+在针对 Apache Tez 运行的 Apache Hive 上运行决策支持查询时，我们提出了一些基本改进(在撰写本文时处于早期阶段的集成)。
+来自 TPC-DS 基准测试 `[23]` 的查询 12，涉及很少的连接、过滤器和按聚合分组。即使在积极的计划级别优化之后，Hive 在使用 MapReduce 时也会生成由多个作业组成的执行计划。
+在针对 Tez 执行时，相同的查询会产生线性 DAG，单个 Map 阶段后跟多个 Reduce 阶段。
+使用 MapReduce 在 20 节点集群上针对 200 个比例因子数据时，查询执行时间为 54 秒，而使用 Tez 时，查询执行时间提高到 31 秒。
+大部分节省可归因于调度和启动多个 MapReduce 作业的开销，以及避免将中间 MapReduce 作业的输出持久化到 HDFS 的不必要步骤。
+
+#### 5.5 REEF：使用 session 降低延迟
+
+YARN 的关键方面之一是它使构建在它之上的框架能够按照他们认为合适的方式管理容器和通信。
+我们通过利用 REEF 提供的容器重用和基于推送的通信的概念来展示这一点。该实验基于一个构建在 REEF 之上的简单分布式 shell 应用程序。
+我们在提交一系列 UNIX 命令(例如日期)时测量完全空闲集群上的客户端延迟。
+发出的第一个命令会产生调度应用程序和获取容器的全部成本，而后续命令会通过 Client 和 ApplicationMaster 快速转发到已经运行的容器以供执行。基于推送的消息传递进一步减少了延迟。
+我们实验中的加速非常显着，接近三个数量级—— **从平均超过 12 秒到 31 毫秒。**
+
+### 6 相关工作
+
+其他人已经认识到经典 Hadoop 架构中的相同局限性，并同时开发了替代解决方案，可以与 YARN 进行密切比较。
+在众多与 YARN 最相似的相关工作中，有：Mesos `[17]`、Omega `[26]`、Corona `[14]` 和 Cosmos `[8]`，分别由 Twitter、Google、Facebook 和 Microsoft 维护和使用。
+
+这些系统共享一个共同的灵感，以及提高可扩展性、延迟和编程模型灵活性的高级目标。许多架构差异反映了不同的设计优先级，有时只是不同历史背景的影响。
+虽然无法提供真正的定量比较，但我们将尝试强调一些架构差异和我们对它们的基本原理的理解。
+
+Omega 的设计更倾向于分布式、多级调度。 这反映了对可扩展性的更多关注，但使得执行全局属性(例如容量/公平性/截止时间)变得更加困难。
+为了这个目标，作者似乎依赖于在运行时相互尊重的各种框架的协调开发。
+这对于像谷歌这样的封闭世界来说是明智的，但不适用于像 Hadoop 这样的开放平台，在那里来自不同独立来源的任意框架共享同一个集群。
+
+Corona 使用基于推送的通信，而不是 YARN 和其他框架中基于心跳的控制平面框架方法。延迟/可扩展性权衡非常重要，值得进行详细比较。
+
+虽然 Mesos 和 YARN 都有两个级别的调度程序，但有两个非常显着的差异。首先，Mesos 是一个基于提案的资源管理器，而 YARN 有一个基于请求的实现方式。
+YARN 允许 AM 根据包括位置在内的各种标准请求资源，允许请求者根据给定的内容和当前使用情况修改未来的请求。我们的方法对于支持基于位置的分配是必要的。
+其次，Mesos 利用中央调度器池(例如，经典 Hadoop 或 MPI)，而不是每个作业的框架内调度器。
+YARN 支持将容器后期绑定到任务，其中每个单独的作业可以执行本地优化，并且似乎更适合滚动升级(因为每个作业可以在不同版本的框架上运行)。
+另一方面，每个作业的 ApplicationMaster 可能会导致比 Mesos 方法更大的开销。
+
+Cosmos 在存储和计算层的架构上与 Hadoop 2.0 非常相似，主要区别在于没有中央资源管理器。然而，它似乎只用于单一的应用程序类型：Scope `[8]`。
+凭借更窄的目标，Cosmos 可以利用许多优化，例如本机压缩、索引文件、数据集分区的协同定位来加速 Scope。多个应用程序框架的行为不能清楚的定义。
+
+在最近的这些努力之前，资源管理和调度方面的工作有着悠久的历史 - Condor `[29]`、Torque `[7]`、Moab `[13]` 和 Maui `[20]`。
+我们早期的 Hadoop 集群使用了其中一些系统，但我们发现它们无法以一流的方式支持 MapReduce 模型。
+具体来说，map 和 reduce 阶段的数据局部性和弹性调度需求都无法表达，因此被迫分配“虚拟”Hadoop，伴随着第 2.1 节中讨论的使用成本。
+也许其中一些问题是由于许多这些分布式调度程序最初是为了支持 MPI 风格和 HPC 应用程序模型以及运行粗粒度的非弹性工作负载而创建的。
+这些集群调度器确实允许客户端指定处理环境的类型，但不幸的是不能指定 Hadoop 的一个关键问题的位置约束。
+
+另一类相关技术来自云基础架构领域，例如 EC2、Azure、Eucalyptus 和 VMWare 产品。这些主要针对基于 VM 的集群共享，并且通常设计用于长时间运行的进程(因为 VM 启动时间开销过高)。
+
+### 7 结论
+
+在本文中，我们总结了对 Hadoop 历史的回忆，并讨论了广泛采用和新型应用程序如何推动初始架构远远超出其设计目标。
+然后，我们描述了导致 YARN 的进化但深刻的架构转型。
+由于资源管理和编程框架的解耦，YARN 提供：1) 更大的可扩展性，2) 更高的效率，以及 3) 使大量不同的框架能够高效地共享一个集群。
+这些说法通过实验（通过基准测试）和展示雅虎的大规模生产经验(现在 100% 在 YARN 上运行)得到证实。
+最后，我们试图通过提供社区活动的快照并简要报告已移植到 YARN 的许多框架来捕捉围绕该平台的极大兴奋。
+我们相信 YARN 既可以作为一个坚实的生产框架，也可以作为研究社区的宝贵游乐场。
+
+### 8 致谢
+
+```text
+We began our exposition of YARN by acknowledging the pedigree of its architecture.
+Its debt to all the individuals who developed, operated, tested, supported, documented, evangelized, funded,
+and most of all, used Apache Hadoop over the years is incalculable.
+In closing, we recognize a handful. Ram Marti and Jitendranath Panday influenced its security design.
+Dick King, Krishna Ramachandran, Luke Lu, Alejandro Abdelnur, Zhijie Shen, Omkar Vinit Joshi,
+Jian He have made or continue to make significant contributions to the implementation.
+Karam Singh, Ramya Sunil, Rajesh Balamohan and Srigurunath Chakravarthi have been ever helpful in testing and performance benchmarking.
+Rajive Chittajallu and Koji Noguchi helped in channeling requirements and insight from operations and user support points of view respectively.
+We thank Yahoo! for both supporting YARN via massive contributions and heavy usage and also for sharing the statistics on some of its clusters.
+We thank Dennis Fetterly and Sergiy Matusevych for providing some of the experimental results on Dryad and REEF, and Mayank Bansal for helping with 2.1.0 MapReduce benchmarks.
+Last but not the least, Apache Hadoop YARN continues to be a community driven open source project and owes much of its success to the
+Apache Hadoop YARN and MapReduce communities—a big thanks to all the contributors and committers who have helped YARN in every way possible.
+```
+
+### 典型的 Hadoop 调度方式
+
+在 YARN 之前，Hadoop MapReduce 集群由称为 JobTracker (JT) 的主节点和运行 TaskTracker (TT) 的工作节点组成。
+用户将 MapReduce 作业提交给 JT，后者在 TT 之间协调其执行。TT 由运营商配置，具有固定数量的映射时隙和减少时隙。
+TT 定期向 JT 发送心跳，以报告该节点上正在运行的任务的状态并确认其活跃度。
+在心跳中，JT 更新其与该节点上运行的任务相对应的状态，代表该作业采取行动(例如，调度失败的任务以重新执行)，将该节点上的空闲槽与调度程序不变量匹配，匹配符合条件的针对可用资源的作业，有利于具有该节点本地数据的任务。
+
+作为计算集群的中央仲裁者，JT 还负责准入控制、跟踪 TT 的活跃度(重新执行正在运行的任务或输出变得不可用的任务)、
+推测性地启动任务以绕过慢节点、报告作业状态 通过网络服务器向用户提供，记录审计日志和汇总统计数据，对用户进行身份验证等多项功能；每一个都限制了它的可扩展性。
+
+### 参考资料
+
+[1] Apache hadoop. http://hadoop.apache.org.
+
+[2] Apache tez. http://incubator.apache.org/projects/tez.html.
+
+[3] Netty project. http://netty.io.
+
+[4] Storm. http://storm-project.net/.
+
+[5] H. Ballani, P. Costa, T. Karagiannis, and A. I. Rowstron. Towards predictable datacenter networks. In SIGCOMM, volume 11, pages 242–253, 2011.
+
+[6] F. P. Brooks, Jr. The mythical man-month (anniversary ed.). Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA, 1995.
+
+[7] N. Capit, G. Da Costa, Y. Georgiou, G. Huard, C. Martin, G. Mounie, P. Neyron, and O. Richard.
+A batch scheduler with high level components. 
+In Cluster Computing and the Grid, 2005. CCGrid 2005. IEEE International Symposium on, volume 2, pages 776–783 Vol. 2, 2005.
+
+[8] R. Chaiken, B. Jenkins, P.-A. Larson, B. Ramsey, D. Shakib, S. Weaver, and J. Zhou.
+Scope: easy and efficient parallel processing of massive data sets. Proc. VLDB Endow., 1(2):1265–1276, Aug. 2008.
+
+[9] M. Chowdhury, M. Zaharia, J. Ma, M. I. Jordan, and I. Stoica.
+Managing data transfers in computer clusters with orchestra. 
+SIGCOMMComputer Communication Review, 41(4):98, 2011.
+
+[10] B.-G. Chun, T. Condie, C. Curino, R. Ramakrishnan, R. Sears, and M. Weimer.
+Reef: Retainable evaluator execution framework.
+In VLDB 2013, Demo, 2013.
+
+[11] B. F. Cooper, E. Baldeschwieler, R. Fonseca, J. J. Kistler, P. Narayan, C. Neerdaels, T. Negrin, R. Ramakrishnan, A. Silberstein, U. Srivastava, et al.
+Building a cloud for Yahoo! 
+IEEE Data Eng. Bull., 32(1):36–43, 2009.
+
+[12] J. Dean and S. Ghemawat. MapReduce: simplified data processing on large clusters. Commun. ACM, 51(1):107–113, Jan. 2008.
+
+[13] W. Emeneker, D. Jackson, J. Butikofer, and D. Stanzione.
+Dynamic virtual clustering with xen and moab.
+In G. Min, B. Martino, L. Yang, M. Guo, and G. Rnger, editors, Frontiers of High Performance Computing and Networking, ISPA 2006 Workshops, volume 4331 of Lecture Notes in Computer Science, pages 440–451. Springer Berlin Heidelberg, 2006.
+
+[14] Facebook Engineering Team. Under the Hood:Scheduling MapReduce jobs more efficiently with Corona. http://on.fb.me/TxUsYN, 2012.
+
+[15] D. Gottfrid.
+Self-service prorated super-computing fun.
+http://open.blogs.nytimes.com/2007/11/01/self-service-prorated-super-computing-fun,2007.
+
+[16] T. Graves. GraySort and MinuteSort at Yahoo on Hadoop 0.23. http://sortbenchmark.org/Yahoo2013Sort.pdf, 2013.
+
+[17] B. Hindman, A. Konwinski, M. Zaharia, A. Ghodsi, A. D. Joseph, R. Katz, S. Shenker, and I. Stoica. 
+Mesos: a platform for fine-grained resource sharing in the data center.
+In Proceedings of the 8th USENIX conference on Networked systems design and implementation, NSDI’11, pages 22–22, Berkeley, CA, USA, 2011. USENIX Association.
+
+[18] M. Isard, M. Budiu, Y. Yu, A. Birrell, and D. Fetterly.
+Dryad: distributed data-parallel programs from sequential building blocks.
+In Proceedings of the 2nd ACM SIGOPS/EuroSys European Conference on Computer Systems 2007, EuroSys ’07, pages 59–72, New York, NY, USA, 2007. ACM.
+
+[19] M. Islam, A. K. Huang, M. Battisha, M. Chiang, S. Srinivasan, C. Peters, A. Neumann, and A. Abdelnur. 
+Oozie: towards a scalable workflow management system for hadoop.
+In Proceedings of the 1st ACM SIGMOD Workshop on Scalable Workflow Execution Engines and Technologies, page 4. ACM, 2012.
+
+[20] D. B. Jackson, Q. Snell, and M. J. Clement.
+Core algorithms of the maui scheduler.
+In Revised Papers from the 7th International Workshop on Job Scheduling Strategies for Parallel Processing, JSSPP ’01, pages 87–102, London, UK, UK, 2001. Springer-Verlag.
+
+[21] S. Loughran, D. Das, and E. Baldeschwieler.
+Introducing Hoya – HBase on YARN.
+http://hortonworks.com/blog/introducing-hoya-hbase-on-yarn/, 2013.
+
+[22] G. Malewicz, M. H. Austern, A. J. Bik, J. C. Dehnert, I. Horn, N. Leiser, and G. Czajkowski.
+Pregel: a system for large-scale graph processing.
+In Proceedings of the 2010 ACM SIGMOD International Conference on Management of data, SIGMOD ’10, pages 135–146, New York, NY, USA,2010. ACM.
+
+[23] R. O. Nambiar and M. Poess. The making of tpcds. In Proceedings of the 32nd international conference on Very large data bases, VLDB ’06, pages 1049–1058. VLDB Endowment, 2006.
+
+[24] C. Olston, B. Reed, U. Srivastava, R. Kumar, and A. Tomkins.
+Pig Latin: a not-so-foreign language for data processing.
+In Proceedings of the 2008 ACM SIGMOD international conference on Management of data, SIGMOD ’08, pages 1099–1110, New York, NY, USA, 2008. ACM.
+
+[25] O. O’Malley. Hadoop: The Definitive Guide, chapter Hadoop at Yahoo!, pages 11–12. O’Reilly Media, 2012.
+
+[26] M. Schwarzkopf, A. Konwinski, M. Abd-ElMalek, and J. Wilkes.
+Omega: flexible, scalable schedulers for large compute clusters.
+In Proceedings of the 8th ACM European Conference on Computer Systems, EuroSys ’13, pages 351–364, New York, NY, USA, 2013. ACM.
+
+[27] K. Shvachko, H. Kuang, S. Radia, and R. Chansler.
+The Hadoop Distributed File System. 
+In Proceedings of the 2010 IEEE 26th Symposium on Mass Storage Systems and Technologies (MSST), MSST ’10, pages 1–10, Washington, DC, USA, 2010. IEEE Computer Society.
+
+[28] T.-W. N. Sze. The two quadrillionth bit of π is 0! http://developer.yahoo.com/blogs/hadoop/twoquadrillionth-bit-0-467.html.
+
+[29] D. Thain, T. Tannenbaum, and M. Livny. Distributed computing in practice: the Condor experience. Concurrency and Computation: Practice and Experience, 17(2-4):323–356, 2005.
+
+[30] A. Thusoo, J. S. Sarma, N. Jain, Z. Shao, P. Chakka, N. Z. 0002, S. Anthony, H. Liu, and R. Murthy.
+Hive - a petabyte scale data warehouse using Hadoop.
+In F. Li, M. M. Moro, S. Ghandeharizadeh, J. R. Haritsa, G. Weikum, M. J. Carey, F. Casati, E. Y. Chang, I. Manolescu, S. Mehrotra, U. Dayal, and V. J. Tsotras, editors, Proceedings of the 26th International Conference on Data Engineering, ICDE 2010, March 1-6, 2010, Long Beach, California, USA, pages 996–1005. IEEE,2010.
+
+[31] Y. Yu, M. Isard, D. Fetterly, M. Budiu, U. Erlingsson, P. K. Gunda, and J. Currey.
+DryadLINQ: a system for general-purpose distributed data-parallel computing using a high-level language.
+In Proceedings of the 8th USENIX conference on Operating systems design and implementation, OSDI’08, pages 1–14, Berkeley, CA, USA, 2008. USENIX Association.
+
+[32] M. Zaharia, M. Chowdhury, M. J. Franklin, S. Shenker, and I. Stoica.
+Spark: cluster computing with working sets.
+In Proceedings of the 2nd USENIX conference on Hot topics in cloud computing, HotCloud’10, pages 10–10, Berkeley, CA, USA, 2010. USENIX Association.
