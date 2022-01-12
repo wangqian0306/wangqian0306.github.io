@@ -423,3 +423,239 @@ STORED BY 'org.apache.hadoop.hive.druid.DruidStorageHandler'
 
 #### 6.2 使用 Calcite 推动计算
 
+Hive 最强大的功能之一是可以利用 Calcite 适配器 `[19]` 将复杂的计算推送到支持的系统并以这些系统支持的语言生成查询。
+
+继续 Druid 示例，查询 Druid 的最常见方式是通过 HTTP 上的 REST API 使用 JSON 表示的查询。
+一旦用户声明了存储在 Druid 中的表，Hive 就可以从输入 SQL 查询透明地生成 Druid JSON 查询。
+特别是，优化器应用匹配计划中的一系列操作符的规则，并生成一个新的等效序列，在 Druid 中执行更多操作。
+一旦我们完成了优化阶段，需要由 Druid 执行的运算符子集由 Calcite 转换为有效的 JSON 查询，该查询附加到将从 Druid 读取的扫描运算符。
+请注意，对于支持 Calcite 自动生成的查询的存储处理程序，其输入格式需要包含将查询发送到外部系统(可能将查询拆分为多个可以并行执行的子查询)并读回查询的结果。
+
+![图 6：Hive 中的联邦查询示例](https://s2.loli.net/2022/01/12/4eLWsPvC9Jpw8EM.png)
+
+截至今天，Hive 可以使用 Calcite 将操作推送到 Druid 和具有 JDBC 支持的多个引擎。
+图 6 描述了对存储在 Druid 中的表执行的查询，以及 Calcite 生成的相应计划和 JSON 查询。
+
+### 7 绩效评估
+
+为了研究我们工作的影响，我们使用不同的标准基准随着时间的推移评估 Hive。在本节中，我们对结果进行了总结，强调了整篇论文中提出的改进的影响。
+
+**实验装置** 下面介绍的实验在由 10 个节点组成的集群上运行，这些节点由 10 Gigabit 以太网连接。
+每个节点都有一个 8 核 2.40GHz Intel Xeon CPU E5-2630 v3 和 256GB RAM，并有两个 6TB 磁盘用于 HDFS 和 YARN 存储。
+
+#### 7.1 与以前版本的比较
+
+![image.png](https://s2.loli.net/2022/01/12/pqlHCgU4ziJAbyD.png)
+
+我们在 10TB 规模的数据集上使用 TPC-DS 查询进行了实验。数据使用 ORC 文件格式存储在 HDFS 中的 ACID 表中，事实表按天分区。
+这些结果的可重复性所需的所有信息都是公开的。我们比较了 Hive `[7]` 的两个不同版本：(i) Hive v1.2，于 2015 年 9 月发布，运行在 Tez v0.5 之上，(ii) 最新的 Hive v3.1，于 11 月发布 2018 年，使用启用了 LLAP 的 Tez v0.9。
+图 7 显示了两个 Hive 版本的响应时间(由用户感知)；注意对数 y 轴。对于每个查询，我们报告了三个命中缓存的平均值。首先，观察在 Hive v1.2 中只能执行 50 个查询；图中省略了无法执行的查询的响应时间值。
+原因是 Hive v1.2 缺乏对集合操作的支持，例如 EXCEPT 或 INTERSECT、具有非等连接条件的相关标量子查询、区间表示法和未选择列的排序以及其他 SQL 功能。
+对于这 50 个查询，Hive v3.1 的性能明显优于之前的版本。特别是，Hive v3.1 平均快了 4.6 倍，最高快了 45.5 倍(参见 q58)。
+图中强调了改进超过 15 倍的查询。更重要的是，由于对 SQL 支持的改进，Hive v3.1 可以执行完整的 99 个 TPC-DS 查询。
+两个版本之间的性能差异如此之大，以至于 Hive v3.1 执行的所有查询的聚合响应时间仍然比 Hive v1.2 中 50 个查询的时间低 15%。
+新的优化功能，例如共享工作优化器，本身就产生了很大的不同；例如，启用 q88 后，它的速度提高了 2.7 倍。
+
+#### 7.2 LLAP 加速
+
+|     执行模式      | 总响应时长(s) |
+|:-------------:|:--------:|
+| 容器化(未开启 LLAP) |  41576   |
+|     LLAP      |  15540   |
+
+> 表 1：使用 LLAP 之后的相应时间性能提升。
+
+为了说明 LLAP 对使用 Tez 容器执行查询的优势，我们使用相同的配置在 Hive v3.1 中运行所有 99 个 TPC-DS 查询，但启用/禁用了 LLAP。
+表 1 显示了实验中所有查询的聚合时间；我们可以观察到，LLAP 本身可以将工作负载响应时间显着降低 2.7 倍。
+
+#### 7.3 Druid 上的联邦查询
+
+在下文中，我们说明了可以从使用 Hive 的物化视图和联邦功能的组合中获得的显着性能优势。对于这个实验，我们在 1TB 规模的数据集上使用 Star-Schema Benchmark (SSB) `[47]`。
+SSB 基准测试基于 TPC-H，旨在模拟迭代和交互式查询数据仓库的过程，以播放假设场景、深入挖掘并更好地了解趋势。
+它由一个事实表和 4 个维度表组成，工作负载包含 13 个查询，这些查询在不同的表集上连接、聚合和放置相当严格的维度过滤器。
+
+![图 8：本机 Hive 和 Druid 联邦之间的查询响应时间比较](https://s2.loli.net/2022/01/12/ifugjzOTeptxmk8.png)
+
+对此实验，我们创建了一个非规范化数据库模式的物化视图。物化存储在 Hive 中。然后我们在基准中运行查询，这些查询由优化器自动重写，以从物化视图中得到响应。
+随后，我们将物化视图存储在 Druid v0.12 中并重复相同的步骤。图 8 描述了每个变体的响应时间。
+观察到 Hive/Druid 比 Hive 中本地存储的物化视图的执行速度快 1.6 倍。原因是 Hive 使用 Calcite 将大部分查询计算推送到 Druid，因此它可以受益于 Druid 为这些查询提供更低的延迟。
+
+### 8 讨论
+
+在本节中，我们将讨论这项工作中提出的改进的影响，以及在实施这些新功能时面临的多重挑战和经验教训。
+
+随着时间的推移，应该添加到项目中的功能面向于用户面临的缺陷，Hive 社区中的报告，或将项目商业化的公司决定。
+
+例如，企业用户要求实施 ACID 保证，以便卸载在 Hadoop 产生之前很久就存在的数据仓库。此外，最近生效的新法规(赋予个人要求删除个人数据的权利的欧洲 GDPR)也强调了这一新功能的重要性。
+毫不奇怪，ACID 支持已迅速成为在 Hadoop 之上选择 Hive 而不是其他 SQL 引擎的关键区别。
+但是，将 ACID 功能引入 Hive 并不简单，初始实现必须进行重大更改，因为与非 ACID 表相比，它引入了读取延迟损失，这是用户无法接受的。
+这是由于原始设计中的一个细节，我们没有预见到它会对生产性能产生如此大的影响：使用单一 delta type 的文件来存储插入、更新和删除的记录。
+如果工作负载包含大量写入操作或压缩运行不够频繁，则文件读取器必须对大量基本文件和增量文件执行排序合并以整合数据，这可能会造成内存压力。
+此外，过滤器下推以跳过读取整个行组不能应用于这些增量文件。本文中描述的 ACID 的第二个实现是随 Hive v3.1 推出的。它解决了上述问题，性能与非 ACID 表相当。
+
+随着时间的推移，Hive 用户的另一个常见且频繁的请求是改善其运行时延迟。LLAP 开发始于 4 年前，旨在解决系统架构固有的问题，例如缺乏数据缓存或长时间运行的执行程序。
+来自初始部署的反馈很快被纳入系统。例如，由于用户查询之间的集群资源争用，可预测性是生产中的一个巨大问题，这导致了工作负载管理器的实施。
+目前，看到公司部署 LLAP 来为多租户集群中的 TB 数据提供查询服务，实现秒级的平均延迟是非常值得的。
+
+另一个重要的决定是与 Calcite 集成以进行查询优化。在正确的抽象级别表示查询对于在 Hive 中实现高级优化算法至关重要，这反过来又为系统带来了巨大的性能优势。
+此外，利用该集成可以轻松地生成查询，以便与其他系统进行联合。由于现在组织使用过多的数据管理系统很常见，因此 Hive 用户对这一新功能感到非常兴奋。
+
+### 9 路线图
+
+**对 Hive 的持续改进** 社区将继续致力于本文讨论的领域，以使 Hive 成为更好的仓储解决方案。例如，基于我们已经完成的支持 ACID 功能的工作，我们计划实现多语句事务。
+此外，我们将继续改进 Hive 中使用的优化技术。在运行时捕获的用于查询重新优化的统计信息已经保存在 HMS 中，这将使我们能够将该信息反馈到优化器中以获得更准确的估计，类似于其他系统 `[53, 60]`。
+物化视图工作仍在进行中，最需要的功能之一是为 Hive 实现顾问或推荐器 `[1, 61]`。对 LLAP 性能和稳定性的改进以及与其他专业系统(例如 Kafka `[9, 43]`)的新连接器的实施也在进行中。
+
+**独立元存储** HMS 已成为 Hadoop 中的关键部分，因为它被 Spark 或 Presto 等其他数据处理引擎用于为中央存储库提供有关每个系统中所有数据源的信息。
+因此，从 Hive 中分离出 Metastore 并将其作为独立项目开发的兴趣和正在进行的工作越来越多。这些系统中的每一个都将在 Metastore 中拥有自己的目录，并且可以更轻松地跨不同引擎访问数据。
+
+**云中的容器化 Hive** 基于云的数据仓库解决方案，如 Azure SQL DW `[18]`、Redshift `[33, 49]`、BigQuery `[21, 46]` 和 Snowflake `[29, 51]` 在过去几年中越来越受欢迎。
+此外，人们对 Kubernetes `[44]` 等系统越来越感兴趣，以为在本地或云端部署的应用程序提供容器编排。
+Hive 的模块化架构可以轻松隔离其组件(HS2、HMS、LLAP)并在容器中运行它们。正在进行的工作重点是完成使用 Kubernetes 在商业云中部署 Hive 的工作。
+
+### 10 结论
+
+Apache Hive 的早期成功源于利用众所周知的接口进行批处理操作的并行性的能力。它使数据加载和管理变得简单，优雅地处理节点、软件和硬件故障，无需昂贵的修复或恢复时间。
+
+在本文中，我们展示了社区如何将系统的实用性从 ETL 工具扩展到成熟的企业级数据仓库。我们描述了添加一个事务系统，该系统非常适合星型数据库中所需的数据修改。
+我们展示了将查询延迟和并发性带入交互式操作领域所必需的主要运行时改进。我们还描述了处理当今视图层次结构和大数据操作所必需的基于成本的优化技术。
+最后，我们展示了 Hive 如何在今天用作多个存储和数据系统的关系前端。所有这一切的发生在都没有损害使其流行的系统的原始特征的基础上。
+
+Apache Hive 架构和设计原则已被证明在当今的分析环境中非常强大。我们相信，随着新的部署和存储环境的出现，它将继续在新的部署和存储环境中蓬勃发展，正如今天在容器化和云中所展示的那样。
+
+### 致谢
+
+```text
+We would like to thank the Apache Hive community, contributors and users, who build, maintain, use, test, write about, and continue to push the project forward. 
+We would also like to thank Oliver Draese for his feedback on the original draft of this paper.
+```
+
+### 参考资料
+
+[1] Sanjay Agrawal, Surajit Chaudhuri, and Vivek R. Narasayya. 2000. Automated Selection of Materialized Views and Indexes in SQL Databases. In PVLDB.
+
+[2] Apache Atlas 2018. Apache Atlas: Data Governance and Metadata framework for Hadoop. http://atlas.apache.org/.
+
+[3] Apache Calcite 2018. Apache Calcite: Dynamic data management framework. http://calcite.apache.org/.
+
+[4] Apache Druid 2018. Apache Druid: Interactive analytics at scale. http://druid.io/.
+
+[5] Apache Flink 2018. Apache Flink: Stateful Computations over Data Streams. http://flink.apache.org/.
+
+[6] Apache HBase 2018. Apache HBase. http://hbase.apache.org/.
+
+[7] Apache Hive 2018. Apache Hive. http://hive.apache.org/.
+
+[8] Apache Impala 2018. Apache Impala. http://impala.apache.org/.
+
+[9] Apache Kafka 2018. Apache Kafka: A distributed streaming platform. http://kafka.apache.org/.
+
+[10] Apache ORC 2018. Apache ORC: High-Performance Columnar Storage for Hadoop. http://orc.apache.org/.
+
+[11] Apache Parquet 2018. Apache Parquet. http://parquet.apache.org/.
+
+[12] Apache Ranger 2018. Apache Ranger: Framework to enable, monitor and manage comprehensive data security across the Hadoop platform. http://ranger.apache.org/.
+
+[13] Apache Sentry 2018. Apache Sentry: System for enforcing fine grained role based authorization to data and metadata stored on a Hadoop cluster. http://sentry.apache.org/.
+
+[14] Apache Spark 2018. Apache Spark: Unified Analytics Engine for Big Data. http://spark.apache.org/.
+
+[15] Apache Tez 2018. Apache Tez. http://tez.apache.org/.
+
+[16] Apache Thrift 2018. Apache Thrift. http://thrift.apache.org/.
+
+[17] Peter M. G. Apers, Alan R. Hevner, and S. Bing Yao. 1983. Optimization Algorithms for Distributed Queries. IEEE Trans. Software Eng. 9, 1(1983), 57–68.
+
+[18] Azure SQL DW 2018. Azure SQL Data Warehouse. mhttp://azure.microsoft.com/en-us/services/sql-data-warehouse/.
+
+[19] Edmon Begoli, Jesús Camacho-Rodríguez, Julian Hyde, Michael J. Mior, and Daniel Lemire. 2018. Apache Calcite: A Foundational Framework for Optimized Query Processing Over Heterogeneous Data Sources. In SIGMOD.
+
+[20] Philip A. Bernstein, Nathan Goodman, Eugene Wong, Christopher L. Reeve, and James B. Rothnie Jr. 1981. Query Processing in a System for Distributed Databases (SDD-1). ACM Trans. Database Syst. 6, 4 (1981), 602–625.
+
+[21] BigQuery 2018. BigQuery: Analytics Data Warehouse. http://cloud.google.com/bigquery/.
+
+[22] Vinayak R. Borkar, Michael J. Carey, Raman Grover, Nicola Onose, and Rares Vernica. 2011. Hyracks: A flexible and extensible foundation for data-intensive computing. In ICDE.
+
+[23] Francesca Bugiotti, Damian Bursztyn, Alin Deutsch, Ioana Ileana, and Ioana Manolescu. 2015. Invisible Glue: Scalable Self-Tunning MultiStores. In CIDR.
+
+[24] Michael J. Cahill, Uwe Röhm, and Alan David Fekete. 2008. Serializable isolation for snapshot databases. In SIGMOD.
+
+[25] Jesús Camacho-Rodríguez, Dario Colazzo, Melanie Herschel, Ioana Manolescu, and Soudip Roy Chowdhury. 2016. Reuse-based Optimization for Pig Latin. In CIKM.
+
+[26] Paris Carbone, Asterios Katsifodimos, Stephan Ewen, Volker Markl, Seif Haridi, and Kostas Tzoumas. 2015. Apache Flink™: Stream and Batch Processing in a Single Engine. IEEE Data Eng. Bull. 38, 4 (2015), 28–38.
+
+[27] Michael J. Carey, Laura M. Haas, Peter M. Schwarz, Manish Arya, William F. Cody, Ronald Fagin, Myron Flickner, Allen Luniewski, Wayne Niblack, Dragutin Petkovic, Joachim Thomas, John H. Williams, and Edward L. Wimmers. 1995. 
+Towards Heterogeneous Multimedia Information Systems: The Garlic Approach.
+In RIDE-DOM Workshop.
+
+[28] Surajit Chaudhuri, Ravi Krishnamurthy, Spyros Potamianos, and Kyuseok Shim. 1995. Optimizing Queries with Materialized Views. In ICDE.
+
+[29] Benoît Dageville, Thierry Cruanes, Marcin Zukowski, Vadim Antonov, Artin Avanes, Jon Bock, Jonathan Claybaugh, Daniel Engovatov, Martin Hentschel, Jiansheng Huang, Allison W. Lee, Ashish Motivala, Abdul Q. Munir, Steven Pelley, Peter Povinec, Greg Rahn, Spyridon Triantafyllis, and Philipp Unterbrunner. 2016.
+The Snowflake Elastic Data Warehouse. In SIGMOD.
+
+[30] DataNucleus 2018. DataNucleus: JDO/JPA/REST Persistence of Java Objects. http://www.datanucleus.org/.
+
+[31] Jonathan Goldstein and Per-Åke Larson. 2001. Optimizing Queries Using Materialized Views: A practical, scalable solution. In SIGMOD.
+
+[32] Timothy Griffin and Leonid Libkin. 1995. Incremental Maintenance of Views with Duplicates. In SIGMOD.
+
+[33] Anurag Gupta, Deepak Agarwal, Derek Tan, Jakub Kulesza, Rahul Pathak, Stefano Stefani, and Vidhya Srinivasan. 2015. Amazon Redshift and the Case for Simpler Data Warehouses. In SIGMOD.
+
+[34] Ashish Gupta and Inderpal Singh Mumick. 1995. Maintenance of Materialized Views: Problems, Techniques, and Applications. IEEE Data Eng. Bull. 18, 2 (1995), 3–18.
+
+[35] Himanshu Gupta. 1997. Selection of Views to Materialize in a Data Warehouse. In ICDT.
+
+[36] Himanshu Gupta, Venky Harinarayan, Anand Rajaraman, and Jeffrey D. Ullman. 1997. Index Selection for OLAP. In ICDE.
+
+[37] Venky Harinarayan, Anand Rajaraman, and Jeffrey D. Ullman. 1996. Implementing Data Cubes Efficiently. In SIGMOD.
+
+[38] Stefan Heule, Marc Nunkesser, and Alexander Hall. 2013. HyperLogLog in practice: algorithmic engineering of a state of the art cardinality estimation algorithm. In EDBT.
+
+[39] Yin Huai, Ashutosh Chauhan, Alan Gates, Günther Hagleitner, Eric N. Hanson, Owen O’Malley, Jitendra Pandey, Yuan Yuan, Rubao Lee, and Xiaodong Zhang. 2014. Major technical advancements in apache hive. In SIGMOD.
+
+[40] Michael Isard, Mihai Budiu, Yuan Yu, Andrew Birrell, and Dennis Fetterly. 2007. Dryad: distributed data-parallel programs from sequential building blocks. In EuroSys.
+
+[41] Alekh Jindal, Shi Qiao, Hiren Patel, Zhicheng Yin, Jieming Di, Malay Bag, Marc Friedman, Yifung Lin, Konstantinos Karanasos, and Sriram Rao. 2018. Computation Reuse in Analytics Job Service at Microsoft. In SIGMOD.
+
+[42] Marcel Kornacker, Alexander Behm, Victor Bittorf, Taras Bobrovytsky, Casey Ching, Alan Choi, Justin Erickson, Martin Grund, Daniel Hecht, Matthew Jacobs, Ishaan Joshi, Lenni Kuff, Dileep Kumar, Alex Leblang, Nong Li, Ippokratis Pandis, Henry Robinson, David Rorke, Silvius Rus, John Russell, Dimitris Tsirogiannis, Skye Wanderman-Milne, and Michael Yoder. 2015.
+Impala: A Modern, Open-Source SQL Engine for Hadoop. In CIDR.
+
+[43] Jay Kreps, Neha Narkhede, and Jun Rao. 2011. Kafka : a Distributed Messaging System for Log Processing. In NetDB.
+
+[44] Kubernetes 2018. Kubernetes: Production-Grade Container Orchestration. http://kubernetes.io/.
+
+[45] Per-Åke Larson, Cipri Clinciu, Campbell Fraser, Eric N. Hanson, Mostafa Mokhtar, Michal Nowakiewicz, Vassilis Papadimos, Susan L. Price, Srikumar Rangarajan, Remus Rusanu, and Mayukh Saubhasik.2013. Enhancements to SQL server column stores. In SIGMOD.
+
+[46] Sergey Melnik, Andrey Gubarev, Jing Jing Long, Geoffrey Romer, Shiva Shivakumar, Matt Tolton, and Theo Vassilakis. 2010.
+Dremel: Interactive Analysis of Web-Scale Datasets. In PVLDB.
+
+[47] Patrick E. O’Neil, Elizabeth J. O’Neil, Xuedong Chen, and Stephen Revilak. 2009. The Star Schema Benchmark and Augmented Fact Table Indexing. In TPCTC.
+
+[48] Presto 2018. Presto: Distributed SQL query engine for big data.http://prestodb.io/.
+
+[49] Redshift 2018. Amazon Redshift: Amazon Web Services. http://aws.amazon.com/redshift/.
+
+[50] Bikas Saha, Hitesh Shah, Siddharth Seth, Gopal Vijayaraghavan, Arun C. Murthy, and Carlo Curino. 2015. Apache Tez: A Unifying Framework for Modeling and Building Data Processing Applications. In SIGMOD.
+
+[51] Snowflake 2018. Snowflake: The Enterprise Data Warehouse Built in the Cloud. http://www.snowflake.com/.
+
+[52] Mohamed A. Soliman, Lyublena Antova, Venkatesh Raghavan, Amr El-Helw, Zhongxian Gu, Entong Shen, George C. Caragea, Carlos Garcia-Alvarado, Foyzur Rahman, Michalis Petropoulos, Florian Waas, Sivaramakrishnan Narayanan, Konstantinos Krikellas, and Rhonda Baldwin. 2014. Orca: a modular query optimizer architecture for big data. In SIGMOD.
+
+[53] Michael Stillger, Guy M. Lohman, Volker Markl, and Mokhtar Kandil. 2014. LEO - DB2’s LEarning Optimizer. In PVLDB.
+
+[54] Michael Stonebraker and Ugur Çetintemel. 2005. "One Size Fits All":An Idea Whose Time Has Come and Gone. In ICDE.
+
+[55] Ashish Thusoo, Joydeep Sen Sarma, Namit Jain, Zheng Shao, Prasad Chakka, Ning Zhang, Suresh Anthony, Hao Liu, and Raghotham Murthy. 2010. Hive - a petabyte scale data warehouse using Hadoop. In ICDE.
+
+[56] Vinod Kumar Vavilapalli, Arun C. Murthy, Chris Douglas, Sharad Agarwal, Mahadev Konar, Robert Evans, Thomas Graves, Jason Lowe, Hitesh Shah, Siddharth Seth, Bikas Saha, Carlo Curino, Owen O’Malley,
+Sanjay Radia, Benjamin Reed, and Eric Baldeschwieler. 2013. Apache Hadoop YARN: yet another resource negotiator. In SOCC.
+
+[57] Gio Wiederhold. 1992. Mediators in the Architecture of Future Information Systems. IEEE Computer 25, 3 (1992), 38–49.
+
+[58] Fangjin Yang, Eric Tschetter, Xavier Léauté, Nelson Ray, Gian Merlino, and Deep Ganguli. 2014. Druid: a real-time analytical data store. In SIGMOD.
+
+[59] Matei Zaharia, Mosharaf Chowdhury, Michael J. Franklin, Scott Shenker, and Ion Stoica. 2010. Spark: Cluster Computing with Working Sets. In USENIX HotCloud.
+
+[60] Mohamed Zaït, Sunil Chakkappen, Suratna Budalakoti, Satyanarayana R. Valluri, Ramarajan Krishnamachari, and Alan Wood. 2017. Adaptive Statistics in Oracle 12c. In PVLDB.
+
+[61] Daniel C. Zilio, Jun Rao, Sam Lightstone, Guy M. Lohman, Adam J. Storm, Christian Garcia-Arellano, and Scott Fadden. 2004. DB2 Design Advisor: Integrated Automatic Physical Database Design. In PVLDB.
