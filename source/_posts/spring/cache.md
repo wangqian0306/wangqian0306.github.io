@@ -123,7 +123,7 @@ spring.redis.cluster.nodes=192.168.1.1:16379,192.168.1.2:16379,192.168.1.3:16379
 spring.cache.redis.cache-null-values=true
 ```
 
-##### 布轮过滤器
+##### 布隆过滤器
 
 > 注：此处内容尚且没有进行过验证，抽时间再补下吧。
 

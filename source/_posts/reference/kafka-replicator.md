@@ -104,7 +104,7 @@ Uber 的工程师构思了以下几种方案来解决上述问题：
 
 缺点：
 
-- 引入了对 Helix 的依赖。(这是可以接受的，因为 Helix 本身非常稳定，可以将一个 Helix 集群用于多个 MirrorMaker 集群。）
+- 引入了对 Helix 的依赖。(这是可以接受的，因为 Helix 本身非常稳定，可以将一个 Helix 集群用于多个 MirrorMaker 集群。)
 
 ### uReplicator 概览
 
