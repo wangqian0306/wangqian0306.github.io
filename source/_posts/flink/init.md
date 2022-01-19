@@ -25,7 +25,7 @@ StreamExecutionEnvironment 是执行流程序的上下文。
 
 LocalStreamEnvironment 将导致在当前 JVM 中执行，RemoteStreamEnvironment 将导致在远程设置上执行。
 
-该环境提供了控制作业执行(例如设置并行度或容错/检查点参数)以及与外部世界交互(数据访问)的方法。
+该环境提供了控制作业执行(例如设置并行度或容错/检查点参数)以及与外部世界交互(访问数据)的方法。
 
 相关类如下：
 
@@ -38,6 +38,16 @@ LocalStreamEnvironment 将导致在当前 JVM 中执行，RemoteStreamEnvironmen
 ```text
 StreamExecutionEnvironment.getExecutionEnvironment();
 ```
+
+> 注：由于 DataSet API 被弃用，所以在使用 DataStream API 运行批处理时需要额外配置运行参数 `execution.runtime-mode=BATCH` (为了保持灵活建议在运行时指定此参数)。
+
+使用 DataStream API 程序由以下几部分构成：
+
+1. 获取执行环境
+2. 载入或创建初始化数据
+3. 声明数据的转化方式
+4. 声明数据的存储位置
+5. 触发程序执行
 
 ### Table API
 
