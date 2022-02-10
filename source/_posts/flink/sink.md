@@ -118,6 +118,32 @@ final StreamingFileSink<Tuple2<LongWritable, Text>> sink = StreamingFileSink
 input.addSink(sink);
 ```
 
+#### 写入 Kafka
+
+```xml
+<dependency>
+    <groupId>org.apache.flink</groupId>
+    <artifactId>flink-connector-kafka_2.11</artifactId>
+    <version>1.14.3</version>
+</dependency>
+```
+
+```text
+DataStream<String> stream = ...
+        
+KafkaSink<String> sink = KafkaSink.<String>builder()
+        .setBootstrapServers(brokers)
+        .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+            .setTopic("topic-name")
+            .setValueSerializationSchema(new SimpleStringSchema())
+            .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+            .build()
+        )
+        .build();
+        
+stream.sinkTo(sink);
+```
+
 ### 参考资料
 
 [Sink](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/overview/#anatomy-of-a-flink-program)
