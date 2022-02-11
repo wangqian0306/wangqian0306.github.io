@@ -43,6 +43,8 @@ Watermark 的产生和 Flink 内部处理逻辑如下图所示:
 
 ![Watermark 的产生和 Flink 内部处理逻辑](https://s2.loli.net/2022/02/10/ASa1cG4vgtPHD6k.png)
 
+> 注：Watermark 的数据模型为毫秒级时间戳。
+
 ### 产生方式
 
 #### 使用 WatermarkStrategy
@@ -74,8 +76,20 @@ WatermarkStrategy
 
 #### 编写 WatermarkGenerators
 
-```text
+略
 
+#### 使用内置的 WatermarkGenerators
+
+单调递增
+
+```text
+WatermarkStrategy.forMonotonousTimestamps();
+```
+
+固定延迟量
+
+```text
+WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(10));
 ```
 
 ### 参考资料
@@ -87,3 +101,5 @@ WatermarkStrategy
 [Flink 的 Watermark 机制](https://www.cnblogs.com/rossiXYZ/p/12286407.html)
 
 [The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing](https://research.google.com/pubs/archive/43864.pdf)
+
+[流计算精品翻译: The Dataflow Model](https://developer.aliyun.com/article/64911)
