@@ -157,7 +157,100 @@ input
 
 > 注：此窗口方案仅在您还指定自定义触发器时才有效。
 
-#### Window Transformation
+### Window Function
+
+在定义了窗口分配器之后，我们需要指定我们想要在每个窗口上执行的计算被称为 Window Function 即窗口函数。
+
+窗口函数分为以下几种：
+
+- ReduceFunction
+- AggregateFunction
+- ProcessWindowFunction
+
+其中的前两种可以更有效地执行。
+
+#### ReduceFunction
+
+合并相同 key 的内容
+
+```text
+DataStream<Tuple2<String, Long>> input = ...;
+
+input
+    .keyBy(<key selector>)
+    .window(<window assigner>)
+    .reduce(new ReduceFunction<Tuple2<String, Long>>() {
+      public Tuple2<String, Long> reduce(Tuple2<String, Long> v1, Tuple2<String, Long> v2) {
+        return new Tuple2<>(v1.f0, v1.f1 + v2.f1);
+      }
+    });
+```
+
+#### AggregateFunction
+
+```text
+private static class AverageAggregate
+    implements AggregateFunction<Tuple2<String, Long>, Tuple2<Long, Long>, Double> {
+  @Override
+  public Tuple2<Long, Long> createAccumulator() {
+    return new Tuple2<>(0L, 0L);
+  }
+
+  @Override
+  public Tuple2<Long, Long> add(Tuple2<String, Long> value, Tuple2<Long, Long> accumulator) {
+    return new Tuple2<>(accumulator.f0 + value.f1, accumulator.f1 + 1L);
+  }
+
+  @Override
+  public Double getResult(Tuple2<Long, Long> accumulator) {
+    return ((double) accumulator.f0) / accumulator.f1;
+  }
+
+  @Override
+  public Tuple2<Long, Long> merge(Tuple2<Long, Long> a, Tuple2<Long, Long> b) {
+    return new Tuple2<>(a.f0 + b.f0, a.f1 + b.f1);
+  }
+}
+
+DataStream<Tuple2<String, Long>> input = ...;
+
+input
+    .keyBy(<key selector>)
+    .window(<window assigner>)
+    .aggregate(new AverageAggregate());
+```
+
+#### ProcessWindowFunction
+
+ProcessWindowFunction 获得一个包含窗口所有元素的可迭代对象，以及一个可以访问时间和状态信息的 Context 对象，这使得它能够提供比其他窗口函数更大的灵活性。这是以性能和资源消耗为代价的，因为元素不能增量聚合，而是需要在内部缓冲，直到窗口被认为准备好处理。
+
+```text
+DataStream<Tuple2<String, Long>> input = ...;
+
+input
+  .keyBy(t -> t.f0)
+  .window(TumblingEventTimeWindows.of(Time.minutes(5)))
+  .process(new MyProcessWindowFunction());
+
+public class MyProcessWindowFunction 
+    extends ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow> {
+
+  @Override
+  public void process(String key, Context context, Iterable<Tuple2<String, Long>> input, Collector<String> out) {
+    long count = 0;
+    for (Tuple2<String, Long> in: input) {
+      count++;
+    }
+    out.collect("Window: " + context.window() + "count: " + count);
+  }
+}
+```
+
+#### 具有增量聚合的 ProcessWindowFunction
+
+ProcessWindowFunction 可以与 ReduceFunction 或 AggregateFunction 组合
+
+> 注：此处暂略，参见官方文档。
 
 ### 参考资料
 
