@@ -19,6 +19,9 @@ Flink 内部按照算子和数据分组角度将 State 划分为如下两类：
 
 - KeyedState 这里面的 key 是我们在 SQL 语句中对应的 GroupBy/PartitionBy 里面的字段，key 的值就是 GroupBy/PartitionBy 字段组成的 Row 的字节数组，每一个 key 都有一个属于自己的 State，key 与 key 之间的 State 是不可见的；
 - OperatorState Flink 内部的 Source Connector 的实现中就会用 OperatorState 来记录 source 数据读取的 offset。
+  - OperatorState 的作用范围限定为单个任务，由同一并行任务所处理的所有数据都可以访问到相同的 State
+  - OperatorState 对于同一子任务而言是共享的
+  - OperatorState 不能由相同或不同算子的另一个子任务访问
 
 自带数据存储后端有如下两种：
 
@@ -56,9 +59,10 @@ env.setStateBackend(new EmbeddedRocksDBStateBackend());
 
 ### 参考资料
 
-
 [state 官方文档](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/fault-tolerance/state/)
 
 [state_backends 官方文档](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/ops/state/state_backends/)
 
 [Apache Flink 漫谈系列(04) - State](https://developer.aliyun.com/article/667562?spm=a2c6h.13262185.0.0.60da7e18Eon9c4)
+
+[Flink状态管理详解：Keyed State和Operator List State深度解析](https://www.cnblogs.com/felixzh/p/13167665.html)
