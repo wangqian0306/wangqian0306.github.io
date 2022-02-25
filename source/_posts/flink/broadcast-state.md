@@ -22,6 +22,14 @@ Broadcast State 意为将输入的内容广播至所有 Operator 中。在官方
 
 ### 实现
 
+官网示例程序实现要求如下：
+
+1. 输入形状和颜色的数据流。
+2. 输入由名称，前一个数据的形状，最新数据的形状构成的数据流。
+3. 寻找到颜色相同且形状符合规则的数据。
+
+样例：
+
 ```java
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.MapState;
@@ -46,22 +54,14 @@ import java.util.Map;
 enum Shape {
     SQUARE,
     CIRCLE,
-    TRIANGLE
-}
-
-class Color {
-    String name;
-
-    Color(String name) {
-        this.name = name;
-    }
+    TRIANGLE;
 }
 
 class Item {
     Shape shape;
-    Color color;
+    String color;
 
-    Item(Shape shape, Color color) {
+    Item(Shape shape, String color) {
         this.shape = shape;
         this.color = color;
     }
@@ -70,9 +70,15 @@ class Item {
         return shape;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
+
+    @Override
+    public String toString() {
+        return "{'shape':'" + this.shape.toString() + "','color': '" + this.color + "'}";
+    }
+
 }
 
 class Rule {
@@ -85,34 +91,45 @@ class Rule {
         this.first = first;
         this.second = second;
     }
+
+    @Override
+    public String toString() {
+        return "{'name':'" + this.name + "','first': '" + this.first + "','second':'" + this.second + "'}";
+    }
+
 }
 
-public class BroadcastTest {
+public class WQTest {
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        /* Source */
         Collection<String> originCollection = new ArrayList<>();
-        originCollection.add("SQUARE RED");
+        originCollection.add("SQUARE BLUE");
         originCollection.add("SQUARE BLUE");
         originCollection.add("CIRCLE BLUE");
         originCollection.add("CIRCLE RED");
-        originCollection.add("TRIANGLE BLUE");
+        originCollection.add("CIRCLE BLUE");
         Collection<String> ruleCollection = new ArrayList<>();
         ruleCollection.add("1 SQUARE CIRCLE");
+
+        /* Item Stream */
         DataStream<String> originStream = env.fromCollection(originCollection);
         DataStream<Item> itemStream = originStream.map(new MapFunction<String, Item>() {
             @Override
             public Item map(String s) throws Exception {
                 String[] content = s.split(" ");
-                return new Item(Shape.valueOf(content[0]), new Color(content[1]));
+                return new Item(Shape.valueOf(content[0]), content[1]);
             }
         });
-        KeyedStream<Item, Color> colorPartitionedStream = itemStream.keyBy(new KeySelector<Item, Color>() {
+        KeyedStream<Item, String> colorPartitionedStream = itemStream.keyBy(new KeySelector<Item, String>() {
             @Override
-            public Color getKey(Item item) throws Exception {
+            public String getKey(Item item) throws Exception {
                 return item.getColor();
             }
         });
+
+        /* Rule Stream */
         DataStream<Rule> ruleStream = env.fromCollection(ruleCollection).map(new MapFunction<String, Rule>() {
             @Override
             public Rule map(String s) throws Exception {
@@ -126,8 +143,10 @@ public class BroadcastTest {
                 TypeInformation.of(new TypeHint<Rule>() {
                 }));
         BroadcastStream<Rule> ruleBroadcastStream = ruleStream.broadcast(ruleStateDescriptor);
+
+        /* Broadcast Stream Process */
         DataStream<String> output = colorPartitionedStream.connect(ruleBroadcastStream).process(
-                new KeyedBroadcastProcessFunction<Color, Item, Rule, String>() {
+                new KeyedBroadcastProcessFunction<String, Item, Rule, String>() {
                     private final MapStateDescriptor<String, List<Item>> mapStateDesc = new MapStateDescriptor<>(
                             "items",
                             BasicTypeInfo.STRING_TYPE_INFO,
@@ -171,7 +190,6 @@ public class BroadcastTest {
                                 stored.clear();
                             }
 
-                            // there is no else{} to cover if rule.first == rule.second
                             if (shape.equals(rule.first)) {
                                 stored.add(value);
                             }
@@ -185,11 +203,19 @@ public class BroadcastTest {
                     }
                 }
         );
+        output.print();
         env.execute();
     }
 
 }
 ```
+
+### 注意事项
+
+- **不能跨任务通信**：用户必须确保所有任务对每个传入元素都以相同的方式修改 Broadcast State 的内容。否则，不同的任务可能会有不同的内容，导致结果不一致。
+- **事件顺序因任务而异**：尽管广播流的元素可以保证所有元素(最终)都会到达所有下游任务，但元素可能以不同的顺序到达每个任务。因此，每个传入元素的状态更新不得依赖于传入事件的顺序。
+- **所有任务都会检查其 Broadcast State**：这是一个设计决策，以避免在还原期间从同一文件读取所有任务(从而避免热点)，尽管它的代价是将检查点状态的大小增加了 p 倍(并行度)。Flink 保证在恢复/重新缩放时不会有重复和丢失数据。在以相同或更小的并行度进行恢复的情况下，每个任务都会读取其检查点状态。扩大规模后，每个任务读取自己的状态，其余任务(p_new-p_old) 以循环方式读取先前任务的检查点。
+- **不适用 RocksDB State Backend**：Broadcast State 在运行时保存在内存中，并且应该相应地进行内存配置。
 
 ### 参考资料
 
