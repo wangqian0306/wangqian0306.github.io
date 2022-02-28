@@ -68,6 +68,15 @@ state.checkpoints.dir: hdfs:///checkpoints/
 env.getCheckpointConfig().setCheckpointStorage("hdfs:///checkpoints-data/");
 ```
 
+**配置** :
+
+关于检查点建立模式的配置如下：
+
+- EXACTLY_ONCE 先缓冲等到下一个 barrier 到来之后进行处理。
+- AT_LEAST_ONCE 来就处理
+
+> 注: 其他详细配置参见 [官方文档](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/fault-tolerance/checkpointing/)
+
 **恢复** :
 
 直接重启即可
