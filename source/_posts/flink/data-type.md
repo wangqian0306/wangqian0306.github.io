@@ -61,10 +61,10 @@ public class Color {
 
 ### 常见问题
 
-- 注册子类型：
-- 注册自定义序列化器：
-- 新增类型提示：
-- 手动创建 TypeInformation：
+- 注册子类型：在程序声明中只包含了父类型，但是在使用中需要使用子类，此时注册子类可以让 Flink 提高性能。(为子类调用 `.registerType(clazz)` 方法)
+- 注册自定义序列化器：Flink 使用 Kryo 作为默认序列化器。如果需要使用其他序列化方式则需要进行独立配置。([第三方序列化工具](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/fault-tolerance/serialization/third_party_serializers/))
+- 新增类型提示：在 Java 程序中返回类型不确定时需要指定返回类型。
+- 手动创建 TypeInformation：在 Flink 无法推断数据类型时需要配置此项。
 
 ### 参考资料
 
