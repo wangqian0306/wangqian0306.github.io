@@ -31,6 +31,8 @@ Window 即窗口操作把一个数据集切分为有限的数据片以便于聚�
 - 键控窗口(Keyed Window)
 - 非键控窗口(Non-Keyed Window)
 
+### 窗口分类
+
 #### 键控窗口
 
 ```text
