@@ -1,6 +1,6 @@
 ---
 title: PlantUML
-date: 2022-01-07 22:26:13
+date: 2022-03-07 22:26:13
 tags:
 - "UML"
 id: plantuml
