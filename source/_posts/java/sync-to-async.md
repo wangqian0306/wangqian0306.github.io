@@ -32,3 +32,6 @@ categories: JAVA
 
 
 
+### 参考资料
+
+[异步调用转同步](https://gitee.com/sunnymore/asyncToSync)
