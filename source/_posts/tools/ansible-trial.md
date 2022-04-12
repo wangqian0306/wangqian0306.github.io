@@ -99,236 +99,201 @@ all:
 ```yaml
 - hosts: all
   ###########
-  # Play keyword: hosts
-  # Required: yes
-  # Description:
-  #   The selection of hosts (or host) that the tasks in this play play should apply to.
+  # 关键参数: hosts
+  # 是否必填: 是
+  # 简介:
+  #   指明需要部署的主机或组。
   #
-  ## Example values:
-  #   hosts: all -- applies to all hosts
-  #   hosts: host1 -- apply ONLY to the host that inventory defines as 'host1'
-  #   hosts: group1 -- apply to all hosts in group1
-  #   hosts: group1,group2 -- apply to hosts in group1 & group2
+  ## 样例:
+  #   hosts: all -- 所有主机
+  #   hosts: host1 -- 主机 host1 单独运行
+  #   hosts: group1 -- group1 中的所有主机
+  #   hosts: group1,group2 -- group1 和 group2 中的所有主机
   #   hosts: group1,host1 -- hosts in group1 AND host
   #
-  ## now using host patterns (TODO: url)
-  #   hosts: group1,!group3 -- hosts in group1 that are not in group3
-  #   hosts: group1,&group3 -- hosts in group1 that are also in group3
-  #   hosts: group1:&group3 -- same as above, but using : instead of , as separator
-  #   hosts: group1:!group2:&group3 -- hosts in group1 what are not in group2 but are also in group3
+  ## 表达式样例 
+  #   hosts: group1,!group3 -- 在 group1 但是不在 group3 中的主机
+  #   hosts: group1,&group3 -- 在 group1 和 group3 中的主机
+  #   hosts: group1:&group3 -- 同上但是使用 `:` 替代了 `,`
+  #   hosts: group1:!group2:&group3 -- 在 group1 和 group3 但不在 group2 的主机
   #
-  ## Using a variable value for 'hosts'
+  ## 使用参数的形式传递
   #
-  # You can, in fact, set hosts to a variable, for example:
+  # 可以通过如下的方式传递参数
   #
-  #   hosts: '{{mygroups}}' -- apply to all hosts specified in the variable 'mygroups'
+  #   hosts: '{{mygroups}}' -- 使用 mygroups 参数传递主机
   #
-  # This is handy for testing playbooks, running the same playbook against a
-  # staging environment before running it against production, occasional
-  # maintenance tasks, and other cases where you want to run the playbook
-  # against just a few systems rather than a whole group.
-  # Note that the variable cannot be set in inventory, since we need to know the hosts
-  # before we can use inventory variables. So normally 'extra vars' are used, as you can
-  # see below.
+  # 这对于测试 playbook 非常方便，在针对生产、偶尔的维护任务和其他情况运行 playbook 之前，在一个临时环境中运行相同的 playbook，在这些情况下，您只需要针对几个系统而不是整个组运行 playbook。
+  # 请注意，不能在清单中设置该变量，因为在使用清单变量之前，我们需要了解主机。所以通常会使用 “额外变量”，如下所示。
   #
-  # If you set hosts as shown above, then you can specify which hosts to
-  # apply the playbook to on each run as so:
+  # 如果如上所示设置主机，则可以指定在每次运行时应用 playbook 的主机，如下所示：
   #
   #   ansible-playbook playbook.yml --extra-vars="mygroups=staging"
   #
-  # Use --extra-vars to set the variable to any combination of groups, hostnames,
-  # or host patterns just like the examples in the previous section.
+  # 使用 --extra vars 将变量设置为组、主机名或主机模式的任意组合，就像上一节中的示例一样。
   #
 
   name: my heavily commented play
   ###########
-  # Play keyword: name
-  # Default: play###
-  # Required: no
-  # Description: Just a description to document the play
+  # 关键参数: name
+  # 默认: play
+  # 是否必填: 否
+  # 简介: 需要执行命令的简介
 
   gather_facts: yes
   ###########
-  # Play keyword:  gather_facts
-  # Default: None
-  # Required: no
-  # Description:
-  #   This controls if the play will trigger a 'fact gathering task' (aka 'gather_facts' or 'setup' action) to get information about the remote target.
-  #   These facts normally provide useful variables on which to base decisions and task inputs. For example `ansible_os_distribution` can tell us if
-  #   the target is a RHEL, Ubuntu or FreeBSD machine (among others), number of CPUs, RAM, etc.
-  # TODO: url to fact gathering
+  # 关键参数: gather_facts
+  # 默认: None
+  # 是否必填: 否
+  # 简介:
+  #   此参数控制着程序是否触发 `fact gathering task` (也被叫做 `gather_facts` 或 `setup` 操作) 来获取远程执行的返回结果。
+  #   执行的返回值也通常在选择执行计划和作为参数输入的时候很有用。
+  #   例如我们想执行 `ansible_os_distribution` 命令来获取主机的系统类型到底是 RHEL, Ubuntu 或 FreeBSD 等, 以及 CPU, RAM 等硬件信息。
 
   remote_user: login_user
   ###########
-  # Play keyword:  user
-  # Default: depends on connection plugin, for ssh it is 'current user executing Ansible'
-  # Required: no
-  # Description:
-  #   Remote user to login on remote targets and 'normally' execute the tasks as
+  # 关键参数:  remote_user
+  # 默认: 依赖于 `connection` 插件, 对于 ssh 来说就是 '执行当前命令的用户'
+  # 是否必填: 否
+  # 简介:
+  #   登录远程设备的用户，通常也是执行命令的用户
 
   become: True
   ###########
-  # Play keyword: become
-  # Default: False
-  # Required: no
-  # Description:
-  #   If True, always use privilege escalation to run tasks from this play, just like passing the
-  #   --become flag to ansible or ansible-playbook.
-
+  # 关键参数: become
+  # 默认: False
+  # 是否必填: 否
+  # 简介:
+  #   如果设置为 True 就会提升命令的执行权限，像是在命令行中加入了 `--become` 参数一样。
 
   become_user: root
   ###########
-  # Play keyword: become_user
-  # Default: None
-  # Required: no
-  # Description:
-  #   When using privilege escalation this is the user you 'become' after login with the remote_user
-  #   for example you login to the remote as 'login_user' then you 'become' root to execute the tasks
+  # 关键参数: become_user
+  # 默认: None
+  # 是否必填: 否
+  # 简介:
+  #   当使用权限升级时，这是您在与远程用户登录后 “become” 的用户。例如，您以 “login_user” 身份登录远程用户，然后您“become” root 用户以执行任务。
 
   become_method: sudo
   ###########
-  # Play keyword: become_method
-  # Default: sudo
-  # Required: no
-  # Description:
-  #   When using privilege escalation this chooses the become plugin to use for privilege escalation.
-  #   use `ansible-doc -t become -l` to list all the options.
+  # 关键参数: become_method
+  # 默认: sudo
+  # 是否必填: 否
+  # 简介:
+  #   当使用特权升级时，这会选择用于特权升级的插件。
+  #   使用 `ansible-doc -t become -l` 命令来提示更多内容。
 
   connection: ssh
   ###########
-  # Play keyword: connection
-  # Default: ssh
-  # Required: no
-  # Description:
-  #   This sets which connection plugin Ansible will use to try to communicate with the target host.
-  #   notable options are paramiko (python implementation of ssh, mostly useful in corner cases in which the ssh cli
-  #   does not work well with the target. Also 'local' which forces a 'local fork' to execute the task, but normally
-  #   what you really want is `delegate_to: localhost` see examples below in 'Run things locally!' entry.
-  #   use `ansible-doc -t connection -l` to list all the options.
+  # 关键参数: connection
+  # 默认: ssh
+  # 是否必填: 否
+  # 简介:
+  #   这将设置 Ansible 将使用哪个 `connection` 插件尝试与目标主机进行通信。
+  #   注意此处是由 paramiko (python 版本的 ssh, 在 ssh 命令行不能很好地与目标系统配合使用的情况下非常有用。
+  #   除此之外还有 “local”，强制 “local fork” 执行任务，但通常您真正想要的是 “delegate_to:localhost”，其余内容需要参见下面的实例。
+  #   使用 `ansible-doc -t connection -l` 命令来提示更多内容。
 
   vars:
   ###########
-  # Play keyword: vars
-  # Default: none
-  # Required: no
-  # Description:
-  #   Mapping of variables defined for this play, normally for use in templates or as variables for tasks.
+  # 关键参数: vars
+  # 默认: none
+  # 是否必填: 否
+  # 简介:
+  #   为该任务定义的变量键值对，通常用于模板或任务变量。
 
-    # to get the value just use {{color}} to reference that value
+    # 在使用时填写 {{color}} 即可引用变量
     color: brown
 
-    # Mapping structures allow complex variables structures, to use you can reference
-    #  the variable name with {{web['memcache']}} when using nested key value or {{web}}
-    # when using the whole structure..
+    # 键值对的数据类型允许传入复杂的结构, 在使用时可以采用  {{web['memcache']}} 这样的方式来获取子项，或 {{web}} 来获取完整的对象
     web:
       memcache: 192.168.1.2
       httpd: apache
 
-    # lists use a slightly different notation {{ mylist[1] }} to get 'b', they are 0 indexed.
+    # 列表型参数，使用 {{ mylist[1] }} 可以得到 'b', 索引从 0 开始.
     mylist:
        - a
        - b
        - c
 
-    # Variables can be dynamically set via Jinja templates, to be filled when consumed.
+    # 参数可以使用 Jinja 模板引擎进行动态配置, 直至使用的时候才会被读取.
     #
-    # In this playbook, this will always evaluate to False, because 'color'
-    #  is set to 'brown' above.
+    # 在这个 playbook 中, 此表达式永远会返回 False, 因为 'color' 在上面被赋值为了 'brown'。
     #
-    # When ansible interprets the following, it will first expand 'color' to
-    # 'brown' and then evaluate 'brown' == 'blue' as a Jinja expression.
+    # 当 ansible 转译如下内容时会首先将 'color' 赋值为 'brown' 然后依据 Jinja 表达式对比 'brown' == 'blue'
     is_color_blue: "{{ color == 'blue' }}"
-
-    # TODO: (url variables)
 
   vars_files:
   ##########
-  # Play keyword: vars_files
-  # Required: no
-  # Description:
-  #   Specifies a list of YAML files to load variables from.
+  # 关键参数: vars_files
+  # 是否必填: 否
+  # 简介:
+  #   此处可以填写一个 YAML 格式的参数文件列表，这些参数会在 `vars` 之后载入，无论 `vars` 写在哪里。样例如下：
   #
-  #   Always evaluated after the 'vars' section, no matter which section
-  #   occurs first in the playbook.  Examples are below.
-  #
-  #   Example YAML for a file to be included by vars_files:
   #   ---
   #   monitored_by: phobos.mars.nasa.gov
   #   fish_sticks: "good with custard"
-  #   ... # (END OF DOCUMENT)
+  #   ... # (文件结束)
   #
-  #   Remove the indentation & comments of course, the '---' should be at
-  #   the left margin in the variables file.
+  #   注： `---` 应该位于页面最左端
   #
-    # Include a file from this absolute path
+    # 使用绝对路径引入配置文件
     - /srv/ansible/vars/vars_file.yml
 
-    # Include a file from a path relative to this playbook
+    # 使用相对路径引入配置文件
     - vars/vars_file.yml
 
-    # By the way, variables set in 'vars' or as extra vars are available here.
+    # 使用可变配置引入配置文件
     - vars/{{something}}.yml
 
-    # It's also possible to pass an array of files, in which case
-    # Ansible will loop over the array and include the first file that
-    # exists.  If none exist, ansible-playbook will halt with an error.
-    #
-    # An excellent way to handle platform-specific differences.
+    # 也可以使用数组来引入配置文件
     - [ 'vars/{{platform}}.yml', vars/default.yml ]
 
-    # Files in vars_files process in order, so later files can
-    # provide more specific configuration:
+    # 文件会按照顺序进行引入，所以后面的配置文件可以写入更多的内容
     - [ 'vars/{{host}}.yml' ]
 
-    # Hey, but if you're doing host-specific variable files, you might
-    # consider setting the variable for a group in your inventory and
-    # adding your host to that group. Just a thought.
-
+    # 但是如果在做主机特定的变量文件，可以考虑在你的库中设置一个组的变量，并把你的主机添加到那个组。
 
   vars_prompt:
   ##########
-  # Play keyword: vars_prompt
-  # Required: no
-  # Description:
-  #   A list of variables that Ansible will prompt for manual input each time this playbook
-  #   runs.  Used for sensitive data and also things like release numbers that
-  #   vary on each deployment.
+  # 关键参数: vars_prompt
+  # 是否必填: 否
+  # 简介:
+  #   Ansible 将在每次运行此 playbook 时提示手动输入的变量列表。用于敏感数据，也可用于不同部署的版本号等。
   #
-  #   Ansible won't prompts for this value if already provided, like when
-  #   passed through --extra-vars, but not from inventory.
+  #   如果已经提供了这个值，Ansible将不会提示输入，比如在传递时——额外的变量，但不是来自库存。
   #
-  #   Also it won't prompt if it detects that it is a non interactive session.
-  #   For example, when called from cron.
+  #   如果检测到它是非交互式会话，它也不会提示。例如，当从cron调用时。
   #
     - name: passphrase
       prompt: "Please enter the passphrase for the SSL certificate"
       private: yes
-      #   The input won't be echoed back to the terminal when private (default yes)
+      #   在 private 参数为 yes 时输入不会回显到终端
 
-    # Not sensitive, but something that should vary on each playbook run.
+    # 在配置不敏感的内容时应该这样做.
     - name: release_version
       prompt: "Please enter a release tag"
       private: no
 
-    # you can even have a default
+    # 配置默认值
     - name: package_version
       prompt: "Please enter a package version"
       default: '1.0'
 
-    # You can find more advanced features in https://docs.ansible.com/ansible/latest/user_guide/playbooks_prompts.html
+    # 可以在这个链接找到更多特性 https://docs.ansible.com/ansible/latest/user_guide/playbooks_prompts.html
 
   roles:
   ##########
-  # Play keyword: roles
-  # Required: no
-  # Description: A list of roles to import and execute in this play. Executes AFTER pre_tasks and play fact gathering, but before 'tasks'.
+  # 关键参数: roles
+  # 是否必填: 否
+  # 简介: A list of roles to import and execute in this play. Executes AFTER pre_tasks and play fact gathering, but before 'tasks'.
   # TODO url roles + url to 'play stages'
 
   tasks:
   ##########
-  # Play keyword: tasks
-  # Required: no
-  # Description: A list of tasks to perform in this play. Executes AFTER roles and before post_tasks
+  # 关键参数: tasks
+  # 是否必填: 否
+  # 简介: A list of tasks to perform in this play. Executes AFTER roles and before post_tasks
 
     # A simple task
     # Each task must have an action. 'name' is optional but very useful to document what the task does
@@ -527,8 +492,8 @@ all:
   handlers:
   ##########
   # Play keyword: handlers
-  # Required: no
-  # Description:
+  # 是否必填: 否
+  # 简介:
   #   Handlers are tasks that run when another task has changed something.
   #   See above for examples on how to trigger them.
   #   The format to define a handler is exactly the same as for tasks.
