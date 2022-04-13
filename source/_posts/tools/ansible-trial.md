@@ -286,35 +286,34 @@ all:
   ##########
   # 关键参数: roles
   # 是否必填: 否
-  # 简介: A list of roles to import and execute in this play. Executes AFTER pre_tasks and play fact gathering, but before 'tasks'.
-  # TODO url roles + url to 'play stages'
+  # 简介: 在此 playbook 中的的权限列表。执行时间在 pre_tasks 和基础信息获取之后, 但在 'tasks' 之前.
 
   tasks:
   ##########
   # 关键参数: tasks
   # 是否必填: 否
-  # 简介: A list of tasks to perform in this play. Executes AFTER roles and before post_tasks
+  # 简介: 此 playbook 中的任务列表. 在 roles 之后执行，在 post_tasks 之前执行
 
-    # A simple task
-    # Each task must have an action. 'name' is optional but very useful to document what the task does
+    # 一个简单的任务
+    # 每个任务都必须有一个操作。'name' 是一个可选项，但是对说明任务的工作项非常有用
     - name: Check that the target can execute Ansible tasks
       action: ping
 
     ##########
-    # Ansible modules do the work!, 'action' is not needed, you can use the 'action itself' as part of the task
+    # Ansible 的 modules 会完成业务工作!, 'action' 并不是必须的, 当然也可以使用 'action itself' 作为 task 的一部分
     - file: path=/tmp/secret mode=0600 owner=root group=root
     #
-    # Format 'action' like above:
+    # 'action' 的格式如同上面的内容:
     # <modulename>: <module parameters>
     #
-    # Test your parameters using:
+    # 可以使用如下的方式进行参数测试:
     #   ansible -m <module> -a "<module parameters>"
     #
-    # Documentation for the stock modules:
+    # modules 文档如下:
     # http://ansible.github.com/modules.html
 
-    # normally most will want to use 'k: v' notation instead of 'k=v' used above (but useful for adhoc execution).
-    # while both formats are mostly interchangable, `k: v` is more explicit, 'type friendly' and simpler to escape.
+    # 通常情况下，大多数人希望使用“k:v”符号，而不是上面使用的“k=v”（但对临时执行有用）。
+    # 虽然这两种格式基本上都是可交换的，`k:v`更明确，类型更友好，并且更容易转义。
     - name: Ensure secret is locked down
       file:
          path: /tmp/secret
@@ -322,14 +321,14 @@ all:
          owner: root
          group: root
 
-    # note that 'action options' are indented inside the option, while 'task keywords' stay on the top level
+    # 请注意 'action' 参数的缩进, 并且 'task' 要位于顶层
 
     ##########
-    # Use variables in the task! It expands on use.
+    # 在任务中使用变量
     - name: Paint the server
       command: echo {{color}}
 
-    # you can also define variables at the task level
+    # 您还可以在任务级别定义变量
     - name: Ensure secret is locked down
       file:
          path: '{{secret_file}}'
@@ -340,29 +339,23 @@ all:
         secret_file: /tmp/secret
 
     ##########
-    # Trigger handlers when things change!
+    # 事情发生变化时触发处理程序！
     #
-    # Most Ansible actions can detect and report when something changed.
-    # Like if file permissions were not the same as requested,
-    # a file's content is different or a package was installed (or removed)
-    # When a change is reported, the task assumes the 'changed' status.
-    # Ansible can optionally notify one or more Handlers.
-    # Handlers are like normal tasks, the main difference is that they only
-    # run when notified.
-    # A common use is to restart a service after updating it's configuration file.
+    # 大多数 Ansible 操作都可以在发生变化时检测并报告。
+    # 例如，如果文件权限与请求的权限不同，文件内容不同，或者在报告更改时安装（或删除）了包，则任务将假定为“已更改”状态。
+    # Ansible 可以选择通知一个或多个处理程序。
+    # 处理程序与普通任务类似，主要区别在于它们只在收到通知时运行。
+    # 常见的用法是在更新服务的配置文件后重新启动服务。
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#handlers-running-operations-on-change
-
-    # TODO: explain handler per stage execution
-
-    # This will call the "Restart Apache" handler whenever 'copy' alters
-    # the remote httpd.conf.
+    
+    # 在拷贝 httpd.conf 文件之后触发重启 Apache
     - name: Update the Apache config
       copy:
         src: httpd.conf
         dest: /etc/httpd/httpd.conf
       notify: Restart Apache
 
-    # Here's how to specify more than one handler
+    # 下面是如何指定多个处理程序的样例
     - name: Update our app's configuration
       copy:
         src: myapp.conf
@@ -372,36 +365,28 @@ all:
         - Restart Redis
 
     ##########
-    # Include tasks from another file!
+    # 引入来自其他文件的任务
     #
-    # Ansible can insert a list of tasks from another file. The file
-    # must represent a list of tasks, which is different than a play.
+    # Ansible 可以引入另一个文件中的任务列表。该文件必须表示任务列表。
     #
-    # Task list format:
+    # 任务列表如下:
     #   ---
     #   - name: create user
     #     user: name={{myuser}} color={{color}}
     #
     #   - name: add user to group
     #     user: name={{myuser}} groups={{hisgroup}} append=true
-    #   ... # (END OF DOCUMENT)
+    #   ... # (文件结束)
     #
-    #   A 'tasks' YAML file represents a list of tasks. Don't use playbook
-    #   YAML for a 'tasks' file.
-    #
-    #   Remove the indentation & comments of course, the '---' should be at
-    #   the left margin in the variables file.
+    #   'tasks' YAML 文件中的内容是任务列表. 不要用 playbook YAML 代替 'tasks' YAML 文件。
 
-    # TODO: point at import_playbook, includes and roles
-    # In this example the user will be 'sklar'
-    #  and 'color' will be 'red' inside new_user.yml
+    # 在本例 new_user.yml 里，用户将是 'sklar'，'color' 将是 'red'
     - import_tasks: tasks/new_user.yml
       vars:
         myuser: sklar
         color: red
 
-    # In this example the user will be 'mosh'
-    #  and $color will be 'mauve' inside new_user.yml
+    # 在本例 new_user.yml 里，用户将是 'mosh'，'color' 将是 'mauve'
     - import_tasks: tasks/new_user.yml
       vars:
         myuser: mosh
@@ -409,11 +394,9 @@ all:
 
 
     ##########
-    # Run a task on each thing in a list!
+    # 使用列表运行任务
     #
-    # Ansible provides a simple loop facility. If 'loop' is provided for
-    # a task, then the task will be run once for each item in the provided
-    # list.  Each iteration will create the 'item' variable with a different value.
+    # Ansible 提供了一个基本的循环方式. 如果任务中引入了 'loop' 则会依据给定的内容循环运行。
     - name: Create a file named via variable in /tmp
       file: path=/tmp/{{item}} state=touched
       loop:
@@ -424,20 +407,19 @@ all:
       file: path=/tmp/{{item}} state=touched
       loop: '{{mylist}}'
       vars:
-        # defined here, but could be anywhere before the task runs
-        # also note that YAML lists can be flush with their key,
-        # we normally indent for clarity, but this form is also correct.
+        # 样例在此处定义，但实际使用中可以在任务运行前的任意位置进行定义。
+        # 请注意的是 YAML 的缩进，这样的方式也是正确的。
         mylist:
         - tangerine
         - lemon
     ##########
-    # Conditionally execute tasks!
+    # 有条件地执行任务
     #
-    # Sometimes you only want to run an action when a under certain conditions.
-    # Ansible supports using conditional Jinja expression, executing the task only when 'True'.
+    # 有时，您只想在特定条件下运行某个操作。
+    # Ansible 支持使用条件 Jinja 表达式，仅在“True”时执行任务。
     #
-    # If you're trying to run an task only when a value changes,
-    # consider rewriting the task as a handler and using 'notify' (see below).
+    # 如果您试图仅在值更改时运行任务，
+    # 请考虑将任务重写为处理程序并使用“notify”（见下文）。
     #
     - name: "shutdown all ubuntu"
       command: /sbin/shutdown -t now
@@ -447,22 +429,20 @@ all:
       command: /sbin/shutdown -t now
       when: "{{inventory_hostname in groups['government']}}"
 
-      # another way to write the same.
+      # 另外一种实现方式
     - name: "shutdown the if host is in the government"
       command: /sbin/shutdown -t now
       when: "{{'government' in group_names}}"
 
-    # Ansible has some built in variables, you can check them here (TODO url)
-    # inventory_hostname is the name of the current host the task is executing for (derived from the hosts: keyword)
-    # group_names has the list of groups the current host (inventory_hostname) is part of
-    # groups is a mapping of the inventory groups with the list of hosts that belong to them
+    # Ansible 有一些内置变量，您可以在此处检查它们。
+    # inventory_hostname 是执行任务的当前主机的名称（源自hosts:关键字）
+    # group_names 包含当前主机（inventory_hostname）所属的组列表
+    # 组是库存组与属于它们的主机列表的映射
 
     ##########
-    # Run things as other users!
+    # 使用其他用户运行
     #
-    # Each task has optional keywords that control which
-    # user a task should run as and whether or not to use privilege escalation
-    # (like sudo or su) to switch to that user.
+    # 每个任务都有可选的关键字来控制用户，以及是否使用权限提升（如sudo或su）切换到该用户。
 
     - name: login in as postgres and dump all postgres databases
       shell: pg_dumpall -w -f /tmp/backup.psql
@@ -476,33 +456,31 @@ all:
       become_method: sudo
 
     ##########
-    # Run things locally!
+    # 本地运行!
     #
-    # Each task can also be delegated to the control host
+    # 任务也可以委派给控制主机
     - name: create tempfile
       local_action: shell dd if=/dev/urandom of=/tmp/random.txt count=100
 
-    # which is equivalent to the following
+    # 这相当于如下操作
     - name: create tempfile
       shell: dd if=/dev/urandom of=/tmp/random.txt count=100
       delegate_to: localhost
-    # delegate_to can use any target, but for the case above, it is the same as using local_action
-    # TODO url to delegation and implicit localhost
+    # “delegate_to”可以使用任何目标主机，但对于上述情况，它与使用“local_action”相同
 
   handlers:
   ##########
-  # Play keyword: handlers
+  # 关键参数: handlers
   # 是否必填: 否
   # 简介:
-  #   Handlers are tasks that run when another task has changed something.
-  #   See above for examples on how to trigger them.
-  #   The format to define a handler is exactly the same as for tasks.
-  #   Note that if multiple tasks notify the same handler in a playbook run
-  #   that handler will only run once for that host.
+  #   Handlers 是在另一个任务更改某些内容时运行的任务。
+  #   有关如何触发它们的示例，请参见上文。
+  #   定义 handlers 的格式与任务的格式完全相同。
+  #   请注意，如果多个任务在playbook运行中通知同一个处理程序，则该处理程序将只为该主机运行一次。
   #
-  #   Handlers are referred to by name or using the listen keyword.
-  #   They will be run in the order declared in the playbook.
-  # For example: if a task were to notify the handlers in reverse order like so:
+  #   通过名称或使用 listen 关键字来引用处理程序。
+  #   它们将按照 playbook 中宣布的顺序运行。
+  # 例如：如果任务要以相反的顺序通知处理程序，如下所示：
   #
   #   - task: ensure file does not exist
   #     file:
@@ -512,16 +490,15 @@ all:
   #     - Restart application
   #     - Restart nginx
   #
-  # The "Restart nginx" handler will still run before the "Restart application"
-  # handler because it is declared first in this playbook.
+  # 因为声明时的顺序 "Restart nginx" handler 会在 "Restart application" 之前运行
 
-    # this one can only be called by name
+    # 使用名称触发的样例
     - name: Restart nginx
       service:
          name: nginx
          state: restarted
 
-    # this one can be called by name or via any entry in the listen keyword
+    # 使用 listen 或名称触发
     - name: redis restarter
       service:
          name: redis
@@ -529,23 +506,20 @@ all:
       listen:
         - Restart redis
 
-    # Any module can be used for the handler action
-    # even though this can be triggered multiple ways and times
-    # it will only execute once per host
+    # 任何模块都可以用于处理程序操作，尽管这可以通过多种方式和多次触发，但每个主机只能执行一次
     - name: restart application that should really be a service
       command: /srv/myapp/restart.sh
       listen:
         - Restart application
         - restart myapp
 
-    # It's also possible to include handlers from another file.  Structure is
-    # the same as a tasks file, see the tasks section above for an example.
+    # 同样还可以包含来自另一个文件的处理程序。结构与任务文件相同，有关示例，请参见上面的任务部分。
     - import_tasks: handlers/site.yml
 
 
-# NOTE: this is not a complete list of all possible keywords in a play or task (TODO: url playbook object and keywords), just an example of very common options.
+# 请注意: 这不是一个 playbook 或任务中所有可能关键字的完整列表，只是一个非常常见的选项示例。
 
-# below is the "totally optional" YAML "End of document" marker.
+# 下面的内容是文档的结束标记
 ...
 ```
 
