@@ -222,6 +222,8 @@ all:
     #
     # 当 ansible 转译如下内容时会首先将 'color' 赋值为 'brown' 然后依据 Jinja 表达式对比 'brown' == 'blue'
     is_color_blue: "{{ color == 'blue' }}"
+	
+	my_version: 1.2.3
 
   vars_files:
   ##########
@@ -337,6 +339,40 @@ all:
          group: root
       vars:
         secret_file: /tmp/secret
+
+	# 在运行任务时进行检查
+    - debug:
+        msg: "my_version is higher than 1.0.0"
+      when: my_version is version('1.0.0', '>')
+
+	# 捕捉任务运行中的异常
+	- name: Attempt and graceful roll back demo
+      block:
+        - name: Print a message
+          ansible.builtin.debug:
+            msg: 'I execute normally'
+
+        - name: Force a failure
+          ansible.builtin.command: /bin/false
+
+        - name: Never print this
+          ansible.builtin.debug:
+            msg: 'I never execute, due to the above task failing, :-('
+      rescue:
+        - name: Print when errors
+          ansible.builtin.debug:
+            msg: 'I caught an error'
+
+        - name: Force a failure in middle of recovery! >:-)
+          ansible.builtin.command: /bin/false
+
+        - name: Never print this
+          ansible.builtin.debug:
+            msg: 'I also never execute :-('
+      always:
+        - name: Always do this
+          ansible.builtin.debug:
+            msg: "This always executes"
 
     ##########
     # 事情发生变化时触发处理程序！
