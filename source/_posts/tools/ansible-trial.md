@@ -373,6 +373,24 @@ all:
         - name: Always do this
           ansible.builtin.debug:
             msg: "This always executes"
+	
+	# 渲染配置文件到指定位置
+	- name: Template configuration file
+      ansible.builtin.template:
+        src: template.j2
+        dest: /etc/foo.conf
+	
+	# 确定软件处于最新版本
+	- name: Ensure apache is at the latest version
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+	
+	# 确定软件运行状态
+	- name: Ensure apache is running
+      ansible.builtin.service:
+        name: httpd
+        state: started
 
     ##########
     # 事情发生变化时触发处理程序！
