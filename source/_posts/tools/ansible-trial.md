@@ -194,6 +194,14 @@ all:
   #   除此之外还有 “local”，强制 “local fork” 执行任务，但通常您真正想要的是 “delegate_to:localhost”，其余内容需要参见下面的实例。
   #   使用 `ansible-doc -t connection -l` 命令来提示更多内容。
 
+  ignore_unreachable: yes
+  ###########
+  # 关键参数: ignore_unreachable
+  # 默认: false
+  # 是否必填: 否
+  # 简介:
+  #   忽略无法链接的主机。
+
   vars:
   ###########
   # 关键参数: vars
@@ -391,6 +399,18 @@ all:
       ansible.builtin.service:
         name: httpd
         state: started
+
+    # 忽略错误，并且将结果进行存储
+    - name: Do not count this as a failure
+      ansible.builtin.command: /bin/false
+      ignore_errors: yes
+      register: bass_result
+
+    # 在返回值处于某些状态时进行异常抛出
+    - name: Fail task when both files are identical
+      ansible.builtin.raw: diff foo/file1 bar/file2
+      register: diff_cmd
+      failed_when: diff_cmd.rc == 0 or diff_cmd.rc >= 2
 
     ##########
     # 事情发生变化时触发处理程序！
