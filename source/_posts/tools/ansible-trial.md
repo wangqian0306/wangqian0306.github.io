@@ -14,7 +14,40 @@ categories: "工具"
 
 ### 简介
 
-本文会简述 Ansible 的使用方式。
+本文会简述 Ansible 的使用方式。Ansible 项目的目录结构如下所示：
+
+```text
+# playbooks
+site.yml
+webservers.yml
+fooservers.yml
+roles/
+    common/
+        tasks/
+        handlers/
+        library/
+        files/
+        templates/
+        vars/
+        defaults/
+        meta/
+    webservers/
+        tasks/
+        defaults/
+        meta/
+```
+
+默认情况下，Ansible 将在角色中的每个目录中main.yml查找相关内容的文件（也main.yaml和main）：
+
+- tasks/main.yml- 角色执行的任务的主要列表。
+- handlers/main.yml- 处理程序，可以在此角色内部或外部使用。
+- library/my_module.py- 可在此角色中使用的模块（有关更多信息，请参阅在角色中嵌入模块和插件）。
+- defaults/main.yml- 角色的默认变量（有关更多信息，请参阅使用变量）。这些变量在所有可用变量中具有最低优先级，并且可以很容易地被任何其他变量（包括库存变量）覆盖。
+- vars/main.yml- 角色的其他变量（有关更多信息，请参阅使用变量）。
+- files/main.yml- 角色部署的文件。
+- templates/main.yml- 角色部署的模板。
+- meta/main.yml- 角色的元数据，包括角色依赖项。
+
 
 ### 配置目标地址 
 
@@ -131,8 +164,17 @@ all:
   #   ansible-playbook playbook.yml --extra-vars="mygroups=staging"
   #
   # 使用 --extra vars 将变量设置为组、主机名或主机模式的任意组合，就像上一节中的示例一样。
-  #
-
+  
+  roles:
+    - foo
+    - bar
+    - foo
+  ###########
+  # 关键参数: roles
+  # 默认: 无
+  # 是否必填: 否
+  # 简介: 需要执行任务的角色
+  
   name: my heavily commented play
   ###########
   # 关键参数: name
@@ -412,6 +454,14 @@ all:
       register: diff_cmd
       failed_when: diff_cmd.rc == 0 or diff_cmd.rc >= 2
 
+    # 使用代理完成任务
+    - name: Install cobbler
+      ansible.builtin.package:
+        name: cobbler
+        state: present
+      environment:
+        http_proxy: http://proxy.example.com:8080
+
     ##########
     # 事情发生变化时触发处理程序！
     #
@@ -466,6 +516,8 @@ all:
         myuser: mosh
         color: mauve
 
+    # 引入 playbook 文件
+    - import_playbook: webservers.yml
 
     ##########
     # 使用列表运行任务
