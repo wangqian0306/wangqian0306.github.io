@@ -649,6 +649,24 @@ all:
 ...
 ```
 
+### 使用自带的工具进行加密
+
+```
+ansible-vault [create(创建新)|
+decrypt(解密)
+edit(编辑加密文件
+encrypt(加密)
+rekey(修改口令)
+view(查看)] 
+[options(选项)] [vaultfile.yml]
+```
+
+例如可以将主机与密码文件单独写出然后进行加密
+
+```bash
+ansible-vault encrypt hello.yml
+```
+
 ### 配置用户的方式
 
 可以使用如下的方式覆写：
