@@ -23,28 +23,19 @@ categories: JAVA
 在 `~/.gradle/` 目录中创建 `init.gradle` 文件并填入下面的内容即可配置阿里云加速：
 
 ```text
-allprojects {
+allprojects{
     repositories {
-        def ALIYUN_REPOSITORY_URL = 'http://maven.aliyun.com/nexus/content/groups/public'
-        def ALIYUN_JCENTER_URL = 'http://maven.aliyun.com/nexus/content/repositories/jcenter'
-        all {
-            ArtifactRepository repo ->
-                if (repo instanceof MavenArtifactRepository) {
-                    def url = repo.url.toString()
-                    if (url.startsWith('https://repo1.maven.org/maven2')) {
-                        project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_REPOSITORY_URL."
-                        remove repo
-                    }
-                    if (url.startsWith('https://jcenter.bintray.com/')) {
-                        project.logger.lifecycle "Repository ${repo.url} replaced by $ALIYUN_JCENTER_URL."
-                        remove repo
-                    }
-                }
-        }
+        def ALIYUN_REPOSITORY_URL = 'https://maven.aliyun.com/repository/public'
+        def ALIYUN_JCENTER_URL = 'https://maven.aliyun.com/repository/jcenter'
         maven {
             url ALIYUN_REPOSITORY_URL
-            url ALIYUN_JCENTER_URL
+            allowInsecureProtocol true
         }
+        maven {
+            url ALIYUN_JCENTER_URL
+            allowInsecureProtocol true
+        }
+        google()
     }
 }
 ```
