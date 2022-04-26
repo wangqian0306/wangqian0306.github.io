@@ -46,3 +46,22 @@ allprojects{
 
 如果需要选用本地的 Gradle 可以选择 `Gradle projects` 栏中的 `Use Gradle from` 选项卡，将其内容配置为 `Specified location` 即可。
 
+## 常用命令
+
+- 编译 java 文件
+
+```bash
+gradle compileJava
+```
+
+- 运行程序
+
+```bash
+gradle run
+```
+
+- 构建程序
+
+```bash
+gradle build
+```
