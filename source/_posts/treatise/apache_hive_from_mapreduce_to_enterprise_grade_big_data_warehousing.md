@@ -1,5 +1,5 @@
 ---
-title: Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译
+title: "Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译"
 date: 2022-01-10 22:26:13
 tags:
 - "论文"
