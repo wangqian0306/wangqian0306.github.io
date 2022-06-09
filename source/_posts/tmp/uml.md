@@ -47,44 +47,86 @@ PlantUML 是一个开源项目，支持快速绘制：
 
 - PlantUML integration
 
-然后就可以在 IDEA 中新建 .puml 文件或者说在 Markdown 中编写如下代码段：
+然后就可以在 IDEA 中新建 .puml 文件或者说在 Markdown 中编写代码块，并将其类型指定为 `puml`
+
+> 注：在 Markdown 文件编写代码后会在左侧出现下载插件的标识，点击安装后重新渲染文件即可获得图片。
+
+### 常见问题
+
+#### 找不到 Graphviz 包
+
+可以访问 [Graphviz 下载地址](http://www.graphviz.org/download/) 获取软件包，在下载安装完成后需要重启 IDEA
+
+#### 找不到  Graphviz.dot
+
+在 IDEA puml 文件的工具栏中找到设置按钮，点击 `Open Settings` 选项，然后编辑下面的配置项至指定文件即可
 
 ```text
-```puml
-@startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
-@enduml
+Graphviz dot executable: <graphviz 安装路径>/bin/dot
 ```
-```
-
-显示效果如下：
-
-```puml
-@startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: Another authentication Response
-@enduml
-```
-
-> 注：在 Markdown 文件编写这样的代码后会在左侧出现下载插件的标识，点击安装后重新渲染文件即可获得图片。
 
 ### 与 Hexo 集成
 
 在 `package.json` 配置文件的 `dependencies` 部分新增如下插件即可
 
-```
+```text
 hexo-filter-plantuml
 ```
+
+### 获取颜色
+
+在绘图时可以选择使用十六进制代码来指定颜色，或者可以采用已经完成编码的模板颜色。
+
+模板颜色如下：
+
+```puml
+@startuml
+color
+@enduml
+```
+
+也可以通过如下文件展示模板颜色
+
+```text
+@startuml
+color
+@enduml
+```
+
+可以使用如下的写法为元素更改颜色
+
+```text
+@startuml
+rectangle DEMO #Lightblue
+@enduml
+```
+
+### 获取架构图中可用图形
+
+在绘制架构图时可以使用如下命令，展示可以使用的图形
+
+```text
+@startuml
+listsprite
+@enduml
+```
+
+结果如下
+
+```puml
+@startuml
+color
+@enduml
+```
+
+### 绘制云平台等复杂图形
+
+plantuml 官方还提供了很多的官方标准库，用于扩展绘图元素。具体内容请参见 [官方标准库](https://plantuml.com/zh/stdlib) 及其 [标准库项目](https://github.com/plantuml/plantuml-stdlib/)
 
 ### 参考资料
 
 [中文手册](https://plantuml.com/zh/guide)
 
 [官网](https://plantuml.com)
+
+[官方标准库](https://plantuml.com/zh/stdlib)
