@@ -115,7 +115,7 @@ listsprite
 
 ```puml
 @startuml
-color
+listsprite
 @enduml
 ```
 
