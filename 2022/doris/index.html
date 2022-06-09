@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-Hans">
+  
+
+    <head>
+      <meta charset="utf-8" />
+       
+      <meta name="keywords" content="技术博客" />
+       
+      <meta name="description" content="乾" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Doris |  乾</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
+      />
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-bigdata/doris"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Doris
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/doris/" class="article-date">
+  <time datetime="2022-06-07T14:26:13.000Z" itemprop="datePublished">2022-06-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+  </div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Doris">Doris</h2>
+<h3 id="简介">简介</h3>
+<p>Apache Doris 是一个现代化的 MPP 分析型数据库产品。
+仅需亚秒级响应时间即可获得查询结果，有效地支持实时数据分析。
+Apache Doris 的分布式架构非常简洁，易于运维，并且可以支持 10 PB 以上的超大数据集。</p>
+<p>Doris 的组成架构如下所示：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSIyNDFweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjU2MnB4O2hlaWdodDoyNDFweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1NjIgMjQxIiB3aWR0aD0iNTYycHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48IS0tTUQ1PVs2ZjM3ZTcwNjRmNWY5OTk4ZTVkMjg1NzQ5YzkyMzBhOF0KZW50aXR5IE15U1FMVG9vbHMtLT48ZyBpZD0iZWxlbV9NeVNRTFRvb2xzIj48cmVjdCBmaWxsPSIjQUREOEU2IiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjEwNiIgeD0iMjk0IiB5PSI3Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iODYiIHg9IjMwNCIgeT0iMjkuOTk1MSI+TXlTUUxUb29sczwvdGV4dD48L2c+PCEtLU1ENT1bMzE4OGQ1MDM3YTA5OWE2MDYwYzk2OTViZmM0Zjc3NDBdCmVudGl0eSBGRTEtLT48ZyBpZD0iZWxlbV9GRTEiPjxyZWN0IGZpbGw9IiNGMDgwODAiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iOTYiIHg9IjciIHk9IjEwMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9Ijc2IiB4PSIxNyIgeT0iMTI1Ljk5NTEiPkZFKExlYWRlcik8L3RleHQ+PC9nPjwhLS1NRDU9W2U4NTJmNzU2ZTlmMjg5MGY5YmI2MzA2Zjg3YzQzNmIxXQplbnRpdHkgRkUyLS0+PGcgaWQ9ImVsZW1fRkUyIj48cmVjdCBmaWxsPSIjRjA4MDgwIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjExNiIgeD0iNDQwIiB5PSIxMDMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI5NiIgeD0iNDUwIiB5PSIxMjUuOTk1MSI+RkUoRm9sbG93ZXIxKTwvdGV4dD48L2c+PCEtLU1ENT1bMDQ4YzNmN2M1Njg3MWE4NGMzMmViY2RmYzQzZDUwMTBdCmVudGl0eSBGRTMtLT48ZyBpZD0iZWxlbV9GRTMiPjxyZWN0IGZpbGw9IiNGMDgwODAiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTE1IiB4PSIyODkuNSIgeT0iMTAzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iOTUiIHg9IjI5OS41IiB5PSIxMjUuOTk1MSI+RkUoRm9sbG93ZXIyKTwvdGV4dD48L2c+PCEtLU1ENT1bN2NhN2E0NGFmOGJmNWEyNjgxZTVlODFhOWE1ODNjZTddCmVudGl0eSBGRTQtLT48ZyBpZD0iZWxlbV9GRTQiPjxyZWN0IGZpbGw9IiNGMDgwODAiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTE2IiB4PSIxMzgiIHk9IjEwMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9Ijk2IiB4PSIxNDgiIHk9IjEyNS45OTUxIj5GRShGb2xsb3dlcjMpPC90ZXh0PjwvZz48IS0tTUQ1PVtjNmJhM2VkYWQzZGZmMzM4MDJiY2I5NzYwYmI3NTAzNl0KZW50aXR5IEJFMS0tPjxnIGlkPSJlbGVtX0JFMSI+PHJlY3QgZmlsbD0iIzkwRUU5MCIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI1OCIgeD0iMjI1IiB5PSIxOTkiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzOCIgeD0iMjM1IiB5PSIyMjEuOTk1MSI+QkUoMSk8L3RleHQ+PC9nPjwhLS1NRDU9WzUzOWU1ZTU4M2VmM2Q4Njg1ZTM1ODhlNGQ2NzVmZWI0XQplbnRpdHkgQkUyLS0+PGcgaWQ9ImVsZW1fQkUyIj48cmVjdCBmaWxsPSIjOTBFRTkwIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjU3IiB4PSIxMzIuNSIgeT0iMTk5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMzciIHg9IjE0Mi41IiB5PSIyMjEuOTk1MSI+QkUoMik8L3RleHQ+PC9nPjwhLS1NRDU9WzllMjZlNGQ1NzRkNDFjMTFiYTFiY2JhNTI4ZjdlOWM2XQplbnRpdHkgQkUzLS0+PGcgaWQ9ImVsZW1fQkUzIj48cmVjdCBmaWxsPSIjOTBFRTkwIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjU4IiB4PSIzMTgiIHk9IjE5OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM4IiB4PSIzMjgiIHk9IjIyMS45OTUxIj5CRSgzKTwvdGV4dD48L2c+PCEtLU1ENT1bMjdjYTg0MjYyYjlmYzM3MTM2YWU2NWM5ZGYwNzcxZjldCmVudGl0eSBCRTQtLT48ZyBpZD0iZWxlbV9CRTQiPjxyZWN0IGZpbGw9IiM5MEVFOTAiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNTciIHg9IjQxMS41IiB5PSIxOTkiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzNyIgeD0iNDIxLjUiIHk9IjIyMS45OTUxIj5CRSg0KTwvdGV4dD48L2c+PCEtLU1ENT1bZDk2NGM0OWNmM2E0OTAzMTg4YWM5N2QxMjYzYTY1NzBdCmxpbmsgTXlTUUxUb29scyB0byBGRTMtLT48ZyBpZD0ibGlua19NeVNRTFRvb2xzX0ZFMyI+PHBhdGggZD0iTTM0Nyw0OC42NjIgQzM0Nyw2My41MTYgMzQ3LDgyLjg0OCAzNDcsOTcuNjQxICIgZmlsbD0ibm9uZSIgaWQ9Ik15U1FMVG9vbHMtRkUzIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjM0NywxMDIuODY4LDM1MSw5My44NjgsMzQ3LDk3Ljg2OCwzNDMsOTMuODY4LDM0NywxMDIuODY4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjM0Nyw0My4yNDEsMzQzLDUyLjI0MSwzNDcsNDguMjQxLDM1MSw1Mi4yNDEsMzQ3LDQzLjI0MSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1NRDU9WzY5YThhZDNlYzczZTVjM2M2NTQ4ZTYwNmQ1M2NlYmEwXQpsaW5rIEZFMSB0byBGRTItLT48ZyBpZD0ibGlua19GRTFfRkUyIj48cGF0aCBkPSJNODIuNTgyOSw5OS45OTMgQzk3Ljg3OTEsODkuNjcgMTE3Ljc1OCw3OC4zMjUgMTM3LjUsNzMgQzI1Mi4wNzIsNDIuMDk1IDI4OS4xNTQsNDUuMTIyIDQwNC41LDczIEM0MjYuNTczLDc4LjMzNSA0NDkuMjgyLDg5LjgyNyA0NjYuNzkyLDEwMC4yMjkgIiBmaWxsPSJub25lIiBpZD0iRkUxLUZFMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI0NzEuMTI4LDEwMi44NDUsNDY1LjQ5MTEsOTQuNzY4OCw0NjYuODQ3NywxMDAuMjYwNiw0NjEuMzU2LDEwMS42MTcyLDQ3MS4xMjgsMTAyLjg0NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI3OC4zOTQsMTAyLjg3MSw4OC4wNzY5LDEwMS4wNzA4LDgyLjUxNDksMTAwLjAzOTQsODMuNTQ2Myw5NC40NzczLDc4LjM5NCwxMDIuODcxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48L2c+PCEtLU1ENT1bMGI5NDMzNWY5NTNlNmVmYzJjMTIwMTRkYTczNDQ3ZjZdCmxpbmsgRkUxIHRvIEZFMy0tPjxnIGlkPSJsaW5rX0ZFMV9GRTMiPjxwYXRoIGQ9Ik04Mi41ODI5LDk5Ljk5MyBDOTcuODc5MSw4OS42NyAxMTcuNzU4LDc4LjMyNSAxMzcuNSw3MyBDMTg3LjcwNiw1OS40NTcgMjAzLjk4Miw2MC42NzMgMjU0LjUsNzMgQzI3Ni4zNzUsNzguMzM4IDI5OC44NDIsODkuODMgMzE2LjE1NiwxMDAuMjMxICIgZmlsbD0ibm9uZSIgaWQ9IkZFMS1GRTMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzIwLjQ0MywxMDIuODQ3LDMxNC44NDQ1LDk0Ljc0NDEsMzE2LjE3NTEsMTAwLjI0MjIsMzEwLjY3NjksMTAxLjU3MjgsMzIwLjQ0MywxMDIuODQ3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9Ijc4LjM5NCwxMDIuODcxLDg4LjA3NjksMTAxLjA3MDgsODIuNTE0OSwxMDAuMDM5NCw4My41NDYzLDk0LjQ3NzMsNzguMzk0LDEwMi44NzEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tTUQ1PVs2MDMxY2I3NTM0YTZhMjI5M2YyMjkxZGYyYTIzNmU5MF0KbGluayBGRTEgdG8gRkU0LS0+PGcgaWQ9ImxpbmtfRkUxX0ZFNCI+PHBhdGggZD0iTTEwOC4zNTksMTIxIEMxMTYuNTQsMTIxIDEyNC43MjEsMTIxIDEzMi45MDIsMTIxICIgZmlsbD0ibm9uZSIgaWQ9IkZFMS1GRTQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTM3Ljk5NiwxMjEsMTI4Ljk5NiwxMTcsMTMyLjk5NiwxMjEsMTI4Ljk5NiwxMjUsMTM3Ljk5NiwxMjEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTAzLjE5MzQsMTIxLDExMi4xOTM0LDEyNSwxMDguMTkzNCwxMjEsMTEyLjE5MzQsMTE3LDEwMy4xOTM0LDEyMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1NRDU9W2VmNGQ4NWY0ZDE5YjYzMWNhMWU1MDRkNjBhZGFjY2NiXQpsaW5rIEZFMyB0byBCRTMtLT48ZyBpZD0ibGlua19GRTNfQkUzIj48cGF0aCBkPSJNMzQ3LDE0NC42NjIxIEMzNDcsMTU5LjUxNTggMzQ3LDE3OC44NDgzIDM0NywxOTMuNjQwNiAiIGZpbGw9Im5vbmUiIGlkPSJGRTMtQkUzIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjM0NywxOTguODY4MywzNTEsMTg5Ljg2ODMsMzQ3LDE5My44NjgzLDM0MywxODkuODY4MywzNDcsMTk4Ljg2ODMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzQ3LDEzOS4yNDEsMzQzLDE0OC4yNDEsMzQ3LDE0NC4yNDEsMzUxLDE0OC4yNDEsMzQ3LDEzOS4yNDEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tTUQ1PVtiYjhkMTdmYjIyOThkY2EwZWQ5ODAzZGJmMzc5Y2NkNl0KbGluayBCRTEgdG8gQkUzLS0+PGcgaWQ9ImxpbmtfQkUxX0JFMyI+PHBhdGggZD0iTTI4OC4xNzksMjE3IEMyOTYuMjgsMjE3IDMwNC4zODIsMjE3IDMxMi40ODQsMjE3ICIgZmlsbD0ibm9uZSIgaWQ9IkJFMS1CRTMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzE3LjUyOSwyMTcsMzA4LjUyOSwyMTMsMzEyLjUyOSwyMTcsMzA4LjUyOSwyMjEsMzE3LjUyOSwyMTciIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMjgzLjA2MiwyMTcsMjkyLjA2MiwyMjEsMjg4LjA2MiwyMTcsMjkyLjA2MiwyMTMsMjgzLjA2MiwyMTciIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tTUQ1PVs1NTJjZDI5Nzc0NmRlYTlkZGU4M2IxYjNhN2ExMTg4NV0KbGluayBCRTIgdG8gQkU0LS0+PGcgaWQ9ImxpbmtfQkUyX0JFNCI+PHBhdGggZD0iTTE4Mi40MzMsMTk1LjUzNjggQzE5NC4xMDgsMTg1LjM3NzYgMjA5LjQyOSwxNzQuMzIzOCAyMjUuNSwxNjkgQzI4OS4yMDcsMTQ3Ljg5NjQgMzEyLjg3MywxNDcuNjU3NyAzNzYuNSwxNjkgQzM5Mi4zOTEsMTc0LjMzMDQgNDA3LjQ3OSwxODUuMzg0NiA0MTguOTU2LDE5NS41NDIzICIgZmlsbD0ibm9uZSIgaWQ9IkJFMi1CRTQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNDIyLjcwNywxOTguOTQzMiw0MTguNzI2OCwxODkuOTM0NCw0MTkuMDAzLDE5NS41ODQ1LDQxMy4zNTI5LDE5NS44NjA4LDQyMi43MDcsMTk4Ljk0MzIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTc4LjYxOCwxOTguOTM4MiwxODcuOTk3OCwxOTUuOTM1LDE4Mi4zNTAyLDE5NS42MTEsMTgyLjY3NDIsMTg5Ljk2MzQsMTc4LjYxOCwxOTguOTM4MiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1NRDU9WzRjODczNzk5MWNlMjdmNTg1MzM0Zjg0MjVjMDFiMjI4XQpsaW5rIEJFMyB0byBCRTQtLT48ZyBpZD0ibGlua19CRTNfQkU0Ij48cGF0aCBkPSJNMzgxLjI1MywyMTcgQzM4OS40NzIsMjE3IDM5Ny42OTEsMjE3IDQwNS45MTEsMjE3ICIgZmlsbD0ibm9uZSIgaWQ9IkJFMy1CRTQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNDExLjAyOCwyMTcsNDAyLjAyOCwyMTMsNDA2LjAyOCwyMTcsNDAyLjAyOCwyMjEsNDExLjAyOCwyMTciIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzc2LjA2MiwyMTcsMzg1LjA2MiwyMjEsMzgxLjA2MiwyMTcsMzg1LjA2MiwyMTMsMzc2LjA2MiwyMTciIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tTUQ1PVs0OGU3MTc1M2YwZDQxZjM4NmZhMDg0MDZlOGRiODYyNl0KQHN0YXJ0dW1sDQpyZWN0YW5nbGUgTXlTUUxUb29scyAjTGlnaHRibHVlDQoNCnJlY3RhbmdsZSAiRkUoTGVhZGVyKSIgYXMgRkUxICNMaWdodENvcmFsDQpyZWN0YW5nbGUgIkZFKEZvbGxvd2VyMSkiIGFzIEZFMiAjTGlnaHRDb3JhbA0KcmVjdGFuZ2xlICJGRShGb2xsb3dlcjIpIiBhcyBGRTMgI0xpZ2h0Q29yYWwNCnJlY3RhbmdsZSAiRkUoRm9sbG93ZXIzKSIgYXMgRkU0ICNMaWdodENvcmFsDQoNCnJlY3RhbmdsZSAiQkUoMSkiIGFzIEJFMSAjTGlnaHRHcmVlbg0KcmVjdGFuZ2xlICJCRSgyKSIgYXMgQkUyICNMaWdodEdyZWVuDQpyZWN0YW5nbGUgIkJFKDMpIiBhcyBCRTMgI0xpZ2h0R3JlZW4NCnJlY3RhbmdsZSAiQkUoNCkiIGFzIEJFNCAjTGlnaHRHcmVlbg0KDQpNeVNRTFRvb2xzIDwtZG93bi0+IEZFMw0KDQpGRTEgPC1yaWdodC0+IEZFMg0KRkUxIDwtcmlnaHQtPiBGRTMNCkZFMSA8LXJpZ2h0LT4gRkU0DQpGRTMgPC1kb3duLT4gQkUzDQoNCkJFMSA8LXJpZ2h0LT4gQkUzDQpCRTIgPC1yaWdodC0+IEJFNA0KQkUzIDwtcmlnaHQtPiBCRTQNCkBlbmR1bWwNCgpQbGFudFVNTCB2ZXJzaW9uIDEuMjAyMi42YmV0YTUoVW5rbm93biBjb21waWxlIHRpbWUpCihHUEwgc291cmNlIGRpc3RyaWJ1dGlvbikKSmF2YSBSdW50aW1lOiBKYXZhKFRNKSBTRSBSdW50aW1lIEVudmlyb25tZW50CkpWTTogSmF2YSBIb3RTcG90KFRNKSA2NC1CaXQgU2VydmVyIFZNCkRlZmF1bHQgRW5jb2Rpbmc6IFVURi04Ckxhbmd1YWdlOiBlbgpDb3VudHJ5OiBVUwotLT48L2c+PC9zdmc+'>
+<h3 id="关键概念">关键概念</h3>
+<ul>
+<li>FE(Frontend)：前端进程，负责如下工作
+<ul>
+<li>存储，维护元数据</li>
+<li>接收解析查询请求</li>
+<li>规划查询计划</li>
+<li>调度查询执行</li>
+<li>返回查询结果</li>
+</ul>
+</li>
+<li>BE(Backend)：后端进程，负责如下工作
+<ul>
+<li>依据物理计划，分布执行查询</li>
+<li>存储数据，保证可靠性</li>
+</ul>
+</li>
+<li>Broker：无状态进程，主要用于访问外部数据源</li>
+<li>Tablet：表的实际存储单元。在由 BE 组成的分布式存储层中，经过分区和分桶后，会以 Tablet 为基本单元存储一张表。每个 Tablet 包括元信息和几个连续的 RowSet。</li>
+<li>Rowset：Rowset 是 Tablet 中某次数据变化的数据集合，数据变化包括数据的导入、删除、更新。按版本信息记录的行集。每次更改都会生成一个版本。</li>
+<li>Version：由 Start 和 End 两个属性组成，维护数据变化的记录信息。通常用于表示 Rowset 的版本范围，在新导入后会生成 Start 和 End 相等的 Rowset，Compaction 后会生成具有范围的 Rowset 版本。</li>
+<li>Segment：表示 Rowset 中的数据段。多个 Segment 形成一个 Rowset。</li>
+<li>Compaction：合并连续版本的 Rowset 的过程称为 Compaction，合并过程中数据会被压缩。</li>
+</ul>
+<p>FE 中还具有 Leader，Follower 和 Observer 角色的不同进程：</p>
+<ul>
+<li>Leader 和 Follower 角色使用 Paxos 协议保证了高可用。</li>
+<li>Observer 角色则是作为扩展的查询节点，可以增强集群在查询方面的能力。(Observer 不参与任何写入，只参与读取)。</li>
+</ul>
+<h3 id="安装">安装</h3>
+<ul>
+<li>编辑最大打开的句柄数</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/security/limits.conf </span><br></pre></td></tr></table></figure>
+<p>新增如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* soft nofile 65536</span><br><span class="line">* hard nofile 65536</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此处内容需要重启才能生效</p>
+</blockquote>
+<ul>
+<li>下载软件包，并解压至指定目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget https://dist.apache.org/repos/dist/release/incubator/doris/&lt;version&gt;</span><br><span class="line"><span class="comment"># 注：例如</span></span><br><span class="line">wget https://dist.apache.org/repos/dist/release/incubator/doris/1.0/1.0.0-incubating/apache-doris-1.0.0-incubating-bin.tar.gz</span><br><span class="line"></span><br><span class="line">tar -zxvf apache-doris-1.0.0-incubating-bin.tar.gz</span><br><span class="line">mv apache-doris-1.0.0-incubating-bin /opt/doris</span><br><span class="line"><span class="built_in">cd</span> /opt/doris</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑 FE 配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim fe/conf/fe.conf</span><br></pre></td></tr></table></figure>
+<p>修改如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">priority_networks = 127.0.0.0/24</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑 BE 配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim be/conf/be.conf</span><br></pre></td></tr></table></figure>
+<p>修改如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">priority_networks = 127.0.0.0/24</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑环境变量</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile.d/doris.sh</span><br></pre></td></tr></table></figure>
+<p>填入如下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export DORIS_HOME=/opt/doris</span><br><span class="line">export PATH=$PATH:$DORIS_HOME/fe/bin:$DORIS_HOME/be/bin</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile.d/doris.sh</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">start_fe.sh --daemon</span><br><span class="line">start_be.sh --daemon</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查服务启动情况</li>
+</ul>
+<p>请根据返回内容进行判断</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl http://fe_host:fe_http_port/api/bootstrap</span><br><span class="line">curl http://be_host:be_http_port/api/health</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：</p>
+<p>fe_http_port 为 8030，WebUI 默认账号为 root，密码为空。</p>
+<p>be_http_port 为 8040，</p>
+</blockquote>
+<ul>
+<li>安装 MySQL 客户端</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y mysql</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注册 BE 至 FE</li>
+</ul>
+<p>登陆 Doris</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h 127.0.0.1 -P 9030 -uroot</span><br></pre></td></tr></table></figure>
+<p>注册 BE</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALTER SYSTEM ADD BACKEND &quot;127.0.0.1:9050&quot;;</span><br></pre></td></tr></table></figure>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://doris.apache.org/">官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV15S4y1h7Kt">视频教程</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2022/doris/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Doris/" rel="tag">Doris</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OLAP/" rel="tag">OLAP</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2022/java-graph/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java 版本的图形算法</div>
+      </a>
+    
+  </nav>
+
+  
+   
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2022
+        <i class="ri-heart-fill heart_icon"></i> WangQian
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

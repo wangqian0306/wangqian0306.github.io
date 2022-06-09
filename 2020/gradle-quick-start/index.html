@@ -105,10 +105,23 @@
 <p>如果有特殊需求可以通过项目中的 gradlew 脚本文件进行使用。</p>
 <h2 id="配置软件源">配置软件源</h2>
 <p>在 <code>~/.gradle/</code> 目录中创建 <code>init.gradle</code> 文件并填入下面的内容即可配置阿里云加速：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">allprojects &#123;</span><br><span class="line">    repositories &#123;</span><br><span class="line">        def ALIYUN_REPOSITORY_URL = &#x27;http://maven.aliyun.com/nexus/content/groups/public&#x27;</span><br><span class="line">        def ALIYUN_JCENTER_URL = &#x27;http://maven.aliyun.com/nexus/content/repositories/jcenter&#x27;</span><br><span class="line">        all &#123;</span><br><span class="line">            ArtifactRepository repo -&gt;</span><br><span class="line">                if (repo instanceof MavenArtifactRepository) &#123;</span><br><span class="line">                    def url = repo.url.toString()</span><br><span class="line">                    if (url.startsWith(&#x27;https://repo1.maven.org/maven2&#x27;)) &#123;</span><br><span class="line">                        project.logger.lifecycle &quot;Repository $&#123;repo.url&#125; replaced by $ALIYUN_REPOSITORY_URL.&quot;</span><br><span class="line">                        remove repo</span><br><span class="line">                    &#125;</span><br><span class="line">                    if (url.startsWith(&#x27;https://jcenter.bintray.com/&#x27;)) &#123;</span><br><span class="line">                        project.logger.lifecycle &quot;Repository $&#123;repo.url&#125; replaced by $ALIYUN_JCENTER_URL.&quot;</span><br><span class="line">                        remove repo</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        maven &#123;</span><br><span class="line">            url ALIYUN_REPOSITORY_URL</span><br><span class="line">            url ALIYUN_JCENTER_URL</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">allprojects&#123;</span><br><span class="line">    repositories &#123;</span><br><span class="line">        def ALIYUN_REPOSITORY_URL = &#x27;https://maven.aliyun.com/repository/public&#x27;</span><br><span class="line">        def ALIYUN_JCENTER_URL = &#x27;https://maven.aliyun.com/repository/jcenter&#x27;</span><br><span class="line">        maven &#123;</span><br><span class="line">            url ALIYUN_REPOSITORY_URL</span><br><span class="line">            allowInsecureProtocol true</span><br><span class="line">        &#125;</span><br><span class="line">        maven &#123;</span><br><span class="line">            url ALIYUN_JCENTER_URL</span><br><span class="line">            allowInsecureProtocol true</span><br><span class="line">        &#125;</span><br><span class="line">        google()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="切换本地的-Gradle">切换本地的 Gradle</h2>
 <p>在 IDEA 的 <code>Settings</code> -&gt; <code>Build, Execution, Deployment</code> -&gt; <code>Build Tools</code> -&gt; <code>Gradle</code> 中可以对 Gradle 进行配置。</p>
 <p>如果需要选用本地的 Gradle 可以选择 <code>Gradle projects</code> 栏中的 <code>Use Gradle from</code> 选项卡，将其内容配置为 <code>Specified location</code> 即可。</p>
+<h2 id="常用命令">常用命令</h2>
+<ul>
+<li>编译 java 文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gradle compileJava</span><br></pre></td></tr></table></figure>
+<ul>
+<li>运行程序</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gradle run</span><br></pre></td></tr></table></figure>
+<ul>
+<li>构建程序</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gradle build</span><br></pre></td></tr></table></figure>
  
       <!-- reward -->
       
@@ -214,7 +227,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2020-2021
+        2020-2022
         <i class="ri-heart-fill heart_icon"></i> WangQian
       </li>
     </ul>

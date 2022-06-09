@@ -100,12 +100,10 @@
     <div class="article-entry" itemprop="articleBody">
        
   <h2 id="简述">简述</h2>
-<p>CSRF（Cross-site request forgery），中文名称：跨站请求伪造，也被称为：one click
-attack/session riding，缩写为：CSRF/XSRF。</p>
+<p>CSRF(Cross-site request forgery)，中文名称：跨站请求伪造，也被称为：one click attack/session riding，缩写为：CSRF/XSRF。</p>
 <h2 id="原理">原理</h2>
 <p>攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己以前认证过的站点并运行一些操作。</p>
-<p>本质上来说CSRF攻击是利用了 Web 端程序的隐式身份验证机制。对于后台而言虽然可以认为请求
-是来自于某个已登录用户的浏览器发出的，但却无法保证该请求是用户批准发送的。</p>
+<p>本质上来说CSRF攻击是利用了 Web 端程序的隐式身份验证机制。对于后台而言虽然可以认为请求是来自于某个已登录用户的浏览器发出的，但却无法保证该请求是用户批准发送的。</p>
 <h2 id="如何进行保护">如何进行保护</h2>
 <h3 id="前后端融合的项目">前后端融合的项目</h3>
 <p>对于前后台融合的项目可以通过“模板”相关的技术来解决此问题。</p>
@@ -113,9 +111,8 @@ attack/session riding，缩写为：CSRF/XSRF。</p>
 <p>对于 Java 来说有 JSP, Python 相关的技术有 Jinja2 等等。</p>
 </blockquote>
 <h3 id="前后端分离的项目">前后端分离的项目</h3>
-<p>对于前后端分离的项目来说就有些难办，可以通过后台操作 Cookie 的方式来讲数据传输至浏览器
-，然后由前端读取 Cookie 再传输回后台进行校验。</p>
-<p>具体实现上来说可以使用下面的样例（Spring Security）</p>
+<p>对于前后端分离的项目来说就有些难办，可以通过后台操作 Cookie 的方式来讲数据传输至浏览器，然后由前端读取 Cookie 再传输回后台进行校验。</p>
+<p>具体实现上来说可以使用下面的样例(Spring Security)</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.web.csrf.CookieCsrfTokenRepository;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        http.csrf()</span><br><span class="line">            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
  
       <!-- reward -->
@@ -222,7 +219,7 @@ attack/session riding，缩写为：CSRF/XSRF。</p>
     <ul>
       <li>
         Copyrights &copy;
-        2020-2021
+        2020-2022
         <i class="ri-heart-fill heart_icon"></i> WangQian
       </li>
     </ul>

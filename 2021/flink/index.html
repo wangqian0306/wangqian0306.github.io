@@ -151,7 +151,7 @@
 <ul>
 <li>编写 <code>docker-compose.yaml</code> 配置文件</li>
 </ul>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;2.2&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">jobmanager:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">flink:1.14.0-scala_2.12-java11</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:8081&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;6123:6123&quot;</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">jobmanager</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">|</span></span><br><span class="line"><span class="string">        FLINK_PROPERTIES=</span></span><br><span class="line"><span class="string">        jobmanager.rpc.address: jobmanager        </span></span><br><span class="line"><span class="string"></span></span><br><span class="line">  <span class="attr">taskmanager:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">flink:1.14.0-scala_2.12-java11</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">jobmanager</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">taskmanager</span></span><br><span class="line">    <span class="attr">scale:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">|</span></span><br><span class="line"><span class="string">        FLINK_PROPERTIES=</span></span><br><span class="line"><span class="string">        jobmanager.rpc.address: jobmanager</span></span><br><span class="line"><span class="string">        taskmanager.numberOfTaskSlots: 2</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;2.2&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">jobmanager:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">flink:1.14.0-scala_2.12-java11</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:8081&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;6123:6123&quot;</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">jobmanager</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">|</span></span><br><span class="line"><span class="string">        FLINK_PROPERTIES=</span></span><br><span class="line"><span class="string">        jobmanager.rpc.address: jobmanager        </span></span><br><span class="line"><span class="string"></span></span><br><span class="line">  <span class="attr">taskmanager:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">flink:1.14.0-scala_2.12-java11</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">jobmanager</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">taskmanager</span></span><br><span class="line">    <span class="attr">scale:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">|</span></span><br><span class="line"><span class="string">        FLINK_PROPERTIES=</span></span><br><span class="line"><span class="string">        jobmanager.rpc.address: jobmanager</span></span><br><span class="line"><span class="string">        taskmanager.numberOfTaskSlots: 8</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li>启动集群</li>
 </ul>
@@ -261,19 +261,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/min-heap/" class="article-nav-link">
+      <a href="/2021/atlas/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            小顶堆
+            CDH 集成 Atlas
           
         </div>
       </a>
     
     
-      <a href="/2021/atlas/" class="article-nav-link">
+      <a href="/2021/b+/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">CDH 集成 Atlas</div>
+        <div class="article-nav-title">B+树</div>
       </a>
     
   </nav>
@@ -289,7 +289,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2020-2021
+        2020-2022
         <i class="ri-heart-fill heart_icon"></i> WangQian
       </li>
     </ul>
