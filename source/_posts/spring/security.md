@@ -34,9 +34,9 @@ Spring Security 是一款安全框架。
 书写配置文件：
 
 ```text
-spring.datasource.url=${MYSQL_URI:jdbc:mysql://192.168.2.77:3306/health_test}
-spring.datasource.username=${JDBC_USERNAME:root}
-spring.datasource.password=${JDBC_PASSWORD:Rb123456!}
+spring.datasource.url=${MYSQL_URI:jdbc:mysql://xxx.xxx.xxx:xxxx/xxx}
+spring.datasource.username=${JDBC_USERNAME:xxx}
+spring.datasource.password=${JDBC_PASSWORD:xxx}
 spring.datasource.driver-class-name=${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
 spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 jwt.public.key=classpath:pub.key
@@ -572,6 +572,39 @@ curl --location --request POST 'localhost:8080/login' \
 
 ```bash
 curl --request GET 'http://localhost:8080/api/v1/hello' --header 'Authorization: Bearer <token>'
+```
+
+### 获取用户相关信息的基本方式
+
+```java
+@RestController
+public class HelloController {
+ 
+    @GetMapping("/hello")
+    public String hello() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).get.getUsername();
+        }
+        if (principal instanceof Principal) {
+            return ((Principal) principal).getName();
+        }
+        return "当前登录用户：" + String.valueOf(principal);
+    }
+}
+```
+
+或者
+
+```java
+@RestController
+public class HelloController {
+ 
+    @GetMapping("/hello")
+    public String hello() {
+        return "当前登录用户：" + SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+}
 ```
 
 ### 参考资料
