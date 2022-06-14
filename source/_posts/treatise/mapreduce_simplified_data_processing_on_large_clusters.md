@@ -206,7 +206,7 @@ Master 就像一个数据管道，中间结果存储区域的位置信息通过�
 ##### worker 故障
 
 Master 会周期性的ping worker。
-如果在一定周期内没有接受到相应则 Master 会将该 worker 标记为失败。
+如果在一定周期内没有接受到相应请求则 Master 会将该 worker 标记为失败。
 在这个 worker 上运行的所有 Map 任务会被重新标记成空闲状态，因此这些任务可以被分配到其他 worker 上。
 类似的，在发生故障的 worker 上正在运行的 Map 或者 Reduce 任务也将被重新标记为空闲状态，等待重新调度。
 

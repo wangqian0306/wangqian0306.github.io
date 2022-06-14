@@ -1,4 +1,4 @@
-.PHONY: init,deploy,test
+.PHONY: init,deploy,test,update
 
 init:
 	npm install hexo-cli -g
@@ -11,3 +11,7 @@ deploy:
 test:
 	hexo clean
 	hexo server
+
+update:
+	ncu -u
+	npm install
