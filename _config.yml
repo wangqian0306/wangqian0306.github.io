@@ -9,7 +9,7 @@ description: '乾'
 author: WangQian
 email: wangqian8963@gmial.com
 keywords: "技术博客"
-language: zh-Hans
+language: zh-CN
 timezone: Asia/Shanghai
 #keywords:
 #author: John Doe
@@ -104,7 +104,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: ayer
+theme: fluid
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
