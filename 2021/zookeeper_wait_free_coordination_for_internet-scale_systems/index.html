@@ -1,108 +1,285 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="ZooKeeper: Wait-free coordination for Internet-scale systems 中文翻译版 作者： Patrick Hunt、Mahadev Konar、Flavio P. Junqueira、Benjamin Reed 摘要 在本文中，我们描述了 ZooKeeper，一种用于协调分布式应用程序进程的服务。 由于 ZooKeeper 是关键基础设施的一部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/zookeeper_wait_free_coordination_for_internet-scale_systems/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="ZooKeeper: Wait-free coordination for Internet-scale systems 中文翻译版 作者： Patrick Hunt、Mahadev Konar、Flavio P. Junqueira、Benjamin Reed 摘要 在本文中，我们描述了 ZooKeeper，一种用于协调分布式应用程序进程的服务。 由于 ZooKeeper 是关键基础设施的一部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/07/06/vTYRiDhJajWxSmn.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/08/WzA7GjkYdLFJ5Zw.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/08/WuIyZ92rGzoCYDP.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/08/vzDamYM6cy4w8kK.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/09/q8gvBWt6xnUTrQX.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/09/j8JKyts1fCAHVTI.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/09/k9rVXY2jQCJlsFm.png">
+<meta property="og:image" content="https://i.loli.net/2021/07/09/x39zofIHcQ6Lh7R.png">
+<meta property="article:published_time" content="2021-07-05T14:26:13.000Z">
+<meta property="article:modified_time" content="2021-07-09T05:56:34.957Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Zookeeper">
+<meta property="article:tag" content="论文">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2021/07/06/vTYRiDhJajWxSmn.png">
+  
+  
+  
+  <title>ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/zookeeper_wait_free_coordination_for_internet-scale_systems"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/zookeeper_wait_free_coordination_for_internet-scale_systems/" class="article-date">
-  <time datetime="2021-07-05T14:26:13.000Z" itemprop="datePublished">2021-07-05</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="ZooKeeper-Wait-free-coordination-for-Internet-scale-systems-中文翻译版">ZooKeeper: Wait-free coordination for Internet-scale systems 中文翻译版</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-07-05 22:26" pubdate>
+          2021年7月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="ZooKeeper-Wait-free-coordination-for-Internet-scale-systems-中文翻译版">ZooKeeper: Wait-free coordination for Internet-scale systems 中文翻译版</h2>
 <p>作者：</p>
 <p>Patrick Hunt、Mahadev Konar、Flavio P. Junqueira、Benjamin Reed</p>
-<h3 id="摘要">摘要</h3>
+<h3 id="摘要-10">摘要</h3>
 <p>在本文中，我们描述了 ZooKeeper，一种用于协调分布式应用程序进程的服务。
 由于 ZooKeeper 是关键基础设施的一部分，ZooKeeper 旨在提供一个简单且高性能的内核，用于在客户端构建更复杂的协调原语。
 它在一个复制的、集中的服务中整合了来自群消息传递、共享寄存器和分布式锁服务的元素。
@@ -112,7 +289,7 @@ ZooKeeper 公开的接口具有共享寄存器的免等待特性，具有类似�
 这些设计决策可以实现高性能处理管道并使本地服务器可以满足读取请求。
 对于目标工作负载，2:1 到 100:1 的读写比率，ZooKeeper 每秒可以处理数万到数十万个事务。
 这种性能允许客户端应用程序广泛使用 ZooKeeper。</p>
-<h3 id="1-引言">1 引言</h3>
+<h3 id="1-引言-12">1 引言</h3>
 <p>大规模分布式应用需要不同形式的协调服务。
 配置是最基本的协调形式之一。
 在最简单的形式中，配置只是系统进程的操作参数列表，而更复杂的系统具有动态配置参数。
@@ -205,7 +382,7 @@ watches 指示发生了更改，但不提供更改。
 ZooKeeper 的数据模型本质上是一个 API 简化的文件系统，只有完整的数据读写，或者是一个具有层次化的键/值表。
 分层命名空间对于为不同应用程序的命名空间分配子树以及设置对这些子树的访问权限非常有用。
 我们还利用客户端目录的概念来构建更高级别的原语，我们将在 2.4 节中看到。</p>
-<p><img src="https://i.loli.net/2021/07/06/vTYRiDhJajWxSmn.png" alt="图 1：ZooKeeper 分层名称空间的图示"></p>
+<p><img src="https://i.loli.net/2021/07/06/vTYRiDhJajWxSmn.png" srcset="/img/loading.gif" lazyload alt="图 1：ZooKeeper 分层名称空间的图示"></p>
 <p>与文件系统中的文件不同，znode 不是为一般数据存储而设计的。
 相反，znode 映射到客户端应用程序的抽象，通常对应于用于协调目的的元数据。
 为了说明这一点，在图 1 中，我们有两个子树，一个用于应用程序 1 (/app1)，另一个用于应用程序 2 (/app2)。
@@ -355,9 +532,9 @@ ZooKeeper 虽然不是锁服务，但是可以用来实现锁。
 我们定义了一个锁 znode l 来实现这样的锁。
 直观地，我们将所有请求锁定的客户端排列起来，每个客户端按照请求到达的顺序获得锁定。</p>
 <p><strong>加锁</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">n = create(l+“/lock-”, EPHEMERAL|SEQUENTIAL)</span><br><span class="line">C = getChildren(l, false)</span><br><span class="line">if n is lowest znode in C, exit</span><br><span class="line">p = znode in C ordered just before n</span><br><span class="line">if exists(p, true) wait for watch event</span><br><span class="line">goto 2</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">n = create(l+“/lock-”, EPHEMERAL|SEQUENTIAL)<br>C = getChildren(l, false)<br>if n is lowest znode in C, exit<br>p = znode in C ordered just before n<br>if exists(p, true) wait for watch event<br>goto 2<br></code></pre></td></tr></table></figure>
 <p><strong>解锁</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete(n)</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">delete(n)<br></code></pre></td></tr></table></figure>
 <p>在 Lock 部分的第 1 行中使用 SEQUENTIAL 标志命令使应用程序按顺序申请锁。
 如果客户端的 znode 在第 3 行具有最低的序列号，则客户端持有锁。
 否则，客户端会等待加锁程序删除 znode 或者从持有锁的客户端获得锁。
@@ -376,9 +553,9 @@ ZooKeeper 虽然不是锁服务，但是可以用来实现锁。
 为了实现读/写锁，我们稍微改变了锁程序，并有单独的读锁和写锁程序。
 解锁过程与全局锁定情况相同。</p>
 <p><strong>写锁</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">n = create(l+“/write-”, EPHEMERAL|SEQUENTIAL)</span><br><span class="line">C = getChildren(l, false)</span><br><span class="line">if n is lowest znode in C, exit</span><br><span class="line">p = znode in C ordered just before n</span><br><span class="line">if exists(p, true) wait for event</span><br><span class="line">goto 2</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">n = create(l+“/write-”, EPHEMERAL|SEQUENTIAL)<br>C = getChildren(l, false)<br>if n is lowest znode in C, exit<br>p = znode in C ordered just before n<br>if exists(p, true) wait for event<br>goto 2<br></code></pre></td></tr></table></figure>
 <p><strong>读锁</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">n = create(l+“/read-”, EPHEMERAL|SEQUENTIAL)</span><br><span class="line">C = getChildren(l, false)</span><br><span class="line">if no write znodes lower than n in C, exit</span><br><span class="line">p = write znode in C ordered just before n</span><br><span class="line">if exists(p, true) wait for event</span><br><span class="line">goto 3</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">n = create(l+“/read-”, EPHEMERAL|SEQUENTIAL)<br>C = getChildren(l, false)<br>if no write znodes lower than n in C, exit<br>p = write znode in C ordered just before n<br>if exists(p, true) wait for event<br>goto 3<br></code></pre></td></tr></table></figure>
 <p>此锁定过程与以前的锁定略有不同。
 写锁仅在命名上有所不同。
 由于读锁可能是共享的，第 3 行和第 4 行略有不同，因为只有较早的写锁 znode 会阻止客户端获取读锁。
@@ -406,7 +583,7 @@ master 为 fetchers 提供配置，fetchers 写回通知他们的状态和健康
 允许它们通过从 ZooKeeper 读取它们的状态来将它们的请求定向到健康的服务器。
 因此，FS 主要使用 ZooKeeper 来管理 <strong>配置元数据(configuration metadata)</strong>，尽管它也使用 ZooKeeper 来选举 master
 (<strong>领导选举(leader election)</strong>)。</p>
-<p><img src="https://i.loli.net/2021/07/08/WzA7GjkYdLFJ5Zw.png" alt="图 2：带有 Fetching Service 的一台 ZK 服务器的工作负载"></p>
+<p><img src="https://i.loli.net/2021/07/08/WzA7GjkYdLFJ5Zw.png" srcset="/img/loading.gif" lazyload alt="图 2：带有 Fetching Service 的一台 ZK 服务器的工作负载"></p>
 <blockquote>
 <p>注：每个点代表一个一秒的样本。</p>
 </blockquote>
@@ -430,7 +607,7 @@ Katta 还使用 ZooKeeper 来跟踪和传播分片到从属设备的分配(配�
 组成 YMB 的服务器使用无共享分布式架构，这使得协调对于正确操作至关重要。
 YMB 使用 ZooKeeper 管理主题的分发(<strong>配置元数据(configuration metadata)</strong>)，
 处理系统中机器的故障(<strong>故障检测和组成员身份(failure detection, group membership)</strong>)，并控制系统运行。</p>
-<p><img src="https://i.loli.net/2021/07/08/WuIyZ92rGzoCYDP.png" alt="图 3：雅虎的布局 ZooKeeper 中的消息代理 (YMB) 结构"></p>
+<p><img src="https://i.loli.net/2021/07/08/WuIyZ92rGzoCYDP.png" srcset="/img/loading.gif" lazyload alt="图 3：雅虎的布局 ZooKeeper 中的消息代理 (YMB) 结构"></p>
 <p>图 3 显示了 YMB 的部分 znode 数据结构。
 每个代理域都有一个称为节点的 znode，组成 YMB 服务的每个活动服务器都有一个临时 znode。
 每个 YMB 服务器在节点下创建一个临时 znode，其负载和状态信息通过 ZooKeeper 提供组成员身份和状态信息。
@@ -439,7 +616,7 @@ YMB 使用 ZooKeeper 管理主题的分发(<strong>配置元数据(configuration
 这些主题 znode 具有子 znode，它们指示每个主题的主服务器和备份服务器以及该主题的订阅者。
 主服务器和备用服务器 znode 不仅允许服务器发现负责主题的服务器，而且它们还管理 <strong>领导者选举(leader election)</strong> 和处理服务器崩溃。</p>
 <h3 id="4-ZooKeeper-实现">4 ZooKeeper 实现</h3>
-<p><img src="https://i.loli.net/2021/07/08/vzDamYM6cy4w8kK.png" alt="图 4：ZooKeeper 服务的组件"></p>
+<p><img src="https://i.loli.net/2021/07/08/vzDamYM6cy4w8kK.png" srcset="/img/loading.gif" lazyload alt="图 4：ZooKeeper 服务的组件"></p>
 <p>ZooKeeper 通过在组成服务的每个服务器上复制 ZooKeeper 数据来提供高可用性。
 我们假设服务器因崩溃而失败，并且此类故障服务器稍后可能会恢复。
 图 4 显示了 ZooKeeper 服务的高级组件。
@@ -491,7 +668,7 @@ Zab 默认使用简单多数仲裁来决定提案，因此 Zab 和 ZooKeeper 只
 但是，由于状态更改是幂等的，只要我们按顺序应用状态更改两次就可以确定的恢复状态。</p>
 <p>例如，假设在 ZooKeeper 数据树中，两个节点 <code>/foo</code> 和 <code>/goo</code> 分别具有值 f1 和 g1，并且在模糊快照开始时都处于版本 1，
 状态变更流以如下形式到达：<code>&lt;htransactionType, path, value, new-version&gt;</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;SetDataTXN, /foo, f2, 2&gt;</span><br><span class="line">&lt;SetDataTXN, /goo, g2, 2&gt;</span><br><span class="line">&lt;SetDataTXN, /foo, f3, 3&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">&lt;SetDataTXN, /foo, f2, 2&gt;<br>&lt;SetDataTXN, /goo, g2, 2&gt;<br>&lt;SetDataTXN, /foo, f3, 3&gt;<br></code></pre></td></tr></table></figure>
 <p>处理这些状态更改后，<code>/foo</code> 和 <code>/goo</code> 分别具有版本 3 和 2 的值 f3 和 g2。
 但是，模糊快照可能记录了 <code>/foo</code> 和 <code>/foo</code> 分别具有版本 3 和 1 的值 f3 和 g1，这不是 ZooKeeper 数据树的有效状态。
 如果服务器崩溃并使用此快照恢复，并且 Zab 重新传递状态更改，则结果状态对应于崩溃前服务的状态。</p>
@@ -531,7 +708,7 @@ Zab 默认使用简单多数仲裁来决定提案，因此 Zab 和 ZooKeeper 只
 否则，客户端会在低活动期间发送心跳消息。
 如果客户端无法与服务器通信以发送请求或心跳，它会连接到不同的 ZooKeeper 服务器以重新建立其会话。
 为了防止会话超时，ZooKeeper 客户端库在会话空闲 s/3 ms 后发送心跳，如果 2s/3ms 没有收到服务器的消息，则切换到新服务器，其中 s 是会话超时参数以毫秒为单位。</p>
-<h3 id="5-评估">5 评估</h3>
+<h3 id="5-评估-2">5 评估</h3>
 <p>为了评估我们的系统，我们对系统饱和时的吞吐量以及各种注入故障的吞吐量变化进行了基准测试。
 我们改变了组成 ZooKeeper 服务的服务器数量，但始终保持客户端数量不变。
 为了模拟大量客户端，我们使用了 35 台机器来模拟 250 个并发客户端。</p>
@@ -545,7 +722,7 @@ Zab 默认使用简单多数仲裁来决定提案，因此 Zab 和 ZooKeeper 只
 为了防止内存溢出，服务器会限制系统中并发请求的数量。
 ZooKeeper 使用请求限制来防止服务器不堪重负。
 对于这些实验，我们将 ZooKeeper 服务器配置为最多处理 2,000 个请求。</p>
-<p><img src="https://i.loli.net/2021/07/09/q8gvBWt6xnUTrQX.png" alt="图 5：饱和系统的吞吐量性能随着读写比率的变化"></p>
+<p><img src="https://i.loli.net/2021/07/09/q8gvBWt6xnUTrQX.png" srcset="/img/loading.gif" lazyload alt="图 5：饱和系统的吞吐量性能随着读写比率的变化"></p>
 <table>
 <thead>
 <tr>
@@ -600,14 +777,14 @@ ZooKeeper 使用请求限制来防止服务器不堪重负。
 我们使用更多的服务器来容忍更多的故障。
 我们通过将 ZooKeeper 数据划分为多个 ZooKeeper 集合来增加写入吞吐量。
 Gray 等人先前已经观察到复制和分区之间的这种性能权衡 <code>[12]</code>。</p>
-<p><img src="https://i.loli.net/2021/07/09/j8JKyts1fCAHVTI.png" alt="图 6：饱和系统的吞吐量，当所有客户端连接到领导者时，会改变读取与写入的比率"></p>
+<p><img src="https://i.loli.net/2021/07/09/j8JKyts1fCAHVTI.png" srcset="/img/loading.gif" lazyload alt="图 6：饱和系统的吞吐量，当所有客户端连接到领导者时，会改变读取与写入的比率"></p>
 <p>ZooKeeper 能够通过在构成服务的服务器之间分配负载来实现如此高的吞吐量。
 由于我们宽松的一致性保证，我们可以分配负载。
 Chubby 客户端将所有请求发送给领导者。
 图 6 显示了如果我们不利用这种放松并强制客户端只连接到领导者会发生什么。
 正如预期的那样，读取主导的工作负载的吞吐量要低得多，但即使是写入主导的工作负载，吞吐量也更低。
 由服务客户端引起的额外 CPU 和网络负载会影响领导者协调提案广播的能力，进而对整体写入性能产生不利影响。</p>
-<p><img src="https://i.loli.net/2021/07/09/k9rVXY2jQCJlsFm.png" alt="图 7：独立的原子广播组件的平均吞吐量"></p>
+<p><img src="https://i.loli.net/2021/07/09/k9rVXY2jQCJlsFm.png" srcset="/img/loading.gif" lazyload alt="图 7：独立的原子广播组件的平均吞吐量"></p>
 <blockquote>
 <p>注：误差线表示最小值和最大值</p>
 </blockquote>
@@ -619,7 +796,7 @@ Chubby 客户端将所有请求发送给领导者。
 CPU 的争用将 ZooKeeper 的吞吐量降低到远低于孤立的原子广播组件。
 因为 ZooKeeper 是一个关键的生产组件，到目前为止，我们对 ZooKeeper 的开发重点一直是正确性和健壮性。
 通过消除额外副本、同一对象的多个序列化、更高效的内部数据结构等，有很多机会可以显着提高性能。</p>
-<p><img src="https://i.loli.net/2021/07/09/x39zofIHcQ6Lh7R.png" alt="图 8：失败时的吞吐量"></p>
+<p><img src="https://i.loli.net/2021/07/09/x39zofIHcQ6Lh7R.png" srcset="/img/loading.gif" lazyload alt="图 8：失败时的吞吐量"></p>
 <p>为了显示系统在注入故障时随时间的行为，我们运行了一个由 5 台机器组成的 ZooKeeper 服务。
 我们运行了与之前相同的饱和基准测试，但这次我们将写入百分比保持在 30% 不变，这是我们预期工作负载的保守比例。
 我们定期杀死一些服务器进程。
@@ -782,7 +959,7 @@ Dynamo 也不为写入提供强大的持久性和一致性保证，而是解决�
 <p>DepSpace <code>[4]</code> 使用元组空间提供Byzantine 灾难冗余服务。
 像 ZooKeeper 一样，DepSpace 使用简单的服务器接口在客户端实现强同步原语。
 虽然 DepSpace 的性能远低于 ZooKeeper，但它提供了更强的容错和机密性保证。</p>
-<h3 id="7-结论">7 结论</h3>
+<h3 id="7-结论-2">7 结论</h3>
 <p>ZooKeeper 通过向客户端公开无等待对象，采用无等待方法来解决分布式系统中协调进程的问题。
 我们发现 ZooKeeper 对无论是雅虎内部或外部的多个应用程序非常有用。
 ZooKeeper 通过使用带 watches 的快速读取(两者都由本地副本提供服务)为工作负载主要为读取的应用实现每秒数十万次操作的吞吐量值。
@@ -792,9 +969,9 @@ ZooKeeper 通过使用带 watches 的快速读取(两者都由本地副本提供
 <p>尽管我们只描述了几个应用程序，但还有许多其他应用程序使用 ZooKeeper。
 我们相信这样的成功是由于其简单的接口以及可以通过该接口实现的强大抽象。
 此外，由于 ZooKeeper 的高吞吐量，应用程序可以广泛使用它，而不仅仅是粗粒度的锁定。</p>
-<h3 id="致谢">致谢</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">We would like to thank Andrew Kornev and Runping Qi for their contributions to ZooKeeper;</span><br><span class="line">Zeke Huang and Mark Marchukov for valuable feedback;</span><br><span class="line">Brian Cooper and Laurence Ramontianu for their early contributions to ZooKeeper;</span><br><span class="line">Brian Bershad and Geoff Voelker made important comments on the presentation.</span><br></pre></td></tr></table></figure>
-<h3 id="参考文献">参考文献</h3>
+<h3 id="致谢-5">致谢</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">We would like to thank Andrew Kornev and Runping Qi for their contributions to ZooKeeper;<br>Zeke Huang and Mark Marchukov for valuable feedback;<br>Brian Cooper and Laurence Ramontianu for their early contributions to ZooKeeper;<br>Brian Bershad and Geoff Voelker made important comments on the presentation.<br></code></pre></td></tr></table></figure>
+<h3 id="参考文献-3">参考文献</h3>
 <p><code>[1]</code> M. Abd-El-Malek, G. R. Ganger, G. R. Goodson, M. K. Reiter, and J. J. Wylie.
 Fault-scalable byzantine fault-tolerant services.
 In SOSP ’05: Proceedings of the twentieth ACM symposium on Operating systems principles, pages 59–74, New York, NY, USA, 2005. ACM.</p>
@@ -889,450 +1066,343 @@ Horus, a flexible group communication systems.
 Communications of the ACM, 39(16), Apr.1996.</p>
 <p><code>[31]</code> R. van Renesse, K. Birman, M. Hayden, A. Vaysburd, and D. Karr.
 Building adaptive systems using ensemble. Software- Practice and Experience, 28(5), July 1998.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Zookeeper/">#Zookeeper</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译版</div>
+      <div>https://wangqian0306.github.io/2021/zookeeper_wait_free_coordination_for_internet-scale_systems/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年7月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/zookeeper_wait_free_coordination_for_internet-scale_systems/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Zookeeper/" rel="tag">Zookeeper</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2021/apache_flink_stream_and_batch_processing_in_a_single_engine/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Apache Flink: Stream and Batch Processing in a Single Engine 中文翻译
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/apache_flink_stream_and_batch_processing_in_a_single_engine/" title="Apache Flink: Stream and Batch Processing in a Single Engine 中文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Apache Flink: Stream and Batch Processing in a Single Engine 中文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/spark_sql_relational_data_processing_in_spark/" title="Spark SQL - Relational Data Processing in Spark 中文翻译">
+                        <span class="hidden-mobile">Spark SQL - Relational Data Processing in Spark 中文翻译</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/spark_sql_relational_data_processing_in_spark/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Spark SQL - Relational Data Processing in Spark 中文翻译</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

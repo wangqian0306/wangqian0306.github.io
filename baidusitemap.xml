@@ -1,12 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wangqian0306.github.io/2021/plantuml/</loc>
-    <lastmod>2022-06-09</lastmod>
+    <loc>https://wangqian0306.github.io/2021/nodejs/</loc>
+    <lastmod>2022-06-17</lastmod>
   </url>
   <url>
     <loc>https://wangqian0306.github.io/2020/github/</loc>
-    <lastmod>2022-06-08</lastmod>
+    <lastmod>2022-06-16</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2021/ureplicator-apache-kafka-replicator/</loc>
+    <lastmod>2022-06-16</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2021/go/</loc>
+    <lastmod>2022-06-15</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2021/mapreduce_simplified_data_processing_on_large_clusters/</loc>
+    <lastmod>2022-06-13</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2021/caching/</loc>
+    <lastmod>2022-06-13</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2022/jpa/</loc>
+    <lastmod>2022-06-13</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2020/gradle-quick-start/</loc>
+    <lastmod>2022-06-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2022/maven-assemble/</loc>
+    <lastmod>2022-06-10</lastmod>
+  </url>
+  <url>
+    <loc>https://wangqian0306.github.io/2021/plantuml/</loc>
+    <lastmod>2022-06-09</lastmod>
   </url>
   <url>
     <loc>https://wangqian0306.github.io/2022/seatunnel/</loc>
@@ -37,15 +69,7 @@
     <lastmod>2022-06-02</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2022/jpa/</loc>
-    <lastmod>2022-06-02</lastmod>
-  </url>
-  <url>
     <loc>https://wangqian0306.github.io/2022/ansible-install/</loc>
-    <lastmod>2022-06-02</lastmod>
-  </url>
-  <url>
-    <loc>https://wangqian0306.github.io/2020/gradle-quick-start/</loc>
     <lastmod>2022-06-02</lastmod>
   </url>
   <url>
@@ -130,10 +154,6 @@
   </url>
   <url>
     <loc>https://wangqian0306.github.io/2020/caching/</loc>
-    <lastmod>2022-01-17</lastmod>
-  </url>
-  <url>
-    <loc>https://wangqian0306.github.io/2021/ureplicator-apache-kafka-replicator/</loc>
     <lastmod>2022-01-17</lastmod>
   </url>
   <url>
@@ -281,10 +301,6 @@
     <lastmod>2021-11-16</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2021/nodejs/</loc>
-    <lastmod>2021-11-11</lastmod>
-  </url>
-  <url>
     <loc>https://wangqian0306.github.io/2021/ncu/</loc>
     <lastmod>2021-11-11</lastmod>
   </url>
@@ -311,10 +327,6 @@
   <url>
     <loc>https://wangqian0306.github.io/2021/http/</loc>
     <lastmod>2021-11-04</lastmod>
-  </url>
-  <url>
-    <loc>https://wangqian0306.github.io/2021/caching/</loc>
-    <lastmod>2021-11-02</lastmod>
   </url>
   <url>
     <loc>https://wangqian0306.github.io/2020/elasticsearch/</loc>
@@ -557,10 +569,6 @@
     <lastmod>2021-07-05</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2021/mapreduce_simplified_data_processing_on_large_clusters/</loc>
-    <lastmod>2021-06-25</lastmod>
-  </url>
-  <url>
     <loc>https://wangqian0306.github.io/2021/kafka_a_distibuted_messaging_system_for_log_processing/</loc>
     <lastmod>2021-06-25</lastmod>
   </url>
@@ -586,10 +594,6 @@
   </url>
   <url>
     <loc>https://wangqian0306.github.io/2020/idea/</loc>
-    <lastmod>2021-06-17</lastmod>
-  </url>
-  <url>
-    <loc>https://wangqian0306.github.io/2020/about/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
@@ -669,10 +673,6 @@
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2021/go/</loc>
-    <lastmod>2021-06-17</lastmod>
-  </url>
-  <url>
     <loc>https://wangqian0306.github.io/2020/redis-cluster/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
@@ -733,11 +733,11 @@
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2021/hive-ha/</loc>
+    <loc>https://wangqian0306.github.io/2020/hue/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2020/hue/</loc>
+    <loc>https://wangqian0306.github.io/2021/hive-ha/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>

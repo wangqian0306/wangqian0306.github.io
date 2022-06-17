@@ -1,576 +1,637 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="简介 OpenShift 是红帽“加强”过的 Kubernetes。 官方文档(v3.11.0) Yaml 模板 DeploymentConfig 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354apiVersion: apps.openshift.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenShift 相关内容整理">
+<meta property="og:url" content="https://wangqian0306.github.io/2020/openshift/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="简介 OpenShift 是红帽“加强”过的 Kubernetes。 官方文档(v3.11.0) Yaml 模板 DeploymentConfig 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354apiVersion: apps.openshift.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-07T12:52:13.000Z">
+<meta property="article:modified_time" content="2021-06-17T08:36:58.149Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Container">
+<meta property="article:tag" content="OpenShift">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>OpenShift 相关内容整理 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>OpenShift 相关内容整理 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-kubernetes/openshift"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  OpenShift 相关内容整理
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/openshift/" class="article-date">
-  <time datetime="2020-04-07T12:52:13.000Z" itemprop="datePublished">2020-04-07</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Kubernetes/">Kubernetes</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="简介">简介</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OpenShift 相关内容整理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-07 20:52" pubdate>
+          2020年4月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">OpenShift 相关内容整理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="简介-53">简介</h2>
 <p>OpenShift 是红帽“加强”过的 Kubernetes。</p>
 <p><a target="_blank" rel="noopener" href="https://docs.okd.io/3.11/welcome/index.html">官方文档(v3.11.0)</a></p>
 <h2 id="Yaml-模板">Yaml 模板</h2>
 <h3 id="DeploymentConfig">DeploymentConfig</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps.openshift.io/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">DeploymentConfig</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostname:</span> <span class="string">demo</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">env:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">SPRING_PROFILES_ACTIVE</span></span><br><span class="line">              <span class="attr">valueFrom:</span></span><br><span class="line">                <span class="attr">configMapKeyRef:</span></span><br><span class="line">                  <span class="attr">key:</span> <span class="string">DEFAULT</span></span><br><span class="line">                  <span class="attr">name:</span> <span class="string">profile</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">PORT</span></span><br><span class="line">              <span class="attr">value:</span> <span class="string">&quot;8080&quot;</span></span><br><span class="line">          <span class="attr">livenessProbe:</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">5273</span></span><br><span class="line">              <span class="attr">scheme:</span> <span class="string">HTTP</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">60</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">          <span class="attr">readinessProbe:</span></span><br><span class="line">            <span class="attr">failureThreshold:</span> <span class="number">3</span></span><br><span class="line">            <span class="attr">httpGet:</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">/actuator/health</span></span><br><span class="line">              <span class="attr">port:</span> <span class="number">5273</span></span><br><span class="line">              <span class="attr">scheme:</span> <span class="string">HTTP</span></span><br><span class="line">            <span class="attr">initialDelaySeconds:</span> <span class="number">60</span></span><br><span class="line">            <span class="attr">periodSeconds:</span> <span class="number">10</span></span><br><span class="line">            <span class="attr">successThreshold:</span> <span class="number">1</span></span><br><span class="line">            <span class="attr">timeoutSeconds:</span> <span class="number">5</span></span><br><span class="line">          <span class="attr">image:</span> <span class="string">docker.io/wqnice/demo:0.1.0</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">Always</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">strategy:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">Rolling</span></span><br><span class="line">  <span class="attr">paused:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">revisionHistoryLimit:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">minReadySeconds:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps.openshift.io/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">DeploymentConfig</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">demo</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">demo</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">hostname:</span> <span class="hljs-string">demo</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">env:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SPRING_PROFILES_ACTIVE</span><br>              <span class="hljs-attr">valueFrom:</span><br>                <span class="hljs-attr">configMapKeyRef:</span><br>                  <span class="hljs-attr">key:</span> <span class="hljs-string">DEFAULT</span><br>                  <span class="hljs-attr">name:</span> <span class="hljs-string">profile</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">PORT</span><br>              <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;8080&quot;</span><br>          <span class="hljs-attr">livenessProbe:</span><br>            <span class="hljs-attr">failureThreshold:</span> <span class="hljs-number">3</span><br>            <span class="hljs-attr">httpGet:</span><br>              <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health</span><br>              <span class="hljs-attr">port:</span> <span class="hljs-number">5273</span><br>              <span class="hljs-attr">scheme:</span> <span class="hljs-string">HTTP</span><br>            <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">60</span><br>            <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">10</span><br>            <span class="hljs-attr">successThreshold:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">timeoutSeconds:</span> <span class="hljs-number">5</span><br>          <span class="hljs-attr">readinessProbe:</span><br>            <span class="hljs-attr">failureThreshold:</span> <span class="hljs-number">3</span><br>            <span class="hljs-attr">httpGet:</span><br>              <span class="hljs-attr">path:</span> <span class="hljs-string">/actuator/health</span><br>              <span class="hljs-attr">port:</span> <span class="hljs-number">5273</span><br>              <span class="hljs-attr">scheme:</span> <span class="hljs-string">HTTP</span><br>            <span class="hljs-attr">initialDelaySeconds:</span> <span class="hljs-number">60</span><br>            <span class="hljs-attr">periodSeconds:</span> <span class="hljs-number">10</span><br>            <span class="hljs-attr">successThreshold:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">timeoutSeconds:</span> <span class="hljs-number">5</span><br>          <span class="hljs-attr">image:</span> <span class="hljs-string">docker.io/wqnice/demo:0.1.0</span><br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>              <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>  <span class="hljs-attr">strategy:</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">Rolling</span><br>  <span class="hljs-attr">paused:</span> <span class="hljs-literal">false</span><br>  <span class="hljs-attr">revisionHistoryLimit:</span> <span class="hljs-number">2</span><br>  <span class="hljs-attr">minReadySeconds:</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
 <h3 id="Service">Service</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">http</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">demo</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>      <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span><br>      <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>      <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">demo</span><br></code></pre></td></tr></table></figure>
 <h3 id="Route">Route</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Route</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">demo.apps.&lt;hostname&gt;</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">&quot;/&quot;</span></span><br><span class="line">  <span class="attr">port:</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="string">http</span></span><br><span class="line">  <span class="attr">to:</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">    <span class="attr">weight:</span> <span class="number">100</span></span><br><span class="line">  <span class="attr">wildcardPolicy:</span> <span class="string">None</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Route</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">demo</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">host:</span> <span class="hljs-string">demo.apps.&lt;hostname&gt;</span><br>  <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/&quot;</span><br>  <span class="hljs-attr">port:</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-string">http</span><br>  <span class="hljs-attr">to:</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>    <span class="hljs-attr">weight:</span> <span class="hljs-number">100</span><br>  <span class="hljs-attr">wildcardPolicy:</span> <span class="hljs-string">None</span><br></code></pre></td></tr></table></figure>
 <h3 id="Template">Template</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Template</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">redis-template</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">description:</span> <span class="string">&quot;Description&quot;</span></span><br><span class="line">    <span class="attr">iconClass:</span> <span class="string">&quot;icon-redis&quot;</span></span><br><span class="line">    <span class="attr">tags:</span> <span class="string">&quot;database,nosql&quot;</span></span><br><span class="line"><span class="attr">parameters:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">description:</span> <span class="string">Password</span> <span class="string">used</span> <span class="string">for</span> <span class="string">Redis</span> <span class="string">authentication</span></span><br><span class="line">  <span class="attr">from:</span> <span class="string">&#x27;[A-Z0-9]&#123;8&#125;&#x27;</span></span><br><span class="line">  <span class="attr">generate:</span> <span class="string">expression</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">REDIS_PASSWORD</span></span><br><span class="line"><span class="attr">message:</span> <span class="string">&#x27;demo description&#x27;</span></span><br><span class="line"><span class="attr">labels:</span></span><br><span class="line">  <span class="attr">redis:</span> <span class="string">master</span></span><br><span class="line"><span class="attr">objects:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">apiVersion:</span> <span class="string">apps.openshift.io/v1</span></span><br><span class="line">  <span class="attr">kind:</span> <span class="string">DeploymentConfig</span></span><br><span class="line">  <span class="attr">metadata:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">redis</span></span><br><span class="line">  <span class="attr">spec:</span></span><br><span class="line">    <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">redis</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">hostname:</span> <span class="string">redis</span></span><br><span class="line">      <span class="attr">containers:</span> </span><br><span class="line">        <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">docker.io/wqnice/demo:0.1.0</span></span><br><span class="line">          <span class="attr">imagePullPolicy:</span> <span class="string">Always</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">          <span class="attr">ports:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">              <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">strategy:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">Rolling</span></span><br><span class="line">    <span class="attr">paused:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">revisionHistoryLimit:</span> <span class="number">2</span></span><br><span class="line">    <span class="attr">minReadySeconds:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Template</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">redis-template</span><br>  <span class="hljs-attr">annotations:</span><br>    <span class="hljs-attr">description:</span> <span class="hljs-string">&quot;Description&quot;</span><br>    <span class="hljs-attr">iconClass:</span> <span class="hljs-string">&quot;icon-redis&quot;</span><br>    <span class="hljs-attr">tags:</span> <span class="hljs-string">&quot;database,nosql&quot;</span><br><span class="hljs-attr">parameters:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">description:</span> <span class="hljs-string">Password</span> <span class="hljs-string">used</span> <span class="hljs-string">for</span> <span class="hljs-string">Redis</span> <span class="hljs-string">authentication</span><br>  <span class="hljs-attr">from:</span> <span class="hljs-string">&#x27;[A-Z0-9]&#123;8&#125;&#x27;</span><br>  <span class="hljs-attr">generate:</span> <span class="hljs-string">expression</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">REDIS_PASSWORD</span><br><span class="hljs-attr">message:</span> <span class="hljs-string">&#x27;demo description&#x27;</span><br><span class="hljs-attr">labels:</span><br>  <span class="hljs-attr">redis:</span> <span class="hljs-string">master</span><br><span class="hljs-attr">objects:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps.openshift.io/v1</span><br>  <span class="hljs-attr">kind:</span> <span class="hljs-string">DeploymentConfig</span><br>  <span class="hljs-attr">metadata:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">redis</span><br>  <span class="hljs-attr">spec:</span><br>    <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">redis</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">hostname:</span> <span class="hljs-string">redis</span><br>      <span class="hljs-attr">containers:</span> <br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">image:</span> <span class="hljs-string">docker.io/wqnice/demo:0.1.0</span><br>          <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>          <span class="hljs-attr">ports:</span><br>            <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>              <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">replicas:</span> <span class="hljs-number">1</span><br>    <span class="hljs-attr">strategy:</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">Rolling</span><br>    <span class="hljs-attr">paused:</span> <span class="hljs-literal">false</span><br>    <span class="hljs-attr">revisionHistoryLimit:</span> <span class="hljs-number">2</span><br>    <span class="hljs-attr">minReadySeconds:</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
 <h3 id="ConfigMap">ConfigMap</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">example-config</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">data:</span> </span><br><span class="line">  <span class="attr">example.property.1:</span> <span class="string">hello</span></span><br><span class="line">  <span class="attr">example.property.2:</span> <span class="string">world</span></span><br><span class="line">  <span class="attr">example.property.file:</span> <span class="string">|-</span></span><br><span class="line"><span class="string">    property.1=value-1</span></span><br><span class="line"><span class="string">    property.2=value-2</span></span><br><span class="line"><span class="string">    property.3=value-3</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">ConfigMap</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">example-config</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">data:</span> <br>  <span class="hljs-attr">example.property.1:</span> <span class="hljs-string">hello</span><br>  <span class="hljs-attr">example.property.2:</span> <span class="hljs-string">world</span><br>  <span class="hljs-attr">example.property.file:</span> <span class="hljs-string">|-</span><br><span class="hljs-string">    property.1=value-1</span><br><span class="hljs-string">    property.2=value-2</span><br><span class="hljs-string">    property.3=value-3</span><br></code></pre></td></tr></table></figure>
 <h3 id="PersistentVolume">PersistentVolume</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolume</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">finalizers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">kubernetes.io/pv-protection</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo-pv</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">accessModes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">  <span class="attr">capacity:</span></span><br><span class="line">    <span class="attr">storage:</span> <span class="string">10Gi</span></span><br><span class="line">  <span class="attr">claimRef:</span></span><br><span class="line">    <span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line">    <span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">demo-pvc</span></span><br><span class="line">  <span class="attr">nfs:</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/demo</span></span><br><span class="line">    <span class="attr">server:</span> <span class="number">172.25</span><span class="number">.2</span><span class="number">.1</span></span><br><span class="line">  <span class="attr">persistentVolumeReclaimPolicy:</span> <span class="string">Retain</span></span><br><span class="line">  <span class="attr">storageClassName:</span> <span class="string">demo</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">finalizers:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">kubernetes.io/pv-protection</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo-pv</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteMany</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br>  <span class="hljs-attr">claimRef:</span><br>    <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br>    <span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">demo-pvc</span><br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/demo</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-number">172.25</span><span class="hljs-number">.2</span><span class="hljs-number">.1</span><br>  <span class="hljs-attr">persistentVolumeReclaimPolicy:</span> <span class="hljs-string">Retain</span><br>  <span class="hljs-attr">storageClassName:</span> <span class="hljs-string">demo</span><br></code></pre></td></tr></table></figure>
 <h3 id="PersistentVolumeCliam">PersistentVolumeCliam</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">PersistentVolumeClaim</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">finalizers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">kubernetes.io/pvc-protection</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo-pvc</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">accessModes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">ReadWriteMany</span></span><br><span class="line">  <span class="attr">resources:</span></span><br><span class="line">    <span class="attr">requests:</span></span><br><span class="line">      <span class="attr">storage:</span> <span class="string">10Gi</span></span><br><span class="line">  <span class="attr">volumeName:</span> <span class="string">demo-pv</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolumeClaim</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">finalizers:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">kubernetes.io/pvc-protection</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo-pvc</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteMany</span><br>  <span class="hljs-attr">resources:</span><br>    <span class="hljs-attr">requests:</span><br>      <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span><br>  <span class="hljs-attr">volumeName:</span> <span class="hljs-string">demo-pv</span><br></code></pre></td></tr></table></figure>
 <h3 id="CronJobs">CronJobs</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">batch/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">CronJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedule:</span> <span class="string">&quot;*/1 * * * *&quot;</span>  </span><br><span class="line">  <span class="attr">jobTemplate:</span>             </span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">metadata:</span></span><br><span class="line">          <span class="attr">labels:</span>          </span><br><span class="line">            <span class="attr">parent:</span> <span class="string">&quot;cronjobpi&quot;</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">pi</span></span><br><span class="line">            <span class="attr">image:</span> <span class="string">perl</span></span><br><span class="line">            <span class="attr">command:</span> [<span class="string">&quot;perl&quot;</span>,  <span class="string">&quot;-Mbignum=bpi&quot;</span>, <span class="string">&quot;-wle&quot;</span>, <span class="string">&quot;print bpi(2000)&quot;</span>]</span><br><span class="line">          <span class="attr">restartPolicy:</span> <span class="string">OnFailure</span> </span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">batch/v1beta1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">CronJob</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">schedule:</span> <span class="hljs-string">&quot;*/1 * * * *&quot;</span>  <br>  <span class="hljs-attr">jobTemplate:</span>             <br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">template:</span><br>        <span class="hljs-attr">metadata:</span><br>          <span class="hljs-attr">labels:</span>          <br>            <span class="hljs-attr">parent:</span> <span class="hljs-string">&quot;cronjobpi&quot;</span><br>        <span class="hljs-attr">spec:</span><br>          <span class="hljs-attr">containers:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">pi</span><br>            <span class="hljs-attr">image:</span> <span class="hljs-string">perl</span><br>            <span class="hljs-attr">command:</span> [<span class="hljs-string">&quot;perl&quot;</span>,  <span class="hljs-string">&quot;-Mbignum=bpi&quot;</span>, <span class="hljs-string">&quot;-wle&quot;</span>, <span class="hljs-string">&quot;print bpi(2000)&quot;</span>]<br>          <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">OnFailure</span> <br></code></pre></td></tr></table></figure>
 <h3 id="DaemonSet">DaemonSet</h3>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">DaemonSet</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">      <span class="attr">matchLabels:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">docker.io/wqnice/demo:0.1.0</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">Always</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">demo</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">            <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">serviceAccount:</span> <span class="string">default</span></span><br><span class="line">      <span class="attr">terminationGracePeriodSeconds:</span> <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">extensions/v1beta1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">DaemonSet</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>      <span class="hljs-attr">matchLabels:</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">image:</span> <span class="hljs-string">docker.io/wqnice/demo:0.1.0</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">demo</span><br>        <span class="hljs-attr">ports:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>            <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>      <span class="hljs-attr">serviceAccount:</span> <span class="hljs-string">default</span><br>      <span class="hljs-attr">terminationGracePeriodSeconds:</span> <span class="hljs-number">10</span><br></code></pre></td></tr></table></figure>
 <h2 id="Robot-账户配置">Robot 账户配置</h2>
 <p>创建账户</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oc create sa robot</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">oc create sa robot<br></code></pre></td></tr></table></figure>
 <p>获取令牌</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oc serviceaccounts get-token robot</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">oc serviceaccounts get-token robot<br></code></pre></td></tr></table></figure>
 <p>授予机器人账户全部权限</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:&lt;namespace&gt;:&lt;robot name&gt;</span><br></pre></td></tr></table></figure> 
-      <!-- reward -->
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:&lt;namespace&gt;:&lt;robot name&gt;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Container/">#Container</a>
+      
+        <a href="/tags/OpenShift/">#OpenShift</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OpenShift 相关内容整理</div>
+      <div>https://wangqian0306.github.io/2020/openshift/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月7日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2020/openshift/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Container/" rel="tag">Container</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenShift/" rel="tag">OpenShift</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2020/redis-storage/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Redis 持久化知识整理
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/redis-storage/" title="Redis 持久化知识整理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis 持久化知识整理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/docker-compose/" title="Docker Compose 安装和基础命令">
+                        <span class="hidden-mobile">Docker Compose 安装和基础命令</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2020/docker-compose/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Docker Compose 安装和基础命令</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

@@ -1,105 +1,287 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="In Search of an Understandable Consensus Algorithm 中文翻译 作者：Diego Ongaro and John Ousterhout, Stanford University 英文原文 引言 Raft 是一种用于管理复制日志的共识算法。 它产生的结果等价于 (multi-)Paxos，和 Paxos 一样高效，但它的结构设计与 Paxos 不同；这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="In Search of an Understandable Consensus Algorithm 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/in_search_of_an_understandable_consensus_algorithm/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="In Search of an Understandable Consensus Algorithm 中文翻译 作者：Diego Ongaro and John Ousterhout, Stanford University 英文原文 引言 Raft 是一种用于管理复制日志的共识算法。 它产生的结果等价于 (multi-)Paxos，和 Paxos 一样高效，但它的结构设计与 Paxos 不同；这">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/LqwCptXDksYQ6PS.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/mLZFaRUeJHr6tnh.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/4qAjsvHZGJWeQni.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/CNWm3xIYE4RoPkB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/11/fXbZogKLqIisSPB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/aXrSYWnukhp1QVo.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/Jq3R4WVNngKOFID.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/YkCQyJlR8cXEbfF.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/kP7Mcf8wiqYFn5Z.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/fJzkQoWDOCcITnX.png">
+<meta property="article:published_time" content="2021-06-24T14:26:13.000Z">
+<meta property="article:modified_time" content="2021-08-18T06:12:43.265Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Raft">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png">
+  
+  
+  
+  <title>In Search of an Understandable Consensus Algorithm 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>In Search of an Understandable Consensus Algorithm 中文翻译 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/in_search_of_an_understandable_consensus_algorithm"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  In Search of an Understandable Consensus Algorithm 中文翻译
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/in_search_of_an_understandable_consensus_algorithm/" class="article-date">
-  <time datetime="2021-06-24T14:26:13.000Z" itemprop="datePublished">2021-06-24</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="In-Search-of-an-Understandable-Consensus-Algorithm-中文翻译">In Search of an Understandable Consensus Algorithm 中文翻译</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="In Search of an Understandable Consensus Algorithm 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-06-24 22:26" pubdate>
+          2021年6月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">In Search of an Understandable Consensus Algorithm 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="In-Search-of-an-Understandable-Consensus-Algorithm-中文翻译">In Search of an Understandable Consensus Algorithm 中文翻译</h2>
 <p>作者：Diego Ongaro and John Ousterhout, Stanford University</p>
 <p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/atc14/atc14-paper-ongaro.pdf">英文原文</a></p>
 <h3 id="引言">引言</h3>
@@ -108,7 +290,7 @@
 为了增强可理解性，Raft 将共识的关键要素(例如领导节点选举、日志复制和安全性)进行分离，并强制执行更强的一致性以减少必须判断的状态数量。
 用户研究的结果表明，Raft 比 Paxos 更容易让学生学习。
 Raft 还包括一种用于更改集群成员的新机制，该机制使用重叠多数来保证安全。</p>
-<h3 id="1-简介">1 简介</h3>
+<h3 id="1-简介-2">1 简介</h3>
 <p>共识算法允许一组机器作为一个连贯的组进行工作，可以在其某些成员的失效的情况下继续工作。
 因此，它们在构建可靠的大型软件系统方面发挥着关键作用。
 Paxos <code>[13, 14]</code> 在过去十年中主导了共识算法的讨论：大多数共识的实现都是基于 Paxos 或受其影响，而 Paxos 已成为用于教授学生共识的主要工具。</p>
@@ -141,7 +323,7 @@ Paxos <code>[13, 14]</code> 在过去十年中主导了共识算法的讨论：�
 例如，具有单个集群领导节点的大型系统，如 GFS <code>[7]</code>、HDFS <code>[34]</code> 和 RAMCloud <code>[30]</code>
 通常使用单独的复制状态机来管理领导节点选举并存储必须生存的配置信息防止领导崩溃。
 复制状态机的例子包括 Chubby <code>[2]</code> 和 ZooKeeper <code>[9]</code>。</p>
-<p><img src="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png" alt="图 1：复制状态机架构"></p>
+<p><img src="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png" srcset="/img/loading.gif" lazyload alt="图 1：复制状态机架构"></p>
 <blockquote>
 <p>注：共识算法管理包含来自客户端的状态机命令的复制日志。状态机处理来自日志的相同命令序列，因此它们产生相同的输出。</p>
 </blockquote>
@@ -196,7 +378,7 @@ Chubby <code>[4]</code> 等系统已经实现了类似 Paxos 的算法，但在�
 这既费时又容易出错，理解 Paxos 的困难加剧了这个问题。
 Paxos 的公式可能是证明其正确性定理的好方法，但实际实现与 Paxos 如此不同，以至于证明没有什么价值。
 以下来自 Chubby 实施者的评论是非常典型的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Paxos 算法的描述与现实世界系统的需求之间存在重大差距。......最终系统将基于未经证实的协议 [4]。</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Paxos 算法的描述与现实世界系统的需求之间存在重大差距。......最终系统将基于未经证实的协议 [4]。<br></code></pre></td></tr></table></figure>
 <p>由于这些问题，我们得出结论，Paxos 没有为系统构建或教育提供良好的基础。
 考虑到共识在大型软件系统中的重要性，我们决定看看是否可以设计一种替代的共识算法，其属性比 Paxos 更好。
 Raft 是那个实验的结果。</p>
@@ -219,7 +401,7 @@ Raft 是那个实验的结果。</p>
 特别是，随机方法引入了不确定性，但它们倾向于通过以类似的方式处理所有可能的选择来减少状态空间(“选择任何一个；无关紧要”)。
 我们使用随机化来简化 Raft 领导节点选举算法。</p>
 <h3 id="5-Raft-共识算法">5 Raft 共识算法</h3>
-<p><img src="https://i.loli.net/2021/08/05/LqwCptXDksYQ6PS.png" alt="图 2：Raft 共识算法的简要总结(不包括成员变更和日志压缩)"></p>
+<p><img src="https://i.loli.net/2021/08/05/LqwCptXDksYQ6PS.png" srcset="/img/loading.gif" lazyload alt="图 2：Raft 共识算法的简要总结(不包括成员变更和日志压缩)"></p>
 <blockquote>
 <p>注：左上框中的服务器行为被描述为一组独立且重复触发的规则。诸如第 5.2 节之类的部分编号指示讨论特定功能的位置。正式的规范 <code>[28]</code> 更准确地描述了算法。</p>
 </blockquote>
@@ -278,12 +460,12 @@ Raft 是那个实验的结果。</p>
 领导节点处理所有客户端请求(如果客户端联系从属节点，则将其重定向到领导节点)。
 第三个状态，候选节点，用于选举一个新的领导者，如第 5.2 节所述。
 图 4 显示了状态及其转换；下面将讨论这些转换。</p>
-<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" alt="图 4：服务器状态"></p>
+<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" srcset="/img/loading.gif" lazyload alt="图 4：服务器状态"></p>
 <blockquote>
 <p>注：从属节点只相应来自其他服务的请求，如果从属节点没有收到任何通信，它就会成为候选节点并发起选举。
 从整个集群的大多数节点中获得选票的候选节点会成为新的领导者，领导者通常会运行到失败为止。</p>
 </blockquote>
-<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" alt="图 5：时间被切分为任期，选举开始时就产生了一个任期"></p>
+<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" srcset="/img/loading.gif" lazyload alt="图 5：时间被切分为任期，选举开始时就产生了一个任期"></p>
 <blockquote>
 <p>注：选举成功后，由一个领导节点管理集群直到任期结束。若选举失败，在这种情况下，任期结束但是没有新的领导者。
 我们可以在不同的时间和服务器上观测到任期的转换。</p>
@@ -343,7 +525,7 @@ RequestVote RPC 由候选节点在选举期间发起(第 5.2 节)，而 AppendEn
 领导节点会将命令追加到日志中并新增一个条目，然后并行触发 AppendEntries RPC 到其他节点，从而新增日志条目副本。
 当日志条目被复制写入完成后(如同下面描述的一样)，领导节点就会将日志条目应用于其状态机并将该执行的结果返回给客户端。
 如果从属节点崩溃或运行缓慢，或者网络数据包丢失，领导节点会无限期地重试 AppendEntries RPC (即使它已经响应了客户端)，直到所有从属节点最终存储所有日志条目。</p>
-<p><img src="https://i.loli.net/2021/08/10/mLZFaRUeJHr6tnh.png" alt="图 6：日志由按顺序编号的条目组成"></p>
+<p><img src="https://i.loli.net/2021/08/10/mLZFaRUeJHr6tnh.png" srcset="/img/loading.gif" lazyload alt="图 6：日志由按顺序编号的条目组成"></p>
 <blockquote>
 <p>注：每个条目包含创建它的任期(每个框中的数字)和状态机的命令。如果该条目可以安全地应用于状态机，则该条目被视为已提交。</p>
 </blockquote>
@@ -371,7 +553,7 @@ Raft 维护了以下属性，它们共同构成了图 3 中的日志匹配属性
 如果从属节点在其日志中没有找到具有相同索引和任期的条目，则它拒绝新条目。
 一致性检查作为一个归纳步骤：日志的初始空状态满足日志匹配属性，并且一致性检查在日志扩展时保留日志匹配属性。
 结果，每当 AppendEntries 成功返回时，领导节点就知道从属节点的日志通过新条目与自己的日志保持同步。</p>
-<p><img src="https://i.loli.net/2021/08/10/4qAjsvHZGJWeQni.png" alt="图 7：当顶部的领导节点选举成功时，任何场景(a-f)都可能发生在从属节点的日志中"></p>
+<p><img src="https://i.loli.net/2021/08/10/4qAjsvHZGJWeQni.png" srcset="/img/loading.gif" lazyload alt="图 7：当顶部的领导节点选举成功时，任何场景(a-f)都可能发生在从属节点的日志中"></p>
 <blockquote>
 <p>注：每个框代表一个日志条目；框中的数字是它的任期。
 从属节点可能缺少日志条目(a-b)，含有额外未提交的条目(c-d)，或两者都有(e-f)
@@ -420,7 +602,7 @@ RequestVote RPC 实现了这个限制：RPC 包含有关候选节点日志的信
 如果日志的最后条目具有不同的任期，则具有较晚任期的日志是最新的。
 如果日志以相同的任期结束，则以更长的日志为准。</p>
 <h5 id="5-4-2-提交以前任期的日志条目">5.4.2 提交以前任期的日志条目</h5>
-<p><img src="https://i.loli.net/2021/08/10/CNWm3xIYE4RoPkB.png" alt="图 8：一个时间序列，显示了为什么领导者无法使用旧条款的日志条目来确定承诺"></p>
+<p><img src="https://i.loli.net/2021/08/10/CNWm3xIYE4RoPkB.png" srcset="/img/loading.gif" lazyload alt="图 8：一个时间序列，显示了为什么领导者无法使用旧条款的日志条目来确定承诺"></p>
 <blockquote>
 <p>注：在(a)中，S1 是领导节点，部分复制了索引 2 处的日志条目。
 在(b)中 S1 崩溃；S5 被选为第 3 任期的领导节点，其投票来自 S3、S4 及其本身，并在日志索引 2 处接受不同的条目。
@@ -445,7 +627,7 @@ Raft 的方法使推理日志条目变得更容易，因为它们随着时间的
 我们假设领导节点的完全性特性是不满足的，然后我们推出矛盾来。
 假设任期 T 的领导节点(leader<sub>T</sub>)在任期内提交了一个日志条目，但是该日志条目没有被存储到未来某些任期的领导节点中。
 假设 U 是大于 T 的没有存储该日志条目的最小任期号。</p>
-<p><img src="https://i.loli.net/2021/08/11/fXbZogKLqIisSPB.png" alt="图 9：矛盾推导"></p>
+<p><img src="https://i.loli.net/2021/08/11/fXbZogKLqIisSPB.png" srcset="/img/loading.gif" lazyload alt="图 9：矛盾推导"></p>
 <blockquote>
 <p>注：如果 S1 (任期 T 的领导节点)在它的任期里提交了一个新的日志条目，然后 S5 在之后的任期 U 里被选举为领导节点，那么肯定至少会有一个节点，如 S3，既接收了来自 S1 的日志条目，也给 S5 投票了。</p>
 </blockquote>
@@ -474,8 +656,8 @@ Raft RPC 是幂等的，所以这不会造成伤害。
 然而，可用性(系统及时响应客户的能力)必须不可避免地取决于时间。
 例如，当有服务器崩溃时，消息交换的时间就会比正常情况下长，候选节点将不会等待太长的时间来赢得选举；没有一个稳定的领导节点，Raft 将无法工作。
 领导人选举是选举的一个方面，时机是最关键的。只要系统满足以下时间要求，筏板将能够选择并保持稳定的领导者：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">broadcastTime &lt; electionTimeout &lt; MTBF</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">广播时间 &lt; 选举超时周期 &lt; MTBF</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">broadcastTime &lt; electionTimeout &lt; MTBF<br></code></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">广播时间 &lt; 选举超时周期 &lt; MTBF<br></code></pre></td></tr></table></figure>
 <p>在这个不等式中，broadcastTime 是服务器向集群中的每个服务器并行发送 RPC 并接收它们的响应所花费的平均时间；electionTimeout 是第 5.2 节中描述的选举超时；MTBF 是单个故障的平均间隔时间。
 广播时间应该比选举超时时间少一个数量级，以便领导者可以可靠地发送阻止追随者开始选举所需的心跳消息； 鉴于用于选举超时的随机方法，这种不平等也使得分裂选票不太可能。
 选举超时应该比 MTBF 小几个数量级，以便系统稳步前进。
@@ -490,7 +672,7 @@ Raft 的 RPC 通常需要接收方将信息持久化到稳定的存储中，因�
 虽然这可以通过使整个集群脱机、更新配置文件，然后重新启动集群来完成，但这会使集群在转换期间不可用。
 此外，如果有任何手动步骤，则存在操作员错误的风险。
 为了避免这些问题，我们决定自动化配置更改并将它们合并到 Raft 共识算法中。</p>
-<p><img src="https://i.loli.net/2021/08/18/aXrSYWnukhp1QVo.png" alt="图 10：直接从一种配置切换到另一种配置是不安全的，因为不同的服务器会在不同的时间切换"></p>
+<p><img src="https://i.loli.net/2021/08/18/aXrSYWnukhp1QVo.png" srcset="/img/loading.gif" lazyload alt="图 10：直接从一种配置切换到另一种配置是不安全的，因为不同的服务器会在不同的时间切换"></p>
 <blockquote>
 <p>注：在本例中，集群从三台服务器增加到五台。不幸的是，有一个时间点可以选举两个不同的领导者担任同一任期，一个拥有大多数旧配置(C <sub>old</sub> )，另一个拥有大多数新配置(C <sub>new</sub> )。</p>
 </blockquote>
@@ -509,7 +691,7 @@ Raft 的 RPC 通常需要接收方将信息持久化到稳定的存储中，因�
 </ul>
 <p>联合共识允许单个服务器在不同时间在配置之间转换，而不会影响安全性。
 此外，联合共识允许集群在整个配置更改期间继续为客户端请求提供服务。</p>
-<p><img src="https://i.loli.net/2021/08/18/Jq3R4WVNngKOFID.png" alt="图 11：配置变动时间线。"></p>
+<p><img src="https://i.loli.net/2021/08/18/Jq3R4WVNngKOFID.png" srcset="/img/loading.gif" lazyload alt="图 11：配置变动时间线。"></p>
 <blockquote>
 <p>注：虚线显示已创建但未提交的配置条目，实线显示最新提交的配置条目。
 领导节点首先在其日志中创建 C <sub>old,new</sub> 配置条目并将其提交到 C <sub>old,new</sub>（大多数 C <sub>old</sub> 和大多数 C <sub>new</sub>）。
@@ -598,7 +780,7 @@ Raft 讲座涵盖了本文的内容； Paxos 讲座涵盖了足够的材料来�
 该实验在两个方面对 Paxos 有利：43 名参与者中有 15 人报告说之前有使用 Paxos 的经验，Paxos 视频比 Raft 视频长 14%。
 如表 1 所述，我们已采取措施减轻潜在的偏见来源。
 我们所有的材料都可供审查 <code>[26, 28]</code>。</p>
-<p><img src="https://i.loli.net/2021/08/18/YkCQyJlR8cXEbfF.png" alt="图 12：比较 43 名参与者在 Raft 和 Paxos 测验中的表现的散点图"></p>
+<p><img src="https://i.loli.net/2021/08/18/YkCQyJlR8cXEbfF.png" srcset="/img/loading.gif" lazyload alt="图 12：比较 43 名参与者在 Raft 和 Paxos 测验中的表现的散点图"></p>
 <blockquote>
 <p>注：对角线 (33) 以上的点代表 Raft 得分更高的参与者。</p>
 </blockquote>
@@ -609,7 +791,7 @@ Raft 讲座涵盖了本文的内容； Paxos 讲座涵盖了足够的材料来�
 该模型预测测验的选择会产生 12.5 分的差异，有利于 Raft。
 这明显高于观察到的 4.9 分的差异，因为许多实际的学生之前都有 Paxos 经验，这对 Paxos 有很大帮助，而对 Raft 的帮助略小。
 奇怪的是，该模型还预测已经参加 Paxos 测验的人在 Raft 上的分数降低了 6.3 分； 虽然我们不知道为什么，但这似乎在统计上是显着的。</p>
-<p><img src="https://i.loli.net/2021/08/18/kP7Mcf8wiqYFn5Z.png" alt="图 13：关于实现和解释的评分"></p>
+<p><img src="https://i.loli.net/2021/08/18/kP7Mcf8wiqYFn5Z.png" srcset="/img/loading.gif" lazyload alt="图 13：关于实现和解释的评分"></p>
 <blockquote>
 <p>注：使用 5 分制，参与者被问到(左)他们认为哪种算法在功能正常、正确和高效的系统中更容易实现，(右)哪种算法更容易向计算机专业的毕业生解释。</p>
 </blockquote>
@@ -635,7 +817,7 @@ Raft 使用最少数量的消息（从领导者到一半集群的单次往返）
 <p>我们使用“官方”的 Raft 实现方式来衡量 Raft 的领导节点选举算法的性能并回答两个问题。
 第一，选举过程收敛很快吗？
 其次，领导节点崩溃后可以达到的最少停机时间是多少？</p>
-<p><img src="https://i.loli.net/2021/08/18/fJzkQoWDOCcITnX.png" alt="图 14：检测和更换宕机的领导节点的时间"></p>
+<p><img src="https://i.loli.net/2021/08/18/fJzkQoWDOCcITnX.png" srcset="/img/loading.gif" lazyload alt="图 14：检测和更换宕机的领导节点的时间"></p>
 <blockquote>
 <p>注：上图改变了选举超时的随机性，下图缩放了最小选举超时。
 每行代表 1000 次试验(除了“150-150ms”的 100 次试验)并且对应于选举超时的特定选择；例如，“150-155ms”表示选举超时时间是随机选择的，并且在 150ms 和 155ms 之间统一。
@@ -685,7 +867,7 @@ Raft 的消息比其他算法更密集一些，但它们总体上更简单。
 Lamport 的基于 α 的方法不是 Raft 的选择，因为它假设可以在没有领导者的情况下达成共识。
 相比 VR 和 SMART，Raft 的重配置算法的优势在于可以在不限制正常请求处理的情况下发生成员变化；相比之下，VR 在配置更改期间停止所有正常处理，而 SMART 对未完成请求的数量施加了类似 α 的限制。
 Raft 的方法也比 VR 或 SMART 添加更少的机制。</p>
-<h3 id="10-结论">10 结论</h3>
+<h3 id="10-结论-2">10 结论</h3>
 <p>算法的设计通常以正确性、效率和/或简洁性为主要目标。
 尽管这些都是有价值的目标，但我们认为可理解性同样重要。
 在开发人员将算法转化为实际实现之前，其他任何目标都无法实现，这将不可避免地偏离和扩展已发布的形式。
@@ -941,7 +1123,7 @@ Diego Ongaro is supported by The Junglee Corporation Stanford Graduate Fellowshi
 </li>
 <li>如果存在 N 使得 N &gt; commitIndex，大部分 <code>matchIndex[i] ≥ N</code>，并且 <code>log[N].term == currentTerm</code>: 将 commitIndex 设置为 N(第 5.3 和 5.4 节)</li>
 </ul>
-<h4 id="参考资料">参考资料</h4>
+<h4 id="参考资料-69">参考资料</h4>
 <p><code>[1]</code> BOLOSKY, W. J., BRADSHAW, D., HAAGENS, R. B., KUSTERS, N. P., AND LI, P.
 Paxos replicated state machines as the basis of a high-performance data store.
 In Proc. NSDI’11, USENIX Conference on Networked Systems Design and Implementation (2011), USENIX, pp. 141–154.</p>
@@ -1011,450 +1193,343 @@ Communications of the ACM 54 (July 2011), 121–130.</p>
 <p><code>[34]</code> SHVACHKO, K., KUANG, H., RADIA, S., AND CHANSLER, R. The Hadoop distributed file system.
 In Proc. MSST’10, Symposium on Mass Storage Systems and Technologies (2010), IEEE Computer Society, pp. 1–10.</p>
 <p><code>[35]</code> VAN RENESSE, R. Paxos made moderately complex. Tech. rep., Cornell University, 2012.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
+      
+        <a href="/tags/Raft/">#Raft</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>In Search of an Understandable Consensus Algorithm 中文翻译</div>
+      <div>https://wangqian0306.github.io/2021/in_search_of_an_understandable_consensus_algorithm/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年6月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/in_search_of_an_understandable_consensus_algorithm/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Raft/" rel="tag">Raft</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            An Architecture for Fast and General Data Processing on Large Clusters 部分中文翻译
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" title="An Architecture for Fast and General Data Processing on Large Clusters 部分中文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">An Architecture for Fast and General Data Processing on Large Clusters 部分中文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" title="Architecture of Next Generation Apache Hadoop MapReduce Framework 中文翻译版">
+                        <span class="hidden-mobile">Architecture of Next Generation Apache Hadoop MapReduce Framework 中文翻译版</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Architecture of Next Generation Apache Hadoop MapReduce Framework 中文翻译版</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

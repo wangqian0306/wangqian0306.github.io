@@ -1,116 +1,297 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Large-scale cluster management at Google with Borg 中文翻译版 作者： Abhishek Verma, Luis Pedrosa, Madhukar Korupolu, David Oppenheimer, Eric Tune, John Wilkes 原版的版权说明 12345Permission to make digital or hard">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Large-scale cluster management at Google with Borg 中文翻译版">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/large-scale_cluster_management_at_google_with_borg/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Large-scale cluster management at Google with Borg 中文翻译版 作者： Abhishek Verma, Luis Pedrosa, Madhukar Korupolu, David Oppenheimer, Eric Tune, John Wilkes 原版的版权说明 12345Permission to make digital or hard">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2021/12/29/Gn6J9qwK3hLmUst.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/28/i3jJ1DE2woGRkm7.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/29/WInUgwmZjkNBGJz.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/29/nPRjEWNYlkhiX16.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/29/WisuOEfKYg9McwS.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/nSkuYVlEAmrOiFt.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/E3Wux6NbLPd8yBo.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/bBcxqvWaEwQ8NtG.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/v4sXlELt5GSezFI.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/31/pwhCkcGLbVOa7Is.png">
+<meta property="article:published_time" content="2021-12-28T14:26:13.000Z">
+<meta property="article:modified_time" content="2022-01-04T00:52:36.774Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Borg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2021/12/29/Gn6J9qwK3hLmUst.png">
+  
+  
+  
+  <title>Large-scale cluster management at Google with Borg 中文翻译版 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>Large-scale cluster management at Google with Borg 中文翻译版 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/large-scale_cluster_management_at_google_with_borg"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Large-scale cluster management at Google with Borg 中文翻译版
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/large-scale_cluster_management_at_google_with_borg/" class="article-date">
-  <time datetime="2021-12-28T14:26:13.000Z" itemprop="datePublished">2021-12-28</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Large-scale-cluster-management-at-Google-with-Borg-中文翻译版">Large-scale cluster management at Google with Borg 中文翻译版</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Large-scale cluster management at Google with Borg 中文翻译版"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-28 22:26" pubdate>
+          2021年12月28日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Large-scale cluster management at Google with Borg 中文翻译版</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Large-scale-cluster-management-at-Google-with-Borg-中文翻译版">Large-scale cluster management at Google with Borg 中文翻译版</h2>
 <p>作者：</p>
 <p>Abhishek Verma, Luis Pedrosa, Madhukar Korupolu, David Oppenheimer, Eric Tune, John Wilkes</p>
-<h3 id="原版的版权说明">原版的版权说明</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted without </span><br><span class="line">fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice </span><br><span class="line">and the full citation the first page. Copyrights for third-party components of this work must be honored.For all other uses,</span><br><span class="line"> contact the owner/author(s).EuroSys’15, April 21–24, 2015, Bordeaux, France.Copyright is held by the owner/author(s).</span><br><span class="line"> ACM 978-1-4503-3238-5/15/04.http://dx.doi.org/10.1145/2741948.2741964</span><br></pre></td></tr></table></figure>
-<h3 id="摘要">摘要</h3>
+<h3 id="原版的版权说明-2">原版的版权说明</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted without <br>fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice <br>and the full citation the first page. Copyrights for third-party components of this work must be honored.For all other uses,<br> contact the owner/author(s).EuroSys’15, April 21–24, 2015, Bordeaux, France.Copyright is held by the owner/author(s).<br> ACM 978-1-4503-3238-5/15/04.http://dx.doi.org/10.1145/2741948.2741964<br></code></pre></td></tr></table></figure>
+<h3 id="摘要-6">摘要</h3>
 <p>Google 的 Borg 系统是一个集群管理器，它在多个集群中运行数十万个作业，来自数千个不同的应用程序，每个集群都有多达数万台机器。</p>
 <p>它通过将准入控制、高效任务打包、过度承诺(over-commit)和机器共享与进程级性能隔离相结合来实现高效利用资源。
 它支持具有运行时功能的高可用性应用程序，这些功能可以最大限度地缩短故障恢复时间，以及减少相关故障概率的调度策略。
 Borg 通过提供声明性的工作规范语言、名称服务集成、实时工作监控以及分析和模拟系统行为的工具来简化其用户的生活。</p>
 <p>我们总结了 Borg 系统架构和特征、重要的设计决策、对其某些政策决策的定量分析，以及对从十年的操作经验中吸取的经验教训的定性检验。</p>
-<h3 id="1-引言">1 引言</h3>
+<h3 id="1-引言-7">1 引言</h3>
 <p>我们内部称为 Borg 的集群管理系统负责接纳、调度、启动、重启和监控 Google 运行的所有应用程序。这篇论文描述了它的工作方式。</p>
 <p>Borg 提供了三个主要好处：(1) 隐藏了资源管理和故障处理的细节，因此它的用户可以专注于应用程序开发；(2) 以非常高的可靠性和可用性运行，并支持具有相同功能的应用程序；(3) 让我们有效地在数万台机器上运行工作负载。
 Borg 不是第一个解决这些问题的系统，但它是为数不多的以这种规模运作的系统之一，具有这种程度的弹性和完整性。
@@ -164,7 +345,7 @@ Borg 程序是静态链接的，以减少对其运行时环境的依赖，并将
 这是 GCL <code>[12]</code> 的变体，它生成 protobuf 文件 <code>[67]</code>，并扩展了一些 Borg 特定的关键字。
 GCL 提供了 lambda 函数来允许计算，应用程序使用这些函数来调整它们的配置以适应它们的环境；成千上万的 BCL 文件都超过 1k 行，我们已经积累了数千万行的 BCL。
 Borg 作业配置与 Aurora 配置文件有相似之处 <code>[6]</code>。</p>
-<p><img src="https://s2.loli.net/2021/12/29/Gn6J9qwK3hLmUst.png" alt="图 2：作业和任务的状态图。用户可以触发提交、终止和更新操作。"></p>
+<p><img src="https://s2.loli.net/2021/12/29/Gn6J9qwK3hLmUst.png" srcset="/img/loading.gif" lazyload alt="图 2：作业和任务的状态图。用户可以触发提交、终止和更新操作。"></p>
 <p>图 2 说明了作业和任务在其生命周期中经历的状态。</p>
 <p>用户可以通过将新的作业配置推送到 Borg，然后指示 Borg 将任务更新配置来更改正在运行的作业中部分或全部任务的属性。
 这是一个轻量级的非原子事务，在直到它关闭(提交)前都可以很容易地撤消。
@@ -213,7 +394,7 @@ Borg 监控健康检查 URL 并重新启动没有及时响应或返回 HTTP 错�
 此数据用于基于使用情况的计费、调试作业和系统故障以及长期容量规划。它还提供了 Google 集群工作负载跟踪的数据 <code>[80]</code>。</p>
 <p>所有这些功能都可以帮助用户了解和调试 Borg 及其作业的行为，并帮助我们的 SRE 管理每人数万台机器。</p>
 <h3 id="3-Borg-的架构设计">3 Borg 的架构设计</h3>
-<p><img src="https://s2.loli.net/2021/12/28/i3jJ1DE2woGRkm7.png" alt="图 1：Borg 的高层架构。仅显示了数千个工作节点中的一小部分。"></p>
+<p><img src="https://s2.loli.net/2021/12/28/i3jJ1DE2woGRkm7.png" srcset="/img/loading.gif" lazyload alt="图 1：Borg 的高层架构。仅显示了数千个工作节点中的一小部分。"></p>
 <p>Borg 单元由一组机器、一个称为 Borgmaster 的逻辑集中控制器和一个称为 Borglet 的代理进程组成，该代理进程在单元中的每台机器上运行(参见图 1)。Borg 的所有组件都是用 C++ 编写的。</p>
 <h4 id="3-1-Borgmaster">3.1 Borgmaster</h4>
 <p>每个运行单元的 Borgmaster 由两个进程组成：主 Borgmaster 进程和一个单独的调度程序(参见第 3.2 节)。
@@ -287,7 +468,7 @@ Borgmaster 将接受并应用这些分配，除非它们不合适(例如，基�
 <p>在我们的实验中(第 5 节)，从头开始调度一个单元的整个工作负载通常需要几百秒，但当上述技术被禁用时，超过 3 天后仍未完成。
 但是，通常情况下，挂起队列上的在线调度会在不到半秒的时间内完成。</p>
 <h3 id="4-能力">4 能力</h3>
-<p><img src="https://s2.loli.net/2021/12/29/WInUgwmZjkNBGJz.png" alt="图 3：生产和非生产工作负载的任务驱逐率和原因。2013 年 8 月 1 日的数据"></p>
+<p><img src="https://s2.loli.net/2021/12/29/WInUgwmZjkNBGJz.png" srcset="/img/loading.gif" lazyload alt="图 3：生产和非生产工作负载的任务驱逐率和原因。2013 年 8 月 1 日的数据"></p>
 <p>故障是大规模系统中的常态 <code>[10, 11, 22]</code>。图 3 提供了 15 个样本单元中任务驱逐原因的细分。
 运行在 Borg 上的应用程序应该使用诸如复制、在分布式文件系统中存储持久状态和(如果合适)偶尔保存检查点等技术来处理此类事件。
 即便如此，我们仍会努力减轻这些事件的影响。例如，Borg 的处理方式如下：</p>
@@ -326,10 +507,10 @@ Borgmaster 将接受并应用这些分配，除非它们不合适(例如，基�
 这部分是为了避免处理开放和封闭队列模型的困难 <code>[71, 79]</code>，部分是因为传统的完成时间指标不适用于我们的长期运行服务的环境，部分是为了提供清晰的信号进行比较，部分是因为我们不相信结果会有显着不同，部分是因为实际问题：我们发现自己曾在某个时间点消耗 200 000 个 Borg CPU 内核用于我们的实验——即使在 Google 的规模下，这也是非常重要的投资。</p>
 <p>在生产中，我们故意为工作负载增长、偶尔的“黑天鹅”事件、负载尖峰、机器故障、硬件升级和大规模局部故障(例如，电源总线故障)留出很大的空间。
 图 4 显示了如果我们对它们应用运行单元压缩，我们的现实世界的运行单元会小多少。下图中的基线使用这些压缩尺寸。</p>
-<p><img src="https://s2.loli.net/2021/12/29/nPRjEWNYlkhiX16.png" alt="图 4：压缩的效果。压缩后获得的原始运行单元大小百分比的 CDF，跨越 15 个运行单元"></p>
+<p><img src="https://s2.loli.net/2021/12/29/nPRjEWNYlkhiX16.png" srcset="/img/loading.gif" lazyload alt="图 4：压缩的效果。压缩后获得的原始运行单元大小百分比的 CDF，跨越 15 个运行单元"></p>
 <h4 id="5-2-运行单元共享">5.2 运行单元共享</h4>
 <p>我们几乎所有的机器都同时运行生产和非生产任务：98% 的机器在共享的 Borg 单元中，83% 的机器在 Borg 管理的整个机器集中。(我们有一些特殊用途的专用运行单元。)</p>
-<p><img src="https://s2.loli.net/2021/12/29/WisuOEfKYg9McwS.png" alt="图 5：将生产和非生产工作隔离到不同的运行单元中需要更多的机器。"></p>
+<p><img src="https://s2.loli.net/2021/12/29/WisuOEfKYg9McwS.png" srcset="/img/loading.gif" lazyload alt="图 5：将生产和非生产工作隔离到不同的运行单元中需要更多的机器。"></p>
 <blockquote>
 <p>注：两个图表都显示了如果生产和非生产工作负载被发送到不同的单元需要多少额外的机器，表示为在单个运行单元中运行工作负载所需的最少机器数量的百分比。在这个和随后的 CDF 图中，每个运行单元显示的值来自我们的实验试验产生的不同运行单元大小的 90%；误差条显示了试验值的完整范围。</p>
 </blockquote>
@@ -337,7 +518,7 @@ Borgmaster 将接受并应用这些分配，除非它们不合适(例如，基�
 图 5 显示隔离生产和非生产工作需要在中间单元中多 20-30% 的机器来运行我们的工作负载。
 这是因为生产作业通常会预留资源来处理罕见的工作负载高峰，但大多数时候不会使用这些资源。
 Borg 回收未使用的资源(参见第 5.5 节)来运行大部分非生产工作，因此我们总体上需要更少的机器。</p>
-<p><img src="https://s2.loli.net/2021/12/31/nSkuYVlEAmrOiFt.png" alt="图 6：隔离用户需要更多的机器。如果用户需求大于的阈值，如图所示我们为 5 个不同的运行单元分配了自己的专用单元，这样依赖也就需要新的运行单元和额外的机器。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/nSkuYVlEAmrOiFt.png" srcset="/img/loading.gif" lazyload alt="图 6：隔离用户需要更多的机器。如果用户需求大于的阈值，如图所示我们为 5 个不同的运行单元分配了自己的专用单元，这样依赖也就需要新的运行单元和额外的机器。"></p>
 <p>大多数 Borg 运行单元由数千个用户共享。图 6 显示了原因。
 对于此测试，如果用户消耗至少 10 TiB 的内存(或 100 TiB)，我们会将用户的工作负载拆分到一个新单元中。
 我们现有的策略看起来不错：即使使用更大的阈值，我们也需要 2-16 倍的单元，以及 20-150% 的额外机器。再一次证明了，集中资源显着降低了成本。</p>
@@ -352,17 +533,17 @@ Borg 回收未使用的资源(参见第 5.5 节)来运行大部分非生产工�
 <p>这些实验证实了仓库规模的性能比较是棘手的，又一次证明了 <code>[51]</code> 中的观察结果，并且还表明共享不会显着增加运行程序的成本。</p>
 <p>但即使假设我们的结果最不利，共享仍然是一个胜利：CPU 速度下降被几种不同分区方案所需的机器减少所抵消，并且共享优势适用于包括内存和磁盘在内的所有资源，而不仅仅是 CPU。</p>
 <h4 id="5-3-大型运行单元">5.3 大型运行单元</h4>
-<p><img src="https://s2.loli.net/2021/12/31/E3Wux6NbLPd8yBo.png" alt="图 7：将运行单元细分为更小的运行单元需要更多的机器。如果我们将这些特定的运行单元分成不同数量的较小的运行单元，将需要额外的机器(在单个运行单元的情况下作为其中的补充)。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/E3Wux6NbLPd8yBo.png" srcset="/img/loading.gif" lazyload alt="图 7：将运行单元细分为更小的运行单元需要更多的机器。如果我们将这些特定的运行单元分成不同数量的较小的运行单元，将需要额外的机器(在单个运行单元的情况下作为其中的补充)。"></p>
 <p>Google 构建大型单元，既可以运行大型计算，又可以减少资源碎片。
 我们通过将一个单元的工作负载划分到多个较小的单元来测试后者的效果——首先随机排列作业，然后在分区之间以循环方式分配它们。
 图 7 证实，使用更小的单元将需要更多的机器。</p>
 <h4 id="5-4-细粒度的资源请求">5.4 细粒度的资源请求</h4>
-<p><img src="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png" alt="图 8：没有一个单一的桶尺寸可以适合大多数任务。我们的示例单元中请求的 CPU 和内存请求的 CDF 显示。尽管一些整数 CPU 内核尺寸更受欢迎，但没有一个值脱颖而出。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png" srcset="/img/loading.gif" lazyload alt="图 8：没有一个单一的桶尺寸可以适合大多数任务。我们的示例单元中请求的 CPU 和内存请求的 CDF 显示。尽管一些整数 CPU 内核尺寸更受欢迎，但没有一个值脱颖而出。"></p>
 <p>Borg 用户以毫核(milli-core)为单位请求 CPU，以字节为单位请求内存和磁盘空间。
 (核心是处理器超线程，针对跨机器类型的性能进行了标准化。)
 图 8 显示他们利用了这种粒度：在请求的内存或 CPU 内核量中几乎没有明显的“最佳点”，并且这些资源之间几乎没有明显的相关性。
 这些分布与 <code>[68]</code> 中呈现的分布非常相似，除了我们在 90% 和以上看到稍大的内存请求。</p>
-<p><img src="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png" alt="图 9：资源“分桶”需要更多的机器。将 CPU 和内存请求四舍五入到 15 个单元中的下一个最近的 2 次幂所导致的额外开销的 CDF。下限和上限跨越实际值(见正文)。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/aI1pkS9D2VlHzjE.png" srcset="/img/loading.gif" lazyload alt="图 9：资源“分桶”需要更多的机器。将 CPU 和内存请求四舍五入到 15 个单元中的下一个最近的 2 次幂所导致的额外开销的 CDF。下限和上限跨越实际值(见正文)。"></p>
 <p>提供一组固定大小的容器或虚拟机，虽然在 IaaS (基础设施即服务)提供商 <code>[7, 33]</code> 中很常见，但并不能很好地满足我们的需求。
 为了证明这一点，我们通过将每个资源维度中的下一个最接近的 2 次幂四舍五入来“分桶”生产作业和分配(第 2.4 节)的 CPU 内核和内存资源限制，从 0.5 个 CPU 内核和 1 GiB RAM 开始。
 图 9 显示，在中等情况下，这样做需要多 30-50% 的资源。
@@ -378,9 +559,9 @@ Borg 使用该限制来确定用户是否有足够的配额来接受作业，以
 初始预留设置为等于资源请求(限制)；300 秒后，为了允许启动瞬变，它会缓慢衰减到实际使用情况加上安全裕度。如果使用量超过它，则预订会迅速增加。</p>
 <p>Borg 调度器使用限制来计算生产任务的可行性（第 3.2 节），4 因此它们从不依赖回收资源，也不会暴露于资源超额订阅；对于非生产任务，它使用现有任务的预留，以便可以将新任务安排到回收资源中。</p>
 <p>如果预留(预测)错误，机器可能会在运行时耗尽资源——即使所有任务使用的资源都少于其限制。如果发生这种情况，我们会终止或限制非生产任务，而不是生产任务。</p>
-<p><img src="https://s2.loli.net/2021/12/31/bBcxqvWaEwQ8NtG.png" alt="图 10：资源回收相当有效。如果我们为 15 个代表性单元禁用它，则需要的额外机器的 CDF。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/bBcxqvWaEwQ8NtG.png" srcset="/img/loading.gif" lazyload alt="图 10：资源回收相当有效。如果我们为 15 个代表性单元禁用它，则需要的额外机器的 CDF。"></p>
 <p>图 10 显示，如果不进行资源回收，将需要更多的机器。大约 20% 的工作负载（第 6.2 节）在中间单元中的回收资源中运行。</p>
-<p><img src="https://s2.loli.net/2021/12/31/v4sXlELt5GSezFI.png" alt="图 11：资源预估在识别未使用的资源方面是成功的。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/v4sXlELt5GSezFI.png" srcset="/img/loading.gif" lazyload alt="图 11：资源预估在识别未使用的资源方面是成功的。"></p>
 <blockquote>
 <p>注：资源估计在识别未使用的资源方面是成功的。虚线显示了 CPU 和内存使用率与 15 个单元中任务的请求（限制）比率的 CDF。大多数任务使用的 CPU 比其限制少得多，但也有少数任务使用的 CPU 比请求的多。
 实线表示 CPU 和内存预留与限制的比率的 CDF； 这些都接近 100%。直线是资源估算过程的产物。</p>
@@ -388,7 +569,7 @@ Borg 使用该限制来确定用户是否有足够的配额来接受作业，以
 <p>我们可以在图 11 中看到更多详细信息，其中显示了预留和使用与限制的比率。
 如果需要资源，超过其内存限制的任务将首先被抢占，无论其优先级如何，因此任务很少会超过其内存限制。
 另一方面，CPU 很容易受到限制，因此短期峰值可以相当无害地将使用率推高至预留值之上。</p>
-<p><img src="https://s2.loli.net/2021/12/31/pwhCkcGLbVOa7Is.png" alt="图 12：更积极的资源估计可以回收更多资源，而对内存不足事件 (OOM) 的影响很小。"></p>
+<p><img src="https://s2.loli.net/2021/12/31/pwhCkcGLbVOa7Is.png" srcset="/img/loading.gif" lazyload alt="图 12：更积极的资源估计可以回收更多资源，而对内存不足事件 (OOM) 的影响很小。"></p>
 <blockquote>
 <p>注：一个时间线（从 2013 年 11 月 11 日开始）用于一个生产单元的使用、预留和限制平均超过 5 分钟的窗口和累积的内存不足事件；后者的斜率是 OOM 的总比率。竖线将具有不同资源估计设置的周分开。</p>
 </blockquote>
@@ -517,9 +698,9 @@ Borg 的一个重要设计决策是向所有用户显示调试信息而不是隐
 群集管理逻辑构建为小型、可组合的微服务，这些服务是此 API 服务器的客户端，例如 replication controller (在出现故障时维护 pod 的所需副本数量)和 node controller(管理机器生命周期)。</p>
 <h4 id="8-3-结论">8.3 结论</h4>
 <p>在过去十年中，几乎所有 Google 的集群工作负载都转而使用 Borg。我们将继续改进它，并将从中学到的经验应用到 Kubernetes 中。</p>
-<h3 id="致谢">致谢</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">The authors of this paper performed the evaluations and</span><br><span class="line">wrote the paper, but the dozens of engineers who designed, implemented, and maintained Borg’s components</span><br><span class="line">and ecosystem are the key to its success. We list here just</span><br><span class="line">those who participated most directly in the design, implementation, and operation of the Borgmaster and Borglets.</span><br><span class="line">Our apologies if we missed anybody.</span><br><span class="line"></span><br><span class="line">The initial Borgmaster was primarily designed and implemented by Jeremy Dion and Mark Vandevoorde, with</span><br><span class="line">Ben Smith, Ken Ashcraft, Maricia Scott, Ming-Yee Iu, and</span><br><span class="line">Monika Henzinger. The initial Borglet was primarily designed and implemented by Paul Menage.</span><br><span class="line"></span><br><span class="line">Subsequent contributors include Abhishek Rai, Abhishek</span><br><span class="line">Verma, Andy Zheng, Ashwin Kumar, Beng-Hong Lim,</span><br><span class="line">Bin Zhang, Bolu Szewczyk, Brian Budge, Brian Grant,</span><br><span class="line">Brian Wickman, Chengdu Huang, Cynthia Wong, Daniel</span><br><span class="line">Smith, Dave Bort, David Oppenheimer, David Wall, Dawn</span><br><span class="line">Chen, Eric Haugen, Eric Tune, Ethan Solomita, Gaurav Dhiman, Geeta Chaudhry, Greg Roelofs, Grzegorz Czajkowski,</span><br><span class="line">James Eady, Jarek Kusmierek, Jaroslaw Przybylowicz, Jason Hickey, Javier Kohen, Jeremy Lau, Jerzy Szczepkowski,</span><br><span class="line">John Wilkes, Jonathan Wilson, Joso Eterovic, Jutta Degener, Kai Backman, Kamil Yurtsever, Kenji Kaneda, Kevan Miller, Kurt Steinkraus, Leo Landa, Liza Fireman,</span><br><span class="line">Madhukar Korupolu, Mark Logan, Markus Gutschke, Matt</span><br><span class="line">Sparks, Maya Haridasan, Michael Abd-El-Malek, Michael</span><br><span class="line">Kenniston, Mukesh Kumar, Nate Calvin, Onufry Wojtaszczyk,</span><br><span class="line">Patrick Johnson, Pedro Valenzuela, Piotr Witusowski, Praveen</span><br><span class="line">Kallakuri, Rafal Sokolowski, Richard Gooch, Rishi Gosalia, Rob Radez, Robert Hagmann, Robert Jardine, Robert</span><br><span class="line">Kennedy, Rohit Jnagal, Roy Bryant, Rune Dahl, Scott Garriss, Scott Johnson, Sean Howarth, Sheena Madan, Smeeta</span><br><span class="line">Jalan, Stan Chesnutt, Temo Arobelidze, Tim Hockin, Todd</span><br><span class="line">Wang, Tomasz Blaszczyk, Tomasz Wozniak, Tomek Zielonka,</span><br><span class="line">Victor Marmol, Vish Kannan, Vrigo Gokhale, Walfredo</span><br><span class="line">Cirne, Walt Drummond, Weiran Liu, Xiaopan Zhang, Xiao</span><br><span class="line">Zhang, Ye Zhao, and Zohaib Maya.</span><br><span class="line"></span><br><span class="line">The Borg SRE team has also been crucial, and has included Adam Rogoyski, Alex Milivojevic, Anil Das, Cody</span><br><span class="line">Smith, Cooper Bethea, Folke Behrens, Matt Liggett, James</span><br><span class="line">Sanford, John Millikin, Matt Brown, Miki Habryn, Peter Dahl, Robert van Gent, Seppi Wilhelmi, Seth Hettich,</span><br><span class="line">Torsten Marek, and Viraj Alankar. The Borg configuration</span><br><span class="line">language (BCL) and borgcfg tool were originally developed</span><br><span class="line">by Marcel van Lohuizen and Robert Griesemer.</span><br><span class="line"></span><br><span class="line">We thank our reviewers (especially Eric Brewer, Malte</span><br><span class="line">Schwarzkopf and Tom Rodeheffer), and our shepherd, Christos Kozyrakis, for their feedback on this paper.</span><br></pre></td></tr></table></figure>
-<h3 id="参考资料">参考资料</h3>
+<h3 id="致谢-3">致谢</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs text">The authors of this paper performed the evaluations and<br>wrote the paper, but the dozens of engineers who designed, implemented, and maintained Borg’s components<br>and ecosystem are the key to its success. We list here just<br>those who participated most directly in the design, implementation, and operation of the Borgmaster and Borglets.<br>Our apologies if we missed anybody.<br><br>The initial Borgmaster was primarily designed and implemented by Jeremy Dion and Mark Vandevoorde, with<br>Ben Smith, Ken Ashcraft, Maricia Scott, Ming-Yee Iu, and<br>Monika Henzinger. The initial Borglet was primarily designed and implemented by Paul Menage.<br><br>Subsequent contributors include Abhishek Rai, Abhishek<br>Verma, Andy Zheng, Ashwin Kumar, Beng-Hong Lim,<br>Bin Zhang, Bolu Szewczyk, Brian Budge, Brian Grant,<br>Brian Wickman, Chengdu Huang, Cynthia Wong, Daniel<br>Smith, Dave Bort, David Oppenheimer, David Wall, Dawn<br>Chen, Eric Haugen, Eric Tune, Ethan Solomita, Gaurav Dhiman, Geeta Chaudhry, Greg Roelofs, Grzegorz Czajkowski,<br>James Eady, Jarek Kusmierek, Jaroslaw Przybylowicz, Jason Hickey, Javier Kohen, Jeremy Lau, Jerzy Szczepkowski,<br>John Wilkes, Jonathan Wilson, Joso Eterovic, Jutta Degener, Kai Backman, Kamil Yurtsever, Kenji Kaneda, Kevan Miller, Kurt Steinkraus, Leo Landa, Liza Fireman,<br>Madhukar Korupolu, Mark Logan, Markus Gutschke, Matt<br>Sparks, Maya Haridasan, Michael Abd-El-Malek, Michael<br>Kenniston, Mukesh Kumar, Nate Calvin, Onufry Wojtaszczyk,<br>Patrick Johnson, Pedro Valenzuela, Piotr Witusowski, Praveen<br>Kallakuri, Rafal Sokolowski, Richard Gooch, Rishi Gosalia, Rob Radez, Robert Hagmann, Robert Jardine, Robert<br>Kennedy, Rohit Jnagal, Roy Bryant, Rune Dahl, Scott Garriss, Scott Johnson, Sean Howarth, Sheena Madan, Smeeta<br>Jalan, Stan Chesnutt, Temo Arobelidze, Tim Hockin, Todd<br>Wang, Tomasz Blaszczyk, Tomasz Wozniak, Tomek Zielonka,<br>Victor Marmol, Vish Kannan, Vrigo Gokhale, Walfredo<br>Cirne, Walt Drummond, Weiran Liu, Xiaopan Zhang, Xiao<br>Zhang, Ye Zhao, and Zohaib Maya.<br><br>The Borg SRE team has also been crucial, and has included Adam Rogoyski, Alex Milivojevic, Anil Das, Cody<br>Smith, Cooper Bethea, Folke Behrens, Matt Liggett, James<br>Sanford, John Millikin, Matt Brown, Miki Habryn, Peter Dahl, Robert van Gent, Seppi Wilhelmi, Seth Hettich,<br>Torsten Marek, and Viraj Alankar. The Borg configuration<br>language (BCL) and borgcfg tool were originally developed<br>by Marcel van Lohuizen and Robert Griesemer.<br><br>We thank our reviewers (especially Eric Brewer, Malte<br>Schwarzkopf and Tom Rodeheffer), and our shepherd, Christos Kozyrakis, for their feedback on this paper.<br></code></pre></td></tr></table></figure>
+<h3 id="参考资料-70">参考资料</h3>
 <p>[1] O. A. Abdul-Rahman and K. Aida.
 Towards understanding the usage behavior of Google cloud users: the mice and elephants phenomenon.
 In Proc. IEEE Int’l Conf. on Cloud Computing Technology and Science (CloudCom), pages 272–277, Singapore, Dec. 2014.</p>
@@ -726,450 +907,343 @@ In Proc. European Conf. on Computer Systems (EuroSys), Prague, Czech Republic, 2
 <p>[84] Z. Zhang, C. Li, Y. Tao, R. Yang, H. Tang, and J. Xu.
 Fuxi: a fault-tolerant resource management and job scheduling system at internet scale.
 In Proc. Int’l Conf. on Very Large Data Bases (VLDB), pages 1393–1404. VLDB Endowment Inc., Sept. 2014.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
+      
+        <a href="/tags/Borg/">#Borg</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Large-scale cluster management at Google with Borg 中文翻译版</div>
+      <div>https://wangqian0306.github.io/2021/large-scale_cluster_management_at_google_with_borg/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月28日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/large-scale_cluster_management_at_google_with_borg/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Borg/" rel="tag">Borg</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2022/apache_hadoop_yarn_yet_another_resource_negotiator/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/apache_hadoop_yarn_yet_another_resource_negotiator/" title="Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/latex/" title="LaTeX">
+                        <span class="hidden-mobile">LaTeX</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/latex/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">LaTeX</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

@@ -1,110 +1,284 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译 作者：Vinod Kumar Vavilapalli, Arun C Murthy, Chris Douglas, Sharad Agarwal, Mahadev Konar, Robert Evans, Thomas Graves, Jason Lowe, Hitesh Shah S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/apache_hadoop_yarn_yet_another_resource_negotiator/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译 作者：Vinod Kumar Vavilapalli, Arun C Murthy, Chris Douglas, Sharad Agarwal, Mahadev Konar, Robert Evans, Thomas Graves, Jason Lowe, Hitesh Shah S">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/01/05/rP3enUW48yvwSQd.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/05/bELmqIgQou6cFNS.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/05/ud6zw7vWLMmbrpK.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/05/OsnDy29PWLfhFlw.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/06/upJbVzKWIcQRLaN.png">
+<meta property="article:published_time" content="2022-01-04T14:26:13.000Z">
+<meta property="article:modified_time" content="2022-01-06T03:07:57.409Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="YARN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/01/05/rP3enUW48yvwSQd.png">
+  
+  
+  
+  <title>Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/apache_hadoop_yarn_yet_another_resource_negotiator"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/apache_hadoop_yarn_yet_another_resource_negotiator/" class="article-date">
-  <time datetime="2022-01-04T14:26:13.000Z" itemprop="datePublished">2022-01-04</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Apache-Hadoop-YARN-Yet-Another-Resource-Negotiator-中文翻译">Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-04 22:26" pubdate>
+          2022年1月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Apache-Hadoop-YARN-Yet-Another-Resource-Negotiator-中文翻译">Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译</h2>
 <p>作者：Vinod Kumar Vavilapalli, Arun C Murthy, Chris Douglas, Sharad Agarwal, Mahadev Konar, Robert Evans, Thomas Graves, Jason Lowe, Hitesh Shah Siddharth Seth, Bikas Saha, Carlo Curino, Owen O’Malley, Sanjay Radia, Benjamin Reed, Eric Baldeschwieler</p>
 <p><a target="_blank" rel="noopener" href="https://www.cse.ust.hk/~weiwa/teaching/Fall15-COMP6611B/reading_list/YARN.pdf">英文原文</a></p>
 <h3 id="版权说明">版权说明</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Copyright c 2013 by the Association for Computing Machinery, Inc.</span><br><span class="line">(ACM). Permission to make digital or hard copies of all or part of this</span><br><span class="line">work for personal or classroom use is granted without fee provided that</span><br><span class="line">copies are not made or distributed for profit or commercial advantage</span><br><span class="line">and that copies bear this notice and the full citation on the first page.</span><br><span class="line">Copyrights for components of this work owned by others than the author(s) must be honored.</span><br><span class="line">Abstracting with credit is permitted. To copy otherwise, or republish,</span><br><span class="line">to post on servers or to redistribute to lists, requires prior specific</span><br><span class="line">permission and/or a fee. Request permissions from permissions@acm.org.</span><br></pre></td></tr></table></figure>
-<h3 id="摘要">摘要</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">Copyright c 2013 by the Association for Computing Machinery, Inc.<br>(ACM). Permission to make digital or hard copies of all or part of this<br>work for personal or classroom use is granted without fee provided that<br>copies are not made or distributed for profit or commercial advantage<br>and that copies bear this notice and the full citation on the first page.<br>Copyrights for components of this work owned by others than the author(s) must be honored.<br>Abstracting with credit is permitted. To copy otherwise, or republish,<br>to post on servers or to redistribute to lists, requires prior specific<br>permission and/or a fee. Request permissions from permissions@acm.org.<br></code></pre></td></tr></table></figure>
+<h3 id="摘要-2">摘要</h3>
 <p>Apache Hadoop <code>[1]</code> 的最初设计主要集中在运行大量的 MapReduce 作业来处理网络爬虫。
 对于日益多样化的公司而言，Hadoop 已成为数据和计算集市——实际上是共享和访问数据和计算资源的地方。
 这种广泛采用和无处不在的使用使初始设计远远超出其预期目标，暴露出两个主要缺点：1) 特定编程模型与资源管理基础设施的紧密耦合，迫使开发人员滥用 MapReduce 编程模型，以及 2) 作业控制流的集中处理，这导致调度器对可扩展性方面的有很高的可能性出现问题。</p>
@@ -112,7 +286,7 @@
 我们引入的新架构将编程模型与资源管理基础设施分离，并将许多调度功能(例如，任务容错)委托给每个应用程序组件。
 我们提供实验证据来证明我们所做的改进，通过报告在生产环境(包括 100% 的雅虎集群)上运行 YARN 的经验来确认提高的效率，并通过讨论将几个编程框架移植到 YARN 上来确认灵活性声明。
 Dryad、Giraph、Hoya、Hadoop MapReduce、REEF、Spark、Storm、Tez。</p>
-<h3 id="1-引言">1 引言</h3>
+<h3 id="1-引言-3">1 引言</h3>
 <p>Apache Hadoop 最初是 MapReduce <code>[12]</code> 的众多开源实现之一，专注于解决索引网络爬行所需的前所未有的规模。
 其执行架构针对此用例进行了调整，专注于为大规模数据密集型计算提供强大的容错能力。
 在许多大型网络公司和初创公司中，Hadoop 集群是存储和处理运营数据的常见场所。</p>
@@ -214,7 +388,7 @@ map 和 reduce 槽的数量由集群操作员固定，因此休闲的 map 容量
 这导致了对 YARN 重新设计的最终要求：<strong><code>[R10:]</code> 向后兼容性。</strong></p>
 <p>在本文的其余部分，我们提供了 YARN 架构的描述(第 3 节)，我们报告了 YARN 在现实世界中的采用(第 4 节)，提供了验证一些关键架构选择的实验证据(第 5 节)并通过将 YARN 与一些相关工作(第 6 节)进行比较来得出结论。</p>
 <h3 id="3-架构">3 架构</h3>
-<p><img src="https://s2.loli.net/2022/01/05/rP3enUW48yvwSQd.png" alt="图 1：YARN 架构(蓝色是系统组件，黄色和粉色是两个正在运行的应用程序。)"></p>
+<p><img src="https://s2.loli.net/2022/01/05/rP3enUW48yvwSQd.png" srcset="/img/loading.gif" lazyload alt="图 1：YARN 架构(蓝色是系统组件，黄色和粉色是两个正在运行的应用程序。)"></p>
 <p>为了满足我们在第 2 节中讨论的要求，YARN 将一些功能提升到负责资源管理的平台层，将逻辑执行计划的协调留给了许多框架实现。
 具体来说，每个集群的 ResourceManager (RM) 跟踪资源使用情况和节点活跃度，强制分配不变量，并仲裁租户之间的争用。
 通过在 JobTracker 的章程中分离这些职责，中央分配器可以使用租户需求的抽象描述，但仍然不知道每个分配的语义。
@@ -362,7 +536,7 @@ YARN 提供的资源利用率的显着提高增加了每个集群可以维持的
 在一些具有大量小型应用程序的大型集群上观察到 YARN 中的可扩展性问题，但最近在心跳处理方面的改进已经缓解了其中的一些问题。</p>
 <h5 id="4-1-2-特定集群的统计信息">4.1.2 特定集群的统计信息</h5>
 <p>我们现在将关注雅虎集群运营团队在一个特定的 2500 个节点集群上运行 YARN 的经验和统计数据。</p>
-<p><img src="https://s2.loli.net/2022/01/05/bELmqIgQou6cFNS.png" alt="图 2：YARN 与 Hadoop 1.0 在雅虎的 2500 个节点生产集群上运行"></p>
+<p><img src="https://s2.loli.net/2022/01/05/bELmqIgQou6cFNS.png" srcset="/img/loading.gif" lazyload alt="图 2：YARN 与 Hadoop 1.0 在雅虎的 2500 个节点生产集群上运行"></p>
 <p>图 2 显示了运维团队在 2500 台机器集群上运行时的负载前后情况。这是雅虎最繁忙的集群，它一直在接近其极限。
 在图 2a 中，我们显示运行的作业数量显着增加：从 1.0 版 Hadoop 上的约 77k 增加到 YARN 上的约 100k 定期作业。
 此外，该集群实现了每天 12.5 万个作业的持续吞吐量，峰值约为每天 15 万个作业(或几乎是该集群之前舒适区的作业数量的两倍)。
@@ -372,11 +546,11 @@ YARN 提供的资源利用率的显着提高增加了每个集群可以维持的
 在 Hadoop 1.0 上，估计的 CPU 利用率 11 徘徊在 320% 左右或 3.2/16 个内核，与 2500 台机器中的每台机器挂钩。
 从本质上讲，转向 YARN，CPU 利用率几乎翻了一番，相当于每盒 6 个连续挂钩的核心，峰值高达 10 个充分利用的核心。总的来说，这表明 YARN 能够保持大约 2.8*2500 = 7000 个以上的内核完全忙于运行用户代码。
 这与我们上面讨论的集群上运行的作业和任务数量的增加是一致的。部分解释这些改进的最重要的架构差异之一是删除了 map 和 reduce 插槽之间的静态拆分。</p>
-<p><img src="https://s2.loli.net/2022/01/05/ud6zw7vWLMmbrpK.png" alt="图 3：雅虎 2500 个节点生产集群的 YARN 作业/容器统计"></p>
+<p><img src="https://s2.loli.net/2022/01/05/ud6zw7vWLMmbrpK.png" srcset="/img/loading.gif" lazyload alt="图 3：雅虎 2500 个节点生产集群的 YARN 作业/容器统计"></p>
 <p>在图 3 中，我们绘制了随时间变化的几个作业统计信息：并发运行和挂起的容器、已提交、已完成、正在运行和挂起的作业。这显示了资源管理器处理大量应用程序、容器请求和执行的能力。
 此集群中使用的 CapacityScheduler 版本尚未使用抢占，因为这是最近添加的功能。
 虽然抢占尚未进行大规模测试，但我们相信谨慎使用抢占将显着提高集群利用率，我们在第 5.3 节中展示了一个简单的微基准测试。</p>
-<p><img src="https://s2.loli.net/2022/01/05/OsnDy29PWLfhFlw.png" alt="图 4：作业大小分布和资源利用率"></p>
+<p><img src="https://s2.loli.net/2022/01/05/OsnDy29PWLfhFlw.png" srcset="/img/loading.gif" lazyload alt="图 4：作业大小分布和资源利用率"></p>
 <p>为了进一步表征在该集群上运行的工作负载的性质，我们在图 4 中展示了不同规模应用程序的直方图，描述了：1) 每个桶中的应用程序总数，2) 该桶中应用程序使用的 CPU 总量，和 3) 该存储桶中的应用程序使用的容器总数。
 正如过去所观察到的，虽然大量应用程序非常小，但它们只占集群容量的一小部分(在这个 2500 台机器集群中，大约有 3.5 台机器的 CPU)。
 有趣的是，如果我们比较插槽利用率与 CPU 利用率，我们会发现大型作业似乎为每个容器使用了更多的 CPU。
@@ -561,7 +735,7 @@ shuffle 基准校准仅使用合成数据将 m 个 map 的中间输出混洗到 
 尽管有降低延迟的巧妙解决方法，例如用于处理轻量级更新的短路路径和用于加速重要通知的自适应延迟，但 JobTracker 中的协调状态仍然是大型集群中延迟的主要原因。
 相比之下，NodeManager 每 1-3 秒发送一次心跳。RM 代码更具可扩展性，但它也解决了每个请求处理一组更简单的约束。</p>
 <h4 id="5-3-抢占的好处">5.3 抢占的好处</h4>
-<p><img src="https://s2.loli.net/2022/01/06/upJbVzKWIcQRLaN.png" alt="图 5：工作保护(work-preserving)抢占对 CapacityScheduler 效率的影响"></p>
+<p><img src="https://s2.loli.net/2022/01/06/upJbVzKWIcQRLaN.png" srcset="/img/loading.gif" lazyload alt="图 5：工作保护(work-preserving)抢占对 CapacityScheduler 效率的影响"></p>
 <p>在图 5 中，我们展示了 YARN 中最近添加的一项功能：使用工作保留抢占来强制执行全局属性的能力。我们在一个小型（10 台机器）集群上进行了实验，以突出工作保留抢占的潜在影响。
 集群运行 CapacityScheduler，配置了两个队列 A 和 B，分别享有 80% 和 20% 的容量。一个 MapReduce 作业在较小的队列 B 中提交，几分钟后另一个 MapReduce 作业在较大的队列 A 中提交。
 在图中，我们显示了在三种配置下分配给每个队列的容量：1) 不向队列提供超出其保证的容量(固定容量) 2) 队列可能会消耗 100% 的集群容量，但不执行抢占，3) 队列可能会消耗 100% 的集群容量，但容器可能会被抢占。
@@ -581,7 +755,7 @@ shuffle 基准校准仅使用合成数据将 m 个 map 的中间输出混洗到 
 我们在提交一系列 UNIX 命令(例如日期)时测量完全空闲集群上的客户端延迟。
 发出的第一个命令会产生调度应用程序和获取容器的全部成本，而后续命令会通过 Client 和 ApplicationMaster 快速转发到已经运行的容器以供执行。基于推送的消息传递进一步减少了延迟。
 我们实验中的加速非常显着，接近三个数量级—— <strong>从平均超过 12 秒到 31 毫秒。</strong></p>
-<h3 id="6-相关工作">6 相关工作</h3>
+<h3 id="6-相关工作-2">6 相关工作</h3>
 <p>其他人已经认识到经典 Hadoop 架构中的相同局限性，并同时开发了替代解决方案，可以与 YARN 进行密切比较。
 在众多与 YARN 最相似的相关工作中，有：Mesos <code>[17]</code>、Omega <code>[26]</code>、Corona <code>[14]</code> 和 Cosmos <code>[8]</code>，分别由 Twitter、Google、Facebook 和 Microsoft 维护和使用。</p>
 <p>这些系统共享一个共同的灵感，以及提高可扩展性、延迟和编程模型灵活性的高级目标。许多架构差异反映了不同的设计优先级，有时只是不同历史背景的影响。
@@ -611,7 +785,7 @@ YARN 支持将容器后期绑定到任务，其中每个单独的作业可以执
 最后，我们试图通过提供社区活动的快照并简要报告已移植到 YARN 的许多框架来捕捉围绕该平台的极大兴奋。
 我们相信 YARN 既可以作为一个坚实的生产框架，也可以作为研究社区的宝贵游乐场。</p>
 <h3 id="8-致谢">8 致谢</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">We began our exposition of YARN by acknowledging the pedigree of its architecture.</span><br><span class="line">Its debt to all the individuals who developed, operated, tested, supported, documented, evangelized, funded,</span><br><span class="line">and most of all, used Apache Hadoop over the years is incalculable.</span><br><span class="line">In closing, we recognize a handful. Ram Marti and Jitendranath Panday influenced its security design.</span><br><span class="line">Dick King, Krishna Ramachandran, Luke Lu, Alejandro Abdelnur, Zhijie Shen, Omkar Vinit Joshi,</span><br><span class="line">Jian He have made or continue to make significant contributions to the implementation.</span><br><span class="line">Karam Singh, Ramya Sunil, Rajesh Balamohan and Srigurunath Chakravarthi have been ever helpful in testing and performance benchmarking.</span><br><span class="line">Rajive Chittajallu and Koji Noguchi helped in channeling requirements and insight from operations and user support points of view respectively.</span><br><span class="line">We thank Yahoo! for both supporting YARN via massive contributions and heavy usage and also for sharing the statistics on some of its clusters.</span><br><span class="line">We thank Dennis Fetterly and Sergiy Matusevych for providing some of the experimental results on Dryad and REEF, and Mayank Bansal for helping with 2.1.0 MapReduce benchmarks.</span><br><span class="line">Last but not the least, Apache Hadoop YARN continues to be a community driven open source project and owes much of its success to the</span><br><span class="line">Apache Hadoop YARN and MapReduce communities—a big thanks to all the contributors and committers who have helped YARN in every way possible.</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs text">We began our exposition of YARN by acknowledging the pedigree of its architecture.<br>Its debt to all the individuals who developed, operated, tested, supported, documented, evangelized, funded,<br>and most of all, used Apache Hadoop over the years is incalculable.<br>In closing, we recognize a handful. Ram Marti and Jitendranath Panday influenced its security design.<br>Dick King, Krishna Ramachandran, Luke Lu, Alejandro Abdelnur, Zhijie Shen, Omkar Vinit Joshi,<br>Jian He have made or continue to make significant contributions to the implementation.<br>Karam Singh, Ramya Sunil, Rajesh Balamohan and Srigurunath Chakravarthi have been ever helpful in testing and performance benchmarking.<br>Rajive Chittajallu and Koji Noguchi helped in channeling requirements and insight from operations and user support points of view respectively.<br>We thank Yahoo! for both supporting YARN via massive contributions and heavy usage and also for sharing the statistics on some of its clusters.<br>We thank Dennis Fetterly and Sergiy Matusevych for providing some of the experimental results on Dryad and REEF, and Mayank Bansal for helping with 2.1.0 MapReduce benchmarks.<br>Last but not the least, Apache Hadoop YARN continues to be a community driven open source project and owes much of its success to the<br>Apache Hadoop YARN and MapReduce communities—a big thanks to all the contributors and committers who have helped YARN in every way possible.<br></code></pre></td></tr></table></figure>
 <h3 id="典型的-Hadoop-调度方式">典型的 Hadoop 调度方式</h3>
 <p>在 YARN 之前，Hadoop MapReduce 集群由称为 JobTracker (JT) 的主节点和运行 TaskTracker (TT) 的工作节点组成。
 用户将 MapReduce 作业提交给 JT，后者在 TT 之间协调其执行。TT 由运营商配置，具有固定数量的映射时隙和减少时隙。
@@ -619,7 +793,7 @@ TT 定期向 JT 发送心跳，以报告该节点上正在运行的任务的状�
 在心跳中，JT 更新其与该节点上运行的任务相对应的状态，代表该作业采取行动(例如，调度失败的任务以重新执行)，将该节点上的空闲槽与调度程序不变量匹配，匹配符合条件的针对可用资源的作业，有利于具有该节点本地数据的任务。</p>
 <p>作为计算集群的中央仲裁者，JT 还负责准入控制、跟踪 TT 的活跃度(重新执行正在运行的任务或输出变得不可用的任务)、
 推测性地启动任务以绕过慢节点、报告作业状态 通过网络服务器向用户提供，记录审计日志和汇总统计数据，对用户进行身份验证等多项功能；每一个都限制了它的可扩展性。</p>
-<h3 id="参考资料">参考资料</h3>
+<h3 id="参考资料-65">参考资料</h3>
 <p>[1] Apache hadoop. <a target="_blank" rel="noopener" href="http://hadoop.apache.org">http://hadoop.apache.org</a>.</p>
 <p>[2] Apache tez. <a target="_blank" rel="noopener" href="http://incubator.apache.org/projects/tez.html">http://incubator.apache.org/projects/tez.html</a>.</p>
 <p>[3] Netty project. <a target="_blank" rel="noopener" href="http://netty.io">http://netty.io</a>.</p>
@@ -689,450 +863,343 @@ In Proceedings of the 8th USENIX conference on Operating systems design and impl
 <p>[32] M. Zaharia, M. Chowdhury, M. J. Franklin, S. Shenker, and I. Stoica.
 Spark: cluster computing with working sets.
 In Proceedings of the 2nd USENIX conference on Hot topics in cloud computing, HotCloud’10, pages 10–10, Berkeley, CA, USA, 2010. USENIX Association.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
+      
+        <a href="/tags/YARN/">#YARN</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Apache Hadoop YARN: Yet Another Resource Negotiator 中文翻译</div>
+      <div>https://wangqian0306.github.io/2022/apache_hadoop_yarn_yet_another_resource_negotiator/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2022/apache_hadoop_yarn_yet_another_resource_negotiator/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/YARN/" rel="tag">YARN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2022/regex/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            regex
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/regex/" title="regex">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">regex</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/large-scale_cluster_management_at_google_with_borg/" title="Large-scale cluster management at Google with Borg 中文翻译版">
+                        <span class="hidden-mobile">Large-scale cluster management at Google with Borg 中文翻译版</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/large-scale_cluster_management_at_google_with_borg/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Large-scale cluster management at Google with Borg 中文翻译版</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

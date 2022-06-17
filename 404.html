@@ -1,79 +1,337 @@
+
+
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>404</title>
-    <meta name="keywords" content="Hexo,Ayer,404,Design" />
-    <meta name="description" content="hexo theme ayer page 404." />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-    <style>
-      html,
-      figure {
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
+<html lang="zh-CN" data-default-color-scheme=auto>
 
-      body {
-        margin: 20px;
-        overflow: hidden;
-      }
 
-      h1,
-      h3 {
-        width: 100%;
-        text-align: center;
-        color: #403e3e;
-      }
 
-      h3 a {
-        color: #0681d0;
-      }
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="乾">
+<meta property="og:type" content="website">
+<meta property="og:title" content="页面不存在">
+<meta property="og:url" content="https://wangqian0306.github.io/404.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="乾">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="技术博客">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>页面不存在 - 乾</title>
 
-      .forrestgump img {
-        width: 52rem;
-        margin-left: 50%;
-        transform: translateX(-50%);
-        border-radius: 5%;
-        opacity: 0.8;
-      }
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      @media screen and (max-width: 768px) {
-        .forrestgump img {
-          width: 100%;
-        }
-      }
-    </style>
-  </head>
 
-  <body>
-    <div class="notfound">
-      <a class="notfound-link" href="/">
-        <img
-          width="40"
-          src="data:image/png;base64,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"
-        />
-      </a>
-      <figure class="forrestgump">
-        <figcaption>
-          <h1>404<br />Not Found!</h1>
-          <h3>
-            Please check it, Maybe you should read
-            <a href="https://hexo.io/docs/">Hexo</a> and
-            <a href="https://shen-yu.gitee.io/2019/ayer/">Ayer</a> Docs
-            carefully.
-          </h3>
-          <h3>
-            亲，获取不到该路径的页面呢，请检查一下哦，可能你还需要仔细阅读
-            <a href="https://hexo.io/docs/">Hexo</a> 和
-            <a href="https://shen-yu.gitee.io/2019/ayer/">Ayer</a> 的说明文档~
-          </h3>
-        </figcaption>
-        <img src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/404.jpg" />
-      </figure>
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 85vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-  </body>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="页面不存在"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<script>
+  function redirect() {
+    location.href = "/";
+  }
+
+  
+    setTimeout(redirect, 5000)
+  
+</script>
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>

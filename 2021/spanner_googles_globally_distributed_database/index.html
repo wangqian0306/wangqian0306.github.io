@@ -1,122 +1,297 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Spanner: Google’s Globally Distributed Database 中文翻译版 作者： JAMES C. CORBETT, JEFFREY DEAN, MICHAEL EPSTEIN, ANDREW FIKES,CHRISTOPHER FROST, J. J. FURMAN, SANJAY GHEMAWAT, ANDREY GUBAREV,CHRISTOPHER HEI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spanner: Google’s Globally Distributed Database 中文翻译版">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/spanner_googles_globally_distributed_database/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Spanner: Google’s Globally Distributed Database 中文翻译版 作者： JAMES C. CORBETT, JEFFREY DEAN, MICHAEL EPSTEIN, ANDREW FIKES,CHRISTOPHER FROST, J. J. FURMAN, SANJAY GHEMAWAT, ANDREY GUBAREV,CHRISTOPHER HEI">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2021/12/15/uo9SCW8LgnOhwDf.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/15/OuafjqnwHgJE7Me.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/16/GTzmR3egoNFHuLq.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/16/RElIAJsvgm9SfdU.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/24/S8vobkhjHtCViU4.png">
+<meta property="og:image" content="https://s2.loli.net/2021/12/27/NzGPFkDm83UeIgf.png">
+<meta property="article:published_time" content="2021-12-15T14:26:13.000Z">
+<meta property="article:modified_time" content="2021-12-28T01:13:53.994Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Spanner">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2021/12/15/uo9SCW8LgnOhwDf.png">
+  
+  
+  
+  <title>Spanner: Google’s Globally Distributed Database 中文翻译版 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>Spanner: Google’s Globally Distributed Database 中文翻译版 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/spanner_googles_globally_distributed_database"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Spanner: Google’s Globally Distributed Database 中文翻译版
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/spanner_googles_globally_distributed_database/" class="article-date">
-  <time datetime="2021-12-15T14:26:13.000Z" itemprop="datePublished">2021-12-15</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Spanner-Google’s-Globally-Distributed-Database-中文翻译版">Spanner: Google’s Globally Distributed Database 中文翻译版</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spanner: Google’s Globally Distributed Database 中文翻译版"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-15 22:26" pubdate>
+          2021年12月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Spanner: Google’s Globally Distributed Database 中文翻译版</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Spanner-Google’s-Globally-Distributed-Database-中文翻译版">Spanner: Google’s Globally Distributed Database 中文翻译版</h2>
 <p>作者：</p>
 <p>JAMES C. CORBETT, JEFFREY DEAN, MICHAEL EPSTEIN, ANDREW FIKES,CHRISTOPHER FROST, J. J. FURMAN, SANJAY GHEMAWAT, ANDREY
 GUBAREV,CHRISTOPHER HEISER, PETER HOCHSCHILD, WILSON HSIEH,SEBASTIAN KANTHAK, EUGENE KOGAN, HONGYI LI, ALEXANDER
 LLOYD,SERGEY MELNIK, DAVID MWAURA, DAVID NAGLE, SEAN QUINLAN, RAJESH RAO,LINDSAY ROLIG, YASUSHI SAITO, MICHAL SZYMANIAK,
 CHRISTOPHER TAYLOR,RUTH WANG, and DALE WOODFORD, Google, Inc.</p>
-<h3 id="原版的版权说明">原版的版权说明</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">This article is essentially the same (with minor reorganizations, corrections, and additions) as the paper of</span><br><span class="line">the same title that appeared in the Proceedings of OSDI 2012.</span><br><span class="line">Authors’ address: J. C. Corbett, J. Dean, M. Epstein, A. Fikes, C. Frost, J. J. Furman, S. Ghemawat,</span><br><span class="line">A. Gubarev, C. Heiser, P. Hochschild, W. Hsieh (corresponding author), S. Kanthak, E. Kogan, H. Li,</span><br><span class="line">A. Lloyd, S. Melnik, D. Mwaura, D. Nagle, S. Quinlan, R. Rao, L. Rolig, Y. Saito, M. Szymaniak,</span><br><span class="line">C. Taylor, R. Wang, and D. Woodford, Google, Inc. 1600 Amphitheatre Parkway, Mountain View, CA 94043;</span><br><span class="line">email: wilsonh@google.com.</span><br><span class="line">Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted</span><br><span class="line">without fee provided that copies are not made or distributed for profit or commercial advantage and that</span><br><span class="line">copies bear this notice and the full citation on the first page. Copyrights for third-party components of this</span><br><span class="line">work must be honored. For all other uses contact the Owner/Author.</span><br><span class="line">2013 Copyright is held by the author/owner(s).</span><br><span class="line">0734-2071/2013/08-ART8</span><br><span class="line">DOI:http://dx.doi.org/10.1145/2491245</span><br></pre></td></tr></table></figure>
-<h3 id="摘要">摘要</h3>
+<h3 id="原版的版权说明-3">原版的版权说明</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs text">This article is essentially the same (with minor reorganizations, corrections, and additions) as the paper of<br>the same title that appeared in the Proceedings of OSDI 2012.<br>Authors’ address: J. C. Corbett, J. Dean, M. Epstein, A. Fikes, C. Frost, J. J. Furman, S. Ghemawat,<br>A. Gubarev, C. Heiser, P. Hochschild, W. Hsieh (corresponding author), S. Kanthak, E. Kogan, H. Li,<br>A. Lloyd, S. Melnik, D. Mwaura, D. Nagle, S. Quinlan, R. Rao, L. Rolig, Y. Saito, M. Szymaniak,<br>C. Taylor, R. Wang, and D. Woodford, Google, Inc. 1600 Amphitheatre Parkway, Mountain View, CA 94043;<br>email: wilsonh@google.com.<br>Permission to make digital or hard copies of part or all of this work for personal or classroom use is granted<br>without fee provided that copies are not made or distributed for profit or commercial advantage and that<br>copies bear this notice and the full citation on the first page. Copyrights for third-party components of this<br>work must be honored. For all other uses contact the Owner/Author.<br>2013 Copyright is held by the author/owner(s).<br>0734-2071/2013/08-ART8<br>DOI:http://dx.doi.org/10.1145/2491245<br></code></pre></td></tr></table></figure>
+<h3 id="摘要-9">摘要</h3>
 <p>Spanner 是 Google 的一种数据库，它具有：可扩展，多版本，全球分布式部署，同步复制的特性。
 它是第一个在全球范围内分发数据并支持外部一致性的分布式事务的系统。
 这篇文章描述了 Spanner 是如何设计的，它的特性，各种设计决策的基本原理，以及一个暴露时钟不确定性的新的时间 API。
 该 API 及其实现对于支持外部一致性和各种强大功能至关重要：过去的非阻塞读取、无锁快照事务和原子模式更改，这些功能跨越了整个 Spanner。</p>
-<h4 id="General-Terms">General Terms</h4>
+<h4 id="General-Terms-2">General Terms</h4>
 <p>Design, Algorithms, Performance</p>
-<h4 id="关键词">关键词</h4>
+<h4 id="关键词-2">关键词</h4>
 <p>分布式数据库，并发控制，副本集，事务性，时间管理。</p>
-<h3 id="1-引言">1 引言</h3>
+<h3 id="1-引言-10">1 引言</h3>
 <p>Spanner 是一个可扩展的全球分布式数据库，由 Google 设计、实施和部署。
 在最高的抽象层次上，它是一个数据库，可以在遍布世界各地的数据中心的多组 Paxos <code>[Lamport 1998]</code> 状态机上分割数据。
 在全球的数据中心上进行复制来满足本地的使用需求，客户端可以自动在副本之间进行故障切换。
@@ -167,7 +342,7 @@ Google 的集群管理软件提供了 TrueTime API 的实现。
 区域集也是可以复制数据的位置集。
 当新数据中心投入使用和旧数据中心关闭时，可以分别在正在运行的系统中添加或删除区域。
 区域也是物理隔离的单位：一个数据中心内可能有一个或多个区域，例如，如果不同应用程序的数据必须在同一数据中心内的不同服务器组之间进行分区。</p>
-<p><img src="https://s2.loli.net/2021/12/15/uo9SCW8LgnOhwDf.png" alt="图 1：Spanner 服务器的组织架构"></p>
+<p><img src="https://s2.loli.net/2021/12/15/uo9SCW8LgnOhwDf.png" srcset="/img/loading.gif" lazyload alt="图 1：Spanner 服务器的组织架构"></p>
 <p>图 1 说明了 Spanner Universe 中的服务器组织架构。
 一个区域有一个 <code>zonemaster</code> 和一百到几千个 <code>spanserver</code>。
 前者将数据分配给 <code>spanservers</code>；后者为客户提供数据。
@@ -178,12 +353,12 @@ Universe 主控器主要是一个控制台，用于显示有关所有区域的�
 布局驱动程序定期与 <code>spanserver</code> 通信以查找需要移动的数据，以满足更新的复制约束或平衡负载。
 由于篇幅原因，我们只会详细描述 <code>spanserver</code> 。</p>
 <h4 id="2-1-Spanserver-软件栈">2.1 Spanserver 软件栈</h4>
-<p><img src="https://s2.loli.net/2021/12/15/OuafjqnwHgJE7Me.png" alt="图 2：Spanserver 软件栈"></p>
+<p><img src="https://s2.loli.net/2021/12/15/OuafjqnwHgJE7Me.png" srcset="/img/loading.gif" lazyload alt="图 2：Spanserver 软件栈"></p>
 <p>本节重点介绍 <code>spanserver</code> 实现，以说明复制如何分布式事务已分层到我们基于 Bigtable 的实现中。
 软件堆栈如图 2 所示。
 在底部，每个 <code>spanserver</code> 负责一个称为 <code>tablet</code> 的数据结构的 100 到 1000 个实例。
 <code>tablet</code> 类似于 Bigtable 的 <code>tablet</code> 抽象，因为它实现了以下映射的包。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(key:string, timestamp:int64) → string</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">(key:string, timestamp:int64) → string<br></code></pre></td></tr></table></figure>
 <p>与 Bigtable 不同，Spanner 为数据分配时间戳，这使 Spanner 更像是一个多版本数据库而不是键值存储工具。
 tablet 的状态存储在一组类似 B 树的文件和预写日志中，所有这些都存储在 Colossus 分布式文件系统中(Google 文件系统的继任者 <code>[Ghemawat et al. 2003]</code>)。</p>
 <p>为了支持复制，每个 <code>spanserver</code> 在每个 <code>tablet</code> 上实现了一个单独的 Paxos 状态机。
@@ -211,7 +386,7 @@ tablet 的状态存储在一组类似 B 树的文件和预写日志中，所有�
 <p>在键值映射包之上，Spanner 实现支持称为目录的分桶抽象，这是一组共享公共前缀的连续键。
 (目录这一术语的选择是一个历史意外；更好的术语应该是桶(<code>bucket</code>)。)
 我们将在 2.3 节解释该前缀的来源。 支持目录允许应用程序通过仔细选择键来控制其数据的位置。</p>
-<p><img src="https://s2.loli.net/2021/12/16/GTzmR3egoNFHuLq.png" alt="图 3：目录是 Paxos 组之间移动数据的基本单位"></p>
+<p><img src="https://s2.loli.net/2021/12/16/GTzmR3egoNFHuLq.png" srcset="/img/loading.gif" lazyload alt="图 3：目录是 Paxos 组之间移动数据的基本单位"></p>
 <p>目录是数据放置的单位。
 目录中的所有数据都具有相同的复制配置。
 当数据在 Paxos 组之间移动时，它会逐个目录移动，如图 3 所示。
@@ -251,8 +426,8 @@ Google 内部至少有 300 个应用程序使用 Megastore(尽管其性能相对
 这个要求是 Spanner 仍然看起来像一个键值存储的地方：主键形成行的名称，每个表定义从主键列到非主键列的映射。
 仅当为行的键定义了某个值(即使它是 NULL)时，该行才存在。
 强加这种结构很有用，因为它让应用程序可以通过它们对键的选择来控制数据局部性。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE Users &#123;</span><br><span class="line">    uid INT64 NOT NULL, email STRING</span><br><span class="line">&#125; PRIMARY KEY (uid), DIRECTORY;</span><br><span class="line"></span><br><span class="line">CREATE TABLE Albums &#123;</span><br><span class="line">    uid INT64 NOT NULL, aid INT64 NOT NULL,</span><br><span class="line">    name STRING</span><br><span class="line">&#125; PRIMARY KEY (uid, aid),</span><br><span class="line">    INTERLEAVE IN PARENT Users ON DELETE CASCADE;</span><br></pre></td></tr></table></figure>
-<p><img src="https://s2.loli.net/2021/12/16/RElIAJsvgm9SfdU.png" alt="图 4：Spanner 上关于照片的元数据示例结构，以及经过  限制的关联关系"></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE TABLE Users &#123;<br>    uid INT64 NOT NULL, email STRING<br>&#125; PRIMARY KEY (uid), DIRECTORY;<br><br>CREATE TABLE Albums &#123;<br>    uid INT64 NOT NULL, aid INT64 NOT NULL,<br>    name STRING<br>&#125; PRIMARY KEY (uid, aid),<br>    INTERLEAVE IN PARENT Users ON DELETE CASCADE;<br></code></pre></td></tr></table></figure>
+<p><img src="https://s2.loli.net/2021/12/16/RElIAJsvgm9SfdU.png" srcset="/img/loading.gif" lazyload alt="图 4：Spanner 上关于照片的元数据示例结构，以及经过  限制的关联关系"></p>
 <p>图 4 包含一个示例 Spanner 数据模型，用于在每个用户、每个相册的基础上存储照片元数据。
 建表语句类似于 Megastore 但附加要求是每个 Spanner 数据库必须由客户端划分为一个或多个表层次结构。
 客户端应用程序通过 INTERLEAVE IN 声明在数据库模式中声明层次结构。
@@ -667,7 +842,7 @@ Bigtable 支持在一个数据中心内进行原子的结构更改，但其结�
 <p>表 4 显示了两阶段提交可以扩展到合理数量的参与者：它是对一系列实验的总结，这些实验运行在 3 个 zone 上，每个 zone 具有 25 个 spanserver。
 扩展到 50 个参与者，无论在平均值还是第 99 个百分位方面，都是合理的。在100个参与者的情形下，延迟开始明显增加。</p>
 <h4 id="5-2-可用性">5.2 可用性</h4>
-<p><img src="https://s2.loli.net/2021/12/24/S8vobkhjHtCViU4.png" alt="图 5：关闭服务器对吞吐量的影响"></p>
+<p><img src="https://s2.loli.net/2021/12/24/S8vobkhjHtCViU4.png" srcset="/img/loading.gif" lazyload alt="图 5：关闭服务器对吞吐量的影响"></p>
 <p>图 5 说明了在多个数据中心运行 Spanner 的可用性优势。
 它显示了在存在数据中心故障的情况下对吞吐量进行的三个实验的结果，所有这些实验都覆盖在相同的时间尺度上。
 测试域由 5 个 zone Zi 组成，每个 zone 有 25 个 span server。
@@ -691,7 +866,7 @@ Bigtable 支持在一个数据中心内进行原子的结构更改，但其结�
 我们的机器统计数据显示，CPU 损坏的可能性是时钟损坏的 6 倍。
 也就是说，相对于更严重的硬件问题，时钟问题非常罕见。
 因此，我们相信 TrueTime 的实现与 Spanner 所依赖的任何其他软件一样值得信赖。</p>
-<p><img src="https://s2.loli.net/2021/12/27/NzGPFkDm83UeIgf.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2021/12/27/NzGPFkDm83UeIgf.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>图 6 显示了在相距最远 2200 公里的数据中心内的数千个 spanserver 机器上获取的 TrueTime 数据。
 它绘制了 <code>ϵ</code> 的第 90 个、第 99 个和第 99.9 个百分位数，在轮询时间主进程后立即在时间从进程中采样。
 由于本地时钟的不确定性，这种采样消除了 <code>ϵ</code> 中的锯齿波，因此测量时间主控器的不确定性（通常为 0）加上与时间主控器的通信延迟。</p>
@@ -805,7 +980,7 @@ F1 团队仅在将批量数据加载作为事务进行调优时才看到这种�
 写入延迟的大标准偏差是由于锁冲突导致的肥尾效应(pretty fat tail)造成的。
 读取延迟更大的标准偏差部分是由于 Paxos 的领导节点分布在两个数据中心，其中只有一个有配备 SSD 的机器。
 此外，测量包括系统中来自两个数据中心的每次读取：读取的字节的平均值和标准差分别约为 1.6KB 和 119KB。</p>
-<h3 id="6-相关工作">6 相关工作</h3>
+<h3 id="6-相关工作-3">6 相关工作</h3>
 <p>跨数据中心的一致复制作为存储服务已由 Megastore 和 DynamoDB 提供 <code>[Baker et al. 2011]</code>。
 DynamoDB 呈现一个key-value 接口，并且只在一个区域内复制。
 Spanner 跟随 Megastore 提供了一个半关系数据模型，甚至是一种类似的模式语言。
@@ -850,7 +1025,7 @@ Wear 目前正在实施 Spanner 模式语言、二级索引的自动维护和基
 DB 文献中的算法和数据结构可以大大提高单节点性能。
 其次，在数据中心之间自动移动数据以响应客户端负载的变化一直是我们的目标，但为了使该目标有效，我们还需要能够以自动化、协调的方式在数据中心之间移动客户端应用程序进程。
 移动进程带来了更困难的问题，即管理数据中心之间的资源获取和分配。</p>
-<h3 id="8-结论">8 结论</h3>
+<h3 id="8-结论-3">8 结论</h3>
 <p>总而言之，Spanner 结合并扩展了来自两个研究社区的想法：来自数据库社区、熟悉的、易于使用的半关系界面、事务和基于 SQL 的查询语言；来自系统社区、可扩展性、自动分片、容错、一致复制、外部一致性和广域分布。
 自 Spanner 成立以来，我们已经用了 5 年多的时间来迭代到当前的设计和实现。
 这个漫长的迭代阶段的一部分是因为人们缓慢地意识到 Spanner 不仅应该解决全局复制命名空间的问题，还应该关注 Bigtable 缺少的数据库功能。</p>
@@ -858,9 +1033,9 @@ DB 文献中的算法和数据结构可以大大提高单节点性能。
 我们已经证明，在时间 API 中具体化时钟不确定性使得构建具有更强时间语义的分布式系统成为可能。
 此外，随着底层系统对时钟不确定性实施更严格的界限，更强语义的开销减少。
 作为一个社区，我们在设计分布式算法时不应再依赖松散同步的时钟和弱时间 API。</p>
-<h3 id="致谢">致谢</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Many people have helped to improve this article: our shepherd Jon Howell, who went above and beyond hisresponsibilities;</span><br><span class="line"> the anonymous referees; and many Googlers: Atul Adya, Fay Chang, Frank Dabek, SeanDorward, Bob Gruber, David Held, </span><br><span class="line"> Nick Kline, Alex Thomson, and Joel Wein. Our management has beenvery supportive of both our work and of publishing this article: </span><br><span class="line"> Aristotle Balogh, Bill Coughran, Urs H¨olzle,Doron Meyer, Cos Nicolaou, Kathy Polizzi, Sridhar Ramaswany, and Shivakumar Venkataraman. </span><br><span class="line"> We havebuilt upon the work of the Bigtable and Megastore teams. The F1 team, and Jeff Shute in particular,</span><br><span class="line"> workedclosely with us in developing our data model and helped immensely in tracking down performance andcorrectness bugs.</span><br><span class="line"> The Platforms team, and Luiz Barroso and Bob Felderman in particular, helped to makeTrueTime happen.</span><br><span class="line"> Finally, a lot of Googlers used to be on our team: Ken Ashcraft, Paul Cychosz, KrzysztofOstrowski, Amir Voskoboynik,</span><br><span class="line"> Matthew Weaver, Theo Vassilakis, and Eric Veach; or have joined our teamrecently: Nathan Bales, Adam Beberg, Vadim Borisov,</span><br><span class="line"> Ken Chen, Brian Cooper, Cian Cullinan, Robert-JanHuijsman, Milind Joshi, Andrey Khorlin, Dawid Kuroczko, Laramie Leavitt,</span><br><span class="line"> Eric Li, Mike Mammarella,Sunil Mushran, Simon Nielsen, Ovidiu Platon, Ananth Shrinivas, Vadim Suvorov, and Marcel van der Holst.</span><br></pre></td></tr></table></figure>
-<h3 id="参考资料">参考资料</h3>
+<h3 id="致谢-4">致谢</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">Many people have helped to improve this article: our shepherd Jon Howell, who went above and beyond hisresponsibilities;<br> the anonymous referees; and many Googlers: Atul Adya, Fay Chang, Frank Dabek, SeanDorward, Bob Gruber, David Held, <br> Nick Kline, Alex Thomson, and Joel Wein. Our management has beenvery supportive of both our work and of publishing this article: <br> Aristotle Balogh, Bill Coughran, Urs H¨olzle,Doron Meyer, Cos Nicolaou, Kathy Polizzi, Sridhar Ramaswany, and Shivakumar Venkataraman. <br> We havebuilt upon the work of the Bigtable and Megastore teams. The F1 team, and Jeff Shute in particular,<br> workedclosely with us in developing our data model and helped immensely in tracking down performance andcorrectness bugs.<br> The Platforms team, and Luiz Barroso and Bob Felderman in particular, helped to makeTrueTime happen.<br> Finally, a lot of Googlers used to be on our team: Ken Ashcraft, Paul Cychosz, KrzysztofOstrowski, Amir Voskoboynik,<br> Matthew Weaver, Theo Vassilakis, and Eric Veach; or have joined our teamrecently: Nathan Bales, Adam Beberg, Vadim Borisov,<br> Ken Chen, Brian Cooper, Cian Cullinan, Robert-JanHuijsman, Milind Joshi, Andrey Khorlin, Dawid Kuroczko, Laramie Leavitt,<br> Eric Li, Mike Mammarella,Sunil Mushran, Simon Nielsen, Ovidiu Platon, Ananth Shrinivas, Vadim Suvorov, and Marcel van der Holst.<br></code></pre></td></tr></table></figure>
+<h3 id="参考资料-72">参考资料</h3>
 <p>[1] Azza Abouzeid et al. “HadoopDB: an architectural hybrid of MapReduce and DBMS technologies for analytical workloads”. Proc. of VLDB. 2009, pp. 922–933.</p>
 <p>[2] A. Adya et al. “Efficient optimistic concurrency control using loosely synchronized clocks”. Proc. of SIGMOD. 1995, pp. 23–34.</p>
 <p>[3] Amazon. Amazon DynamoDB. 2012.</p>
@@ -903,450 +1078,343 @@ DB 文献中的算法和数据结构可以大大提高单节点性能。
 <p>[40] Alexander Thomson et al. “Calvin: Fast Distributed Transactions for Partitioned Database Systems”. Proc. of SIGMOD.2012, pp. 1–12.</p>
 <p>[41] Ashish Thusoo et al. “Hive — A Petabyte Scale Data Warehouse Using Hadoop”. Proc. of ICDE. 2010, pp. 996–1005.</p>
 <p>[42] VoltDB. VoltDB Resources. 2012.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
+      
+        <a href="/tags/Spanner/">#Spanner</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Spanner: Google’s Globally Distributed Database 中文翻译版</div>
+      <div>https://wangqian0306.github.io/2021/spanner_googles_globally_distributed_database/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月15日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/spanner_googles_globally_distributed_database/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spanner/" rel="tag">Spanner</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2021/latex/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            LaTeX
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/latex/" title="LaTeX">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LaTeX</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/createrepo/" title="createrepo">
+                        <span class="hidden-mobile">createrepo</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/createrepo/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">createrepo</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

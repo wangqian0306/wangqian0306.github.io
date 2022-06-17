@@ -1,113 +1,290 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Impala: A Modern, Open-Source SQL Engine for Hadoop 作者：Marcel Kornacker, Alexander Behm, Victor Bittorf, Taras Bobrovytsky, Casey Ching, Alan Choi, Justin Erickson, Martin Grund, Daniel Hecht, Matthew">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/impala_a_modern_open_source_sql_engine_for_hadoop/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Impala: A Modern, Open-Source SQL Engine for Hadoop 作者：Marcel Kornacker, Alexander Behm, Victor Bittorf, Taras Bobrovytsky, Casey Ching, Alan Choi, Justin Erickson, Martin Grund, Daniel Hecht, Matthew">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/01/13/jJmE7fdDGSbruZt.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/13/4YhXSzxfjBdJ5F9.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/o1bTB3DY9MwjKxp.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/j3S4IVAnG2hdOFE.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/brLcvl3SX7qwEAa.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/cIFmqYJD3jHVUTg.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/oSj1XpG9LgsRNzv.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/14/1kcdpSqQTXILFHr.png">
+<meta property="article:published_time" content="2022-01-12T14:26:13.000Z">
+<meta property="article:modified_time" content="2022-01-14T08:34:01.172Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Impala">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/01/13/jJmE7fdDGSbruZt.png">
+  
+  
+  
+  <title>Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译 |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-treatise/impala_a_modern_open_source_sql_engine_for_hadoop"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/impala_a_modern_open_source_sql_engine_for_hadoop/" class="article-date">
-  <time datetime="2022-01-12T14:26:13.000Z" itemprop="datePublished">2022-01-12</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Impala-A-Modern-Open-Source-SQL-Engine-for-Hadoop">Impala: A Modern, Open-Source SQL Engine for Hadoop</h2>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-12 22:26" pubdate>
+          2022年1月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Impala-A-Modern-Open-Source-SQL-Engine-for-Hadoop">Impala: A Modern, Open-Source SQL Engine for Hadoop</h2>
 <p>作者：Marcel Kornacker, Alexander Behm, Victor Bittorf, Taras Bobrovytsky, Casey Ching, Alan Choi, Justin Erickson, Martin Grund, Daniel Hecht, Matthew Jacobs, Ishaan Joshi, Lenni Kuff, Dileep Kumar, Alex Leblang, Nong Li, Ippokratis Pandis, Henry Robinson, David Rorke, Silvius Rus, John Russell, Dimitris Tsirogiannis, Skye Wanderman-Milne, Michael Yoder</p>
-<h3 id="版权说明">版权说明</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">This article is published under a Creative Commons Attribution License(http://creativecommons.org/licenses/by/3.0/), which permits distribution and reproduction in any medium as well as allowing derivative works, provided that you attribute the original work to the author(s) and CIDR 2015. 7th Biennial Conference on Innovative Data Systems Research (CIDR’15) January 4-7, 2015, Asilomar, California, USA</span><br></pre></td></tr></table></figure>
-<h3 id="简介">简介</h3>
+<h3 id="版权说明-2">版权说明</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">This article is published under a Creative Commons Attribution License(http://creativecommons.org/licenses/by/3.0/), which permits distribution and reproduction in any medium as well as allowing derivative works, provided that you attribute the original work to the author(s) and CIDR 2015. 7th Biennial Conference on Innovative Data Systems Research (CIDR’15) January 4-7, 2015, Asilomar, California, USA<br></code></pre></td></tr></table></figure>
+<h3 id="简介-87">简介</h3>
 <p>Cloudera Impala 是一个现代的、开源的 MPP SQL 引擎，专为 Hadoop 数据处理环境而设计。
 Impala 为 Hadoop 上的 BI/分析以读取为主的查询提供低延迟和高并发，而不是由 Apache Hive 等批处理框架提供。
 本文从用户的角度介绍 Impala，概述其架构和主要组件，并简要展示其与其他流行的 SQL-on-Hadoop 系统相比的卓越性能。</p>
-<h3 id="1-引言">1 引言</h3>
+<h3 id="1-引言-4">1 引言</h3>
 <p>Impala 是一个开源的、完全集成的、先进的 MPP SQL 查询引擎，专为利用 Hadoop 的灵活性和可扩展性而设计。
 Impala 的目标是将熟悉的 SQL 支持和传统分析数据库的多用户性能与 Apache Hadoop 的可扩展性和灵活性以及 Cloudera Enterprise 的生产级安全和管理扩展相结合。
 Impala 的 beta 版本于 2012 年 10 月发布，并于 2013 年 5 月 GA 发布。最新版本 Impala 2.0 于 2014 年 10 月发布。Impala 的生态系统势头继续加速，自 GA 以来下载量接近 100 万次。</p>
@@ -128,7 +305,7 @@ Impala 的 beta 版本于 2012 年 10 月发布，并于 2013 年 5 月 GA 发�
 为了查询 HDFS 驻留的数据，用户通过熟悉的 CREATE TABLE 语句创建表，该语句除了提供数据的逻辑模式外，还指示物理布局，例如文件格式和在 HDFS 目录结构。 然后可以使用标准 SQL 语法查询这些表。</p>
 <h4 id="2-1-物理结构设计">2.1 物理结构设计</h4>
 <p>创建表时，用户还可以指定一些分区列：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE T (...) PARTITIONED BY (day int, month int) LOCATION ’&lt;hdfs-path&gt;’ STORED AS PARQUET;</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE TABLE T (...) PARTITIONED BY (day int, month int) LOCATION ’&lt;hdfs-path&gt;’ STORED AS PARQUET;<br></code></pre></td></tr></table></figure>
 <p>对于未分区的表，数据文件默认直接存储在根目录中&lt;3&gt;。对于分区表，数据文件放置在其路径反映分区列值的子目录中。
 例如，对于表 T 的第 2 个月第 17 天，所有数据文件都将位于目录 <code>&lt;root&gt;/day=17/month=2/</code> 中。
 请注意，这种形式的分区并不意味着单个分区的数据的搭配：一个分区的数据文件块随机分布在 HDFS 数据节点上。</p>
@@ -151,8 +328,8 @@ Impala 的 beta 版本于 2012 年 10 月发布，并于 2013 年 5 月 GA 发�
 <p>与批量插入类似，Impala 通过删除表分区(ALTER TABLE DROP PARTITION)支持批量数据删除。因为不可能就地更新 HDFS 文件，所以 Impala 不支持 UPDATE 语句。
 相反，用户通常会重新计算部分数据集以合并更新，然后替换相应的数据文件，通常是通过删除和重新添加分区。</p>
 <p>在初始数据加载之后，或者每当表的大部分数据发生变化时，用户应该运行 <code>COMPUTE STATS &lt;table&gt;</code> 语句，该语句指示 Impala 收集表的统计信息。这些统计信息随后将在查询优化期间使用。</p>
-<h3 id="3-架构">3 架构</h3>
-<p><img src="https://s2.loli.net/2022/01/13/jJmE7fdDGSbruZt.png" alt="image.png"></p>
+<h3 id="3-架构-2">3 架构</h3>
+<p><img src="https://s2.loli.net/2022/01/13/jJmE7fdDGSbruZt.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>Impala 是一个大规模并行查询执行引擎，它运行在现有 Hadoop 集群中的数百台机器上。
 它与底层存储引擎分离，与传统的关系数据库管理系统不同，后者的查询处理和底层存储引擎是单个紧密耦合系统的组件。Impala 的高级架构如图 1 所示。</p>
 <p>Impala 部署由三个服务组成。Impala 守护进程 (impalad) 服务双重负责接受来自客户端进程的查询并协调它们在集群中的执行，以及代表其他 Impala 守护进程执行单个查询片段。
@@ -226,7 +403,7 @@ Impala 选择估计的任何策略以最小化通过网络交换的数据量，�
 分析表达式评估是基于 partition-by 表达式并行化的。它依赖于根据 partition-by/order-by 表达式对输入进行排序。
 最后，分布式计划树在交换边界处被拆分。计划的每个这样的部分都放置在计划片段中，即 Impala 的后端执行单元。
 计划片段封装了计划树的一部分，该部分在单台机器上的相同数据分区上运行。</p>
-<p><img src="https://s2.loli.net/2022/01/13/4YhXSzxfjBdJ5F9.png" alt="图 2：两阶段的查询优化示例"></p>
+<p><img src="https://s2.loli.net/2022/01/13/4YhXSzxfjBdJ5F9.png" srcset="/img/loading.gif" lazyload alt="图 2：两阶段的查询优化示例"></p>
 <p>图 2 举例说明了查询计划的两个阶段。该图的左侧显示了一个查询的单节点计划，该查询连接了两个 HDFS 表(t1，t2)和一个 HBase 表(t3)，然后是一个聚合和 <code>order by with limit(top-n)</code>。
 右侧显示了分散的、分散的计划。圆角矩形表示片段边界和箭头数据交换。表 t1 和 t2 通过分区策略连接。
 扫描位于它们自己的片段中，因为它们的结果会立即交换给消费者(连接节点)，消费者(连接节点)在基于散列的数据分区上运行，而表数据是随机分区的。
@@ -253,14 +430,14 @@ Impala 选择估计的任何策略以最小化通过网络交换的数据量，�
 <p>如果没有代码生成，函数执行时为了处理程序编译时未知的运行时信息而导致低效率几乎总是必定的。
 例如，仅处理整数类型的记录解析函数在解析仅整数文件时将比处理其他数据类型(如字符串和浮点数)的函数更快。
 但是，要扫描的文件的模式在编译时是未知的，因此必须使用通用函数，即使在运行时已知更有限的功能就足够了。</p>
-<p><img src="https://s2.loli.net/2022/01/14/o1bTB3DY9MwjKxp.png" alt="图 3：在 Impala 中的解释型和生成型对比"></p>
+<p><img src="https://s2.loli.net/2022/01/14/o1bTB3DY9MwjKxp.png" srcset="/img/loading.gif" lazyload alt="图 3：在 Impala 中的解释型和生成型对比"></p>
 <p>大量运行时的开销都来源于虚函数。虚函数调用会导致很大的性能损失，特别是当被调用函数非常简单时，因为调用不能内联。
 如果对象实例的类型在运行时已知，我们可以使用代码生成将虚函数调用替换为直接调用正确的函数，然后可以内联。
 这在评估表达式树时特别有价值。在 Impala 中(就像在许多系统中一样)，表达式由单个运算符和函数的树组成，如图 3 的左侧所示。
 可以出现在树中的每种类型的表达式都是通过重写表达式基类中的虚函数来实现的，该虚函数递归地调用其子表达式。其中许多表达式函数非常简单，例如，将两个数字相加。
 因此，调用虚函数的成本往往远远超过实际评估函数的成本。如图 3 所示，通过使用代码生成解析虚函数调用，然后内联生成的函数调用，可以直接评估表达式树，而无需函数调用开销。
 此外，内联函数增加了指令级并行性，并允许编译器进行进一步的优化，例如跨表达式消除子表达式。</p>
-<p><img src="https://s2.loli.net/2022/01/14/j3S4IVAnG2hdOFE.png" alt="图 4：Impala 中引入运行时代码生成对性能的影响"></p>
+<p><img src="https://s2.loli.net/2022/01/14/j3S4IVAnG2hdOFE.png" srcset="/img/loading.gif" lazyload alt="图 4：Impala 中引入运行时代码生成对性能的影响"></p>
 <p>总的来说，JIT 编译的效果类似于自定义编码查询。例如，它消除了分支、展开循环、传播常量、偏移量和指针、内联函数。代码生成对性能有显着影响，如图 4 所示。
 例如，在一个 10 节点集群中，每个节点有 8 个内核、48GB RAM 和 12 个磁盘，我们测量了运行时代码生成造成的影响。
 我们正在使用比例因子为 100 的 Avro TPC-H 数据库，并运行简单的聚合查询。代码生成将执行速度提高了 5.7 倍，速度随着查询复杂度的增加而增加。</p>
@@ -280,7 +457,7 @@ Impala 的 I/O 管理器的有效性最近得到了 <code>[6]</code> 的证实�
 受 Dremel 的 ColumnIO 格式 <code>[9]</code> 的启发，Parquet 按列存储嵌套字段，并用最少的信息对其进行扩充，以便在扫描时从列数据中重新组装嵌套结构。
 Parquet 具有一组可扩展的列编码。1.2 版支持运行长度和字典编码，2.0 版增加了对增量和优化字符串编码的支持。
 最新版本(Parquet 2.0)还实现了嵌入式统计：内联列统计以进一步优化扫描效率，例如最小/最大索引。</p>
-<p><img src="https://s2.loli.net/2022/01/14/brLcvl3SX7qwEAa.png" alt="图 5：(左图)文件格式和压缩的流行组合的压缩率比较，(右图)Impala中纯文本、SEQUENCE、RC、Parquet的查询效率对比"></p>
+<p><img src="https://s2.loli.net/2022/01/14/brLcvl3SX7qwEAa.png" srcset="/img/loading.gif" lazyload alt="图 5：(左图)文件格式和压缩的流行组合的压缩率比较，(右图)Impala中纯文本、SEQUENCE、RC、Parquet的查询效率对比"></p>
 <p>如前所述，Parquet 提供高压缩和扫描效率。图 5 (左)比较了比例因子为 1,000 的 TPC-H 数据库的 Lineitem 表在以一些流行的文件格式和压缩算法组合存储时的磁盘大小。
 采用 snappy 压缩的 Parquet 实现了其中最好的压缩。同样，图 5 (右)显示了当数据库以纯文本、序列、RC 和 Parquet 格式存储时，来自 TPC-DS 基准的各种查询的 Impala 执行时间。
 Parquet 的性能始终优于所有其他格式的 5 倍。</p>
@@ -326,17 +503,17 @@ YARN 不支持这种模式，相反，我们让 Llama 向 YARN 发出新的资�
 为了保持一致性，我们对 Impala 运行了相同的查询，尽管 Impala 在没有这些修改的情况下产生了相同的结果。</p>
 <p>每个引擎都根据其表现最佳的文件格式进行评估，同时始终使用 Snappy 压缩来确保公平比较：Apache Parquet 上的 Impala、ORC 上的 Hive 0.13、RCFile 上的 Presto 和 Parquet 上的 SparkSQL。</p>
 <h4 id="7-2-单用户性能">7.2 单用户性能</h4>
-<p><img src="https://s2.loli.net/2022/01/14/cIFmqYJD3jHVUTg.png" alt="图 6：单用户运行的查询响应时间比较"></p>
+<p><img src="https://s2.loli.net/2022/01/14/cIFmqYJD3jHVUTg.png" srcset="/img/loading.gif" lazyload alt="图 6：单用户运行的查询响应时间比较"></p>
 <p>图 6 比较了四个系统在单用户运行时的性能，其中单个用户以零思考时间重复提交查询。在所有查询运行的单用户工作负载上，Impala 的性能优于所有替代方案。
 Impala 的性能优势从 2.1 倍到 13.0 倍不等，平均快 6.7 倍。实际上，这与早期版本 Impala 的 Hive 0.13(从平均 4.9 倍到 9 倍)和 Presto(从平均 5.3 倍到 7.5 倍)相比，性能优势差距更大。</p>
 <h4 id="7-3-多用户性能">7.3 多用户性能</h4>
-<p><img src="https://s2.loli.net/2022/01/14/oSj1XpG9LgsRNzv.png" alt="图 7：多用户运行的查询响应时间和吞吐量比较"></p>
+<p><img src="https://s2.loli.net/2022/01/14/oSj1XpG9LgsRNzv.png" srcset="/img/loading.gif" lazyload alt="图 7：多用户运行的查询响应时间和吞吐量比较"></p>
 <p>Impala 的卓越性能在多用户工作负载中变得更加明显，这在现实世界的应用程序中无处不在。图 7(左) 显示了当有 10 个并发用户从交互式类别提交查询时四个系统的响应时间。
 在这种情况下，从单用户到并发用户工作负载时，Impala 的性能优于其他系统，从 6.7 倍到 18.7 倍。
 根据比较，加速从 10.6 倍到 27.4 倍不等。请注意，Impala 在 10 用户负载下的速度几乎是单用户负载下的一半——而替代方案的平均值仅为单用户负载下的五分之一。</p>
 <p>同样，图 7 (右)比较了四个系统的吞吐量。当 10 个用户从交互式存储桶提交查询时，Impala 的吞吐量比其他系统高 8.7 倍至 22 倍。</p>
 <h4 id="7-4-与商业-RDBMS-比较">7.4 与商业 RDBMS 比较</h4>
-<p><img src="https://s2.loli.net/2022/01/14/1kcdpSqQTXILFHr.png" alt="图 8：Impala 和商业分析 RDBMS 的性能比较"></p>
+<p><img src="https://s2.loli.net/2022/01/14/1kcdpSqQTXILFHr.png" srcset="/img/loading.gif" lazyload alt="图 8：Impala 和商业分析 RDBMS 的性能比较"></p>
 <p>从以上比较可以看出，Impala 在性能方面在 SQL-on Hadoop 系统中处于领先地位。但 Impala 也适合部署在传统的数据仓库设置中。
 在图 8 中，我们将 Impala 的性能与流行的商业柱状分析 DBMS 进行了比较，由于有限制性的专有许可协议，此处称为“DBMS-Y”。
 我们使用比例因子为 30,000(30TB 原始数据)的 TPC-DS 数据集，并根据前面段落中介绍的工作负载运行查询。
@@ -378,7 +555,7 @@ Impala 将被扩展为以对嵌套级别或可以在单个查询中处理的嵌�
 然而，我们相信 Hadoop 环境的模块化特性(其中 Impala 利用了跨平台共享的许多标准组件)带来了一些传统的单体 RDBMS 无法复制的优势。
 特别是，混合文件格式和处理框架的能力意味着单个系统可以处理更广泛的计算任务，而无需数据移动，这本身通常是组织使用数据做某事的最大障碍之一。</p>
 <p>Hadoop 生态系统中的数据管理仍然缺乏过去几十年为商业 RDBMS 开发的一些功能； 尽管如此，我们预计这种差距会迅速缩小，并且开放模块化环境的优势将使其在不久的将来成为主导的数据管理架构。</p>
-<h3 id="参考资料">参考资料</h3>
+<h3 id="参考资料-67">参考资料</h3>
 <p>[1] A. Ailamaki, D. J. DeWitt, M. D. Hill, and M. Skounakis. Weaving relations for cache performance. In VLDB,2001.</p>
 <p>[2] Apache. Centralized cache management in HDFS. Available at <a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/r2.3.0/hadoopproject-dist/hadoop-hdfs/CentralizedCacheManagement.html">https://hadoop.apache.org/docs/r2.3.0/hadoopproject-dist/hadoop-hdfs/CentralizedCacheManagement.html</a>.</p>
 <p>[3] Apache. HDFS short-circuit local reads. Available at <a target="_blank" rel="noopener" href="http://hadoop.apache.org/docs/r2.5.1/hadoop-projectdist/hadoop-hdfs/ShortCircuitLocalReads.html">http://hadoop.apache.org/docs/r2.5.1/hadoop-projectdist/hadoop-hdfs/ShortCircuitLocalReads.html</a>.</p>
@@ -394,450 +571,343 @@ I. Pandis, B. Schiefer, D. Sharpe, R. Sidle, A. Storm, and L. Zhang. DB2 with BL
 <p>[12] V. K. Vavilapalli, A. C. Murthy, C. Douglas, S. Agarwal, M. Konar, R. Evans, T. Graves, J. Lowe, H. Shah, S. Seth, B. Saha, C. Curino, O. O’Malley, S. Radia,
 B. Reed, and E. Baldeschwieler. Apache Hadoop YARN: Yet another resource negotiator. In SOCC, 2013.</p>
 <p>[13] T. Willhalm, N. Popovici, Y. Boshmaf, H. Plattner, A. Zeier, and J. Schaffner. SIMD-scan: ultra fast inmemory table scan using on-chip vector processing units. PVLDB, 2, 2009.</p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/">#论文</a>
+      
+        <a href="/tags/Impala/">#Impala</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译</div>
+      <div>https://wangqian0306.github.io/2022/impala_a_modern_open_source_sql_engine_for_hadoop/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月12日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2022/impala_a_modern_open_source_sql_engine_for_hadoop/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Impala/" rel="tag">Impala</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87/" rel="tag">论文</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2022/flink_init/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Flink 执行环境
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/flink_init/" title="Flink 执行环境">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Flink 执行环境</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/apache_hive_from_mapreduce_to_enterprise_grade_big_data_warehousing/" title="Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译">
+                        <span class="hidden-mobile">Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2022/apache_hive_from_mapreduce_to_enterprise_grade_big_data_warehousing/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>

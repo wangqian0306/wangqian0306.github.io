@@ -1,108 +1,276 @@
+
+
 <!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
-<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Spring Security 简介 Spring Security 是一款安全框架。 初步使用 引入依赖包：  Developer Tools  Lombok   Web  Spring Web   Security  Spring Security OAuth2 Resource Server   SQL  Spring Data JPA &#x2F; MyBatis Framework MySQL D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Security">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/caching/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Spring Security 简介 Spring Security 是一款安全框架。 初步使用 引入依赖包：  Developer Tools  Lombok   Web  Spring Web   Security  Spring Security OAuth2 Resource Server   SQL  Spring Data JPA &#x2F; MyBatis Framework MySQL D">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-10-27T13:32:58.000Z">
+<meta property="article:modified_time" content="2022-06-13T06:42:44.915Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Spring Security - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-    <head>
-      <meta charset="utf-8" />
-       
-      <meta name="keywords" content="技术博客" />
-       
-      <meta name="description" content="乾" />
-      
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1"
-      />
-      <title>Spring Security |  乾</title>
-  <meta name="generator" content="hexo-theme-ayer">
-      
-      <link rel="shortcut icon" href="/favicon.ico" />
-       
-<link rel="stylesheet" href="/dist/main.css">
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css"
-      />
-      
-<link rel="stylesheet" href="/css/custom.css">
- 
-      <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
-       
- 
 
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
 
-      <!-- mermaid -->
-      
-      <style>
-        .swal2-styled.swal2-confirm {
-          font-size: 1.6rem;
-        }
-      </style>
-    <!-- hexo injector head_end start -->
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
 </head>
-  </html>
-</html>
 
 
 <body>
-  <div id="app">
-    
-      
-    <main class="content on">
-      <section class="outer">
-  <article
-  id="post-spring/security"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Spring Security
-</h1>
- 
+  
 
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/caching/" class="article-date">
-  <time datetime="2021-10-27T13:32:58.000Z" itemprop="datePublished">2021-10-27</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Spring/">Spring</a>
-  </div>
- 
+  <header>
+    
+
+<div class="header-inner" style="height: 100vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                主页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
-      
-    <div class="tocbot"></div>
-
-
-
+  </div>
+</nav>
 
   
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Spring-Security">Spring Security</h2>
-<h3 id="简介">简介</h3>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spring Security"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-10-27 21:32" pubdate>
+          2021年10月27日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Spring Security</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Spring-Security">Spring Security</h2>
+<h3 id="简介-69">简介</h3>
 <p>Spring Security 是一款安全框架。</p>
-<h3 id="初步使用">初步使用</h3>
+<h3 id="初步使用-3">初步使用</h3>
 <p>引入依赖包：</p>
 <ul>
 <li>Developer Tools
@@ -129,478 +297,375 @@
 </li>
 </ul>
 <p>书写配置文件：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.url=$&#123;MYSQL_URI:jdbc:mysql://192.168.2.77:3306/health_test&#125;</span><br><span class="line">spring.datasource.username=$&#123;JDBC_USERNAME:root&#125;</span><br><span class="line">spring.datasource.password=$&#123;JDBC_PASSWORD:Rb123456!&#125;</span><br><span class="line">spring.datasource.driver-class-name=$&#123;JDBC_DRIVER:com.mysql.cj.jdbc.Driver&#125;</span><br><span class="line">spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl</span><br><span class="line">jwt.public.key=classpath:pub.key</span><br><span class="line">jwt.private.key=classpath:pri.key</span><br><span class="line">spring.jpa.hibernate.ddl-auto=update</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">spring.datasource.url=$&#123;MYSQL_URI:jdbc:mysql://xxx.xxx.xxx:xxxx/xxx&#125;<br>spring.datasource.username=$&#123;JDBC_USERNAME:xxx&#125;<br>spring.datasource.password=$&#123;JDBC_PASSWORD:xxx&#125;<br>spring.datasource.driver-class-name=$&#123;JDBC_DRIVER:com.mysql.cj.jdbc.Driver&#125;<br>spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl<br>jwt.public.key=classpath:pub.key<br>jwt.private.key=classpath:pri.key<br>spring.jpa.hibernate.ddl-auto=update<br></code></pre></td></tr></table></figure>
 <p>新建用户/权限相关模型：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> lombok.Setter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.persistence.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@EntityListeners(AuditingEntityListener.class)</span></span><br><span class="line"><span class="meta">@Table(name = &quot;T_USER&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.AUTO)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String firstName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String lastName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String mobile;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Boolean enabled;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Boolean tokenExpired;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="meta">@ManyToMany</span></span><br><span class="line">    <span class="meta">@JoinTable(</span></span><br><span class="line"><span class="meta">            name = &quot;users_roles&quot;,</span></span><br><span class="line"><span class="meta">            joinColumns = @JoinColumn(</span></span><br><span class="line"><span class="meta">                    name = &quot;user_id&quot;, referencedColumnName = &quot;id&quot;),</span></span><br><span class="line"><span class="meta">            inverseJoinColumns = @JoinColumn(</span></span><br><span class="line"><span class="meta">                    name = &quot;role_id&quot;, referencedColumnName = &quot;id&quot;))</span></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Role&gt; roles;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Boolean <span class="title">isEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.enabled;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> lombok.Setter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.persistence.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@EntityListeners(AuditingEntityListener.class)</span></span><br><span class="line"><span class="meta">@Table(name = &quot;T_ROLE&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Role</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.AUTO)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="meta">@ManyToMany(mappedBy = &quot;roles&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;User&gt; users;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="meta">@ManyToMany</span></span><br><span class="line">    <span class="meta">@JoinTable(</span></span><br><span class="line"><span class="meta">            name = &quot;roles_privileges&quot;,</span></span><br><span class="line"><span class="meta">            joinColumns = @JoinColumn(</span></span><br><span class="line"><span class="meta">                    name = &quot;role_id&quot;, referencedColumnName = &quot;id&quot;),</span></span><br><span class="line"><span class="meta">            inverseJoinColumns = @JoinColumn(</span></span><br><span class="line"><span class="meta">                    name = &quot;privilege_id&quot;, referencedColumnName = &quot;id&quot;))</span></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Privilege&gt; privileges;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> lombok.Setter;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.persistence.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@EntityListeners(AuditingEntityListener.class)</span></span><br><span class="line"><span class="meta">@Table(name = &quot;T_PRIVILEGE&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Privilege</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.AUTO)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@JsonIgnore</span></span><br><span class="line">    <span class="meta">@ManyToMany(mappedBy = &quot;privileges&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;Role&gt; roles;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.Getter;<br><span class="hljs-keyword">import</span> lombok.Setter;<br><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;<br><br><span class="hljs-keyword">import</span> javax.persistence.*;<br><span class="hljs-keyword">import</span> java.util.Collection;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Setter</span><br><span class="hljs-meta">@Getter</span><br><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span><br><span class="hljs-meta">@Table(name = &quot;T_USER&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> &#123;<br><br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.AUTO)</span><br>    <span class="hljs-keyword">private</span> Long id;<br><br>    <span class="hljs-keyword">private</span> String firstName;<br><br>    <span class="hljs-keyword">private</span> String lastName;<br><br>    <span class="hljs-keyword">private</span> String email;<br><br>    <span class="hljs-keyword">private</span> String mobile;<br><br>    <span class="hljs-meta">@JsonIgnore</span><br>    <span class="hljs-keyword">private</span> String password;<br><br>    <span class="hljs-keyword">private</span> Boolean enabled;<br><br>    <span class="hljs-keyword">private</span> Boolean tokenExpired;<br><br>    <span class="hljs-meta">@JsonIgnore</span><br>    <span class="hljs-meta">@ManyToMany</span><br>    <span class="hljs-meta">@JoinTable(</span><br><span class="hljs-meta">            name = &quot;users_roles&quot;,</span><br><span class="hljs-meta">            joinColumns = @JoinColumn(</span><br><span class="hljs-meta">                    name = &quot;user_id&quot;, referencedColumnName = &quot;id&quot;),</span><br><span class="hljs-meta">            inverseJoinColumns = @JoinColumn(</span><br><span class="hljs-meta">                    name = &quot;role_id&quot;, referencedColumnName = &quot;id&quot;))</span><br>    <span class="hljs-keyword">private</span> Collection&lt;Role&gt; roles;<br><br>    <span class="hljs-keyword">public</span> Boolean <span class="hljs-title function_">isEnabled</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.enabled;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.Getter;<br><span class="hljs-keyword">import</span> lombok.Setter;<br><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;<br><br><span class="hljs-keyword">import</span> javax.persistence.*;<br><span class="hljs-keyword">import</span> java.util.Collection;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Setter</span><br><span class="hljs-meta">@Getter</span><br><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span><br><span class="hljs-meta">@Table(name = &quot;T_ROLE&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Role</span> &#123;<br><br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.AUTO)</span><br>    <span class="hljs-keyword">private</span> Long id;<br><br>    <span class="hljs-keyword">private</span> String name;<br><br>    <span class="hljs-meta">@JsonIgnore</span><br>    <span class="hljs-meta">@ManyToMany(mappedBy = &quot;roles&quot;)</span><br>    <span class="hljs-keyword">private</span> Collection&lt;User&gt; users;<br><br>    <span class="hljs-meta">@JsonIgnore</span><br>    <span class="hljs-meta">@ManyToMany</span><br>    <span class="hljs-meta">@JoinTable(</span><br><span class="hljs-meta">            name = &quot;roles_privileges&quot;,</span><br><span class="hljs-meta">            joinColumns = @JoinColumn(</span><br><span class="hljs-meta">                    name = &quot;role_id&quot;, referencedColumnName = &quot;id&quot;),</span><br><span class="hljs-meta">            inverseJoinColumns = @JoinColumn(</span><br><span class="hljs-meta">                    name = &quot;privilege_id&quot;, referencedColumnName = &quot;id&quot;))</span><br>    <span class="hljs-keyword">private</span> Collection&lt;Privilege&gt; privileges;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.Getter;<br><span class="hljs-keyword">import</span> lombok.Setter;<br><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.data.jpa.domain.support.AuditingEntityListener;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.annotation.JsonIgnore;<br><br><span class="hljs-keyword">import</span> javax.persistence.*;<br><span class="hljs-keyword">import</span> java.util.Collection;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Setter</span><br><span class="hljs-meta">@Getter</span><br><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span><br><span class="hljs-meta">@Table(name = &quot;T_PRIVILEGE&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Privilege</span> &#123;<br><br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.AUTO)</span><br>    <span class="hljs-keyword">private</span> Long id;<br><br>    <span class="hljs-keyword">private</span> String name;<br><br>    <span class="hljs-meta">@JsonIgnore</span><br>    <span class="hljs-meta">@ManyToMany(mappedBy = &quot;privileges&quot;)</span><br>    <span class="hljs-keyword">private</span> Collection&lt;Role&gt; roles;<br><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建用户/权限相关存储库：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Repository;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">User</span>, <span class="title">Long</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">User <span class="title">findByEmail</span><span class="params">(String email)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Repository;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RoleRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">Role</span>, <span class="title">Long</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">Role <span class="title">findByName</span><span class="params">(String name)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Repository;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PrivilegeRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">Privilege</span>, <span class="title">Long</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">Privilege <span class="title">findByName</span><span class="params">(String name)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Repository;<br><br><span class="hljs-meta">@Repository</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">UserRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;User, Long&gt; &#123;<br>    User <span class="hljs-title function_">findByEmail</span><span class="hljs-params">(String email)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Repository;<br><br><span class="hljs-meta">@Repository</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">RoleRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Role, Long&gt; &#123;<br>    Role <span class="hljs-title function_">findByName</span><span class="hljs-params">(String name)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Repository;<br><br><span class="hljs-meta">@Repository</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">PrivilegeRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Privilege, Long&gt; &#123;<br>    Privilege <span class="hljs-title function_">findByName</span><span class="hljs-params">(String name)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建权限配置程序：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.authentication.AuthenticationManager;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.Customizer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.crypto.password.PasswordEncoder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.oauth2.jwt.JwtDecoder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.oauth2.jwt.NimbusJwtDecoder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.security.interfaces.RSAPublicKey;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Security configuration for the main application.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Josh Cummings</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jwt.public.key&#125;&quot;)</span></span><br><span class="line">    RSAPublicKey key;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] AUTH_WHITELIST = &#123;</span><br><span class="line">            <span class="comment">// -- Swagger UI v2</span></span><br><span class="line">            <span class="string">&quot;/v2/api-docs&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/swagger-resources&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/swagger-resources/**&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/configuration/ui&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/configuration/security&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/swagger-ui.html&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/webjars/**&quot;</span>,</span><br><span class="line">            <span class="comment">// -- Swagger UI v3 (OpenAPI)</span></span><br><span class="line">            <span class="string">&quot;/v3/api-docs/**&quot;</span>,</span><br><span class="line">            <span class="string">&quot;/swagger-ui/**&quot;</span>,</span><br><span class="line">            <span class="comment">// other</span></span><br><span class="line">            <span class="string">&quot;/login&quot;</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        http.csrf().disable()</span><br><span class="line">                .httpBasic(Customizer.withDefaults())</span><br><span class="line">                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)</span><br><span class="line">                .authorizeRequests()</span><br><span class="line">                .antMatchers(AUTH_WHITELIST).permitAll()</span><br><span class="line">                .anyRequest().authenticated();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function">JwtDecoder <span class="title">jwtDecoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> NimbusJwtDecoder.withPublicKey(<span class="keyword">this</span>.key).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PasswordEncoder <span class="title">encoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BCryptPasswordEncoder(<span class="number">11</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean(&quot;authenticationManager&quot;)</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthenticationManager <span class="title">authenticationManagerBean</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.authenticationManagerBean();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Value;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;<br><span class="hljs-keyword">import</span> org.springframework.security.authentication.AuthenticationManager;<br><span class="hljs-keyword">import</span> org.springframework.security.config.Customizer;<br><span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.builders.HttpSecurity;<br><span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;<br><span class="hljs-keyword">import</span> org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;<br><span class="hljs-keyword">import</span> org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;<br><span class="hljs-keyword">import</span> org.springframework.security.crypto.password.PasswordEncoder;<br><span class="hljs-keyword">import</span> org.springframework.security.oauth2.jwt.JwtDecoder;<br><span class="hljs-keyword">import</span> org.springframework.security.oauth2.jwt.NimbusJwtDecoder;<br><br><span class="hljs-keyword">import</span> java.security.interfaces.RSAPublicKey;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Security configuration for the main application.</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@author</span> Josh Cummings</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RestConfig</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WebSecurityConfigurerAdapter</span> &#123;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;jwt.public.key&#125;&quot;)</span><br>    RSAPublicKey key;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String[] AUTH_WHITELIST = &#123;<br>            <span class="hljs-comment">// -- Swagger UI v2</span><br>            <span class="hljs-string">&quot;/v2/api-docs&quot;</span>,<br>            <span class="hljs-string">&quot;/swagger-resources&quot;</span>,<br>            <span class="hljs-string">&quot;/swagger-resources/**&quot;</span>,<br>            <span class="hljs-string">&quot;/configuration/ui&quot;</span>,<br>            <span class="hljs-string">&quot;/configuration/security&quot;</span>,<br>            <span class="hljs-string">&quot;/swagger-ui.html&quot;</span>,<br>            <span class="hljs-string">&quot;/webjars/**&quot;</span>,<br>            <span class="hljs-comment">// -- Swagger UI v3 (OpenAPI)</span><br>            <span class="hljs-string">&quot;/v3/api-docs/**&quot;</span>,<br>            <span class="hljs-string">&quot;/swagger-ui/**&quot;</span>,<br>            <span class="hljs-comment">// other</span><br>            <span class="hljs-string">&quot;/login&quot;</span><br>    &#125;;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">configure</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        http.csrf().disable()<br>                .httpBasic(Customizer.withDefaults())<br>                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)<br>                .authorizeRequests()<br>                .antMatchers(AUTH_WHITELIST).permitAll()<br>                .anyRequest().authenticated();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    JwtDecoder <span class="hljs-title function_">jwtDecoder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> NimbusJwtDecoder.withPublicKey(<span class="hljs-built_in">this</span>.key).build();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title function_">encoder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BCryptPasswordEncoder</span>(<span class="hljs-number">11</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean(&quot;authenticationManager&quot;)</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> AuthenticationManager <span class="hljs-title function_">authenticationManagerBean</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.authenticationManagerBean();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建用户初始化程序：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationListener;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.event.ContextRefreshedEvent;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.crypto.password.PasswordEncoder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> org.springframework.transaction.annotation.Transactional;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SetupDataLoader</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextRefreshedEvent</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> alreadySetup = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RoleRepository roleRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PrivilegeRepository privilegeRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PasswordEncoder passwordEncoder;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextRefreshedEvent event)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (alreadySetup)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        Privilege readPrivilege = createPrivilegeIfNotFound(<span class="string">&quot;READ_PRIVILEGE&quot;</span>);</span><br><span class="line">        Privilege writePrivilege = createPrivilegeIfNotFound(<span class="string">&quot;WRITE_PRIVILEGE&quot;</span>);</span><br><span class="line">        List&lt;Privilege&gt; adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);</span><br><span class="line">        createRoleIfNotFound(<span class="string">&quot;ROLE_ADMIN&quot;</span>, adminPrivileges);</span><br><span class="line">        createRoleIfNotFound(<span class="string">&quot;ROLE_USER&quot;</span>, List.of(readPrivilege));</span><br><span class="line">        Role adminRole = roleRepository.findByName(<span class="string">&quot;ROLE_ADMIN&quot;</span>);</span><br><span class="line">        createUserIfNotFound(adminRole);</span><br><span class="line">        alreadySetup = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function">Privilege <span class="title">createPrivilegeIfNotFound</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Privilege privilege = privilegeRepository.findByName(name);</span><br><span class="line">        <span class="keyword">if</span> (privilege == <span class="keyword">null</span>) &#123;</span><br><span class="line">            privilege = <span class="keyword">new</span> Privilege();</span><br><span class="line">            privilege.setName(name);</span><br><span class="line">            privilegeRepository.save(privilege);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> privilege;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function">Role <span class="title">createRoleIfNotFound</span><span class="params">(String name, Collection&lt;Privilege&gt; privileges)</span> </span>&#123;</span><br><span class="line">        Role role = roleRepository.findByName(name);</span><br><span class="line">        <span class="keyword">if</span> (role == <span class="keyword">null</span>) &#123;</span><br><span class="line">            role = <span class="keyword">new</span> Role();</span><br><span class="line">            role.setName(name);</span><br><span class="line">            role.setPrivileges(privileges);</span><br><span class="line">            roleRepository.save(role);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> role;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">createUserIfNotFound</span><span class="params">(Role adminRole)</span> </span>&#123;</span><br><span class="line">        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(<span class="string">&quot;admin&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (optional.isEmpty()) &#123;</span><br><span class="line">            User user = <span class="keyword">new</span> User();</span><br><span class="line">            user.setName(<span class="string">&quot;admin&quot;</span>);</span><br><span class="line">            user.setPhone(<span class="string">&quot;12312341234&quot;</span>);</span><br><span class="line">            user.setPassword(passwordEncoder.encode(<span class="string">&quot;admin&quot;</span>));</span><br><span class="line">            user.setEmail(<span class="string">&quot;admin@admin.com&quot;</span>);</span><br><span class="line">            user.setRoles(List.of(adminRole));</span><br><span class="line">            user.setEnabled(<span class="keyword">true</span>);</span><br><span class="line">            userRepository.save(user);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;<br><span class="hljs-keyword">import</span> org.springframework.context.ApplicationListener;<br><span class="hljs-keyword">import</span> org.springframework.context.event.ContextRefreshedEvent;<br><span class="hljs-keyword">import</span> org.springframework.security.crypto.password.PasswordEncoder;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Component;<br><span class="hljs-keyword">import</span> org.springframework.transaction.annotation.Transactional;<br><br><span class="hljs-keyword">import</span> java.util.Arrays;<br><span class="hljs-keyword">import</span> java.util.Collection;<br><span class="hljs-keyword">import</span> java.util.List;<br><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SetupDataLoader</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ApplicationListener</span>&lt;ContextRefreshedEvent&gt; &#123;<br><br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">alreadySetup</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserRepository userRepository;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleRepository roleRepository;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> PrivilegeRepository privilegeRepository;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onApplicationEvent</span><span class="hljs-params">(ContextRefreshedEvent event)</span> &#123;<br>        <span class="hljs-keyword">if</span> (alreadySetup)<br>            <span class="hljs-keyword">return</span>;<br>        <span class="hljs-type">Privilege</span> <span class="hljs-variable">readPrivilege</span> <span class="hljs-operator">=</span> createPrivilegeIfNotFound(<span class="hljs-string">&quot;READ_PRIVILEGE&quot;</span>);<br>        <span class="hljs-type">Privilege</span> <span class="hljs-variable">writePrivilege</span> <span class="hljs-operator">=</span> createPrivilegeIfNotFound(<span class="hljs-string">&quot;WRITE_PRIVILEGE&quot;</span>);<br>        List&lt;Privilege&gt; adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);<br>        createRoleIfNotFound(<span class="hljs-string">&quot;ROLE_ADMIN&quot;</span>, adminPrivileges);<br>        createRoleIfNotFound(<span class="hljs-string">&quot;ROLE_USER&quot;</span>, List.of(readPrivilege));<br>        <span class="hljs-type">Role</span> <span class="hljs-variable">adminRole</span> <span class="hljs-operator">=</span> roleRepository.findByName(<span class="hljs-string">&quot;ROLE_ADMIN&quot;</span>);<br>        createUserIfNotFound(adminRole);<br>        alreadySetup = <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    Privilege <span class="hljs-title function_">createPrivilegeIfNotFound</span><span class="hljs-params">(String name)</span> &#123;<br><br>        <span class="hljs-type">Privilege</span> <span class="hljs-variable">privilege</span> <span class="hljs-operator">=</span> privilegeRepository.findByName(name);<br>        <span class="hljs-keyword">if</span> (privilege == <span class="hljs-literal">null</span>) &#123;<br>            privilege = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Privilege</span>();<br>            privilege.setName(name);<br>            privilegeRepository.save(privilege);<br>        &#125;<br>        <span class="hljs-keyword">return</span> privilege;<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    Role <span class="hljs-title function_">createRoleIfNotFound</span><span class="hljs-params">(String name, Collection&lt;Privilege&gt; privileges)</span> &#123;<br>        <span class="hljs-type">Role</span> <span class="hljs-variable">role</span> <span class="hljs-operator">=</span> roleRepository.findByName(name);<br>        <span class="hljs-keyword">if</span> (role == <span class="hljs-literal">null</span>) &#123;<br>            role = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Role</span>();<br>            role.setName(name);<br>            role.setPrivileges(privileges);<br>            roleRepository.save(role);<br>        &#125;<br>        <span class="hljs-keyword">return</span> role;<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">createUserIfNotFound</span><span class="hljs-params">(Role adminRole)</span> &#123;<br>        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(<span class="hljs-string">&quot;admin&quot;</span>);<br>        <span class="hljs-keyword">if</span> (optional.isEmpty()) &#123;<br>            <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>            user.setName(<span class="hljs-string">&quot;admin&quot;</span>);<br>            user.setPhone(<span class="hljs-string">&quot;12312341234&quot;</span>);<br>            user.setPassword(passwordEncoder.encode(<span class="hljs-string">&quot;admin&quot;</span>));<br>            user.setEmail(<span class="hljs-string">&quot;admin@admin.com&quot;</span>);<br>            user.setRoles(List.of(adminRole));<br>            user.setEnabled(<span class="hljs-literal">true</span>);<br>            userRepository.save(user);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建登录验证程序：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.security.core.GrantedAuthority;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.authority.SimpleGrantedAuthority;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.userdetails.UserDetails;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.userdetails.UserDetailsService;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.userdetails.UsernameNotFoundException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.transaction.Transactional;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyUserDetailsService</span> <span class="keyword">implements</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RoleRepository roleRepository;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyUserDetailsService</span><span class="params">(UserRepository userRepository, RoleRepository roleRepository)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userRepository = userRepository;</span><br><span class="line">        <span class="keyword">this</span>.roleRepository = roleRepository;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetails <span class="title">loadUserByUsername</span><span class="params">(String text)</span> <span class="keyword">throws</span> UsernameNotFoundException </span>&#123;</span><br><span class="line">        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(text);</span><br><span class="line">        <span class="keyword">if</span> (optional.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> org.springframework.security.core.userdetails.User(</span><br><span class="line">                    <span class="string">&quot; &quot;</span>, <span class="string">&quot; &quot;</span>, <span class="keyword">true</span>, <span class="keyword">true</span>, <span class="keyword">true</span>,</span><br><span class="line">                    <span class="keyword">true</span>, getAuthorities(List.of(roleRepository.findByName(<span class="string">&quot;ROLE_USER&quot;</span>))));</span><br><span class="line">        &#125;</span><br><span class="line">        User user = optional.get();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> org.springframework.security.core.userdetails.User(</span><br><span class="line">                user.getEmail(), user.getPassword(), user.isEnabled(), <span class="keyword">true</span>,</span><br><span class="line">                <span class="keyword">true</span>, <span class="keyword">true</span>, getAuthorities(user.getRoles()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Collection&lt;? extends GrantedAuthority&gt; getAuthorities(Collection&lt;Role&gt; roles) &#123;</span><br><span class="line">        <span class="keyword">return</span> getGrantedAuthorities(getPrivileges(roles));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;String&gt; <span class="title">getPrivileges</span><span class="params">(Collection&lt;Role&gt; roles)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; privileges = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        List&lt;Privilege&gt; collection = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (Role role : roles) &#123;</span><br><span class="line">            privileges.add(role.getName());</span><br><span class="line">            collection.addAll(role.getPrivileges());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (Privilege item : collection) &#123;</span><br><span class="line">            privileges.add(item.getName());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> privileges;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;GrantedAuthority&gt; <span class="title">getGrantedAuthorities</span><span class="params">(List&lt;String&gt; privileges)</span> </span>&#123;</span><br><span class="line">        List&lt;GrantedAuthority&gt; authorities = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (String privilege : privileges) &#123;</span><br><span class="line">            authorities.add(<span class="keyword">new</span> SimpleGrantedAuthority(privilege));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> authorities;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.security.core.GrantedAuthority;<br><span class="hljs-keyword">import</span> org.springframework.security.core.authority.SimpleGrantedAuthority;<br><span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetails;<br><span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetailsService;<br><span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UsernameNotFoundException;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Service;<br><br><span class="hljs-keyword">import</span> javax.transaction.Transactional;<br><span class="hljs-keyword">import</span> java.util.ArrayList;<br><span class="hljs-keyword">import</span> java.util.Collection;<br><span class="hljs-keyword">import</span> java.util.List;<br><span class="hljs-keyword">import</span> java.util.Optional;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-meta">@Transactional</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetailsService</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserRepository userRepository;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RoleRepository roleRepository;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyUserDetailsService</span><span class="hljs-params">(UserRepository userRepository, RoleRepository roleRepository)</span> &#123;<br>        <span class="hljs-built_in">this</span>.userRepository = userRepository;<br>        <span class="hljs-built_in">this</span>.roleRepository = roleRepository;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> UserDetails <span class="hljs-title function_">loadUserByUsername</span><span class="hljs-params">(String text)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException &#123;<br>        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(text);<br>        <span class="hljs-keyword">if</span> (optional.isEmpty()) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">org</span>.springframework.security.core.userdetails.User(<br>                    <span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot; &quot;</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>,<br>                    <span class="hljs-literal">true</span>, getAuthorities(List.of(roleRepository.findByName(<span class="hljs-string">&quot;ROLE_USER&quot;</span>))));<br>        &#125;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> optional.get();<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">org</span>.springframework.security.core.userdetails.User(<br>                user.getEmail(), user.getPassword(), user.isEnabled(), <span class="hljs-literal">true</span>,<br>                <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>, getAuthorities(user.getRoles()));<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> Collection&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">GrantedAuthority</span>&gt; getAuthorities(Collection&lt;Role&gt; roles) &#123;<br>        <span class="hljs-keyword">return</span> getGrantedAuthorities(getPrivileges(roles));<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> List&lt;String&gt; <span class="hljs-title function_">getPrivileges</span><span class="hljs-params">(Collection&lt;Role&gt; roles)</span> &#123;<br>        List&lt;String&gt; privileges = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        List&lt;Privilege&gt; collection = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        <span class="hljs-keyword">for</span> (Role role : roles) &#123;<br>            privileges.add(role.getName());<br>            collection.addAll(role.getPrivileges());<br>        &#125;<br>        <span class="hljs-keyword">for</span> (Privilege item : collection) &#123;<br>            privileges.add(item.getName());<br>        &#125;<br>        <span class="hljs-keyword">return</span> privileges;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> List&lt;GrantedAuthority&gt; <span class="hljs-title function_">getGrantedAuthorities</span><span class="hljs-params">(List&lt;String&gt; privileges)</span> &#123;<br>        List&lt;GrantedAuthority&gt; authorities = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>        <span class="hljs-keyword">for</span> (String privilege : privileges) &#123;<br>            authorities.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleGrantedAuthority</span>(privilege));<br>        &#125;<br>        <span class="hljs-keyword">return</span> authorities;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建登录请求和返回类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoginRequest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoginResponse</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String token;</span><br><span class="line">    <span class="keyword">private</span> User user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.Data;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoginRequest</span> &#123;<br>    <span class="hljs-keyword">private</span> String username;<br>    <span class="hljs-keyword">private</span> String password;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.Data;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoginResponse</span> &#123;<br>    <span class="hljs-keyword">private</span> String token;<br>    <span class="hljs-keyword">private</span> User user;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建登录控制器：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.nimbusds.jose.JWSAlgorithm;</span><br><span class="line"><span class="keyword">import</span> com.nimbusds.jose.JWSHeader;</span><br><span class="line"><span class="keyword">import</span> com.nimbusds.jose.crypto.RSASSASigner;</span><br><span class="line"><span class="keyword">import</span> com.nimbusds.jwt.JWTClaimsSet;</span><br><span class="line"><span class="keyword">import</span> com.nimbusds.jwt.SignedJWT;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.http.HttpEntity;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.authentication.AuthenticationManager;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.authentication.UsernamePasswordAuthenticationToken;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.Authentication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.GrantedAuthority;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.context.SecurityContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.security.core.context.SecurityContextHolder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PostMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestBody;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.security.interfaces.RSAPrivateKey;</span><br><span class="line"><span class="keyword">import</span> java.time.Instant;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.Optional;</span><br><span class="line"><span class="keyword">import</span> java.util.stream.Collectors;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/login&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoginController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jwt.private.key&#125;&quot;)</span></span><br><span class="line">    RSAPrivateKey key;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;jwt.expiry:36000&#125;&quot;)</span></span><br><span class="line">    Long expiry;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AuthenticationManager authManager;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LoginController</span><span class="params">(AuthenticationManager authManager, UserRepository userRepository)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.authManager = authManager;</span><br><span class="line">        <span class="keyword">this</span>.userRepository = userRepository;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> HttpEntity&lt;LoginResponse&gt; <span class="title">login</span><span class="params">(<span class="meta">@RequestBody</span> LoginRequest loginRequest)</span> </span>&#123;</span><br><span class="line">        LoginResponse loginResponse = <span class="keyword">new</span> LoginResponse();</span><br><span class="line">        UsernamePasswordAuthenticationToken authReq = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());</span><br><span class="line">        Authentication authentication = authManager.authenticate(authReq);</span><br><span class="line">        SecurityContext sc = SecurityContextHolder.getContext();</span><br><span class="line">        sc.setAuthentication(authentication);</span><br><span class="line">        log.error(authentication.toString());</span><br><span class="line">        Instant now = Instant.now();</span><br><span class="line">        String scope = authentication.getAuthorities().stream()</span><br><span class="line">                .map(GrantedAuthority::getAuthority)</span><br><span class="line">                .collect(Collectors.joining(<span class="string">&quot; &quot;</span>));</span><br><span class="line">        JWTClaimsSet claims = <span class="keyword">new</span> JWTClaimsSet.Builder()</span><br><span class="line">                .issuer(<span class="string">&quot;self&quot;</span>)</span><br><span class="line">                .issueTime(<span class="keyword">new</span> Date(now.toEpochMilli()))</span><br><span class="line">                .expirationTime(<span class="keyword">new</span> Date(now.plusSeconds(expiry).toEpochMilli()))</span><br><span class="line">                .subject(authentication.getName())</span><br><span class="line">                .claim(<span class="string">&quot;scope&quot;</span>, scope)</span><br><span class="line">                .build();</span><br><span class="line">        JWSHeader header = <span class="keyword">new</span> JWSHeader.Builder(JWSAlgorithm.RS256).build();</span><br><span class="line">        SignedJWT jwt = <span class="keyword">new</span> SignedJWT(header, claims);</span><br><span class="line">        loginResponse.setToken(sign(jwt).serialize());</span><br><span class="line">        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(loginRequest.getUsername());</span><br><span class="line">        optional.ifPresent(loginResponse::setUser);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> HttpEntity&lt;&gt;(loginResponse);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">SignedJWT <span class="title">sign</span><span class="params">(SignedJWT jwt)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            jwt.sign(<span class="keyword">new</span> RSASSASigner(<span class="keyword">this</span>.key));</span><br><span class="line">            <span class="keyword">return</span> jwt;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.nimbusds.jose.JWSAlgorithm;<br><span class="hljs-keyword">import</span> com.nimbusds.jose.JWSHeader;<br><span class="hljs-keyword">import</span> com.nimbusds.jose.crypto.RSASSASigner;<br><span class="hljs-keyword">import</span> com.nimbusds.jwt.JWTClaimsSet;<br><span class="hljs-keyword">import</span> com.nimbusds.jwt.SignedJWT;<br><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Value;<br><span class="hljs-keyword">import</span> org.springframework.http.HttpEntity;<br><span class="hljs-keyword">import</span> org.springframework.security.authentication.AuthenticationManager;<br><span class="hljs-keyword">import</span> org.springframework.security.authentication.UsernamePasswordAuthenticationToken;<br><span class="hljs-keyword">import</span> org.springframework.security.core.Authentication;<br><span class="hljs-keyword">import</span> org.springframework.security.core.GrantedAuthority;<br><span class="hljs-keyword">import</span> org.springframework.security.core.context.SecurityContext;<br><span class="hljs-keyword">import</span> org.springframework.security.core.context.SecurityContextHolder;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.PostMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestBody;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-keyword">import</span> java.security.interfaces.RSAPrivateKey;<br><span class="hljs-keyword">import</span> java.time.Instant;<br><span class="hljs-keyword">import</span> java.util.Date;<br><span class="hljs-keyword">import</span> java.util.Optional;<br><span class="hljs-keyword">import</span> java.util.stream.Collectors;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/login&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoginController</span> &#123;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;jwt.private.key&#125;&quot;)</span><br>    RSAPrivateKey key;<br><br>    <span class="hljs-meta">@Value(&quot;$&#123;jwt.expiry:36000&#125;&quot;)</span><br>    Long expiry;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AuthenticationManager authManager;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserRepository userRepository;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">LoginController</span><span class="hljs-params">(AuthenticationManager authManager, UserRepository userRepository)</span> &#123;<br>        <span class="hljs-built_in">this</span>.authManager = authManager;<br>        <span class="hljs-built_in">this</span>.userRepository = userRepository;<br>    &#125;<br><br>    <span class="hljs-meta">@PostMapping</span><br>    <span class="hljs-keyword">public</span> HttpEntity&lt;LoginResponse&gt; <span class="hljs-title function_">login</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> LoginRequest loginRequest)</span> &#123;<br>        <span class="hljs-type">LoginResponse</span> <span class="hljs-variable">loginResponse</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LoginResponse</span>();<br>        <span class="hljs-type">UsernamePasswordAuthenticationToken</span> <span class="hljs-variable">authReq</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernamePasswordAuthenticationToken</span>(loginRequest.getUsername(), loginRequest.getPassword());<br>        <span class="hljs-type">Authentication</span> <span class="hljs-variable">authentication</span> <span class="hljs-operator">=</span> authManager.authenticate(authReq);<br>        <span class="hljs-type">SecurityContext</span> <span class="hljs-variable">sc</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContext();<br>        sc.setAuthentication(authentication);<br>        log.error(authentication.toString());<br>        <span class="hljs-type">Instant</span> <span class="hljs-variable">now</span> <span class="hljs-operator">=</span> Instant.now();<br>        <span class="hljs-type">String</span> <span class="hljs-variable">scope</span> <span class="hljs-operator">=</span> authentication.getAuthorities().stream()<br>                .map(GrantedAuthority::getAuthority)<br>                .collect(Collectors.joining(<span class="hljs-string">&quot; &quot;</span>));<br>        <span class="hljs-type">JWTClaimsSet</span> <span class="hljs-variable">claims</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JWTClaimsSet</span>.Builder()<br>                .issuer(<span class="hljs-string">&quot;self&quot;</span>)<br>                .issueTime(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(now.toEpochMilli()))<br>                .expirationTime(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(now.plusSeconds(expiry).toEpochMilli()))<br>                .subject(authentication.getName())<br>                .claim(<span class="hljs-string">&quot;scope&quot;</span>, scope)<br>                .build();<br>        <span class="hljs-type">JWSHeader</span> <span class="hljs-variable">header</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JWSHeader</span>.Builder(JWSAlgorithm.RS256).build();<br>        <span class="hljs-type">SignedJWT</span> <span class="hljs-variable">jwt</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedJWT</span>(header, claims);<br>        loginResponse.setToken(sign(jwt).serialize());<br>        Optional&lt;User&gt; optional = userRepository.findByEmailOrPhoneOrName(loginRequest.getUsername());<br>        optional.ifPresent(loginResponse::setUser);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HttpEntity</span>&lt;&gt;(loginResponse);<br>    &#125;<br><br>    SignedJWT <span class="hljs-title function_">sign</span><span class="hljs-params">(SignedJWT jwt)</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            jwt.sign(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RSASSASigner</span>(<span class="hljs-built_in">this</span>.key));<br>            <span class="hljs-keyword">return</span> jwt;<br>        &#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(ex);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>新建查看用户名控制器：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.security.core.Authentication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/api/v1/hello&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(Authentication authentication)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello, &quot;</span> + authentication.getName() + <span class="string">&quot;!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="使用方式">使用方式</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl --location --request POST <span class="string">&#x27;localhost:8080/login&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;Content-Type: application/json&#x27;</span> \</span><br><span class="line">--data-raw <span class="string">&#x27;&#123;</span></span><br><span class="line"><span class="string">    &quot;username&quot;:&quot;admin&quot;,</span></span><br><span class="line"><span class="string">    &quot;password&quot;:&quot;admin&quot;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --request GET <span class="string">&#x27;http://localhost:8080/api/v1/hello&#x27;</span> --header <span class="string">&#x27;Authorization: Bearer &lt;token&gt;&#x27;</span></span><br></pre></td></tr></table></figure>
-<h3 id="参考资料">参考资料</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.security.core.Authentication;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/api/v1/hello&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br>    <span class="hljs-meta">@GetMapping</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">hello</span><span class="hljs-params">(Authentication authentication)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Hello, &quot;</span> + authentication.getName() + <span class="hljs-string">&quot;!&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="使用方式-6">使用方式</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl --location --request POST <span class="hljs-string">&#x27;localhost:8080/login&#x27;</span> \<br>--header <span class="hljs-string">&#x27;Content-Type: application/json&#x27;</span> \<br>--data-raw <span class="hljs-string">&#x27;&#123;</span><br><span class="hljs-string">    &quot;username&quot;:&quot;admin&quot;,</span><br><span class="hljs-string">    &quot;password&quot;:&quot;admin&quot;</span><br><span class="hljs-string">&#125;&#x27;</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl --request GET <span class="hljs-string">&#x27;http://localhost:8080/api/v1/hello&#x27;</span> --header <span class="hljs-string">&#x27;Authorization: Bearer &lt;token&gt;&#x27;</span><br></code></pre></td></tr></table></figure>
+<h3 id="获取用户相关信息的基本方式">获取用户相关信息的基本方式</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br> <br>    <span class="hljs-meta">@GetMapping(&quot;/hello&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">hello</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">principal</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContext().getAuthentication().getPrincipal();<br>        <span class="hljs-keyword">if</span> (principal <span class="hljs-keyword">instanceof</span> UserDetails) &#123;<br>            <span class="hljs-keyword">return</span> ((UserDetails) principal).get.getUsername();<br>        &#125;<br>        <span class="hljs-keyword">if</span> (principal <span class="hljs-keyword">instanceof</span> Principal) &#123;<br>            <span class="hljs-keyword">return</span> ((Principal) principal).getName();<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;当前登录用户：&quot;</span> + String.valueOf(principal);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br> <br>    <span class="hljs-meta">@GetMapping(&quot;/hello&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">hello</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;当前登录用户：&quot;</span> + SecurityContextHolder.getContext().getAuthentication().getName();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="参考资料-55">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-security-samples">Spring Security 例程</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.baeldung.com/security-spring">baeldung 教程</a></p>
- 
-      <!-- reward -->
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring/" class="category-chain-item">Spring</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Java/">#Java</a>
+      
+        <a href="/tags/Spring-Boot/">#Spring Boot</a>
       
     </div>
-    
+  
+</div>
 
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
-        <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
-        </li>
-      </ul>
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Spring Security</div>
+      <div>https://wangqian0306.github.io/2021/caching/</div>
     </div>
-    
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年10月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
         </div>
       </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wangqian0306.github.io/2021/caching/" alt="微信分享二维码">
     </div>
-</div>
-
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring-Boot/" rel="tag">Spring Boot</a></li></ul>
-
-    </footer>
+    <div class="license-icon iconfont"></div>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2021/caching/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Open Feign
-          
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/caching/" title="Open Feign">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Open Feign</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/export-excel/" title="导出 Excel">
+                        <span class="hidden-mobile">导出 Excel</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
-      </a>
-    
-    
-      <a href="/2021/export-excel/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">导出 Excel</div>
-      </a>
-    
-  </nav>
+      </div>
+    </div>
 
-  
-   
-     
-</article>
-
-</section>
-      <footer class="footer">
-  <div class="outer">
-    <ul>
-      <li>
-        Copyrights &copy;
-        2020-2022
-        <i class="ri-heart-fill heart_icon"></i> WangQian
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-        
-        
-        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
-        <span class="division">|</span>
-        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
-        
-      </li>
-    </ul>
-    <ul>
-      <li>
-        
-      </li>
-    </ul>
-    <ul>
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-    </ul>
-    <ul>
-      
-    </ul>
-    <ul>
-      <li>
-        <!-- cnzz统计 -->
-        
-      </li>
-    </ul>
-  </div>
-</footer>    
-    </main>
-    <div class="float_btns">
-      <div class="totop" id="totop">
-  <i class="ri-arrow-up-line"></i>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
 </div>
 
-<div class="todark" id="todark">
-  <i class="ri-moon-line"></i>
-</div>
+
+
+  </aside>
+
 
     </div>
-    <aside class="sidebar on">
-      <button class="navbar-toggle"></button>
-<nav class="navbar">
-  
-  <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="乾"></a>
   </div>
+</div>
+
+
+
+
+
   
-  <ul class="nav nav-main">
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/">主页</a>
-    </li>
+
     
-    <li class="nav-item">
-      <a class="nav-item-link" href="/archives">归档</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/2020/about">关于我</a>
-    </li>
-    
-  </ul>
-</nav>
-<nav class="navbar navbar-bottom">
-  <ul class="nav">
-    <li class="nav-item">
-      
-      <a class="nav-item-link nav-item-search"  title="Search">
-        <i class="ri-search-line"></i>
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
       </a>
-      
-      
-    </li>
-  </ul>
-</nav>
-<div class="search-form-wrap">
-  <div class="local-search local-search-plugin">
-  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
-  <div id="local-search-result" class="local-search-result"></div>
-</div>
-</div>
-    </aside>
-    <div id="mask"></div>
+    
 
-<!-- #reward -->
-<div id="reward">
-  <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
-  <div class="reward-box">
     
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
-      <span class="reward-type">支付宝</span>
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    
-    
-    <div class="reward-item">
-      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
-      <span class="reward-type">微信</span>
-    </div>
-    
   </div>
 </div>
+
     
-<script src="/js/jquery-3.6.0.min.js"></script>
- 
-<script src="/js/lazyload.min.js"></script>
 
-<!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
+    
+  </main>
 
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
 <script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
   });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
 
-<script src="/dist/main.js"></script>
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
 
-<!-- ImageViewer -->
- <!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>Fluid.plugins.codeWidget();</script>
 
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
 
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                <!--  Controls are self-explanatory. Order can be changed. -->
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
-
+  
 <script>
-    function viewer_init() {
-        let pswpElement = document.querySelectorAll('.pswp')[0];
-        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
-
-        $imgArr.forEach(($em, i) => {
-            $em.onclick = () => {
-                // slider展开状态
-                // todo: 这样不好，后面改成状态
-                if (document.querySelector('.left-col.show')) return
-                let items = []
-                $imgArr.forEach(($em2, i2) => {
-                    let img = $em2.getAttribute('data-idx', i2)
-                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
-                    let title = $em2.getAttribute('alt')
-                    // 获得原图尺寸
-                    const image = new Image()
-                    image.src = src
-                    items.push({
-                        src: src,
-                        w: image.width || $em2.width,
-                        h: image.height || $em2.height,
-                        title: title
-                    })
-                })
-                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
-                    index: parseInt(i)
-                });
-                gallery.init()
-            }
-        })
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-    viewer_init()
-</script> 
-<!-- MathJax -->
-
-<!-- Katex -->
-
-<!-- busuanzi  -->
-
-<!-- ClickLove -->
-
-<!-- ClickBoom1 -->
-
-<!-- ClickBoom2 -->
-
-<!-- CodeCopy -->
- 
-<link rel="stylesheet" href="/css/clipboard.css">
- <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-<script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  !function (e, t, a) {
-    var initCopyCode = function(){
-      var copyHtml = '';
-      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
-      copyHtml += '</button>';
-      $(".highlight .code pre").before(copyHtml);
-      $(".article pre code").before(copyHtml);
-      var clipboard = new ClipboardJS('.btn-copy', {
-        target: function(trigger) {
-          return trigger.nextElementSibling;
-        }
-      });
-      clipboard.on('success', function(e) {
-        let $btn = $(e.trigger);
-        $btn.addClass('copied');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-checkbox-circle-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPIED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-checkbox-circle-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
-      clipboard.on('error', function(e) {
-        e.clearSelection();
-        let $btn = $(e.trigger);
-        $btn.addClass('copy-failed');
-        let $icon = $($btn.find('i'));
-        $icon.removeClass('ri-file-copy-2-line');
-        $icon.addClass('ri-time-line');
-        let $span = $($btn.find('span'));
-        $span[0].innerText = 'COPY FAILED';
-        
-        wait(function () { // 等待两秒钟后恢复
-          $icon.removeClass('ri-time-line');
-          $icon.addClass('ri-file-copy-2-line');
-          $span[0].innerText = 'COPY';
-        }, 2000);
-      });
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-    initCopyCode();
-  }(window, document);
-</script>
- 
-<!-- CanvasBackground -->
-
-<script>
-  if (window.mermaid) {
-    mermaid.initialize({ theme: "forest" });
-  }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
 </script>
 
 
-    
-    
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-  </div>
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
-
 </html>
