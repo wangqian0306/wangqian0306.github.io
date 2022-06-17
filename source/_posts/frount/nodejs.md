@@ -50,3 +50,23 @@ source /etc/profile.d/nodejs.sh
 ```bash
 dnf module list nodejs
 ```
+
+### 配置国内软件源
+
+配置源
+
+```bash 
+npm config set registry http://registry.npm.taobao.org/
+```
+
+获取当前源的配置情况
+
+```bash 
+npm config get registry
+```
+
+### 安装 Yarn 包管理工具
+
+```bash 
+npm intall -g yarn
+```

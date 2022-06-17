@@ -34,6 +34,8 @@ https://github.com/wangqian0306/wangqian0306.github.io
 https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 ```
 
+> 注：建议使用 VSCode 作为在线编辑工具，JetBrains 系列需要配合 Gateway 一起使用，不是很方便。
+
 ### 参考资料
 
 [GitHub 官方手册](https://docs.github.com/cn)
