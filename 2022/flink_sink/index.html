@@ -96,7 +96,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -233,10 +233,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -267,7 +263,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Flink-Sink">Flink Sink</h2>
-<h3 id="简介-36">简介</h3>
+<h3 id="简介-37">简介</h3>
 <p>Sink 即 Flink 输出数据的方式。因为 Flink 弃用了 DataSet API 所以本文只针对 DataStream API 进行说明。</p>
 <p>DataStream 类提供了如下的输出格式:</p>
 <ul>
@@ -314,7 +310,7 @@
 <h4 id="写入-Kafka">写入 Kafka</h4>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.flink<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>flink-connector-kafka_2.11<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.14.3<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;String&gt; stream = ...<br>        <br>KafkaSink&lt;String&gt; sink = KafkaSink.&lt;String&gt;builder()<br>        .setBootstrapServers(brokers)<br>        .setRecordSerializer(KafkaRecordSerializationSchema.builder()<br>            .setTopic(&quot;topic-name&quot;)<br>            .setValueSerializationSchema(new SimpleStringSchema())<br>            .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)<br>            .build()<br>        )<br>        .build();<br>        <br>stream.sinkTo(sink);<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-36">参考资料</h3>
+<h3 id="参考资料-37">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/overview/#anatomy-of-a-flink-program">Sink</a></p>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.13/docs/connectors/datastream/streamfile_sink/">StreamingFileSink</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lujisen/article/details/105798504">StreamingFileSink相关特性及代码实战</a></p>

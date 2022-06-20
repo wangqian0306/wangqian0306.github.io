@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://wangqian0306.github.io/2022/task/</loc>
+    <lastmod>2022-06-20</lastmod>
+  </url>
+  <url>
     <loc>https://wangqian0306.github.io/2021/nodejs/</loc>
     <lastmod>2022-06-17</lastmod>
   </url>
@@ -693,11 +697,11 @@
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2020/cdh-switch-db/</loc>
+    <loc>https://wangqian0306.github.io/2020/cdh-switch-host/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2020/cdh-switch-host/</loc>
+    <loc>https://wangqian0306.github.io/2020/cdh-switch-db/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
@@ -733,11 +737,11 @@
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2020/hue/</loc>
+    <loc>https://wangqian0306.github.io/2021/hive-ha/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>
-    <loc>https://wangqian0306.github.io/2021/hive-ha/</loc>
+    <loc>https://wangqian0306.github.io/2020/hue/</loc>
     <lastmod>2021-06-17</lastmod>
   </url>
   <url>

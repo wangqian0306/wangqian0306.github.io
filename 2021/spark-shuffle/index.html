@@ -96,7 +96,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -233,10 +233,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -267,7 +263,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Spark-shuffle">Spark shuffle</h2>
-<h3 id="简介-23">简介</h3>
+<h3 id="简介-22">简介</h3>
 <p>Spark 的核心数据结构在计算过程中是保持不变的，这意味着它们在创建之后无法更改。
 在实际的使用过程中我们需要将操作相关内容发送给 Spark 而这个过程被称为转换。
 转换又分为两类：</p>
@@ -334,7 +330,7 @@ Reducers 获取该文件的连续区域，以便读取它们需要的 Map 输出
 <li>当溢写压缩编解码器支持压缩数据的连接时，溢写合并操作会简单的连接序列化和压缩的溢出分区以产生最终输出分区。</li>
 </ul>
 <p>有关这些优化的更多详细信息，请参阅 <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/SPARK-7081">SPARK-7081</a>。</p>
-<h3 id="参考资料-12">参考资料</h3>
+<h3 id="参考资料-11">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/70331869">Spark Shuffle 概念及 shuffle 机制</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/itboys/p/9226479.html">Spark 中的 Spark Shuffle 详解</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shenshouniu/article/details/83870220">Spark Shuffle 管理器SortShuffleManager内核原理深入剖析</a></p>

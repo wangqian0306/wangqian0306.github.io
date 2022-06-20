@@ -97,7 +97,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -234,10 +234,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -268,13 +264,13 @@
               <div class="markdown-body">
                 
                 <h2 id="Transactional">Transactional</h2>
-<h3 id="简介-70">简介</h3>
+<h3 id="简介-72">简介</h3>
 <p>事务(transaction)是指业务逻辑上对数据库进行的一系列持久化操作，要么全部成功，要么全部失败。</p>
 <p><code>@Transactional</code> 是 SpringBoot 中一种常见的事务实现方式。</p>
 <h3 id="配置建议">配置建议</h3>
 <p>建议将此注解采用如下写法：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-56">参考资料</h3>
+<h3 id="参考资料-58">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hanchao5272/article/details/90343882">SpringBoot中@Transactional事务控制实现原理及事务无效问题排查</a></p>
 
                 

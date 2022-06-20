@@ -96,7 +96,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -233,10 +233,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -267,7 +263,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Prometheus-安装">Prometheus 安装</h2>
-<h3 id="简介-85">简介</h3>
+<h3 id="简介-86">简介</h3>
 <p>Prometheus 是一个开源系统监控和警报工具包。Prometheus 将其指标收集并存储为时间序列数据，即指标信息与记录的时间戳一起存储，以及称为标签的可选键值对。</p>
 <h3 id="容器化部署-3">容器化部署</h3>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;3&#x27;</span><br><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">prometheus:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">bitnami/prometheus:latest</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-attr">TZ:</span> <span class="hljs-string">Asia/Shanghai</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">9090</span><span class="hljs-string">:9090</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./prometheus-data:/opt/bitnami/prometheus/data</span><br></code></pre></td></tr></table></figure>

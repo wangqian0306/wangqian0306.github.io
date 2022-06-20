@@ -97,7 +97,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -234,10 +234,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -268,7 +264,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Spring-Security">Spring Security</h2>
-<h3 id="简介-69">简介</h3>
+<h3 id="简介-70">简介</h3>
 <p>Spring Security 是一款安全框架。</p>
 <h3 id="初步使用-3">初步使用</h3>
 <p>引入依赖包：</p>
@@ -326,7 +322,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br> <br>    <span class="hljs-meta">@GetMapping(&quot;/hello&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">hello</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">principal</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContext().getAuthentication().getPrincipal();<br>        <span class="hljs-keyword">if</span> (principal <span class="hljs-keyword">instanceof</span> UserDetails) &#123;<br>            <span class="hljs-keyword">return</span> ((UserDetails) principal).get.getUsername();<br>        &#125;<br>        <span class="hljs-keyword">if</span> (principal <span class="hljs-keyword">instanceof</span> Principal) &#123;<br>            <span class="hljs-keyword">return</span> ((Principal) principal).getName();<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;当前登录用户：&quot;</span> + String.valueOf(principal);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>或者</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br> <br>    <span class="hljs-meta">@GetMapping(&quot;/hello&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">hello</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;当前登录用户：&quot;</span> + SecurityContextHolder.getContext().getAuthentication().getName();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-55">参考资料</h3>
+<h3 id="参考资料-56">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-security-samples">Spring Security 例程</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.baeldung.com/security-spring">baeldung 教程</a></p>
 

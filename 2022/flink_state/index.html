@@ -96,7 +96,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -233,10 +233,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -267,7 +263,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Flink-State">Flink State</h2>
-<h3 id="简介-38">简介</h3>
+<h3 id="简介-39">简介</h3>
 <p>State 是指流计算过程中计算节点的中间计算结果或元数据属性，比如在 aggregation 过程中要在 state 中记录中间聚合结果，比如 Apache Kafka 作为数据源时候，我们也要记录已经读取记录的 offset，这些 State 数据在计算过程中会进行持久化(插入或更新)。所以Apache Flink中的State就是与时间相关的，Apache Flink任务的内部数据(计算数据和元数据属性)的快照。</p>
 <p>Flink 内部按照算子和数据分组角度将 State 划分为如下两类：</p>
 <ul>
@@ -309,7 +305,7 @@
 <h4 id="OperatorState">OperatorState</h4>
 <p>通常无须使用 OperatorState。它主要是一种特殊类型的状态，主要用在对接数据源或没有可以对状态进行分区的键的场景。</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs text">public class BufferingSink<br>        implements SinkFunction&lt;Tuple2&lt;String, Integer&gt;&gt;,<br>                   CheckpointedFunction &#123;<br><br>    private final int threshold;<br><br>    private transient ListState&lt;Tuple2&lt;String, Integer&gt;&gt; checkpointedState;<br><br>    private List&lt;Tuple2&lt;String, Integer&gt;&gt; bufferedElements;<br><br>    public BufferingSink(int threshold) &#123;<br>        this.threshold = threshold;<br>        this.bufferedElements = new ArrayList&lt;&gt;();<br>    &#125;<br><br>    @Override<br>    public void invoke(Tuple2&lt;String, Integer&gt; value, Context contex) throws Exception &#123;<br>        bufferedElements.add(value);<br>        if (bufferedElements.size() &gt;= threshold) &#123;<br>            for (Tuple2&lt;String, Integer&gt; element: bufferedElements) &#123;<br>                // send it to the sink<br>            &#125;<br>            bufferedElements.clear();<br>        &#125;<br>    &#125;<br><br>    @Override<br>    public void snapshotState(FunctionSnapshotContext context) throws Exception &#123;<br>        checkpointedState.clear();<br>        for (Tuple2&lt;String, Integer&gt; element : bufferedElements) &#123;<br>            checkpointedState.add(element);<br>        &#125;<br>    &#125;<br><br>    @Override<br>    public void initializeState(FunctionInitializationContext context) throws Exception &#123;<br>        ListStateDescriptor&lt;Tuple2&lt;String, Integer&gt;&gt; descriptor =<br>            new ListStateDescriptor&lt;&gt;(<br>                &quot;buffered-elements&quot;,<br>                TypeInformation.of(new TypeHint&lt;Tuple2&lt;String, Integer&gt;&gt;() &#123;&#125;));<br><br>        checkpointedState = context.getOperatorStateStore().getListState(descriptor);<br><br>        if (context.isRestored()) &#123;<br>            for (Tuple2&lt;String, Integer&gt; element : checkpointedState.get()) &#123;<br>                bufferedElements.add(element);<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-38">参考资料</h3>
+<h3 id="参考资料-39">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/fault-tolerance/state/">state 官方文档</a></p>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/ops/state/state_backends/">state_backends 官方文档</a></p>
 <p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/667562?spm=a2c6h.13262185.0.0.60da7e18Eon9c4">Apache Flink 漫谈系列(04) - State</a></p>

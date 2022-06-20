@@ -96,7 +96,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -233,10 +233,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -267,7 +263,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Flink-DataSource">Flink DataSource</h2>
-<h3 id="简介-37">简介</h3>
+<h3 id="简介-36">简介</h3>
 <p>DataSource 即 Flink 读取数据的来源。因为 Flink 弃用了 DataSet API 所以本文只针对 DataStream API 进行说明。</p>
 <p>在 DataStream API 中可以使用 StreamExecutionEnvironment.addSource(sourceFunction) 将 Data Source 附加到程序中。</p>
 <p>StreamExecutionEnvironment 可以访问几个预定义的 DataSource：</p>
@@ -446,7 +442,7 @@
 <li>读取 Kafka</li>
 </ul>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">KafkaSource&lt;String&gt; source = KafkaSource.&lt;String&gt;builder()<br>                .setBootstrapServers(&quot;host:port&quot;)<br>                .setTopics(&quot;input-topic&quot;)<br>                .setGroupId(&quot;my-group&quot;)<br>                .setStartingOffsets(OffsetsInitializer.earliest())<br>                .setValueOnlyDeserializer(new SimpleStringSchema())<br>                .build();<br>DataStream&lt;String&gt; stream = env.fromSource(source, WatermarkStrategy.noWatermarks(), &quot;Kafka Source&quot;);<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-37">参考资料</h3>
+<h3 id="参考资料-36">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/">官方文档(1.14 版本)</a></p>
 
                 

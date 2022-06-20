@@ -104,7 +104,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -241,10 +241,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -275,7 +271,7 @@
               <div class="markdown-body">
                 
                 <h2 id="uReplicator-Uber-Engineering’s-Robust-Apache-Kafka-Replicator-中文翻译版">uReplicator: Uber Engineering’s Robust Apache Kafka Replicator(中文翻译版)</h2>
-<h3 id="简介-71">简介</h3>
+<h3 id="简介-66">简介</h3>
 <p>Uber 罗列了社区的 MirrorMaker 工具的一些缺陷以及自研工具(uReplicator)的应对实现方法。所以此处将此博文进行翻译整理。</p>
 <h3 id="Uber-的数据分析工作流">Uber 的数据分析工作流</h3>
 <p>在 Uber，使用 Apache Kafka 作为连接生态系统中不同部分的数据管道。从乘客和驾驶员应用程序中收集系统和应用程序日志以及事件数据。然后，通过 Kafka 将这些数据提供给各种下游消费者。</p>
@@ -379,7 +375,7 @@
 <li>操作更简单：uReplicator 支持动态白名单。现在在添加/删除/扩展 Kafka 主题时不需要重新启动集群。</li>
 <li>零数据丢失：uReplicator 保证零数据丢失，因为它仅在数据被持久化到目标集群后才提交检查点。</li>
 </ul>
-<h3 id="参考资料-57">参考资料</h3>
+<h3 id="参考资料-53">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://eng.uber.com/ureplicator-apache-kafka-replicator/">uReplicator: Uber Engineering’s Robust Apache Kafka Replicator</a></p>
 
                 

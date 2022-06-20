@@ -97,7 +97,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -234,10 +234,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -268,7 +264,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Spring-注入-Bean">Spring 注入 Bean</h2>
-<h3 id="简介-67">简介</h3>
+<h3 id="简介-68">简介</h3>
 <p>我们谈到 Spring 的时候一定会提到 IOC 容器、DI 依赖注入，Spring通过将一个个类标注为 Bean 的方法注入到 IOC 容器中，达到了控制反转的效果。</p>
 <h3 id="注入方式">注入方式</h3>
 <p>Spring 有如下种注入方式</p>
@@ -285,7 +281,7 @@
 @Resource 有两个属性是比较重要的，分是 name 和 type，Spring 将 @Resource 注解的 name 属性解析为 bean 的名字，而 type 属性则解析为 bean 的类型。
 所以如果使用 name 属性，则使用 byName 的自动注入策略，而使用 type 属性时则使用 byType 自动注入策略。
 如果既不指定 name 也不指定 type 属性，这时将通过反射机制使用 byName 自动注入策略。</p>
-<h3 id="参考资料-53">参考资料</h3>
+<h3 id="参考资料-54">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/bigtree_3721/article/details/87014878">Spring @Autowired</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.php.cn/java/base/463170.html">@autowired和@resource注解的区别是什么？</a></p>
 

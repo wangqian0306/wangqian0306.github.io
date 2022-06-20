@@ -98,7 +98,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 100vh;">
+<div class="header-inner" style="height: 25vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -235,10 +235,6 @@
       </div>
 
       
-        <div class="scroll-down-bar">
-          <i class="iconfont icon-arrowdown"></i>
-        </div>
-      
     </div>
   </div>
 </div>
@@ -269,7 +265,7 @@
               <div class="markdown-body">
                 
                 <h2 id="Flink-Watermark">Flink Watermark</h2>
-<h3 id="简介-39">简介</h3>
+<h3 id="简介-38">简介</h3>
 <p>Flink 中有三种不同的时间概念：</p>
 <ul>
 <li>事件时间(event time)：EventTime 是事件在设备上产生时候携带的。在进入框架之前 EventTime 通常要嵌入到记录中，并且 EventTime 也可以从记录中提取出来。</li>
@@ -315,7 +311,7 @@ Flink 框架保证 Watermark 单调递增，算子接收到一个Watermark时候
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">WatermarkStrategy.forMonotonousTimestamps();<br></code></pre></td></tr></table></figure>
 <p>固定延迟量</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(10));<br></code></pre></td></tr></table></figure>
-<h3 id="参考资料-39">参考资料</h3>
+<h3 id="参考资料-38">参考资料</h3>
 <p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/learn-flink/streaming_analytics/">Streaming Analytics</a></p>
 <p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/666056">Apache Flink 漫谈系列(03) - Watermark</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/rossiXYZ/p/12286407.html">Flink 的 Watermark 机制</a></p>
