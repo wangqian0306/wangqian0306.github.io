@@ -38,60 +38,107 @@ pip install pica --user
 写消息
 
 ```python
-import json
-import random
 import pika
-from pika.exchange_type import ExchangeType
-
-print('pika version: %s' % pika.__version__)
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost', credentials=pika.PlainCredentials('guest', 'guest')))
-main_channel = connection.channel()
-
-main_channel.exchange_declare(exchange='com.micex.sten', exchange_type=ExchangeType.direct)
-main_channel.exchange_declare(
-    exchange='com.micex.lasttrades', exchange_type=ExchangeType.direct)
-
-tickers = {
-    'MXSE.EQBR.LKOH': (1933, 1940),
-    'MXSE.EQBR.MSNG': (1.35, 1.45),
-    'MXSE.EQBR.SBER': (90, 92),
-    'MXSE.EQNE.GAZP': (156, 162),
-    'MXSE.EQNE.PLZL': (1025, 1040),
-    'MXSE.EQNL.VTBR': (0.05, 0.06)
-}
-
-
-def getticker():
-    return list(tickers.keys())[random.randrange(0, len(tickers) - 1)]
-
-
-_COUNT_ = 10
-
-for i in range(0, _COUNT_):
-    ticker = getticker()
-    msg = {
-        'order.stop.create': {
-            'data': {
-                'params': {
-                    'condition': {
-                        'ticker': ticker
-                    }
-                }
-            }
-        }
-    }
-    main_channel.basic_publish(
-        exchange='com.micex.sten',
-        routing_key='order.stop.create',
-        body=json.dumps(msg),
-        properties=pika.BasicProperties(content_type='application/json'))
-    print('send ticker %s' % ticker)
-
+channel = connection.channel()
+channel.exchange_declare(exchange='test')
+channel.queue_declare(queue='test')
+channel.queue_bind(queue='test', exchange='test')
+channel.basic_publish(
+    exchange='test',
+    routing_key='test',
+    body=b'{"wq":"111"}',
+    properties=pika.BasicProperties(content_type='text/plain', delivery_mode=pika.DeliveryMode.Transient))
 connection.close()
 ```
 
+读消息
+
+```python
+import pika
+
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost', credentials=pika.PlainCredentials('guest', 'guest')))
+channel = connection.channel()
+
+# Get ten messages and break out
+for method_frame, properties, body in channel.consume('test'):
+
+    # Display the message parts
+    print(method_frame)
+    print(properties)
+    print(body)
+
+    # Acknowledge the message
+    channel.basic_ack(method_frame.delivery_tag)
+
+    # Escape out of the loop after 10 messages
+    if method_frame.delivery_tag == 10:
+        break
+
+# Cancel the consumer and return any pending messages
+requeued_messages = channel.cancel()
+print('Requeued %i messages' % requeued_messages)
+
+# Close the channel and the connection
+channel.close()
+connection.close()
+```
+
+### 延迟消息
+
+启用延时消息需要开启 `rabbitmq_delayed_message_exchange` 插件，此插件需要自行下载并放置到插件文件夹中：
+
+[下载地址](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases)
+
+启用命令如下：
+
+```bash
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+```
+
+> 注：启用完成后需要重启服务。
+
+如果在 Docker 上运行则可以采用以下方式构建容器：
+
+创建 `Dockerfile`
+
+```dockerfile
+FROM rabbitmq:3.9.20-management
+ADD rabbitmq_delayed_message_exchange-3.9.0.ez /opt/rabbitmq/plugins
+RUN rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+```
+
+创建 `docker-compose `
+
+```yaml
+version: "3"
+services:
+  rabbitmq:
+    build: .
+    image: rabbitmq:3.9.20-management-delay
+    container_name: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+```
+
+使用此命令构建容器
+
+```bash
+docker-compose build --no-cache
+```
+
+> 注：之后可以依据 docker-compose 文件管理 rabbitmq。
+
+使用延迟消息：
+
+- 在构建 `channel` 时需要选择类型为 `x-delayed-message` 且配置 `x-delayed-type` 为 `direct`
+- 在发送消息时需要配置 `header` 中包含 `x-delay` 参数，其内容为延迟的毫秒数。
+
+详细内容请参阅[官方文档](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange)
 
 ### 注意事项
 

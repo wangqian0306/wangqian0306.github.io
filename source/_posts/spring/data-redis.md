@@ -69,7 +69,7 @@ public class RedisUtil {
 
 ### 客户端缓存
 
-经过查找发现 Spring Data Redis 并不打算支持此功能。如需使用需要自行根据 [Lettuce](https://lettuce.io/core/release/reference/index.html) 实现。
+经过查找发现 Spring Data Redis 并不打算支持此功能。如需使用需要自行根据 [Lettuce](https://github.com/lettuce-io/lettuce-core/issues/1281) 实现。
 
 [拒绝原文](https://github.com/spring-projects/spring-data-redis/issues/1937)
 

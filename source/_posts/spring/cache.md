@@ -19,16 +19,18 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 
 可以使用如下所示的缓存
 
-- JCache(JSR-107)
+- Generic
+- JCache (JSR-107) (EhCache 3, Hazelcast, Infinispan, and others)
 - EhCache 2.x
 - Hazelcast
 - Infinispan
 - Couchbase
 - Redis
 - Caffeine
-- ConcurrentHashMap
+- Cache2k
+- Simple
 
-详情请参阅[官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-caching-provider)
+详情请参阅[官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/io.html#io.caching.provider)
 
 > 注：后续将使用 Redis 作为缓存库进行说明。
 
