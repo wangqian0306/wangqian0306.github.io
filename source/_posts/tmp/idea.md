@@ -122,9 +122,19 @@ categories: JetBrains
 
 ### 在 Linux 环境中无法输入中文
 
+- 首先需要清除缓存
+
+```bash
+rm ~/.cache/ibus/libpinyin/user.conf
+```
+
 - 点击菜单 `Help | Edit Custom VM options...`
 - 添加如下内容
+
 ```text
--Drecreate.x11.input.method=true 
+-Drecreate.x11.input.method=true
 ```
+
 - 重启IDEA
+
+> 注：如果此处遇到问题，建议切换至 `fcitx` 输入法。
