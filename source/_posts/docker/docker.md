@@ -114,10 +114,8 @@ docker pull library/<镜像名>
 拉取镜像
 
 ```bash
-docker pull library/<镜像名>
+docker pull <镜像名>
 ```
-
-> 注：前缀使用library可以默认从中国源进行拉取
 
 构建镜像
 
