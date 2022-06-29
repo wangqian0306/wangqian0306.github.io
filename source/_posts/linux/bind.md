@@ -12,7 +12,7 @@ categories: Linux
 
 ### 简介
 
-BIND 是 DNS 服务软件，在本文中会有 `bind1`,`bind2`两台设备完成此次安装。
+BIND 是 DNS 服务软件，在本文中会有 `bind1`,`bind2` 两台设备完成此次安装。
 
 ### 主机搭建
 
