@@ -12,7 +12,7 @@ categories: Linux
 
 ### 整体情况排查
 
-#### htop 
+#### htop
 
 > 注：此软件需要在软件管理工具中独立安装，例：`yum install -y htop`
 
@@ -72,32 +72,32 @@ Z:Zombie or defunct:已完成执行但在进程表中仍具有条目的进程。
 可以使用 `dstat -vtns [<option>] <second> ` 命令，查看当前的 CPU 和一些 IO 状况，其中 `option` 参数表示需要查看的内容 `second` 参数代表每隔多少秒进行一次统计，参数详解如下：
 
 - CPU 使用率(total-cpu-usage)，可以在 `option` 参数中添加 `-C <core_num>,total` 来查看某个核心及总量的使用情况
-  - 用户时间占比(usr)
-  - 系统时间占比(sys)
-  - 空闲时间占比(idl)
-  - 等待时间占比(wai)
-  - 硬中断次数(hiq)
-  - 软中断次数(siq)
+    - 用户时间占比(usr)
+    - 系统时间占比(sys)
+    - 空闲时间占比(idl)
+    - 等待时间占比(wai)
+    - 硬中断次数(hiq)
+    - 软中断次数(siq)
 - 内存使用率(memory-usage)
-  - 已用内存(used)
-  - 缓冲区(buff)
-  - 缓存(cache)
-  - 可用内存(free)
+    - 已用内存(used)
+    - 缓冲区(buff)
+    - 缓存(cache)
+    - 可用内存(free)
 - 交换内存使用率(swap)
-  - 已用内存(used)
-  - 可用内存(free)
+    - 已用内存(used)
+    - 可用内存(free)
 - 磁盘使用率(dsk)，可以在 `option` 参数中添加 `-D <disk_name>,total` 参数查看某个磁盘的使用情况
-  - 读取带宽(read)
-  - 写入带宽(writ)
+    - 读取带宽(read)
+    - 写入带宽(writ)
 - 网络使用率(net)，可以在 `option` 参数中添加 `-N <network_name>,total` 参数查看某个网卡的使用情况
-  - 输入带宽(recv)
-  - 输出带宽(send)
+    - 输入带宽(recv)
+    - 输出带宽(send)
 - 系统使用情况(system)
-  - 中断数量(int)
-  - 上下文切换次数(csw)
+    - 中断数量(int)
+    - 上下文切换次数(csw)
 - 系统的分页活动(paging)
-  - 换入次数(in)
-  - 换出次数(out)
+    - 换入次数(in)
+    - 换出次数(out)
 
 除此之外 dstat 命令还可以监控如下内容：
 
@@ -114,23 +114,86 @@ Z:Zombie or defunct:已完成执行但在进程表中仍具有条目的进程。
 
 ### CPU 检测
 
+![CPU 性能指标梳理](https://s6.jpg.cm/2022/07/01/Pqwn1t.png)
 
+![CPU 检测分析工具梳理](https://s2.loli.net/2022/06/30/NkUu4LwH35bqns7.png)
+
+具体指标的分析方式参见下表：
+
+|    性能指标    |                    分析工具                     | 说明                                                            |
+|:----------:|:-------------------------------------------:|:--------------------------------------------------------------|
+|    平均负载    |       `uptime` `htop` `/proc/loadavg`       | 最后一个常用于监控系统                                                   |
+| 系统 CPU 使用率 | `vmstat` `mpstat` `htop` `sar` `/proc/stat` | `sar` 还可以记录历史数据，`/proc/stat` 常用于监控系统                          |
+| 进程 CPU 使用率 |            `htop` `ps` `pidstat`            | `pidstat` 只显示实际使用了 CPU 的进程                                    |
+|  系统上下文切换   |                  `vmstat`                   | 除了上下文切换次数，还提供运行状态和不可中断状态进程的数量                                 |
+|  进程上下文切换   |                  `pidstat`                  | 注意加上 `-w` 选项                                                  |                                      |
+|    软中断     |      `htop` `mpstat` `/proc/softirqs`       | `htop` 提供使用率，其他内容则提供了在每个 CPU 上的运行次数                           |
+|    硬中断     |         `vmstat` `/proc/interrupts`         | `vmstat` 提供总的中断次数，而 `/proc/interrupts` 提供各种中断在每个 CPU 上运行的累计次数 |
+|   CPU 缓存   |                   `pref`                    | 使用 `pref stat` 子命令                                            |
+|  CPU 基础信息  |           `lscpu` `/proc/cpuinfo`           | `lscpu` 更直观                                                   |
+|    事件剖析    |           `pref` 火焰图 `execsnoop`            | `pref` 和火焰图用户来分析热点函数以及调用栈，`execsnoop` 用来监测短时进程                |
+|    动态追踪    |         `ftrace` `bcc` `systemtap`          | `ftrace` 用于跟踪内核函数调用栈，而 `bcc` 和 `systemtap` 则用于跟踪内核或应用程序的执行过程  |
 
 ### 内存检测
 
+![内存性能指标梳理](https://s6.jpg.cm/2022/07/01/PqwRC5.png)
 
+具体指标的分析方式参见下表：
+
+|       性能指标       |                             分析工具                              | 说明                                                                          |
+|:----------------:|:-------------------------------------------------------------:|:----------------------------------------------------------------------------|
+|   系统已用，可用，剩余内存   |         `free` `vmstat` `dstat` `sar` `/proc/meminfo`         | `/proc/meminfo` 常用于监控系统                                                     |
+| 进程虚拟内存，常驻内存，共享内存 | `ps` `htop` `pidstat` `/proc/<pid>/stat` `/proc/<pid>/status` | `pidstat` 命令需要加上 `-r` 选项，`/proc/<pid>/stat` 和 `/proc/<pid>/status` 常用于监控系统中 |
+|      进行内存分布      |                   `pmap` `/proc/<pid>/maps`                   | `/proc/<pid>/maps` 是 `pmap` 的数据来源，常用于监控系统中                                  |
+|   进程 swap 换出内存   |                  `htop` `/proc/<pid>/status`                  | `/proc/<pid>/status` 是 `htop` 的数据来源，常用于监控系统中                                |
+|      进程缺页异常      |                     `ps` `htop` `pidstat`                     | `pidstat` 命令需要加上 `-r` 选项                                                    |
+|      系统换页情况      |                             `sar`                             | `sar` 命令需要加上 `-B` 选项                                                        |
+|     缓存/缓冲区用量     |           `free` `vmstat` `dstat` `sar` `cachestat`           | `cachestat` 需要安装 `bcc`                                                      |
+|     缓存缓冲区命中率     |                          `cachetop`                           | 需要安装 `bcc`                                                                  |
+|   swap 已用和剩余空间   |                         `free` `sar`                          | `sar` 可以记录历史                                                                |
+|    swap 换入换出     |                        `vmstat` `sar`                         | `sar` 可以记录历史                                                                |
+|      内存泄漏检测      |                           `memleak`                           | `memleak` 需要安装 `bcc`                                                        |
 
 ### 磁盘检测
 
+![磁盘性能指标梳理](https://s6.jpg.cm/2022/07/01/Pq4KTG.png)
 
+![磁盘检测分析工具梳理](https://s6.jpg.cm/2022/07/01/Pq4jQ4.png)
+
+|                   性能指标                    |                   分析工具                    | 说明                                                                             |
+|:-----------------------------------------:|:-----------------------------------------:|:-------------------------------------------------------------------------------|
+|            文件系统空间容量，使用量以及剩余空间             |                   `df`                    |                                                                                |
+|              索引节点容量，使用量以及剩余量              |                   `df`                    | 需要加上 `-r` 选项                                                                   |
+|              页缓存和可回收 Slab 缓存              |      `/proc/meminfo` `sar` `vmstat`       | `sar` 命令需要加上 `-r` 选项，`/proc/meminfo` 常用于监控系统中                                  |
+|                    缓冲区                    |      `/proc/meninfo` `sar` `vmstat`       | `sar` 命令需要加上 `-r` 选项，`/proc/meminfo` 常用于监控系统中                                  |
+|             目录项，索引节点以及文件系统的缓存             |        `/proc/slabinfo` `slabtop`         | `/proc/slabinfo` 常用于监控系统中                                                      |
+| 磁盘 I/O 使用率，IOPS，吞吐量，响应时间，I/O 平均大小以及等待队列长度 | `iostat` `sar` `dstat` `/proc/diskstatus` | `sar` 命令需要加上 `-d` 选项，`/proc/diskstatus` 常用于监控系统中                               |
+|            进程 I/O 大小以及 I/O 延迟             |            `pidstat`  `iotop`             | `pidstat` 命令需要加上 `-d` 选项                                                       |
+|               块设备 I/O 事件跟踪                |                `blktrace`                 | 需要跟 `blkparse` 配合使用，例如  `blktrace -d /dev/<disk_name> -o- &#124; blkparse -i-` |
+|               进程 I/O 系统调用跟踪               |          `strace` `pref` `trace`          | `strace` 只可以跟踪单个进程，`pref` 和 `trace` 还可以跟踪所有进程的系统调用                             |
+|              进程块设备 I/O 大小跟踪               |            `biosnoop` `biotop`            | 需要安装 `bcc`                                                                     |
+|                   动态追踪                    |        `ftrace` `bcc` `systemtap`         | `ftrace` 用于跟踪内核函数调用栈，而 `bcc` 和 `systemtap` 则用于跟踪内核或应用程序的执行过程                   |
 
 ### 网络检测
 
+![网络性能指标梳理](https://s6.jpg.cm/2022/07/01/Pq08xt.png)
 
+![磁盘检测分析工具梳理](https://s6.jpg.cm/2022/07/01/Pq0fDU.png)
 
-### 进程检测
-
-
+|   性能指标   |                                                   分析工具                                                   | 说明                                                           |
+|:--------:|:--------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------|
+| 吞吐量(BPS) |                                 `sar` `nethogs` `iftop` `/proc/net/dev`                                  | 分别可以查看网络接口，进程以及 IP 地址的网络吞吐量；`/proc/net/dev` 常用于监控系统          |
+| 吞吐量(PPS) |                                          `sar` `/proc/net/dev`                                           | `sar` 命令需要加上 `-n DEV` 选项                                     |
+|  网络连接数   |                                              `netstat` `ss`                                              | `ss` 速度更快                                                    |
+|  网络错误数   |                                             `netstat` `sar`                                              | 注意使用 `netstat -s` 或 `sar -n EDEV/EIP`                        |
+|   网络延迟   |                                             `ping` `hping3`                                              | `ping` 基于 ICMP，而 `hping3` 基于 TCP 协议                          |
+|  连接跟踪数   | `conntrack` `/proc/sys/net/netfilter/nf_connectrack_count` `/proc/sys/net/netfilter/nf_connectrack_max`  | `conntrack` 可以查看所有连接                                         |
+|    路由    |                                        `mtr` `traceroute` `route`                                        | `route` 用于查询路由表，而 `mtr` 和 `traceroute` 通常用于排查定位路由问题          |
+|   DNS    |                                             `dig` `nslookup`                                             | 用于排查 DNS 解析的问题                                               |
+| 防火墙和 NAT |                                                `iptables`                                                | 用于排查防火墙和 NAT 问题                                              |
+|   网卡选项   |                                                `ethtool`                                                 | 用于查看和配置网络接口的功能选项                                             |
+|   网络抓包   |                                                `tcpdump`                                                 | 通常用 `tcpdump` 抓包后再使用 Wireshark 工具进行分析                        |
+|   动态追踪   |                                        `ftrace` `bcc` `systemtap`                                        | `ftrace` 用于跟踪内核函数调用栈，而 `bcc` 和 `systemtap` 则用于跟踪内核或应用程序的执行过程 |
 
 ### 参考资料
 
