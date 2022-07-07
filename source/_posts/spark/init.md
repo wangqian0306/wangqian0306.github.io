@@ -52,11 +52,13 @@ Spark 提供了 Scala 和 Python 两种语言的交互式命令行，可以使�
 
 > 注：使用 `help()` 可以查看帮助，`exit()` 退出交互式命令行
 
-在启动后会自动初始化 spark-session 对象，可以使用 `spark` 变量进行访问
+在启动后会自动初始化 spark-session 对象，可以使用 `spark` 变量进行访问。
 
 #### 独立应用程序
 
+对于 Java 和 Scala 这样的应用程序来说可以使用 maven 或 sbt 这样的包管理工具来制作可执行 jar 包，然后使用 `spark-submit` 命令提交即可。
 
+Python 程序则需要打包成 zip 文件才能提交，详情请参照 [官方文档](https://spark.apache.org/docs/latest/api/python/user_guide/python_packaging.html) 。
 
 ### 参考资料
 
