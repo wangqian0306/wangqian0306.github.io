@@ -95,3 +95,37 @@ hbase org.apache.hadoop.hbase.mapreduce.RowCounter '<table>'
 
 - `hbase.regionserver.thrift.http`
 - `hbase.thrift.support.proxyuser`
+
+### REGION_SERVER_COMPACTION_QUEUE
+
+错误日志如下：
+
+```text
+The health test result for REGION_SERVER_COMPACTION_QUEUE has become disabled:
+ Test disabled while the role is stopping:
+  Test of whether the RegionServer's compaction queue is too full.
+```
+
+根因分析：
+
+HBase 在数据写入时会先将数据写到内存中的 MemStore，然后再将数据刷写到磁盘的中。
+每次 MemStore Flush 都会为每个列族创建一个 HFile，频繁的 Flush 就会创建大量的 HFile，并且会使得 HBase 在检索的时候需要读取大量的 HFile，较多的磁盘 IO 操作会降低数据的读性能。
+而在此时写入的 StoreFile 数量增加，触发了 Compaction，将任务放入了队列中。所以想要解决此问题就要扩大 Compaction 队列的数量或者增加 MemStore Flush 的文件大小。
+
+相关配置项如下：
+
+```text
+hbase.hregion.memstore.flush.size=256M
+hbase.hregion.memstore.block.multiplier=8
+hbase.hstore.compaction.min=10
+hbase.hstore.compaction.max=20
+hbase.hstore.blockingStoreFiles=50
+```
+
+### 参考资料
+
+[官方文档](https://hbase.apache.org/book.html)
+
+[HBase异常问题分析](https://www.modb.pro/db/42892)
+
+[Hbase Compaction 队列数量较大分析(压缩队列、刷新队列）](https://blog.csdn.net/weixin_43214644/article/details/117601110)
