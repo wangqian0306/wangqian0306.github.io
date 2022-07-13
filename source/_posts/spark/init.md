@@ -60,6 +60,11 @@ Spark 提供了 Scala 和 Python 两种语言的交互式命令行，可以使�
 
 Python 程序则需要打包成 zip 文件才能提交，详情请参照 [官方文档](https://spark.apache.org/docs/latest/api/python/user_guide/python_packaging.html) 。
 
+### 关键对象说明
+
+在 Spark 2.0 之前，SparkContext 是任何 Spark 应用程序的入口点，用于访问所有 Spark 功能，并且需要具有所有集群配置和参数的 SparkConf 来创建 SparkContext 对象，并在为其他交互创建特定的 SparkContext。
+而现在有了 SparkSession 对象，它是这些不同 Context 对象的组合，在任何情况下都可以使用 SparkSession 对象访问 Spark 资源。
+
 ### 参考资料
 
 [官方文档](https://spark.apache.org/docs/latest/)
