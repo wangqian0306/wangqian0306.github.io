@@ -95,7 +95,7 @@ Spark 动作通过一组阶段执行，由分布式 “shuffle” 操作隔离�
 
 ### 使用
 
-Spark 官方已经不建议采用 RDD 这样的低级 API 了，如有需求应该选择 DataFrame 这样的高级 API。
+Spark 官方已经不建议采用 RDD 这样的低级 API 了，如有需求应该选择 DataSet 或 DataFrame 这样的高级 API。
 
 ### 参考资料
 
