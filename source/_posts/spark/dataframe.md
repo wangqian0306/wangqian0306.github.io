@@ -13,4 +13,8 @@ categories: Spark
 
 ### 简介
 
+DataSet 是一个分布式数据的集合。
 
+### 参考资料
+
+[官方文档](https://spark.apache.org/docs/latest/sql-programming-guide.html)
