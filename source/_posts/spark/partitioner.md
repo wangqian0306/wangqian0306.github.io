@@ -58,6 +58,23 @@ class HashPartitioner(partitions: Int) extends Partitioner {
 
 > 注：通过水塘抽样算法确定边界数组，再根据 key 来获取所在的分区索引。具体实现细节参见源码。
 
+### 自定义分区器
+
+```text
+class TestPartitioner(Partitions:Int) extends Partitioner {
+    override def numPartitions: Int = Partitions
+    override def getPartition(key: Any):Int = {
+      val a = if (<xxx>) {
+        1
+      }else if (<xxx>){
+        2
+      }else{
+        0
+      }
+      a
+}
+```
+
 ### 参考资料
 
 [官方文档](https://spark.apache.org/docs/3.1.1/api/scala/org/apache/spark/Partitioner.html)
