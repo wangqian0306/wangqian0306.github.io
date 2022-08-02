@@ -72,7 +72,6 @@ public class AuditorConfig implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        
         // 这里应根据实际业务情况获取具体信息
         return Optional.of(userName);
     }
@@ -141,4 +140,29 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+```
+
+#### 自定义返回分页对象
+
+```java
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+class T {
+}
+
+public class Test {
+    public void test() {
+        long total = 1L;
+        List<T> contentList = new ArrayList<>();
+        // 注意此处的页码是从 0 开始的
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<T> result = new PageImpl<>(contentList, pageable, total);
+    }
+}
 ```
