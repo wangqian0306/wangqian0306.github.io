@@ -11,6 +11,17 @@ categories: Linux
 
 ## 配置时区
 
+### 系统设置
+
+如果本身存在时区文件 `/usr/share/zoneinfo/Asia/Shanghai` 则可以进行如下操作：
+
+```bash
+mv /etc/localtime /etc/localtime.bk
+ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+```
+
+若找不到时区文件则可以使用如下命令生成：
+
 ```text
 [root@localhost ~]# tzselect
 Please identify a location so that time zone rules can be set correctly.
@@ -73,7 +84,10 @@ can use the /usr/bin/tzselect command in shell scripts:
 Asia/Shanghai
 ```
 
-```bash
-mv /etc/localtime /etc/localtime.bk
-ln -s /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime
+### 在容器中使用
+
+当在切换容器中的时区的时候可以依照 `tzselect` 命令当中的输出，配置 `TZ` 环境变量：
+
+```Dockerfile
+ENV TZ Asia/Shanghai
 ```
