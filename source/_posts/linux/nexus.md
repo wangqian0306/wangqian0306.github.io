@@ -70,3 +70,20 @@ docker-compose exec nexus cat /nexus-data/admin.password
 - group (资源组)
 
 其中 hosted 需要本地上传，proxy 需要指定远程目录地址，而 group 可以将这两种资源整合起来对外提供服务。
+
+### 清理容器
+
+在使用 Nexus 作为容器仓库的时候，容易产生数据的积压。默认的清除策略无法支持保存历史版本的容器历史文件。
+
+解决方法如下：
+
+1. 自定义容器清理策略，指定按照名称(正则)进行清除
+2. 使用 `nexus-cli` 进行清理
+
+> 注：nexus-cli 很久没有更新了，而且只支持到了 nexus2，故建议采用第一种方法。
+
+### 参考资料
+
+[Nexus](https://help.sonatype.com/repomanager3)
+
+[nexus-cli](https://github.com/mlabouardy/nexus-cli)
