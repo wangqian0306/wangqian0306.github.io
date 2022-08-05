@@ -29,3 +29,15 @@ npm i -g npm-check-updates
 ```bash
 ncu -u
 ```
+
+### 常见问题
+
+ncu : 无法加载文件 ...ncu.ps1，因为在此系统上禁止运行脚本。有关详细信息，请参阅 https:/go.microsoft.com/fwlink/?LinkID=135170 中的 about_Execution_Policies。
+
+在管理员 PowerShell 中输入如下命令即可：
+
+```PowerShell
+set-ExecutionPolicy RemoteSigned
+```
+
+然后输入 `Y` 确认即可 
