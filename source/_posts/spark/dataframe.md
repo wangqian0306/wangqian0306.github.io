@@ -52,3 +52,5 @@ val parDF=spark.read.orc("/tmp/orc/data.orc/gender=M")
 ### 参考资料
 
 [官方文档](https://spark.apache.org/docs/latest/sql-programming-guide.html)
+
+[样例教程](https://sparkbyexamples.com/)
