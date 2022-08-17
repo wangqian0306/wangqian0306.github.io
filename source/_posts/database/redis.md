@@ -21,3 +21,11 @@ services:
     ports:
       - "6379:6379"
 ```
+
+### 客户端
+
+Redis 官方提供了 `RedisInsight` 工具来协助用户管理数据库。
+
+### 参考资料
+
+[RedisInsight](https://redis.com/redis-enterprise/redis-insight/#insight-form)
