@@ -59,7 +59,11 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
+    volumes:
+      - <dir>:/var/lib/mysql
 ```
+
+> 注：详细配置信息请参照 [DockerHub 文档](https://registry.hub.docker.com/_/mysql)或官方文档。
 
 ### 容器化安装集群
 

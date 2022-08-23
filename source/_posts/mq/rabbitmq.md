@@ -25,7 +25,7 @@ services:
       - "15672:15672"
 ```
 
-> 注：management 代表自带的管理工具，可以使用网页的方式进行管理。
+> 注：management 代表自带的管理工具，可以使用网页的方式进行管理，默认用户名和密码都为 guest，容器的详细配置请参照 [Dockerhub 文档](https://registry.hub.docker.com/_/rabbitmq/)。
 
 ### 简单使用
 
