@@ -159,3 +159,14 @@ stream {
     }
 }
 ```
+
+### 常见问题
+
+#### 字符集与排序方式
+
+为了解决中文和表情符号等特殊内容的存储建议采用 `utf8mb4` 字符集，而对于排序方式来说 MySQL 5 和 8 的默认排序方式则是不同的：
+
+- MySQL 5 采用了 `utf8mb4_general_ci`
+- MySQL 8 采用了 `utf8mb4_0900_ai_ci`(MySQL 5 并不支持)
+
+如果需要兼容的情况可以选择采用 `utf8mb4_general_ci` 排序方式，具体详细内容请参阅 [官方文档](https://dev.mysql.com/doc/refman/8.0/en/charset.html)。
