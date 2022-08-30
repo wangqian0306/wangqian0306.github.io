@@ -170,3 +170,8 @@ stream {
 - MySQL 8 采用了 `utf8mb4_0900_ai_ci`(MySQL 5 并不支持)
 
 如果需要兼容的情况可以选择采用 `utf8mb4_general_ci` 排序方式，具体详细内容请参阅 [官方文档](https://dev.mysql.com/doc/refman/8.0/en/charset.html)。
+
+在排序方式中有很多的缩写，这些缩写有如下含义：
+
+- `ci` 表示不区分大小写
+- `ai` 指的是口音不敏感，也就是说不区分 `e`，`è`，`é`，`ê` 和 `ë`
