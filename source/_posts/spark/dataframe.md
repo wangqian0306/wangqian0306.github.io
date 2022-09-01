@@ -19,7 +19,9 @@ DataFrame 则是按照列名进行整理后的 DataSet，在概念上更贴近�
 
 ### 简单使用
 
-#### 读取数据
+#### DataFrame
+
+##### 读取数据
 
 从 parquet 导入 DataFrame
 
@@ -47,6 +49,48 @@ val peopleDFCsv = spark.read.format("csv")
 
 ```scala
 val parDF=spark.read.orc("/tmp/orc/data.orc/gender=M")
+```
+
+从 rdd 导入 DataFrame
+
+```scala
+val rdd = spark.sparkContext.makeRDD(List(1,2,3))
+```
+
+从 DataSet 转为 DataFrame
+
+```scala
+val df = ds.toDF()
+```
+
+#### DataSet
+
+##### 从其他源转换
+
+从集合创建
+
+```scala
+case class Person(name: String, age: Long)
+val caseClassDS = Seq(Person("Andy", 32)).toDS()
+caseClassDS.show()
+```
+
+从 DataFrame 创建
+
+```scala
+case class Person(name: String, age: Long)
+val ds: DataSet[Person] = df.as[User]
+```
+
+从 RDD 创建
+
+```scala
+case class Person(name: String, age: Long)
+val ds: DataSet[Person] = rdd.map => {
+  case (name,age) => {
+    Person(name,age)
+  }
+}.toDS()
 ```
 
 ### 参考资料

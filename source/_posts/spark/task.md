@@ -1,6 +1,6 @@
 ---
 title: Spark 任务调度
-date: 2022-07-13 22:26:13
+date: 2022-09-01 22:26:13
 tags:
 - "Spark"
 id: spark-task
@@ -11,7 +11,7 @@ categories: Spark
 
 ## Spark 任务调度拆解
 
-### 简介
+### 梳理
 
 Spark 的任务调度流程可以概括为下图：
 
@@ -25,12 +25,10 @@ Spark 的任务调度流程可以概括为下图：
 4. 根据给定的任务调度器(TaskScheduler)来决定任务的调度方式，对任务进行排序
 5. 根据指定的本地化级别将任务分发到 Worker 上
 
-### 流程梳理
-
-
-
 ### 参考资料
 
 [spark-dagscheduler](https://mallikarjuna_g.gitbooks.io/spark/content/spark-dagscheduler.html)
 
 [Spark job submission breakdown](https://hxquangnhat.com/2015/04/03/arch-spark-job-submission-breakdown/)
+
+[spark源码-任务提交流程之-7-流程梳理总结](https://blog.csdn.net/m0_37817767/article/details/126167993?spm=1001.2014.3001.5502)
