@@ -63,6 +63,84 @@ val rdd = spark.sparkContext.makeRDD(List(1,2,3))
 val df = ds.toDF()
 ```
 
+从 Hive 读取数据
+
+```scala
+val df = spark.read().table("person");
+```
+
+从 JDBC 读取数据
+
+```scala
+val jdbcDF = spark.read
+  .format("jdbc")
+  .option("url", "jdbc:postgresql:dbserver")
+  .option("dbtable", "schema.tablename")
+  .option("user", "username")
+  .option("password", "password")
+  .load()
+```
+
+##### 输出
+
+写入 Parquet 
+
+```scala
+peopleDF.write.parquet("people.parquet")
+```
+
+写入 ORC 
+
+```scala
+usersDF.write.format("orc")
+  .option("orc.bloom.filter.columns", "favorite_color")
+  .option("orc.dictionary.key.threshold", "1.0")
+  .option("orc.column.encoding.direct", "name")
+  .save("users_with_options.orc")
+```
+
+写入 JSON
+
+```scala
+allDF.write.json("src/main/other_resources/all_json_file.json")
+```
+
+写入 CSV
+
+```scala
+df.write.format("csv").save("/tmp/spark_output/datacsv")
+```
+
+写入文本文件
+
+```scala
+df.write.text("output")
+```
+
+写入 Hive 表
+
+```scala
+df.write.mode(SaveMode.Overwrite).saveAsTable("hive_records")
+```
+
+写入 JDBC 链接的数据库
+
+```scala
+jdbcDF.write
+  .format("jdbc")
+  .option("url", "jdbc:postgresql:dbserver")
+  .option("dbtable", "schema.tablename")
+  .option("user", "username")
+  .option("password", "password")
+  .save()
+```
+
+写入 Avro 
+
+```scala
+df.write.format("avro").save("namesAndFavColors.avro")
+```
+
 #### DataSet
 
 ##### 从其他源转换
