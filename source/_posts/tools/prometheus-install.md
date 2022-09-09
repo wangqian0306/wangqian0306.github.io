@@ -15,7 +15,7 @@ categories: "工具"
 
 Prometheus 是一个开源系统监控和警报工具包。Prometheus 将其指标收集并存储为时间序列数据，即指标信息与记录的时间戳一起存储，以及称为标签的可选键值对。
 
-### 容器化部署
+### 本地容器化部署
 
 ```yaml
 version: '3'
@@ -72,4 +72,34 @@ prometheus_target_interval_length_seconds
 
 - 执行查询进行测试
 
-> 注：此处后续内容可参照 [官方文档](https://prometheus.io/docs/prometheus/latest/getting_started/)
+### 监控 JMX
+
+Prometheus 官方提供了 JMX 监控的导出工具 [JMX exporter](https://github.com/prometheus/jmx_exporter)，可以访问官网下载 jar 包：
+
+然后即可在 prometheus.yml 文件下添加检测任务：
+
+```yaml
+  - job_name: '<name>'
+    scrape_interval: <time_interval>
+    static_configs:
+      - targets: ['<host>:<port>']
+```
+
+在项目中编写导出参数项的配置文件 `config.yaml` 内容样例如下：
+
+```yaml
+rules:
+  - pattern: ".*"
+```
+
+然后通过 Java Agent 运行需要监控的程序即可：
+
+```bash
+java -javaagent:./jmx_prometheus_javaagent-0.17.0.jar=<port>:config.yaml -jar <jar_name>.jar
+```
+
+在程序启动后即可访问 `http://localhost:port` 看到监控数据。
+
+### 参考资料
+
+[官方文档](https://prometheus.io/docs/prometheus/latest/getting_started/)

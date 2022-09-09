@@ -35,6 +35,28 @@ Elastic Stack 在 8 版本之前提供了 APM Server 和 Beats 作为性能监�
 - RUM
 - OpenTelemetry
 
+可以使用如下新版的 Elastic Agent 收集数据：
+
+```yaml
+version: "3"
+services:
+  agent:
+    image: docker.elastic.co/beats/elastic-agent:8.4.1
+    container_name: elastic-agent
+    user: root
+    environment:
+      - FLEET_ENROLLMENT_TOKEN=<enrollment_token>
+      - FLEET_ENROLL=1
+      - FLEET_URL=<server_url>
+      - FLEET_SERVER_ENABLE=true
+      - FLEET_SERVER_ELASTICSEARCH_HOST=<es_host>
+      - FLEET_SERVER_SERVICE_TOKEN=<service_token>
+      - FLEET_SERVER_POLICY=<policy>
+    ports:
+      - "8200:8200"
+      - "8220:8220"
+```
+
 ### Prometheus
 
 Prometheus 有如下采集的方式：
