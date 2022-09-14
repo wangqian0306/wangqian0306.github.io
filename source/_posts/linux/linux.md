@@ -87,3 +87,16 @@ SELINUXTYPE=targeted
 |/etc/chrony.conf|NTP配置|
 |/etc/fstab|磁盘挂载配置|
 |/etc/selinux/config|SELinux配置|
+
+## 配置 Terminal 快捷键
+
+在 Fedora 系统上没有快捷打开 Terminal 的快捷键，需要进行如下设置：
+
+1. 打开 `Settings` 系统设置页
+2. 选择 `Keyborad` 键盘配置项
+3. 点击 `Keyboard Shortcuts` 配置中的 `View and Customize Shortcuts` 选项 
+4. 选择 `Custom Shortcut` 并新增自定义快捷键即可：
+
+- Name: `Terminal`
+- Command: `gnome-terminal`
+- Shortcut: `Ctrl + Alt + T`
