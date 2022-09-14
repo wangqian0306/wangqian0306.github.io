@@ -17,6 +17,30 @@ categories: Windows
 
 ## 软件配置
 
+### 新增默认配置项方式
+
+Windows Terminal 经过一段时间的更新目前可以完成使用 UI 配置 GitBash, 具体流程如下：
+
+1. 打开 Windows Terminal 设置
+2. 在配置文件一栏，选择添加新的配置文件
+3. 然后即可自行添加如下配置：
+
+- 名称: `Git Bash`
+- 命令行：`C:\\Program Files\Git\bin\bash.exe`
+- 启动目录：`~`
+- 图标：`%SystemDrive%\\Program Files\\Git\\mingw64\\share\\git\\git-for-windows.ico`
+
+4. 配置环境变量(解决Git Bash 中文显示的问题)
+
+```text
+LANG="zh_CN"
+OUTPUT_CHARSET="utf-8"
+```
+
+5. 重新启动 Windows Terminal 即可
+
+### 配置文件方式
+
 1. 在 Windows Terminal 中选择设置，在 `profiles` 配置项中的 `list`中新增如下内容
 
 ```json
