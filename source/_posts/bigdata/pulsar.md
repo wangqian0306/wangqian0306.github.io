@@ -22,7 +22,17 @@ categories: 大数据
 
 与 Kafka 类似 Pulsar 目前也使用了 Zookeeper 存储元数据，大致结构如下图所示。
 
-![数据交互流](https://i.loli.net/2021/09/01/w2EkgqBOhdYcV6L.png)
+![数据交互流](https://s6.jpg.cm/2022/09/15/PcsmaL.png)
+
+在 Pulsar 集群中大致分为以下三个部分：
+
+- 一个或多个 `broker` 负载平衡和处理来自生产者的传入消息，向消费者分发消息，与 Pulsar 配置存储通信以处理各种协调任务，将消息存储在 BookKeeper 实例（又名 bookies）中，在某些情况下依赖于特定于集群的 ZooKeeper 集群任务等等。
+- 一个或多个 bookie 组成的 BookKeeper 集群处理消息的持久存储。
+- 特定于该集群的 ZooKeeper 集群处理 Pulsar 集群之间的协调任务。
+
+如下图所示：
+
+[Pulsar 架构](https://s6.jpg.cm/2022/09/15/PcsFA2.png)
 
 ### 初步使用
 
