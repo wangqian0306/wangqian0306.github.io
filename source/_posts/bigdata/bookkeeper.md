@@ -112,7 +112,29 @@ BookKeeper 被设计为可靠且具有弹性以应对各种故障。Bookies 可�
 
 #### 数据压缩
 
+在 `bookie` 中， `entry log file` 含有不同的 `ledger` 它们的 `entry` 交错在一起。 `bookie` 为了清理磁盘空间会运行垃圾回收线程删除不相关的 `entry log file`。
+如果一个给定的 `entry log file` 包含有尚未删除 `ledger` 中的 `entry`，则 `entry log file` 则永远不会被删除占用的磁盘空间也永远不会清空。为了避免此种情况，`bookie` 服务器会在垃圾回收线程中压缩 `entry log file` 并以此来节约空间。
 
+压缩有两种不同的运行频率：小型压缩和大型压缩。小型压缩和大型压缩的区别在于它们的阈值和运行间隔。
+
+- 垃圾收集阈值是那些未删除的 `ledger` 占用 `entry log file` 大小的百分比。默认的小型压缩阈值为 0.2，大型压缩为 0.8。
+- 垃圾收集运行间隔是运行压缩的频率。默认的小型压缩间隔为1小时，而大型压缩阈值为1天。
+
+> 注：如果阈值或间隔设置为小于或等于零，则禁用压缩。
+
+垃圾收集器线程中的数据压缩流程如下：
+
+- 此线程会扫描 `entry log files` 来获取 `entry log` 元数据，其中记录了 `ledger` 组成的 `entry log` 和它对应的百分比
+- 在正常的垃圾收集流程中，一旦 `bookie` 确定已删除 `ledger`，它将从 `entry log` 元数据中删除并减小存储空间
+- 如果 `entry log file` 的剩余大小达到指定阈值，则 `entry log` 中 `ledger` 的活动的 `entry` 将被复制到新的 `entry log file`
+- 复制所有有效 `entry` 后，将删除旧 `entry log file`。f方式
+
+### 部署需求
+
+为了达到最佳性能 BookKeeper 部署需要至少四个节点，且每台服务器至少要有两个硬盘。分别负责：
+
+- `journalDirectory` 负责 `journal` 存储
+- `ledgerDirectories` 负责 `entry` 和部分 `ledger` 的存储
 
 ### 参考资料
 
