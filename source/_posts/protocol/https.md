@@ -27,7 +27,7 @@ CA 会用私钥将`服务器端的公钥+服务器域名+公钥的摘要`进行�
 
 ### HTTPS
 
-HTTPS （全称：Hyper Text Transfer Protocol over SecureSocket Layer），是以安全为目标的 HTTP 通道，在HTTP的基础上通过传输加密和身份认证保证了传输过程的安全性。
+HTTPS (全称：Hyper Text Transfer Protocol over SecureSocket Layer），是以安全为目标的 HTTP 通道，在HTTP的基础上通过传输加密和身份认证保证了传输过程的安全性。
 
 ### SSL 和 TLS
 
