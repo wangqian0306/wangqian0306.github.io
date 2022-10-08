@@ -54,8 +54,6 @@ XMx 不要超过机器内存的 50 %，不要超过 30 GB。
 
 ### 容器化安装
 
-#### 单机运行
-
 - 编写如下 Docker Compose 文件
 
 ```yaml
@@ -78,92 +76,9 @@ services:
 
 ```bash
 docker-compose up -d
-``` 
-
-#### 集群运行
-
-- 编写如下 Docker Compose 文件
-
-```yaml
-version: '3'
-services:
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
-    container_name: es01
-    environment:
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data01:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - elastic
-  es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
-    container_name: es02
-    environment:
-      - node.name=es02
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data02:/usr/share/elasticsearch/data
-    networks:
-      - elastic
-  es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
-    container_name: es03
-    environment:
-      - node.name=es03
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data03:/usr/share/elasticsearch/data
-    networks:
-      - elastic
-
-volumes:
-  data01:
-    driver: local
-  data02:
-    driver: local
-  data03:
-    driver: local
-
-networks:
-  elastic:
-    driver: bridge
 ```
 
-- 使用如下命令启动运行
-
-```bash
-docker-compose up -d
-```
-
-> 注：如需在生产环境中使用 Docker 方式运行 Elasticsearch 请参照官方文档步骤进行细节调整。
+> 注：建议与 kibana 一起部署，详情参见 kibana 章节。
 
 ### 生产环境配置推荐
 
@@ -172,6 +87,62 @@ docker-compose up -d
 - 设置 3 个主节点做故障冗余
 - 日志类的应用，单个分片不要大于 50 GB
 - 搜索类的应用，单个分片不要超过 20 GB
+
+### 基本命令整理
+
+索引操作
+
+```text
+### 创建索引
+PUT demo
+
+### 获取索引列表
+GET _cat/indices
+
+### 查询索引详情
+GET demo
+
+### 修改索引
+PUT /demo/_settings
+{
+  "aliase": {
+    "test": {}
+  },
+  "index" : {
+    "refresh_interval" : null
+  }
+}
+
+### 删除索引
+DELETE demo
+```
+
+数据操作
+
+```text
+### 插入数据
+PUT demo/_doc/1
+{
+  "name": "demo",
+  "age": 18
+}
+
+### 根据 ID 获取数据
+GET demo/_doc/1
+
+### 查询数据
+GET demo/_search
+
+### 修改数据
+POST demo/_doc/1
+{
+  "name": "demo",
+  "age": 20
+}
+
+### 删除数据
+DELETE demo/_doc/1
+```
 
 ### 常见问题
 
@@ -195,4 +166,4 @@ docker-compose up -d
 
 ### 参考资料
 
-[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-keystore-bind-mount)
+[官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
