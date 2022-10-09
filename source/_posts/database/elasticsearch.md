@@ -144,6 +144,134 @@ POST demo/_doc/1
 DELETE demo/_doc/1
 ```
 
+查询操作：
+
+> 注：此处内容为查询接口输入参数。
+
+```json
+{
+  "from": 0,
+  "size": 20,
+  "query": {
+    "bool": {
+      "must": [],
+      "filter": [],
+      "must_not": [],
+      "should": [],
+      "minimum_should_match": 1,
+      "boost": 1.0
+    },
+    "boosting": {
+      "positive": {
+      },
+      "negative": {
+      },
+      "negative_boost": 0.5
+    },
+    "constant_score": {
+      "filter": {
+      },
+      "boost": 1.2
+    },
+    "dis_max": {
+      "queries": [
+      ],
+      "tie_breaker": 0.7
+    },
+    "function_score": {
+      "query": {},
+      "boost": "5",
+      "random_score": {},
+      "boost_mode": "multiply"
+    },
+    "intervals": {},
+    "match": {"<key>": "<content>"},
+    "match_bool_prefix": {"<key>": "<content>"},
+    "match_phrase": {"<key>": "<content>"},
+    "match_phrase_prefix": {"<key>": "<content>"},
+    "combined_fields": {
+      "query": "<content>",
+      "fields": [
+        "<field_1>",
+        "<field_2>"
+      ]
+    },
+    "multi_match": {
+      "query": "<content>",
+      "fields": [
+        "<field_1>",
+        "<field_2>"
+      ]
+    },
+    "query_string": {
+      "query": "<content>",
+      "default_field": "content"
+    },
+    "simple_query_string": {
+      "query": "<content>",
+      "fields": [
+        "<field_1>",
+        "<field_2>"
+      ],
+      "default_operator": "and"
+    },
+    "term": {"<key>": "<content>"},
+    "range": {
+      "<key>": {
+        "gte": "<date>",
+        "gt": "<date>",
+        "lte": "<date>",
+        "lt": "<date>"
+      }
+    },
+    "geo_bounding_box": {},
+    "geo_distance": {},
+    "geohash_grid": {},
+    "geo_polygon": {},
+    "geo_shape": {},
+    "shape": {},
+    "nested": {
+      "path": "<field>",
+      "query": {}
+    },
+    "has_child": {},
+    "has_parent": {},
+    "parent_id": {},
+    "match_all": {},
+    "span_containing": {},
+    "span_near": {},
+    "span_first": {},
+    "span_not": {},
+    "span_or": {},
+    "span_term": {},
+    "span_within": {},
+    "distance_feature": {},
+    "more_like_this": {},
+    "percolate": {},
+    "rank_feature": {},
+    "script": {},
+    "script_score": {},
+    "wrapper": {},
+    "pinned": {},
+    "exists": {"<key>": "<content>"},
+    "fuzzy": {"<key>": "<content>"},
+    "ids": {"values": ["<id_1>","<id_2>"]},
+    "prefix": {"<key>": "<content>"},
+    "regexp": {},
+    "terms": {"<key>": ["<content_1>","<content_2>"]},
+    "terms_set": {},
+    "wildcard": {}
+  },
+  "sort": [
+    {
+      "<field>": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+```
+
 ### 常见问题
 
 #### 索引不可写入
