@@ -117,6 +117,100 @@ PUT /demo/_settings
 DELETE demo
 ```
 
+索引模板
+
+```text
+### 创建索引模板
+PUT _template/<name>
+{
+  "index_patterns": [
+    "<patterns>"
+  ], 
+  "mappings": {
+    "properties": {}
+  }
+}
+
+### 查询索引模板详情
+GET _template/demo_template
+
+### 获取索引模板列表
+GET _cat/templates
+
+### 删除索引模板
+DELETE _template/demo_template
+```
+
+字段映射：
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "distance": {
+        "type": "long"
+      },
+      "route_length_miles": {
+        "type": "alias",
+        "path": "distance" 
+      },
+      "transit_mode": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+```
+
+数据类型：
+
+- aggregate_metric_*
+- alias
+- arrays
+- binary
+- boolean
+- completion
+- date
+- date_nanos
+- dense_vector
+- flattened
+- geo_point
+- geo_shape
+- histogram
+- ip
+- join
+- keyword
+- nested
+- numeric
+  - long
+  - integer
+  - short
+  - byte
+  - double
+  - float
+  - half_float
+  - scaled_float
+  - unsigned_long
+- percolator
+- point
+- integer_range
+- float_range
+- long_range
+- double_range
+- date_range
+- ip_range
+- rank_feature
+- rank_features
+- search_as_you_type
+- orientation
+- shape
+  - orientation
+  - ignore_malformed
+  - ignore_z_value
+  - coerce
+- text
+- version
+
 数据操作
 
 ```text
@@ -152,6 +246,7 @@ DELETE demo/_doc/1
 {
   "from": 0,
   "size": 20,
+  "_source": ["result_field_1","result_field_2"],
   "query": {
     "bool": {
       "must": [],
@@ -271,6 +366,40 @@ DELETE demo/_doc/1
   ]
 }
 ```
+
+聚合操作：
+
+```json
+{
+  "size": 0,
+  "aggs": {
+    "<result_field>": {
+      "AGG_TYPE": {}
+    }
+  }
+}
+```
+
+例如：
+
+```json
+{
+  "size": 0,
+  "aggs": {
+    "result": {
+      "terms": {
+        "field": "<field>"
+      },
+      "aggs": {
+        "sum": {
+          "field": "<field>"
+        }
+      }
+    }
+  }
+}
+```
+
 
 ### 常见问题
 
