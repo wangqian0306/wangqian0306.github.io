@@ -109,7 +109,7 @@ POST demo/_search
 </properties>
 ```
 
-> 注：词典返回需要有 Header `Last-Modified` 和 `ETag`，一行一个词且换行符为 `\n`。
+> 注：词典返回需要有 Header `Last-Modified` 和 `ETag`，文件编码是 `UTF-8`，一行一个词且换行符为 `\n`。
 
 ### 参考资料
 
