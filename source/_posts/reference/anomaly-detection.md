@@ -21,29 +21,77 @@ categories: 参考资料
 
 ### 试用
 
+#### 创建数据模型
+
+```text
+PUT sensor
+{
+  "mappings": {
+    "properties": {
+      "voltage": {
+        "type": "float"
+      },
+      "status" : {
+        "type": "keyword"
+      },
+      "@timestamp": {
+        "type": "date"
+      }
+    }
+  }
+}
+```
+
 #### 插入样本数据
 
 ```python
+import time
 
-```
+from elasticsearch import Elasticsearch
 
-#### 修改数据类型
+ELASTIC_PASSWORD = "Demo123.."
+VOLTAGE_MIN = 1.0
+VOLTAGE_MAX = 5.0
+VOLTAGE_STEP = 0.5
 
-```text
 
+def build_voltage_array(voltage_min: float, voltage_max: float, step: float):
+    result = []
+    for i in range(int((voltage_max - voltage_min) / step) + 1):
+        result.append(voltage_min + i * step)
+    return result
+
+
+if __name__ == '__main__':
+    client = Elasticsearch(
+        "https://192.168.2.77:9200",
+        ca_certs="ca/ca.crt",
+        basic_auth=("elastic", ELASTIC_PASSWORD)
+    )
+    voltage_array = build_voltage_array(VOLTAGE_MIN, VOLTAGE_MAX, VOLTAGE_STEP)
+    voltage_status_limit = VOLTAGE_MAX - VOLTAGE_STEP
+    while True:
+        for voltage in voltage_array:
+            data = {
+                "voltage": voltage,
+                "@timestamp": int(time.time())
+            }
+            if voltage > voltage_status_limit:
+                data["status"] = "normal"
+            else:
+                data["status"] = "error"
+            time.sleep(10)
+            client.index(index='sensor', document=data)
 ```
 
 #### 创建任务
 
-```text
-
-```
+- 在 Kibana 中创建 Data Views
+- 创建 Anomaly detection 任务
 
 #### 查看结果
 
-```text
 
-```
 
 ### 参考资料
 
