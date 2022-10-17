@@ -3,7 +3,7 @@ title: ZooKeeper Wait-free coordination for Internet-scale systems 中文翻译�
 date: 2021-07-05 22:26:13
 tags:
 - "论文"
-- "Zookeeper"
+- "ZooKeeper"
 id: zookeeper_wait_free_coordination_for_internet-scale_systems
 no_word_count: true
 no_toc: false
@@ -55,7 +55,7 @@ ZooKeeper 接口支持高性能服务实现。
 在设计 ZooKeeper 的 API 时，我们远离了阻塞原语，例如锁。
 协调服务的阻塞原语可能会导致慢速或故障客户端等问题，从而对更快客户端的性能产生负面影响。
 如果处理请求依赖于其他客户端的响应和故障检测，则服务本身的实现会变得更加复杂。
-因此，我们的系统 Zookeeper 实现了一个 API，该 API 可以操作简单的无等待数据对象，就像在文件系统中一样分层组织。
+因此，我们的系统 ZooKeeper 实现了一个 API，该 API 可以操作简单的无等待数据对象，就像在文件系统中一样分层组织。
 实际上，ZooKeeper API 类似于任何其他文件系统，仅从 API 签名来看，ZooKeeper 似乎是没有锁定方法、打开和关闭的 Chubby。
 然而，实现免等待数据对象将 ZooKeeper 与基于阻塞原语(例如锁)的系统区分开来。
 

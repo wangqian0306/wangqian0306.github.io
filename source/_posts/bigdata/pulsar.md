@@ -20,7 +20,7 @@ categories: 大数据
 - 云原生(方便扩容缩容)
 - 使用 Bookkeeper 存储数据
 
-与 Kafka 类似 Pulsar 目前也使用了 Zookeeper 存储元数据，大致结构如下图所示。
+与 Kafka 类似 Pulsar 目前也使用了 ZooKeeper 存储元数据，大致结构如下图所示。
 
 ![数据交互流](https://s6.jpg.cm/2022/09/15/PcsmaL.png)
 

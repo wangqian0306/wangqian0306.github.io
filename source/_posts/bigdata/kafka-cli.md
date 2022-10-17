@@ -3,7 +3,7 @@ title: Kafka CLI
 date: 2020-06-09 22:43:13
 tags:
 - "Kafka"
-- "Zookeeper"
+- "ZooKeeper"
 id: kafka-cli
 no_word_count: true
 no_toc: false

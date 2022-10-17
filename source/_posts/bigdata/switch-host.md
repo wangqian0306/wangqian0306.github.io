@@ -80,7 +80,7 @@ systemctl start cloudera-scm-agent
 
 #### Hadoop Failover Controller 启动异常
 
-- 由于 HDFS HA 是通过 Zookeeper 来实现的所以可以通过如下命令进行重置
+- 由于 HDFS HA 是通过 ZooKeeper 来实现的所以可以通过如下命令进行重置
 
 ```bash
 hdfs zkfc -formatZK -force -nonInteractive

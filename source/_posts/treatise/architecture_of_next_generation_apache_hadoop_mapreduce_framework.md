@@ -225,8 +225,8 @@ ApplicationsManager 负责管理系统中所有应用程序的 ApplicationMaster
 
 ##### 可用性
 
-ResourceManager 将其状态存储在 Zookeeper 中以确保其高可用。
-依靠 Zookeeper 中保存的状态可以快速重启。
+ResourceManager 将其状态存储在 ZooKeeper 中以确保其高可用。
+依靠 ZooKeeper 中保存的状态可以快速重启。
 有关更多详细信息，请参阅 YARN 可用性部分。
 
 #### NodeManager

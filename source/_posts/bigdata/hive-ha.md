@@ -14,7 +14,7 @@ categories: 大数据
 
 ### 简介
 
-本 HA 方案采用将 Hive 与 Zookeeper 结合的方式，将多个 HiveServer 进行整合，并通过 ZooKeeper 对外提供服务。
+本 HA 方案采用将 Hive 与 ZooKeeper 结合的方式，将多个 HiveServer 进行整合，并通过 ZooKeeper 对外提供服务。
 
 ### 配置
 

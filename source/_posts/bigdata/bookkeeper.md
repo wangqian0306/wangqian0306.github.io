@@ -51,7 +51,7 @@ BookKeeper 被设计为可靠且具有弹性以应对各种故障。Bookies 可�
 
 > 注：BookKeeper 收到了 HDFS NameNode 的启发。
 
-目前 BookKeeper 使用 Zookeeper 存储元数据，例如：`ledger` 元数据，目前可用的 `bookie` 服务器，等等。
+目前 BookKeeper 使用 ZooKeeper 存储元数据，例如：`ledger` 元数据，目前可用的 `bookie` 服务器，等等。
 
 实际数据则按照日志结构进行存储，分为如下三种：
 

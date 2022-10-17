@@ -3,7 +3,6 @@ title: ureplicator-apache-kafka-replicator
 date: 2021-10-19 22:43:13
 tags:
 - "Kafka"
-- "Java"
 id: ureplicator-apache-kafka-replicator
 no_word_count: true
 no_toc: false
@@ -119,7 +118,7 @@ uReplicator 的各种组件以不同的方式工作，以实现可靠性和稳�
 - 处理 uReplicator 工作进程的添加/删除
 - 检测节点故障并重新分配那些特定的主题分区
 
-控制器使用 Zookeeper 来完成所有这些任务。它还公开了一个简单的 REST API，以便添加/删除/修改要镜像的主题。
+控制器使用 ZooKeeper 来完成所有这些任务。它还公开了一个简单的 REST API，以便添加/删除/修改要镜像的主题。
 
 2. uReplicator 工作线程，类似于Kafka MirrorMaker 功能中的工作进程，将一组主题和分区从源集群复制到目的集群。uReplicator 控制器决定 uReplicator 的分配，而不是重新平衡过程。此外，抛弃了 Kafka 高级消费者，而是使用称为 DynamicKafkaConsumer 的简化版本。
 3. 只要发生了变化(话题分区的增加/删除) Helix 客户端会通知每个 uReplicator 工作节点。反之一样，Helix 也会通知 DynamicKafkaConsumer 添加/删除主题分区。
@@ -133,7 +132,7 @@ uReplicator 的各种组件以不同的方式工作，以实现可靠性和稳�
 curl -X POST http://localhost:9000/topics/testTopic
 ```
 
-- uReplicator 控制器计算 testTopic 的分区数量，并将主题分区映射到活动的工作线程。然后更新 Zookeeper 元数据以反映此映射。
+- uReplicator 控制器计算 testTopic 的分区数量，并将主题分区映射到活动的工作线程。然后更新 ZooKeeper 元数据以反映此映射。
 - 每个相应的 Helix 客户端都会收到一个回调，通知添加这些主题分区。反过来，客户端也会引用DynamicKafkaConsumer 的 addFetcherForPartitions 功能 。
 - 该 DynamicKafkaConsumer 随后注册这些新的分区，找到相应的领导经纪人，并将它们添加到提取器线程来启动数据镜像。
 
