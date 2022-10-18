@@ -54,6 +54,33 @@ Leader 接收到数据会将其复制到其他 Follower 副本，在 Follower �
 
 [quorum replication](https://s6.jpg.cm/2022/10/17/PHpTFQ.png)
 
+KRaft 选用仲裁复制算法的原因是：
+
+- 为了可用性，可以负担核心元数据日志的更多副本
+- 因为系统对元数据的追加写入延迟很敏感，这样的情况会是集群的热点
+
+#### 选举方式
+
+集群内共有三种角色：Leader，Voter 和 Observer。Leader 和其他 Voter 共同组成 Quorum，并负责保持复制的日志的共识，并在需要时选举新的 Leader。在集群内的其他 Broker 都是 Observer，它们只负责被动的读取复制日志来跟随 Quorum。每条记录在写入日志时都会加上 Leader 的 Epoch。
+
+在集群启动后，所有 Broker 会按照初始配置的 Quorum 成 Voter，并且从本地日志中读取当前 Epoch(Raft 原文中称为 term 即任期)。在下图中，让我们假设我们的 Quorum 为三名 Voter。每个记录在其本地日志中都有六条记录，分别带有绿色和黄色：
+
+[初始环境](https://s6.jpg.cm/2022/10/18/PHfPhE.jpg)
+
+经过一段时间而没有找到 Leader 后，Voter 可能会进入一个新的 Epoch，并过渡到作为 Leader 候选人的临时角色。然后，它将向 Quorum 中的所有其他 Broker 发送请求，要求他们投票支持它作为这个 Epoch 的新 Leader。
+
+[投票请求](https://s6.jpg.cm/2022/10/18/PHfqnQ.jpg)
+
+在投票请求中含有两部分的关键信息：其他 Broker 投票的 Epoch，和候选人本地日志的 offset。在接受投票的过程中，每个 Voter 会检查请求的 Epoch 是否大于其自己的 Epoch；如果已经投票过该 Epoch；或者它本地日志已经超出了给定的 offset。如果上述内容都是否，才会将此投票视为真实的。投票会被本地持久化存储，以便在 Quorum 中的 Broker 不会忘记投票的情况，即便是在刚刚启动时。当候选人收集到过半 Quorum 的选票(包括他自己)，就可以认为投票已经完成了。
+
+需要注意的是如果在之前设置的时间期限内候选者没能获取到足够的投票，它将认为投票程序失败，并将尝试再次提高其 Epoch 并重试。为了避免任何僵局情况，例如多个候选人同时要求投票，从而防止另一个人获得足够的选票以应对颠簸的 Epoch，我们还引入了重试前的随机备份时间。
+
+结合所有这些条件检查和投票超时机制，我们可以保证在 KRaft 上，在给定的 Epoch 最多有一个 Leader 当选，并且这个当选的 Leader 将拥有所有选票的记录。
+
+#### 日志复制
+
+
+
 ### 参考资料
 
 [Why ZooKeeper Was Replaced with KRaft – The Log of All Logs](https://www.confluent.io/blog/why-replace-zookeeper-with-kafka-raft-the-log-of-all-logs/)
