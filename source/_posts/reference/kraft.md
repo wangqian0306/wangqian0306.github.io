@@ -79,7 +79,35 @@ KRaft 选用仲裁复制算法的原因是：
 
 #### 日志复制
 
+与 Kafka 一样，KRaft 才有用拉取的机制来保持复制内容一致，而不是原始的 Raft 论文引入的基于推送的模型。在下图中，假设 Leader-1 在 Epoch 3 中有两条记录(红色的)，而 Voter-2 正在拉取此数据。
 
+[数据拉取-1](https://s6.jpg.cm/2022/10/18/PHzAfi.jpg)
+
+与 Kafka 中现有的复制副本获取逻辑一样，Voter-2 将在其提取请求中编码两条信息：要从中获取的 Epoch 及其日志和偏移量。收到请求后，Leader-1 将首先检查 Epoch，如果它有效，将返回从给定 offset 开始的数据。读取的 Voter-2 会将返回的数据追加到其本地日志中，然后使用新的偏移量再次开始读取。这里没有什么新东西，只是普通的复制副本获取协议。
+
+但是，假设另一个 Voter 已经偏离了日志记录。在样例中，Voter-3 是 Epoch 2 上的旧领导者，其本地日志上有一些附加的记录，这些记录尚未复制到 Quorum。当意识到 Epoch 以 Leader-1 作为前导起始集时，它将向 Leader-1 发送一个包含 Epoch 2 以及日志和 offset 的提取请求。Leader-1 将验证并发现此 Epoch 和 offset 不匹配，因此将在响应中返回错误代码，告诉 Voter-3 Epoch 2 仅提交了 offset 为 6 的记录。然后，Voter-3 将截断其本地日志以达到 offset 6。
+
+[数据拉取-2](https://s6.jpg.cm/2022/10/18/PHzXZk.jpg)
+
+然后，Voter-3 将再次重新发送拉取请求，这次是 Epoch 2 和偏移量 6。然后，Leader-1 可以将 Epoch 中的数据返回到 Voter-3，后者将在附加到其本地日志时从返回的数据中了解此新 Epoch。
+
+请注意，如果 Voter-2 和 Voter-3 无法在预定义的时间内成功从 Leader-1 中获取响应，则它可能会增加其 Epoch 并尝试选举为 Epoch 4 的新 Leader。因此，我们可以看到，这个 fetch 请求也被用作心跳来确定 Leader 的活跃度。
+
+#### 拉取与推送方式复制数据的对比
+
+与 Raft 文献中基于推送的模型相比，KRaft 中基于拉取的日志复制在日志协调方面更有效，因为 Voter 在提取操作时可以在重新发送下一次提取之前直接截断到可行的偏移量。在基于推送的模型中，需要很多的 "ping-pong" 交互(确认链接)，自从 Leader 推送数据开始就需要确认正确的目标日志的位置。
+
+基于拉取的 KRaft 也更不易于收到服务器损坏的影响，例如：旧的 Voter 不知道它已被移除出 Quorum ，比方说经历了成员的重新配置。如果这些旧 Voter 继续向基于拉取的模型中的 Leader 发送 fetch 请求，则 Leader 可以使用特殊的错误代码进行响应，告诉他们他们已从仲裁中删除，并且可以转换为观察者。在原始推送模型的 Raft 中则正相反，推送数据的 Leader 并不知道哪一个 Voter 会变成 [disruptive servers](https://dl.acm.org/doi/10.1145/2723872.2723876) 。自从被移除的节点没有获取到 Larder 任何推送的数据后，他们就会尝试选举自己作为新的 Leader，从而中断原始进程。
+
+另一个选用拉取模型的 Raft 协议的动机是 Kafka 作为基石的日志复制层已经是基于拉取模型建立的，因此可以更多的实现重用。
+
+但是这样做的好处是有代价的：新的 Leader 需要声明一个新的起始 Epoch API 来通知 Quorum 用于区分。在 Raft 模型中，此推送可以由 Leader 的 push data API 携带。此外为了向 Quorum 提交记录且被大多数节点认可，Leader 需要等待下一个 fetch 请求来推进 offset。这对于解决 disruptive servers 问题来说都是值得的。此外，利用现有的基于 Kafka 拉取的数据复制模型(“不造轮子”)节省了数千行代码。
+
+要了解有关 KRaft 实现设计的其他详细信息（如元数据快照和基于 KRaft 日志构建的状态机 API）的更多信息，请务必阅读 [KIP-500](https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum)、[KIP-595](https://cwiki.apache.org/confluence/display/KAFKA/KIP-595%3A+A+Raft+Protocol+for+the+Metadata+Quorum) 和 [KIP-630](https://cwiki.apache.org/confluence/display/KAFKA/KIP-630%3A+Kafka+Raft+Snapshot) 的参考文档。
+
+#### Controller
+
+使用 KRaft 之后和 ZooKeeper 一样也会
 
 ### 参考资料
 
