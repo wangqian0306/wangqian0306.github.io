@@ -38,6 +38,8 @@ categories: 参考资料
 
 - 通过将一小部分 Broker 同步元数据日志的方式，我们可以得到另一个 quorum 的 Controller 而不是单个 Controller。
 
+![改善结果](https://cwiki.apache.org/confluence/download/attachments/123898922/a.png?version=1&modificationDate=1564694752000&api=v2)
+
 ### 实现细节
 
 #### 数据同步方式
@@ -114,3 +116,9 @@ KRaft 选用仲裁复制算法的原因是：
 [Why ZooKeeper Was Replaced with KRaft – The Log of All Logs](https://www.confluent.io/blog/why-replace-zookeeper-with-kafka-raft-the-log-of-all-logs/)
 
 [Getting Started with the KRaft Protocol](https://www.confluent.io/blog/what-is-kraft-and-how-do-you-use-it/)
+
+[KIP-500](https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum)
+
+[KIP-595](https://cwiki.apache.org/confluence/display/KAFKA/KIP-595%3A+A+Raft+Protocol+for+the+Metadata+Quorum)
+
+[KIP-630](https://cwiki.apache.org/confluence/display/KAFKA/KIP-630%3A+Kafka+Raft+Snapshot)
