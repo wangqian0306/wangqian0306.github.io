@@ -25,7 +25,6 @@ NetCDF(Network Common Data Form)是一种自描述、与机器无关、基于数
 可以使用 Maven 或 Gradle 来引入依赖包：
 
 ```xml
-
 <repositories>
     <repository>
         <id>unidata-all</id>
@@ -36,7 +35,6 @@ NetCDF(Network Common Data Form)是一种自描述、与机器无关、基于数
 ```
 
 ```xml
-
 <dependencies>
     <dependency>
         <groupId>edu.ucar</groupId>

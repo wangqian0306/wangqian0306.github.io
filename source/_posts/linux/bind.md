@@ -1,7 +1,9 @@
 ---
 title: BIND 服务安装及配置流程
 date: 2020-12-01 21:57:04
-tags: "Linux"
+tags:
+- "Linux"
+- "DNS"
 id: bind
 no_word_count: true
 no_toc: false

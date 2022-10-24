@@ -111,6 +111,8 @@ KRaft 选用仲裁复制算法的原因是：
 
 使用 KRaft 之后和 ZooKeeper 一样选举出的 Leader 也会作为 Controller。其会负责接受新的 Broker 注册，检测 Broker 故障以及接收所有会更改集群元数据的请求。所有这些操作都可以按其相应的更改事件追加到元数据日志的时间进行管道传输和排序。Quorum 中的其他 Voter 会主动复制元数据日志，以便提交新追加的记录。
 
+> 注：使用 KRaft 之后就不再有 ISR 的概念，因为所有数据都会经过 Quorum 的仲裁。且元数据也会生成快照用于快速恢复。
+
 ### 参考资料
 
 [Why ZooKeeper Was Replaced with KRaft – The Log of All Logs](https://www.confluent.io/blog/why-replace-zookeeper-with-kafka-raft-the-log-of-all-logs/)
