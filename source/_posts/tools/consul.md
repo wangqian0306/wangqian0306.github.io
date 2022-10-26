@@ -127,6 +127,21 @@ networks:
         - subnet: "192.168.87.0/24"
 ```
 
+### API 
+
+Consul 中的服务是不会随着平台而变化的，如需编辑可调用 API ：
+
+```http request
+### 检查服务状态
+GET http://<host>:8500/v1/agent/checks
+
+### 查看服务列表
+GET http://<host>:8500/v1/agent/services
+
+### 刪除空服务
+PUT http://<host>:8500/v1/agent/service/deregister/gateway-consul
+```
+
 ### 参考资料
 
 [官方文档](https://www.consul.io/docs/k8s/installation/install)
