@@ -61,8 +61,10 @@ mysqlbinlog 工具的官方描述是：转储 MySQL 二进制日志，其格式�
 使用样例如下：
 
 ```text
-mysqlbinlog --start-datetime='2021-09-18 14:34:34' mysql-bin.000010
+mysqlbinlog --no-defaults -v -v --base64-output=DECODE-ROWS --database <database> mysql-bin.<file> 
 ```
+
+> 注：建议采用上述的解析方式并将解析内容存储至文件中进行检索。
 
 ### 使用 binlog 恢复数据
 
