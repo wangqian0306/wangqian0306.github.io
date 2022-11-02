@@ -77,16 +77,17 @@ SELINUXTYPE=targeted
 
 ## 常用文件或目录整理
 
-|地址|说明|
-|:---:|:---:|
-|/etc/profile.d/|每个用户都有的环境变量|
-|~/.bashrc|用户终端(shell)的相关配置|
-|/etc/hosts|host文件|
-|/etc/exports|NFS配置|
-|/var/named*|DNS配置|
-|/etc/chrony.conf|NTP配置|
-|/etc/fstab|磁盘挂载配置|
-|/etc/selinux/config|SELinux配置|
+|        地址         |        说明        |
+|:-----------------:|:----------------:|
+|  /etc/profile.d/  |   每个用户都有的环境变量    |
+|     ~/.bashrc     | 用户终端(shell)的相关配置 |
+|    /etc/hosts     |      host文件      |
+|   /etc/exports    |      NFS配置       |
+|    /var/named*    |      DNS配置       |
+| /etc/chrony.conf  |      NTP配置       |
+|    /etc/fstab     |      磁盘挂载配置      |
+|/etc/selinux/config|    SELinux配置     |
+|   /etc/*release   |    Linux 版本说明    |
 
 ## 配置 Terminal 快捷键
 

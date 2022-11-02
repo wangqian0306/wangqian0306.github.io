@@ -41,6 +41,18 @@ Ceph OSD(`ceph-osd`,Object Storage Daemon) 是对象存储的守护进程，负�
 
 Ceph Metadata Server(元数据服务器,`ceph-mds`)负责代表 Ceph File System(Ceph 文件系统)存储元数据(例如 Ceph Block Devices 和 Ceph Object Storage 是不使用 MDS 的)。Ceph Metadata Server 允许符合 `POSIX` 规范的文件系统用户执行基本的命令(例如 `ls`,`find` 等)而不会给 Ceph 存储集群带来巨大负担。
 
+### Ceph File System
+
+Ceph File System(Ceph FS)，是一个符合 `POSIX` 规范的文件系统，构建在 Ceph 的分布式对象存储 RADOS 上。CephFS 的目标是构建一款最先进的，多用途，高可用，为大量应用程序提供高性能存储，其中用例包括像目录分享，HPC 暂存空间和分布式工作流所需的共享存储。
+
+CephFS 通过使用一些新颖的架构实现这些目标。尤其重要的是，文件元数据与实际数据分离存储在一个 RADOS 池中并通过一个可靠的元数据服务器集群(MDS)提供服务，其还可以通过缩放的方式来应对更好的工作负载。文件系统的客户端可以直接访问 RADOS 以读取和写入文件数据块。因此，工作负载可能会随着底层RADOS 对象存储的大小而线性扩展；也就是说，没有网关或 broker 代理客户端的数据 I/O。
+
+对数据的访问通过 MDS 集群进行协调，MDS 集群作为客户端和 MDS 协作维护的分布式元数据缓存状态的权威机构。元数据的变更由每个 MDS 聚合成一系列写入 RADOS 上的日志；MDS 本地不存储元数据状态。该模型允许在 POSIX 文件系统的上下文中客户机之间进行一致和快速的协作。
+
+[CephFS 架构图](https://docs.ceph.com/en/quincy/_images/cephfs-architecture.svg)
+
+CephFS 是 Ceph 中最旧的存储接口，曾经是 RADOS 的主要用例。但现在，它由另外两个存储接口连接起来，形成了一个现代的统一存储系统：RBD(Ceph Block Device)和 RGW(Ceph Object Storage Gateway)。
+
 ### 使用方式
 
 在安装完成 Ceph 存储集群之后就可以使用 Ceph FS 作为文件系统进行挂载使用。

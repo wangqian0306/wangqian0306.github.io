@@ -1,7 +1,9 @@
 ---
 title: Docker 安装和基础命令
 date: 2020-04-03 21:41:32
-tags: "Container"
+tags:
+- "Container"
+- "Docker"
 id: docker
 no_word_count: true
 no_toc: false
@@ -70,10 +72,8 @@ SELINUX=disabled
 ```bash
 groupadd docker
 usermod -aG docker <使用Docker的非Root用户>
-systemctl enable docker
+systemctl enable docker --now
 ```
-
-配置完成后重启设备即可
 
 ## 配置中国官方源
 
