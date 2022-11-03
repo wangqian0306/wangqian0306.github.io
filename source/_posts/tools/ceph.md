@@ -53,6 +53,12 @@ CephFS 通过使用一些新颖的架构实现这些目标。尤其重要的是�
 
 CephFS 是 Ceph 中最旧的存储接口，曾经是 RADOS 的主要用例。但现在，它由另外两个存储接口连接起来，形成了一个现代的统一存储系统：RBD(Ceph Block Device)和 RGW(Ceph Object Storage Gateway)。
 
+### Ceph Block Device
+
+Block 是一系列的字节(通常是 512)。基于 Block 的存储接口是在包括 HDD、SSD、CD、软盘甚至磁带在内的介质上存储数据的一种成熟而常见的方式。Block Device 接口的普遍性非常适合与包括 Ceph 在内的海量数据存储交互。
+
+Ceph Block Device 的特点是简单的配置，可调整存储大小，将数据切分存储在多个 OSD 上。Ceph Block Device 利用了 RADOS 包括快照、复制和强一致性的功能。Ceph Block 存储客户端可以通过 内核模组或者 `librbd` 库读取 Ceph 集群。
+
 ### 使用方式
 
 在安装完成 Ceph 存储集群之后就可以使用 Ceph FS 作为文件系统进行挂载使用。
