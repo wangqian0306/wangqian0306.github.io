@@ -82,8 +82,12 @@ spring:
         defaultContext: <name>
         profileSeparator: '-'
         prefixes: config
-        format: YAML
+        format: properties
+        watch:
+          enabled: true
 ```
+
+> 注：此处支持的 format 有 yaml, properties, key_value, files 可以根据实际情况进行选用。
 
 编辑 Spring 主类并添加如下注解：
 
@@ -134,6 +138,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/demo")
 public class DemoController {
 
+    @Value("http://${spring.cloud.consul.host}:${spring.cloud.consul.port}/v1/kv/${spring.cloud.consul.config.prefixes}/${spring.cloud.consul.config.defaultContext}-${spring.profiles.active}/data")
+    String consulUrl;
+    
     @Resource
     MyProperties myProperties;
 
@@ -141,29 +148,61 @@ public class DemoController {
     public HttpEntity<String> get() {
         return new HttpEntity<>(myProperties.getProp());
     }
+
+    @PutMapping
+    public HttpEntity<String> put(@RequestParam String prop) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> content = new LinkedMultiValueMap<>();
+        content.put("my.prop", Collections.singletonList(prop));
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(content, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(consulUrl, HttpMethod.PUT, entity, Object.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return new HttpEntity<>(prop);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "consul set error");
+        }
+    }
+    
 }
 ```
 
-进入 consul 中编辑配置文件目录及文件
+启动程序即可
+
+### 流程测试
+
+如需手动编辑可以访问 consul webUI 的 `Key/Value` 选项中编辑配置向相关配置：
+
+配置目录如下:
 
 ```text
 config/<name>/data
 ```
 
+配置内容如下：
+
 ```yaml
-my:
-  prop:
-    demo-1
+my.prop=demo-1
 ```
 
-### 流程测试
+也可以通过 REST API 进行编辑，请求样例如下：
 
 ```http request
+### 写入配置项
+PUT http://localhost:8080/demo?prop=edit
+
 ### 获取配置项
 GET http://localhost:8080/demo
 
-### 使用 HTTP 接口读取配置项
+### 使用 Consul HTTP 接口读取配置项
 GET http://localhost:8500/v1/kv/config/dyn-default/data
+
+### 使用 Consul HTTP 接口编辑配置项
+PUT http://localhost:8500/v1/kv/config/dyn-default/data
+Content-Type: application/x-www-form-urlencoded
+
+my.prop=idea-http
 ```
 
 ### 参考资料
