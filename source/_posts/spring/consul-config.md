@@ -205,6 +205,30 @@ Content-Type: application/x-www-form-urlencoded
 my.prop=idea-http
 ```
 
+> 注：配置项的空间上限是 512 kb。
+ 
+### 配置变更监听
+
+在配置变更的时候可以采用如下的监听器，针对变更的配置完成业务逻辑。
+
+```java
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.endpoint.event.RefreshEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+public class CustomRefreshEventListener implements ApplicationListener<RefreshEvent> {
+
+    @Override
+    public void onApplicationEvent(RefreshEvent event) {
+        log.error("checked");
+    }
+
+}
+```
+
 ### 参考资料
 
 [Spring Cloud Consul 官方文档](https://docs.spring.io/spring-cloud-consul/docs/current/reference/html/#spring-cloud-consul-config)
