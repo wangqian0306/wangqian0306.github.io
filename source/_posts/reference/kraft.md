@@ -48,13 +48,13 @@ categories: 参考资料
 
 Leader 接收到数据会将其复制到其他 Follower 副本，在 Follower 副本承认写入之后会写回信。具体流程如下：
 
-[Primary-Backup](https://s6.jpg.cm/2022/10/17/PHmFAT.png)
+![Primary-Backup](https://s6.jpg.cm/2022/10/17/PHmFAT.png)
 
 最新的复制算法是仲裁复制(quorum replication)：
 
 Leader 接收到数据会将其复制到其他 Follower 副本，在 Follower 副本副本承认写入之后会写回信。在大部分 Follower 返回回信之后 Leader 将认为写入已提交，并将返回到写入客户端。
 
-[quorum replication](https://s6.jpg.cm/2022/10/17/PHpTFQ.png)
+![quorum replication](https://s6.jpg.cm/2022/10/17/PHpTFQ.png)
 
 KRaft 选用仲裁复制算法的原因是：
 
@@ -67,11 +67,11 @@ KRaft 选用仲裁复制算法的原因是：
 
 在集群启动后，所有 Broker 会按照初始配置的 Quorum 成 Voter，并且从本地日志中读取当前 Epoch(Raft 原文中称为 term 即任期)。在下图中，让我们假设我们的 Quorum 为三名 Voter。每个记录在其本地日志中都有六条记录，分别带有绿色和黄色：
 
-[初始环境](https://s6.jpg.cm/2022/10/18/PHfPhE.jpg)
+![初始环境](https://s6.jpg.cm/2022/10/18/PHfPhE.jpg)
 
 经过一段时间而没有找到 Leader 后，Voter 可能会进入一个新的 Epoch，并过渡到作为 Leader 候选人的临时角色。然后，它将向 Quorum 中的所有其他 Broker 发送请求，要求他们投票支持它作为这个 Epoch 的新 Leader。
 
-[投票请求](https://s6.jpg.cm/2022/10/18/PHfqnQ.jpg)
+![投票请求](https://s6.jpg.cm/2022/10/18/PHfqnQ.jpg)
 
 在投票请求中含有两部分的关键信息：其他 Broker 投票的 Epoch，和候选人本地日志的 offset。在接受投票的过程中，每个 Voter 会检查请求的 Epoch 是否大于其自己的 Epoch；如果已经投票过该 Epoch；或者它本地日志已经超出了给定的 offset。如果上述内容都是否，才会将此投票视为真实的。投票会被本地持久化存储，以便在 Quorum 中的 Broker 不会忘记投票的情况，即便是在刚刚启动时。当候选人收集到过半 Quorum 的选票(包括他自己)，就可以认为投票已经完成了。
 
@@ -83,13 +83,13 @@ KRaft 选用仲裁复制算法的原因是：
 
 与 Kafka 一样，KRaft 才有用拉取的机制来保持复制内容一致，而不是原始的 Raft 论文引入的基于推送的模型。在下图中，假设 Leader-1 在 Epoch 3 中有两条记录(红色的)，而 Voter-2 正在拉取此数据。
 
-[数据拉取-1](https://s6.jpg.cm/2022/10/18/PHzAfi.jpg)
+![数据拉取-1](https://s6.jpg.cm/2022/10/18/PHzAfi.jpg)
 
 与 Kafka 中现有的复制副本获取逻辑一样，Voter-2 将在其提取请求中编码两条信息：要从中获取的 Epoch 及其日志和偏移量。收到请求后，Leader-1 将首先检查 Epoch，如果它有效，将返回从给定 offset 开始的数据。读取的 Voter-2 会将返回的数据追加到其本地日志中，然后使用新的偏移量再次开始读取。这里没有什么新东西，只是普通的复制副本获取协议。
 
 但是，假设另一个 Voter 已经偏离了日志记录。在样例中，Voter-3 是 Epoch 2 上的旧领导者，其本地日志上有一些附加的记录，这些记录尚未复制到 Quorum。当意识到 Epoch 以 Leader-1 作为前导起始集时，它将向 Leader-1 发送一个包含 Epoch 2 以及日志和 offset 的提取请求。Leader-1 将验证并发现此 Epoch 和 offset 不匹配，因此将在响应中返回错误代码，告诉 Voter-3 Epoch 2 仅提交了 offset 为 6 的记录。然后，Voter-3 将截断其本地日志以达到 offset 6。
 
-[数据拉取-2](https://s6.jpg.cm/2022/10/18/PHzXZk.jpg)
+![数据拉取-2](https://s6.jpg.cm/2022/10/18/PHzXZk.jpg)
 
 然后，Voter-3 将再次重新发送拉取请求，这次是 Epoch 2 和偏移量 6。然后，Leader-1 可以将 Epoch 中的数据返回到 Voter-3，后者将在附加到其本地日志时从返回的数据中了解此新 Epoch。
 

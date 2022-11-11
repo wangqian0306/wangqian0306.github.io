@@ -21,6 +21,12 @@ no_toc: true
 - 在浏览代码文件时可以使用 `b` 键查看文件的改动记录
 - 使用 `ctrl` + `k` 可以打开控制面板，具体操作请参照官方文档
 
+### Codespaces
+
+Github Codespaces 是官方提供的在线 IDE 工具，可以方便的通过网页进行项目测试。
+
+> 注：目前使用体验还是比 GitPod 略差。
+
 ### GitPod 
 
 GitPod 是一款在线的 IDE 工具，提供了本地和网页端运行的两种功能，可以通过此工具快速的运行项目。
@@ -41,3 +47,5 @@ https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 [GitHub 官方手册](https://docs.github.com/cn)
 
 [GitPod 官方手册](https://www.gitpod.io/docs)
+
+[Codespaces 官方手册](https://docs.github.com/en/codespaces)
