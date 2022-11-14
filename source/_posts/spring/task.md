@@ -189,6 +189,44 @@ public class QuartzConf {
 }
 ```
 
+如需动态编辑任务，则可以依照如下代码：
+
+```java
+import org.quartz.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("quartz")
+public class DemoController {
+
+    @Resource
+    Scheduler scheduler;
+
+    @GetMapping
+    public HttpEntity<String> get() throws SchedulerException {
+        JobDetail job = JobBuilder.newJob().ofType(SampleJob.class)
+                .storeDurably()
+                .withIdentity("Qrtz_Job_Detail")
+                .withDescription("Invoke Sample Job service...")
+                .build();
+        Trigger trigger = TriggerBuilder.newTrigger().forJob(job)
+                .withIdentity("Qrtz_Trigger")
+                .withDescription("Sample trigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0/10 * * * * ? "))
+                .build();
+        scheduler.scheduleJob(job, trigger);
+        scheduler.start();
+        return new HttpEntity<>("success");
+    }
+
+}
+```
+
 ### 参考资料
 
 [Quartz 官网](https://www.quartz-scheduler.org/)

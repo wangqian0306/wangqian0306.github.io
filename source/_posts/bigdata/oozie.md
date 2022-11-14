@@ -124,7 +124,7 @@ public class OozieDemo {
 </workflow-app>
 ```
 
-- Sqoop 任务样例
+- Spark 任务样例
 ```xml
 <workflow-app name="spark-demo" xmlns="uri:oozie:workflow:0.5">
     <start to="spark2-0002"/>
