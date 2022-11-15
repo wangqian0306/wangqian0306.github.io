@@ -201,7 +201,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("quartz")
+@RequestMapping("/quartz")
 public class DemoController {
 
     @Resource
