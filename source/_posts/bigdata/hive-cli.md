@@ -58,8 +58,60 @@ CREATE TABLE page_view
 DESCRIBE [EXTENDED] page_view;
 ```
 
-- 
+- 查看表分区
 
 ```hiveql
-
+SHOW PARTITIONS page_view;
 ```
+
+- 重命名表
+
+```hiveql
+ALTER TABLE old_table_name RENAME TO new_table_name;
+```
+
+- 重命名列
+
+```hiveql
+ALTER TABLE old_table_name REPLACE COLUMNS (col1 TYPE, ...);
+```
+
+- 新增列
+
+```hiveql
+ALTER TABLE tab1 ADD COLUMNS (c1 INT COMMENT 'a new int column', c2 STRING DEFAULT 'def val');
+```
+
+- 删除分区
+
+```hiveql
+ALTER TABLE pv_users DROP PARTITION (ds='2008-08-08')
+```
+
+- 从 HDFS 载入数据至 Hive
+
+```hiveql
+LOAD DATA INPATH '/tmp/test.txt' INTO TABLE page_view;
+```
+
+- 从 HDFS 导入数据至 Hive
+
+```hiveql
+IMPORT [[EXTERNAL] TABLE new_or_original_tablename [PARTITION (part_column="value"[, ...])]]
+  FROM 'source_path'
+  [LOCATION 'import_target_path']
+```
+
+- 从 Hive 导出数据至 HDFS
+
+```hiveql
+EXPORT TABLE page_view to '/page_view';
+```
+
+### 参考资料
+
+[基本命令官方文档](https://cwiki.apache.org/confluence/display/Hive/Tutorial#Tutorial-Creating,Showing,Altering,andDroppingTables)
+
+[导入导出官方文档](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+ImportExport)
+
+[查询语句官方文档](https://cwiki.apache.org/confluence/display/Hive/LanguageManual)
