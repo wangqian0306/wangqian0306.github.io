@@ -46,6 +46,8 @@ mapproxy-util serve-develop mapproxy/mapproxy.yaml
 
 #### 容器安装
 
+Dockerfile 
+
 ```dockerfile
 FROM python:alpine
 
@@ -57,9 +59,11 @@ RUN mapproxy-util create -t base-config mapproxy
 
 EXPOSE 8080
 
-ENTRYPOINT ["mapproxy-util","serve-develop"]
+ENTRYPOINT ["mapproxy-util","serve-develop","-b","0.0.0.0"]
 CMD ["/opt/mapproxy/mapproxy.yaml"]
 ```
+
+Docker-compose file
 
 ```yaml
 version: "3.8"
@@ -70,9 +74,51 @@ services:
     image: mapproxy:latest
     ports:
       - "8080:8080"
+    volumes:
+      - ./xxx.yaml:/opt/mapproxy/mapproxy.yaml
 ```
 
-> 注：默认 run 起来没效果，目标地址直接访问是失效的，没有任何报错。暂时尝试其他方案。
+#### 样例配置
+
+```yaml
+services:
+  demo:
+  wmts:
+    md:
+      title: demo
+      abstract: demo
+      online_resource: http://demo:8080
+
+layers:
+  - name: demo
+    title: EPSG:3857
+    sources: [ demo_cache ]
+
+caches:
+  demo_cache:
+    sources: [ demo_tiles ]
+    format: image/png
+    grids: [ osm_grid ]
+
+sources:
+  demo_tiles:
+    type: tile
+    url: http://xxx.xxx.xxx:xxxx/xxxx/%(z)s/%(y)s/%(x)s.png
+    grid: osm_grid
+
+grids:
+  osm_grid:
+    name: EPSG:3857
+    srs: EPSG:3857
+    origin: nw
+    num_levels: 19
+    bbox: [ -20037508.3427892,-20037508.3427892,20037508.3427892,20037508.3427892 ]
+
+globals:
+  cache:
+    base_dir: '/tmp/mapcenter/cache'
+    lock_dir: '/tmp/mapcenter/cache/locks'
+```
 
 ### 参考资料
 
