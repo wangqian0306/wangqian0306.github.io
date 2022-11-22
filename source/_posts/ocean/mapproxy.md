@@ -80,6 +80,8 @@ services:
 
 #### 样例配置
 
+代理服务可以进行如下配置：
+
 ```yaml
 services:
   demo:
@@ -119,6 +121,29 @@ globals:
     base_dir: '/tmp/mapcenter/cache'
     lock_dir: '/tmp/mapcenter/cache/locks'
 ```
+
+如需缓存数据可以编写如下配置和命令：
+
+```yaml
+seeds:
+  demo_seed:
+    caches: [ demo_cache ]
+    levels:
+      to: 2
+    refresh_before:
+      mtime: ./reseed.time
+
+cleanups:
+  demo_remove:
+    caches: [ demo_cache ]
+    remove_all: true
+```
+
+```bash
+mapproxy-seed -f mapcenter.yaml -s seed.yaml -c 1 --reseed-interval 14d --reseed-file reseed.time --progress-file .mapproxy_seed_progress
+```
+
+> 注：此命令代表重新缓存需要间隔 14 天，且保存执行过程和时间到缓存文件中，如果有需要可以配合 `--continue` 命令继续执行。
 
 ### 参考资料
 
