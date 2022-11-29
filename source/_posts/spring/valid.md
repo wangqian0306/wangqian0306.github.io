@@ -29,99 +29,104 @@ Spring 框架官方提供的参数检验方式，通过对 hibernate validation 
 
 基本功能注解清单：
 
-|      注解      |          简介           |
-|:------------:|:---------------------:|
-|    @Null     |      被注解的元索必须为空       |
-|   @notNull   |      被注解的元素必须不为空      |
-|     @Min     | 被注解的元素必须是数字且必须小于等于指定值 |
-|     @Max     | 被注解的元素必须是数字且必须大于等于指定值 |
-|    @Past     |   被注解的元索必须是一个过去的日期    |
-|   @Future    |   被注解的元素必须是一个将来的日期    |
-|   @Pattern   |  被注解的元素必须符合给定的正则表达式   |
-| @AssertTure  |     被注解的元素必须为ture     |
-| @AssertFalse |    被注解的元素必须为false     |
+|        注解        |         简介          |
+|:----------------:|:-------------------:|
+|      @Null       |      验证元素必须为空       |
+|     @NotNull     |      验证元素必须不为空      |
+|    @NotBlank     |  验证元素必须不为空且至少有一个字符  |
+|     @NotNull     |      验证元素必须不为空      |
+|    @NotEmpty     |  验证元素必须不为空且至少有一个元素  |
+|       @Min       | 验证元素必须是数字且必须小于等于指定值 |
+|       @Max       | 验证元素必须是数字且必须大于等于指定值 |
+|      @Past       |  被注解的元索必须是一个过去的时间   |
+|  @PastOrPresent  | 被注解的元索必须是一个过去或当前的时间 |
+|     @Future      |   验证元素必须是一个将来的时间    |
+| @FutureOrPresent |  验证元素必须是一个将来或当前的时间  |
+|     @Pattern     |  验证元素必须符合给定的正则表达式   |
+|   @AssertTure    |     验证元素必须为ture     |
+|   @AssertFalse   |    验证元素必须为false     |
+|   @DecimalMax    |     验证小数元素最大数值      |
+|   @DecimalMin    |     验证小数元素最小数值      |
+|     @Digits      |     验证元素整数和小数位数     |
+|    @Negative     |      验证元素必须是负数      |
+| @NegativeOrZero  |    验证元素必须是负数或 0     |
+|    @Positive     |      验证元素必须是正数      |
+| @PositiveOrZero  |    验证元素必须是正数或 0     |
+|      @Email      |   验证元素必须是email地址    |
 
 额外功能注解清单：
 
-|    注解     |              简介               |
-|:---------:|:-----------------------------:|
-|  @Email   |       被注解的元素必须是email地址        |
-|  @Length  |        被注解的元素必须在指定的范围内        |
-| @NotEmpty |           被注解的元素是必须           |
-|  @Range   | 被注解的元素可以是数字或者是数字的字符串必须在指定的范围内 |
-|   @URL    |        被注解的元素必须是一个URL         |
+|        注解         |             简介              |
+|:-----------------:|:---------------------------:|
+|      @Length      |        验证元素必须在指定的范围内        |
+|     @NotEmpty     |           验证元素是必须           |
+|      @Range       | 验证元素可以是数字或者是数字的字符串必须在指定的范围内 |
+|       @URL        |        验证元素必须是一个URL         |
+| @CreditCardNumber |      验证元素必须是一个合规的信用卡号       |
+|   @DurationMax    |          验证元素最大的周期          |
+|   @DurationMin    |          验证元素最小的周期          |
+|       @EAN        |        验证元素为 EAN 条形码        |
+|       @ISBN       |        验证元素为 ISBN 书号        |
+|  @UniqueElements  |         验证元素是否是唯一的          |
+|       @UUID       |         验证元素为 UUID          |
 
 样例代码：
 
 ```java
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.Hibernate;
-import org.hibernate.validator.constraints.Length;
+import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
-import java.util.Date;
-import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
-@Table(name = "demo", schema = "demo")
-public class Demo {
+@Data
+public class DemoRole {
+
+    @NotNull
+    @NotBlank
+    private String role;
+
+}
+```
+
+```java
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+import java.util.Date;
+import java.util.List;
+
+@Data
+public class DemoUser {
 
     @NotNull(groups = {Update.class})
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column
     private String code;
 
     @NotNull(groups = {Insert.class})
     @Length(min = 2, max = 10)
-    @Column
     private String name;
 
     @NotBlank(message = "手机号码不能为空", groups = {Insert.class})
     @NotNull(message = "手机号不能为空", groups = {Insert.class})
     @Length(min = 11, max = 11, message = "手机号只能为11位")
-    @Column
     private String phone;
 
-    @Email
-    @Column
+    @Email(groups = {Insert.class})
     private String email;
 
     @Past(groups = {Insert.class})
-    @NotNull
-    @Column
+    @NotNull(groups = {Insert.class})
     private Date birth;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Demo demo = (Demo) o;
-        return code != null && Objects.equals(code, demo.code);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+    @Valid
+    @Size(min = 1, groups = {Insert.class})
+    @NotNull(groups = {Insert.class})
+    private List<DemoRole> roleList;
 
     public interface Insert {
     }
 
-    /**
-     * 更新的时候校验分组
-     */
     public interface Update {
     }
 
