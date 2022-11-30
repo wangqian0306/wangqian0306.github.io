@@ -156,6 +156,92 @@ public class DemoController {
 }
 ```
 
+自定义校验注解：
+
+```java
+import javax.validation.Constraint;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import javax.validation.Payload;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@Target({METHOD,FIELD,ANNOTATION_TYPE,CONSTRUCTOR,PARAMETER})
+@Retention(RUNTIME)
+@Documented
+@Constraint(validatedBy={CustomIdValidator.class})
+public @interface CustomId {
+
+    String message() default "CustomId not valid";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
+}
+```
+
+```java
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+public class CustomIdValidator implements ConstraintValidator<CustomId, String> {
+
+    @Override
+    public void initialize(CustomId constraintAnnotation) {
+        ConstraintValidator.super.initialize(constraintAnnotation);
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        // valid function
+        return false;
+    }
+
+}
+```
+
+在 Controller 中校验：
+
+```java
+import com.example.demo.request.DemoUser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
+import java.util.Set;
+
+@Slf4j
+@RestController
+@RequestMapping("/demo")
+public class DemoController {
+
+    @Resource
+    private Validator validator;
+
+    @PutMapping
+    public DemoUser update(@RequestBody DemoUser demoUser) {
+        Set<ConstraintViolation<DemoUser>> validate = validator.validate(demoUser, DemoUser.Insert.class);
+        if (validate.isEmpty()) {
+            // argument is valid
+            return demoUser;
+        } else {
+            throw new ConstraintViolationException(validate);
+        }
+    }
+}
+```
+
+> 注：此种方式不太适合原版异常的抛出形式。
+
 ### 参考资料
 
 [官方文档](https://spring.io/guides/gs/validating-form-input/)
