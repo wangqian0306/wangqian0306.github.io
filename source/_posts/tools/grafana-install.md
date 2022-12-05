@@ -27,7 +27,7 @@ services:
       - 3000:3000
 ```
 
-[官方文档](https://grafana.com/docs/grafana/latest/installation/docker/)
+[官方 Docker 部署说明](https://grafana.com/docs/grafana/latest/installation/docker/)
 
 ### 监控 CDH
 
@@ -49,3 +49,7 @@ services:
 ```sql
 select total_read_bytes_rate_across_disks, total_write_bytes_rate_across_disks where category = CLUSTER
 ```
+
+### 参考资料
+
+[官方文档](https://grafana.com/docs/grafana/latest/)

@@ -36,3 +36,7 @@ docker-compose -f docker-compose-non-dev.yml up -d
 - 新建图像
 
 > 注：默认的检索时间为 60 秒，若 60 秒内还没能完成检索则图像无法正常展示。
+
+### 参考资料
+
+[官方文档](https://superset.apache.org/docs/intro)
