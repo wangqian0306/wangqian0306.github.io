@@ -90,6 +90,16 @@ docker-compose up -d
 
 ### 基本命令整理
 
+查看集群信息
+
+```text
+### 查看基本信息
+GET /
+
+### 查看健康状态
+GET /_cat/health?
+```
+
 索引操作
 
 ```text
@@ -399,7 +409,6 @@ DELETE demo/_doc/1
   }
 }
 ```
-
 
 ### 常见问题
 

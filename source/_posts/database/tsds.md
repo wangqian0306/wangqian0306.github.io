@@ -23,13 +23,14 @@ categories: "Elastic Stack"
 创建生命周期
 
 ```text
-PUT _ilm/policy/demo-lifecycle-policy
+PUT _ilm/policy/demo-sensor-lifecycle-policy
 {
   "policy": {
     "phases": {
       "hot": {
         "actions": {
           "rollover": {
+            "max_age": "1d",
             "max_primary_shard_size": "50gb"
           }
         }
@@ -60,10 +61,12 @@ PUT _ilm/policy/demo-lifecycle-policy
 }
 ```
 
+> 注：官方网站中还设置了快照，如有需求可以进行参照。
+
 创建模板
 
 ```text
-PUT _component_template/my-mappings
+PUT _component_template/demo-sensor-mappings
 {
   "template": {
     "mappings": {
@@ -72,29 +75,34 @@ PUT _component_template/my-mappings
           "type": "date",
           "format": "date_optional_time||epoch_millis"
         },
-        "message": {
-          "type": "wildcard"
+        "sensor_id": {
+          "type": "keyword",
+          "time_series_dimension": true
+        },
+        "temperature": {
+          "type": "half_float",
+          "time_series_metric": "gauge"
         }
       }
     }
   },
   "_meta": {
-    "description": "Mappings for @timestamp and message fields",
-    "my-custom-meta-field": "More arbitrary metadata"
+    "description": "Mappings for @timestamp and sensor data"
   }
 }
 
 # Creates a component template for index settings
-PUT _component_template/my-settings
+PUT _component_template/demo-sensor-settings
 {
   "template": {
     "settings": {
-      "index.lifecycle.name": "demo-lifecycle-policy"
+      "index.lifecycle.name": "demo-sensor-lifecycle-policy",
+      "index.look_ahead_time": "3h",
+      "index.codec": "best_compression"
     }
   },
   "_meta": {
-    "description": "Settings for ILM",
-    "my-custom-meta-field": "More arbitrary metadata"
+    "description": "Index settings for weather sensor data"
   }
 }
 ```
@@ -102,23 +110,35 @@ PUT _component_template/my-settings
 创建索引模板
 
 ```text
-PUT _index_template/my-index-template
+PUT _index_template/demo-sensor-index-template
 {
-  "index_patterns": ["my-data-stream*"],
+  "index_patterns": ["demo-sensor*"],
   "data_stream": { },
-  "composed_of": [ "my-mappings", "my-settings" ],
+  "template": {
+    "settings": {
+      "index.mode": "time_series",
+      "index.routing_path": ["sensor_id"]
+    }
+  },
+  "composed_of": [ "demo-sensor-mappings", "demo-sensor-settings"],
   "priority": 500,
   "_meta": {
-    "description": "Template for my time series data",
-    "my-custom-meta-field": "More arbitrary metadata"
+    "description": "Template for my weather sensor data"
   }
 }
 ```
 
-创建索引：
+插入数据：
 
 ```text
-PUT _data_stream/my-data-stream
+POST demo-sensor-dev/_doc
+{
+  "@timestamp": "2099-05-06T16:21:15.000Z",
+  "sensor_id": "SYKENET-000001",
+  "location": "swamp",
+  "temperature": 32.4,
+  "humidity": 88.9
+}
 ```
 
 ### 参考资料
