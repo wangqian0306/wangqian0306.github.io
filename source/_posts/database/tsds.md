@@ -133,7 +133,7 @@ PUT _index_template/demo-sensor-index-template
 ```text
 POST demo-sensor-dev/_doc
 {
-  "@timestamp": "2099-05-06T16:21:15.000Z",
+  "@timestamp": "2022-05-06T16:21:15.000Z",
   "sensor_id": "SYKENET-000001",
   "location": "swamp",
   "temperature": 32.4,
