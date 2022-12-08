@@ -47,6 +47,16 @@ Produce API 使用了异步发送消息的方式，在发送过程中涉及的�
 
 > 注：只有在不改变主题分区数量的情况下，键与分区之间的映射才能保持不变。
 
+简单使用
+
+```python
+from kafka import KafkaProducer
+
+producer = KafkaProducer(bootstrap_servers='xxx:xxx,xxx:xxx')
+producer.send('<topic>', key=b'<key>', value=b"<value>")
+producer.close()
+```
+
 ### Consumer API
 
 Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
@@ -78,6 +88,16 @@ Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
 消费者关闭前一般会组合使用 `commitSync()` 和 `commitAsync()`。
 
 如果一切正常，我们使用 `commitAsync()` 方法提交，若如果直接关闭消费者则会使用 `commitSync()` 方法。
+
+简单使用
+
+```python
+from kafka import KafkaConsumer
+
+consumer = KafkaConsumer(bootstrap_servers='xxxx:xxxx,xxxx:xxxx', topic='<topic>', group_id='<group>')
+for msg in consumer:
+    print (msg)
+```
 
 ### Streams API
 
