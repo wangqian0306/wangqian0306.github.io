@@ -37,36 +37,116 @@ dependencies {
 
 配置入口
 
-```properties
-spring.data.rest.basePath=/api
+```yaml
+spring:
+  data:
+    rest:
+      base-path: /api
+  datasource:
+    url: ${MYSQL_URI:jdbc:mysql://xxx.xxx.xxx.xxx:3306/stream_lib}
+    driver-class-name: ${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${MYSQL_USERNAME:xxxx}
+    password: ${MYSQL_PASSWORD:xxxx}
+  jpa:
+    hibernate:
+      ddl-auto: update
 ```
 
 编写实体类
 
 ```java
-@Setter
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
+
 @Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity
-public class WebsiteUser {
+@Table(name = "USER")
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     private String name;
-    private String email;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }
 ```
 
 编写 Repository 
 
 ```java
-@RepositoryRestResource(collectionResourceRel = "users", path = "users")
-public interface UserRepository extends PagingAndSortingRepository<WebsiteUser, Long> {
-    List<WebsiteUser> findByName(@Param("name") String name);
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
+import java.util.List;
+
+@RepositoryRestResource(collectionResourceRel = "user", path = "user")
+public interface UserRepository extends PagingAndSortingRepository<User, Long>, CrudRepository<User, Long> {
+
+    List<User> findByName(@Param("name") String name);
+
 }
+```
+
+运行项目
+
+```http request
+### info
+GET http://localhost:8080/api
+
+### list
+GET http://localhost:8080/api/user
+
+### insert
+POST http://localhost:8080/api/user
+Content-Type: application/json
+
+{
+  "name": "demo"
+}
+
+### update
+POST http://localhost:8080/api/user
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name" :"update"
+}
+
+### delete
+DELETE http://localhost:8080/api/user/1
+
+### search interface list
+GET http://localhost:8080/api/user/search
+
+### searchByName
+GET http://localhost:8080/api/user/search/findByName?name=demo
 ```
 
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-data/rest/docs/current/reference/html/)
+
+[Accessing JPA Data with REST](https://spring.io/guides/gs/accessing-data-rest/)
