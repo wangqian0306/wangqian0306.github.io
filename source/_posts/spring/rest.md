@@ -43,7 +43,7 @@ spring:
     rest:
       base-path: /api
   datasource:
-    url: ${MYSQL_URI:jdbc:mysql://xxx.xxx.xxx.xxx:3306/stream_lib}
+    url: ${MYSQL_URI:jdbc:mysql://xxx.xxx.xxx.xxx:3306/xxx}
     driver-class-name: ${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
     username: ${MYSQL_USERNAME:xxxx}
     password: ${MYSQL_PASSWORD:xxxx}
@@ -94,17 +94,18 @@ public class User {
 编写 Repository 
 
 ```java
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "user", path = "user")
-public interface UserRepository extends PagingAndSortingRepository<User, Long>, CrudRepository<User, Long> {
+public interface UserRepository extends JpaSpecificationExecutor<User>, CrudRepository<User, Long> {
 
-    List<User> findByName(@Param("name") String name);
+    List<User> findByNameLike(@Param("name") String name, Pageable pageable);
 
 }
 ```
