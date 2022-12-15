@@ -142,18 +142,80 @@ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 sudo systemctl enable --now kubelet
 ```
 
+## 配置 Containerd
+
+编辑配置文件 `/etc/containerd/config.toml`：
+
+```text
+#disabled_plugins = ["cri"]
+
+#root = "/var/lib/containerd"
+#state = "/run/containerd"
+#subreaper = true
+#oom_score = 0
+
+#[grpc]
+#  address = "/run/containerd/containerd.sock"
+#  uid = 0
+#  gid = 0
+
+#[debug]
+#  address = "/run/containerd/debug.sock"
+#  uid = 0
+#  gid = 0
+#  level = "info"
+
+[plugins]
+  [plugins."io.containerd.grpc.v1.cri"]
+    sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
+    [plugins."io.containerd.grpc.v1.cri".containerd]
+      snapshotter = "overlayfs"
+      default_runtime_name = "runc"
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+            SystemdCgroup = true
+```
+
+编写如下配置文件 `/etc/crictl.yaml`：
+
+```text
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+pull-image-on-create: true
+```
+
 ## 初始化控制节点
 
-使用如下命令启动服务：
+编写如下配置文件 `kubeadm-config.yaml`：
+
+```text
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+kubernetesVersion: v1.26.0
+imageRepository: "registry.aliyuncs.com/google_containers"
+networking:
+  serviceSubnet: "10.96.0.0/16"
+  podSubnet: "10.244.0.0/24"
+---
+kind: InitConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+nodeRegistration:
+  criSocket: "/run/containerd/containerd.sock"
+localAPIEndpoint:
+  advertiseAddress: "192.168.2.104"
+  bindPort: 6443
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
+```
+
+使用如下命令拉取镜像启动服务：
 
 ```bash
-docker pull coredns/coredns:1.8.0
-docker tag coredns/coredns:1.8.0 registry.aliyuncs.com/google_containers/coredns/coredns:v1.8.0
-kubeadm init \
-    --apiserver-advertise-address=<host> \
-    --image-repository registry.aliyuncs.com/google_containers \
-    --kubernetes-version v1.21.0 \
-    --pod-network-cidr=10.244.0.0/16
+kubeadm config images pull --config kubeadm-config.yaml
+kubeadm init --config kubeadm-config.yaml -v 5
 ```
 
 > 注： `kubeadm init` 命令会在命令行中输出加入集群的命令具体结构如下：
