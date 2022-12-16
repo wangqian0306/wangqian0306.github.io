@@ -142,84 +142,48 @@ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 sudo systemctl enable --now kubelet
 ```
 
-## 配置 Containerd
+## 安装 CRI
 
-编辑配置文件 `/etc/containerd/config.toml`：
-
-```text
-#disabled_plugins = ["cri"]
-
-#root = "/var/lib/containerd"
-#state = "/run/containerd"
-#subreaper = true
-#oom_score = 0
-
-#[grpc]
-#  address = "/run/containerd/containerd.sock"
-#  uid = 0
-#  gid = 0
-
-#[debug]
-#  address = "/run/containerd/debug.sock"
-#  uid = 0
-#  gid = 0
-#  level = "info"
-
-[plugins]
-  [plugins."io.containerd.grpc.v1.cri"]
-    sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
-    [plugins."io.containerd.grpc.v1.cri".containerd]
-      snapshotter = "overlayfs"
-      default_runtime_name = "runc"
-      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-            SystemdCgroup = true
-```
-
-编写如下配置文件 `/etc/crictl.yaml`：
-
-```text
-runtime-endpoint: unix:///run/containerd/containerd.sock
-image-endpoint: unix:///run/containerd/containerd.sock
-pull-image-on-create: true
-```
+> 注：建议参考 containerd 文档。
 
 ## 初始化控制节点
 
 编写如下配置文件 `kubeadm-config.yaml`：
 
 ```text
-kind: ClusterConfiguration
 apiVersion: kubeadm.k8s.io/v1beta3
-kubernetesVersion: v1.26.0
-imageRepository: "registry.aliyuncs.com/google_containers"
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: "unix:///run/containerd/containerd.sock"
+localAPIEndpoint:
+  advertiseAddress: "<hostOrIp>"
+  bindPort: 6443
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
 networking:
   serviceSubnet: "10.96.0.0/16"
   podSubnet: "10.244.0.0/24"
+  dnsDomain: "cluster.local"
+kubernetesVersion: "<version>"
+controlPlaneEndpoint: "<hostOrIp>:6443"
+certificatesDir: "/etc/kubernetes/pki"
+imageRepository: "registry.aliyuncs.com/google_containers"
+clusterName: "demo-cluster"
 ---
-kind: InitConfiguration
-apiVersion: kubeadm.k8s.io/v1beta3
-nodeRegistration:
-  criSocket: "/run/containerd/containerd.sock"
-localAPIEndpoint:
-  advertiseAddress: "192.168.2.104"
-  bindPort: 6443
----
-kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
 cgroupDriver: systemd
 ```
 
-使用如下命令拉取镜像启动服务：
+使用如下命令拉取镜像并启动服务：
 
 ```bash
 kubeadm config images pull --config kubeadm-config.yaml
 kubeadm init --config kubeadm-config.yaml -v 5
 ```
 
-> 注： `kubeadm init` 命令会在命令行中输出加入集群的命令具体结构如下：
-> `kubeadm join <host>:<port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>`
+> 注：如果遇到问题，可以根据命令提示进行修复，并使用 `kubeadm reset -f --cri-socket unix:///run/containerd/containerd.sock` 移除之前的配置。
 
 ## 用户配置
 
@@ -247,15 +211,31 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
-## 加入集群
-
-- 在从机上运行加入集群的命令
-- 拷贝 `/etc/kubernetes/admin.conf` 文件至从机，然后完成用户配置
-- 标记节点类型为 `worker`
+## (可选) 在主机上运行除集群管理外的其他服务
 
 ```bash
-kubectl label nodes <node> node-role.kubernetes.io/worker=<key>
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
+
+## 加入集群
+
+- 如果原先 token 过期需要刷新 token，(默认一天)
+
+```bash
+kubeadm token create
+```
+
+- 如果没有 `discovery-token-ca-cert-hash` 可以使用如下命令生成
+
+```bash
+openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
+   openssl dgst -sha256 -hex | sed 's/^.* //'
+```
+
+> 注： `kubeadm init` 命令会在命令行中输出加入集群的命令具体结构如下：
+> `kubeadm join <host>:<port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>`
+
+- 运行 join 命令
 
 ## 检查集群
 
@@ -271,4 +251,4 @@ kubectl get nodes --all-namespace
 kubectl get pods --all-namespace
 ```
 
-> 注：此流程有待改进，尚未完成服务部署测试。
+
