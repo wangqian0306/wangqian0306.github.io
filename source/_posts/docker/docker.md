@@ -250,6 +250,8 @@ docker info
 
 ## 配置代理
 
+创建代理配置文件：
+
 ```bash
 mkdir -p /etc/systemd/system/docker.service.d
 vim /etc/systemd/system/docker.service.d/proxy.conf
@@ -260,6 +262,13 @@ vim /etc/systemd/system/docker.service.d/proxy.conf
 Environment="HTTP_PROXY=http://127.0.0.1:8888/"
 Environment="HTTPS_PROXY=http://127.0.0.1:8888/"
 Environment="NO_PROXY=localhost,127.0.0.1,.example.com
+```
+
+重启服务
+
+```bash
+systemctl daemon-reload
+systemctl restart docker
 ```
 
 ## 常见问题及解决方案
