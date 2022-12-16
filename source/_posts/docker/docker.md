@@ -248,6 +248,20 @@ DOCKER_HOST=tcp://<remote_ip>:2375
 docker info
 ```
 
+## 配置代理
+
+```bash
+mkdir -p /etc/systemd/system/docker.service.d
+vim /etc/systemd/system/docker.service.d/proxy.conf
+```
+
+```text
+[Service]
+Environment="HTTP_PROXY=http://127.0.0.1:8888/"
+Environment="HTTPS_PROXY=http://127.0.0.1:8888/"
+Environment="NO_PROXY=localhost,127.0.0.1,.example.com
+```
+
 ## 常见问题及解决方案
 
 ### 网络错误
