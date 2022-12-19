@@ -47,8 +47,16 @@ source /etc/profile.d/nodejs.sh
 
 ##### CentOS 8/ Fedora
 
+查看软件源及版本：
+
 ```bash
 dnf module list nodejs
+```
+
+安装：
+
+```bash
+dnf install nodejs
 ```
 
 ### 配置国内软件源
@@ -68,5 +76,5 @@ npm config get registry
 ### 安装 Yarn 包管理工具
 
 ```bash 
-npm intall -g yarn
+npm install -g yarn
 ```
