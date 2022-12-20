@@ -70,9 +70,10 @@ SELINUX=disabled
 使用如下命令进行服务配置
 
 ```bash
-groupadd docker
-usermod -aG docker <使用Docker的非Root用户>
-systemctl enable docker --now
+sudo groupadd docker
+sudo usermod -aG docker <使用Docker的非Root用户>
+sudo systemctl enable docker --now
+sudo chmod 666 /var/run/docker.sock
 ```
 
 ## 配置中国官方源
@@ -80,7 +81,7 @@ systemctl enable docker --now
 使用如下命令进行配置
 
 ```bash
-vim /etc/docker/daemon.json
+sudo vim /etc/docker/daemon.json
 ```
 
 填入如下配置项
