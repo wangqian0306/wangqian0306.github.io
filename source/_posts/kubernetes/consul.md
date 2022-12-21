@@ -3,10 +3,14 @@ title: Consul
 date: 2022-06-23 23:09:32
 tags:
 - "Consul"
+- "Kubernetes"
+- "Container"
+- "Docker"
+- "Helm"
 id: consul
 no_word_count: true
 no_toc: false
-categories: "工具"
+categories: Kubernetes
 ---
 
 ## Consul
@@ -16,6 +20,19 @@ categories: "工具"
 Consul 是一种多网络管理工具，提供功能齐全的服务网格(ServiceMesh)解决方案，可解决运营微服务和云基础设施（多云和混合云）的网络和安全挑战。
 
 ### 部署
+
+#### 在 Kubernetes 上部署
+
+> 注：在部署 Consul 之前需要配置 Kubernetes 上的 StorageClass。
+
+需要使用 Helm 安装 consul：
+
+```bash
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm install consul hashicorp/consul --set global.name=consul --create-namespace --namespace consul
+```
+
+#### 单机试用部署
 
 > 注：此方案仅供测试，在生产环境上部署请参照官方文档。
 

@@ -251,4 +251,101 @@ kubectl get nodes --all-namespace
 kubectl get pods --all-namespace
 ```
 
+## 部署 Ingress Controller 
 
+使用如下命令部署：
+
+```bash
+wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
+mv deploy.yaml ingress-nginx-controller.yaml
+sed -i 's#registry.k8s.io/ingress-nginx#registry.aliyuncs.com/google_containers#g' ingress-nginx-controller.yaml
+sed -i 's#registry.aliyuncs.com/google_containers/controller#registry.aliyuncs.com/google_containers/nginx-ingress-controller#g' ingress-nginx-controller.yaml
+kubectl apply -f ingress-nginx-controller.yaml
+```
+
+> 注：最新版本参见 [官方文档](https://github.com/kubernetes/ingress-nginx) 与 [部署说明](https://kubernetes.github.io/ingress-nginx/deploy/)
+
+检查 pod 和 svc 状态：
+
+```bash
+kubectl get pods -n ingress-nginx
+kubectl get svc -n ingress-nginx
+```
+
+> 注：在单节点部署的时候出现了外部 IP 绑定处于 Pending 的状况，使用如下命令进行了配置 `kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer", "externalIPs":["xxx.xxx.xxx.xxx"]}}'`
+
+## 部署仪表板
+
+使用如下命令部署仪表版：
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+```
+
+> 注：最新版本参见 [官方文档](https://github.com/kubernetes/dashboard)
+
+编写 `dashboard-ingress.yaml` 文件开放外网访问：
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: dashboard-ingress
+  namespace: kubernetes-dashboard
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: <host>
+      http:
+        paths:
+          - backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 443
+            path: /
+            pathType: Prefix
+status:
+  loadBalancer: {}
+```
+
+> 注：host (样例 `k8s-dashboard.xxx.xxx`) 需要写入 dns 服务器或者 hosts 文件中。
+
+部署完成后可以使用如下命令检查 Ingress 状态，若能获得 ADDRESS 则可以正常访问 `https://<host>`：
+
+```bash
+kubectl get ingress -n kubernetes-dashboard
+```
+
+之后可以新建 `dashboard-sa.yaml` 并填入如下内容和命令来创建 service account 并赋予权限生成 token:
+
+```text
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+```
+
+```bash
+kubectl apply -f dashboard-sa.yaml
+kubectl -n kubernetes-dashboard create token admin-user
+```
+
+将生成的 Token 填入 dashboard 即可。

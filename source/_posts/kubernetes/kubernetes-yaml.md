@@ -60,7 +60,10 @@ metadata:
 spec:
   ports:
     - port: 8080
+      protocol: TCP
       targetPort: 8080
+  selector:
+    app: tomcat
 ---
 
 apiVersion: networking.k8s.io/v1
@@ -74,13 +77,15 @@ spec:
     - host: <host>
       http:
         paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
+          - backend:
               service:
                 name: tomcat-svc
                 port:
                   number: 8080
+            path: /
+            pathType: Prefix
+status:
+  loadBalancer: {}
 ```
 
 ### 参考资料
