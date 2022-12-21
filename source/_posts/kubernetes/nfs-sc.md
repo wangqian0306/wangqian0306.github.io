@@ -26,13 +26,32 @@ Kubernetes 官方并没有提供内置的驱动而建议采用如下两种外部
 
 ### NFS subdir 外部驱动
 
-> 注：运行需要拉取 k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2 镜像。
+> 注：运行需要拉取 k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2 镜像，此处采用了本地源的方式解决了此问题。
 
 然后运行下面的命令即可：
 
 ```bash
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=x.x.x.x --set nfs.path=/exported/path
+helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+tar -zxvf nfs-subdir-external-provisioner-<verison>.tar
+cd nfs-subdir-external-provisioner
+vim values.yaml
+```
+
+修改下面的内容：
+
+```yaml
+image:
+  repository: <custom_repo>/sig-storage/nfs-subdir-external-provisioner
+nfs:
+  server: <server>
+  path: <dir>
+```
+
+然后使用下面的命令进行部署即可：
+
+```bash
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -f values.yaml
 ```
 
 ### 参考资料

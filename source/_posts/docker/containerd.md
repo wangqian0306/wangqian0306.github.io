@@ -35,6 +35,10 @@ containerd 是一个行业标准的容器运行时，强调简单性、健壮性
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
   SystemdCgroup = true
+
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."<custom_repo>"]
+          endpoint = ["http://<custom_repo>"]
 ```
 
 编写如下配置文件 `/etc/crictl.yaml`：
@@ -208,6 +212,8 @@ version = 2
       [plugins."io.containerd.grpc.v1.cri".registry.headers]
 
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.2.129:5000"]
+          endpoint = ["http://192.168.2.129:5000"]
 
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
       tls_cert_file = ""
