@@ -49,7 +49,7 @@ ui:
     enabled: true
     ingressClassName: "nginx"
     pathType: Prefix
-    hosts: [ { host:"consul.rainbowfish11000.prod" } ]
+    hosts: [ { host:"<host>" } ]
 connectInject:
   enabled: true
   cni:
