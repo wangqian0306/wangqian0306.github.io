@@ -25,11 +25,44 @@ Consul 是一种多网络管理工具，提供功能齐全的服务网格(Servic
 
 > 注：在部署 Consul 之前需要配置 Kubernetes 上的 StorageClass。
 
-需要使用 Helm 安装 consul：
+需要使用 Helm 安装 consul，列出配置文件：
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
-helm install consul hashicorp/consul --set global.name=consul --create-namespace --namespace consul
+helm inspect values hashicorp/consul > values.yaml
+```
+
+配置下面的内容：
+
+```yaml
+global:
+  enabled: true
+  logLevel: "info"
+  logJSON: false
+  name: consul
+server:
+  enabled: true
+  storageClass: nfs-client
+ui:
+  enbaled: true
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    pathType: Prefix
+    hosts: [ { host:"consul.rainbowfish11000.prod" } ]
+connectInject:
+  enabled: true
+  cni:
+    enabled: true
+    logLevel: info
+    cniBinDir: "/opt/cni/bin"
+    cniNetDir: "/etc/cni/net.d"
+```
+
+然后使用下面的命令部署集群：
+
+```bash
+helm install consul hashicorp/consul --create-namespace --namespace consul --values values.yaml
 ```
 
 #### 单机试用部署
@@ -144,7 +177,7 @@ networks:
         - subnet: "192.168.87.0/24"
 ```
 
-### API 
+### API
 
 Consul 中的服务是不会随着平台而变化的，如需编辑可调用 API ：
 

@@ -32,9 +32,7 @@ Kubernetes 官方并没有提供内置的驱动而建议采用如下两种外部
 
 ```bash
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm pull nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
-tar -zxvf nfs-subdir-external-provisioner-<verison>.tar
-cd nfs-subdir-external-provisioner
+helm inspect values nfs-subdir-external-provisioner/nfs-subdir-external-provisioner > values.yaml
 vim values.yaml
 ```
 
