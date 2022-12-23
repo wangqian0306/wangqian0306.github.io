@@ -19,13 +19,23 @@ categories: Kubernetes
 
 Consul 是一种多网络管理工具，提供功能齐全的服务网格(ServiceMesh)解决方案，可解决运营微服务和云基础设施（多云和混合云）的网络和安全挑战。
 
-### 部署
+### 安装与部署
+
+#### 在本机上安装
+
+```bash
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+sudo dnf -y install consul
+```
+
+> 注：其他平台请参照 [官方文档](https://developer.hashicorp.com/consul/downloads)
 
 #### 在 Kubernetes 上部署
 
-> 注：在部署 Consul 之前需要配置 Kubernetes 上的 StorageClass。
+> 注：在部署 Consul 之前需要安装 Helm 并在 Kubernetes 上配置 StorageClass。
 
-需要使用 Helm 安装 consul，列出配置文件：
+生成配置文件：
 
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -65,119 +75,7 @@ connectInject:
 helm install consul hashicorp/consul --create-namespace --namespace consul --values values.yaml
 ```
 
-#### 单机试用部署
-
-> 注：此方案仅供测试，在生产环境上部署请参照官方文档。
-
-```yaml
-version: '3.8'
-
-services:
-  consul-server1:
-    image: consul
-    ports:
-      - 8510:8500
-      - 8310:8300
-      - 8311:8301
-      - 8312:8302
-      - 8610:8600
-    environment:
-      - CONSUL_BIND_INTERFACE=eth0
-    command: >
-      agent -server -ui
-      -node=consul-server1
-      -bootstrap-expect=3
-      -client=0.0.0.0
-      -retry-join=consul_consul-server2
-      -retry-join=consul_consul-server3
-      -retry-join=consul_consul-server4
-      -data-dir=/consul/data
-      -datacenter=dc1
-    volumes:
-      - <path>:/consul/data
-    networks:
-      consul-net:
-  consul-server2:
-    image: consul
-    ports:
-      - 8520:8500
-      - 8320:8300
-      - 8321:8301
-      - 8322:8302
-      - 8620:8600
-    environment:
-      - CONSUL_BIND_INTERFACE=eth0
-    command: >
-      agent -server -ui
-      -node=consul-server2
-      -bootstrap-expect=3
-      -client=0.0.0.0
-      -retry-join=consul_consul-server1
-      -retry-join=consul_consul-server3
-      -retry-join=consul_consul-server4
-      -data-dir=/consul/data
-      -datacenter=dc1
-    volumes:
-      - <path>:/consul/data
-    networks:
-      consul-net:
-  consul-server3:
-    image: consul
-    ports:
-      - 8530:8500
-      - 8330:8300
-      - 8331:8301
-      - 8332:8302
-      - 8630:8600
-    environment:
-      - CONSUL_BIND_INTERFACE=eth0
-    command: >
-      agent -server -ui
-      -node=consul-server3
-      -bootstrap-expect=3
-      -client=0.0.0.0
-      -retry-join=consul_consul-server1
-      -retry-join=consul_consul-server2
-      -retry-join=consul_consul-server4
-      -data-dir=/consul/data
-      -datacenter=dc1
-    volumes:
-      - <path>:/consul/data
-    networks:
-      consul-net:
-  consul-server4:
-    image: consul
-    ports:
-      - 8540:8500
-      - 8340:8300
-      - 8341:8301
-      - 8342:8302
-      - 8640:8600
-    environment:
-      - CONSUL_BIND_INTERFACE=eth0
-    command: >
-      agent -server -ui
-      -node=consul-server4
-      -bootstrap-expect=3
-      -client=0.0.0.0
-      -retry-join=consul_consul-server1
-      -retry-join=consul_consul-server2
-      -retry-join=consul_consul-server3
-      -data-dir=/consul/data
-      -datacenter=dc1
-    volumes:
-      - <path>:/consul/data
-    networks:
-      consul-net:
-networks:
-  consul-net:
-    ipam:
-      driver: default
-      config:
-        - subnet: "192.168.87.0/24"
-```
-
-### API
+### API 
 
 Consul 中的服务是不会随着平台而变化的，如需编辑可调用 API ：
 
@@ -191,6 +89,128 @@ GET http://<host>:8500/v1/agent/services
 ### 刪除空服务
 PUT http://<host>:8500/v1/agent/service/deregister/gateway-consul
 ```
+
+### 在 Kubernetes 上部署服务
+
+下面是使用 Spring Cloud Consul 的部署样例：
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: <name>
+  namespace: <namespace>
+spec:
+  selector:
+    app: <name>
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <name>-config
+  namespace: <namespace>
+data:
+  application-prod.yaml: |
+    server:
+      port: ${SERVER_PORT:8080}
+    spring:
+      cloud:
+        consul:
+          host: ${CONSUL_HOST:consul-server.consul.svc}
+          port: ${CONSUL_PORT:8500}
+          discovery:
+            prefer-ip-address: true
+            tags: version=1.0
+            instance-id: ${spring.application.name}:${spring.cloud.client.hostname}:${spring.cloud.client.ip-address}:${server.port}
+            healthCheckInterval: 15s
+            register: false
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: <name>-sa
+  namespace: <namespace>
+automountServiceAccountToken: true
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: <name>
+  namespace: <namespace>
+spec:
+  protocol: "http"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <name>-deployment
+  namespace: <namespace>
+  labels:
+    app: <name>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <name>
+  template:
+    metadata:
+      labels:
+        app: <name>
+      annotations:
+        consul.hashicorp.com/connect-inject: "true"
+    spec:
+      serviceAccountName: <name>-sa
+      containers:
+        - name: <name>
+          image: xxx:xxx
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+          volumeMounts:
+            - name: <name>-config
+              mountPath: /app/application-prod.yaml
+              subPath: application-prod.yaml
+      volumes:
+        - name: <name>-config
+          configMap:
+            name: <name>-config
+            items:
+              - key: application-prod.yaml
+                path: application-prod.yaml
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: <name>
+  name: <name>
+  namespace: <namespace>
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: <host>
+      http:
+        paths:
+          - backend:
+              service:
+                name: <name>
+                port:
+                  number: 8080
+            path: /api
+            pathType: Prefix
+```
+
+> 注：挂载地址与环境变量请自行设定。
 
 ### 参考资料
 
