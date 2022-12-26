@@ -62,6 +62,8 @@ ui:
     hosts: [ { host:"<host>" } ]
 connectInject:
   enabled: true
+  transparentProxy:
+    defaultEnabled: true
   cni:
     enabled: true
     logLevel: info
@@ -75,9 +77,11 @@ connectInject:
 helm install consul hashicorp/consul --create-namespace --namespace consul --values values.yaml
 ```
 
+> 注: 在配置
+
 ### API 
 
-Consul 中的服务是不会随着平台而变化的，如需编辑可调用 API ：
+Consul 服务若出现异常可以通过此种方式进行删除：
 
 ```http request
 ### 检查服务状态
@@ -90,127 +94,13 @@ GET http://<host>:8500/v1/agent/services
 PUT http://<host>:8500/v1/agent/service/deregister/gateway-consul
 ```
 
-### 在 Kubernetes 上部署服务
+### 在 Kubernetes 上开发与部署服务
 
-下面是使用 Spring Cloud Consul 的部署样例：
+流程及插件文档详见 [整合文档](https://developer.hashicorp.com/consul/docs/integrate/partnerships)
 
-```yaml
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: <name>
-  namespace: <namespace>
-spec:
-  selector:
-    app: <name>
-  ports:
-    - name: http
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: <name>-config
-  namespace: <namespace>
-data:
-  application-prod.yaml: |
-    server:
-      port: ${SERVER_PORT:8080}
-    spring:
-      cloud:
-        consul:
-          host: ${CONSUL_HOST:consul-server.consul.svc}
-          port: ${CONSUL_PORT:8500}
-          discovery:
-            prefer-ip-address: true
-            tags: version=1.0
-            instance-id: ${spring.application.name}:${spring.cloud.client.hostname}:${spring.cloud.client.ip-address}:${server.port}
-            healthCheckInterval: 15s
-            register: false
+部署样例参见：
 
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: <name>-sa
-  namespace: <namespace>
-automountServiceAccountToken: true
----
-apiVersion: consul.hashicorp.com/v1alpha1
-kind: ServiceDefaults
-metadata:
-  name: <name>
-  namespace: <namespace>
-spec:
-  protocol: "http"
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: <name>-deployment
-  namespace: <namespace>
-  labels:
-    app: <name>
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: <name>
-  template:
-    metadata:
-      labels:
-        app: <name>
-      annotations:
-        consul.hashicorp.com/connect-inject: "true"
-    spec:
-      serviceAccountName: <name>-sa
-      containers:
-        - name: <name>
-          image: xxx:xxx
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: prod
-          volumeMounts:
-            - name: <name>-config
-              mountPath: /app/application-prod.yaml
-              subPath: application-prod.yaml
-      volumes:
-        - name: <name>-config
-          configMap:
-            name: <name>-config
-            items:
-              - key: application-prod.yaml
-                path: application-prod.yaml
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  labels:
-    app: <name>
-  name: <name>
-  namespace: <namespace>
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: <host>
-      http:
-        paths:
-          - backend:
-              service:
-                name: <name>
-                port:
-                  number: 8080
-            path: /api
-            pathType: Prefix
-```
-
-> 注：挂载地址与环境变量请自行设定。
+[Nginx Ingress Consul 服务部署](https://github.com/dhiaayachi/eks-consul-ingressnginx)
 
 ### 参考资料
 
