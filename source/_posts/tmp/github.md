@@ -42,6 +42,26 @@ https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 
 > 注：建议使用 VSCode 作为在线编辑工具，JetBrains 系列需要配合 Gateway 一起使用，不是很方便。
 
+如果需要采用不同的 sdk 可以使用如下命令：
+
+查看 java 版本：
+
+```bash
+sdk list java 
+```
+
+安装 java：
+
+```bash
+sdk install java 19.0.1-zulu
+```
+
+使用此版本 java：
+
+```bash
+sdk use java 19.0.1-zulu
+```
+
 ### 参考资料
 
 [GitHub 官方手册](https://docs.github.com/cn)

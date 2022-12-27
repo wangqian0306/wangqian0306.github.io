@@ -20,16 +20,6 @@ Spring Native 支持使用 GraalVM native-image 编译器将 Spring 应用程序
 
 - 项目初始化
   - 建议访问 [Spring Initializr](https://start.spring.io/) ，创建初始化 `gradle` 项目，且引入 `Spring Native [Experimental]` Dependencies
-- 在 `settings.gradle` 文件中填入下面的内容
-
-```groovy
-bootBuildImage {
-    builder = "paketobuildpacks/builder:tiny"
-    environment = [
-            "BP_NATIVE_IMAGE": "true"
-    ]
-}
-```
 
 - 运行打包命令 `./gradlew bootBuildImage` 等待镜像打包完成即可。
 
