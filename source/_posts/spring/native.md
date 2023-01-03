@@ -37,6 +37,10 @@ tasks.named("bootBuildImage") {
 
 > 注：打包时间较长，且针对网络和内存需求比较严苛，建议提前配置好 github 加速，清理设备空余内存保证可用内存至少有 4 GB。
 
+- 修改配置文件
+
+项目可执行文件和根目录都位于 `/workspace` 路径下，可以挂载配置文件至此位置。
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/)
