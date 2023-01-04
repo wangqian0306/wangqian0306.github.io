@@ -16,6 +16,8 @@ categories: Spring
 
 Spring Native 支持使用 GraalVM native-image 编译器将 Spring 应用程序编译为本机可执行文件和容器，非常适合容器云平台。
 
+> 注：
+
 ### 使用
 
 - 项目初始化
@@ -41,8 +43,33 @@ tasks.named("bootBuildImage") {
 
 项目可执行文件和根目录都位于 `/workspace` 路径下，可以挂载配置文件至此位置。
 
+### 自定义引入类
+
+由于打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，保证引入内容。
+
+```java
+@Configuration
+public class MyRuntimeHints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+        // Register method for reflection
+        Method method = ReflectionUtils.findMethod(MyClass.class, "sayHello", String.class);
+        hints.reflection().registerMethod(method, ExecutableMode.INVOKE);
+
+        // Register resources
+        hints.resources().registerPattern("my-resource.txt");
+
+        // Register serialization
+        hints.serialization().registerType(MySerializableClass.class);
+
+        // Register proxy
+        hints.proxies().registerJdkProxy(MyInterface.class);
+    }
+
+}
+```
+
 ### 参考资料
 
-[官方文档](https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/)
-
-[Introduction to Spring Native](https://www.baeldung.com/spring-native-intro)
+[官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html)
