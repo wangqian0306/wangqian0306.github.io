@@ -24,10 +24,12 @@ springdoc-openapi 是一款类似于 springfox 的社区项目，可以通过注
 ```xml
 <dependency>
     <groupId>org.springdoc</groupId>
-    <artifactId>springdoc-openapi-ui</artifactId>
-    <version>1.6.9</version>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.0.2</version>
 </dependency>
 ```
+
+> 注: Spring Boot 3.0 修改了引入包。
 
 配置 swagger 地址：
 
@@ -49,7 +51,7 @@ springdoc.swagger-ui.path=/swagger-ui.html
 
 ### 参考资料
 
-[官方网站](https://springdoc.org/)
+[官方网站](https://springdoc.org/v2)
 
 [官方例程](https://github.com/springdoc/springdoc-openapi-demos)
 

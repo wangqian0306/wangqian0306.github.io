@@ -3,8 +3,8 @@
 ### 启动代理
 
 ```bash
-export http_proxy=http://host:port
-export https_proxy=$http_proxy
+export HTTP_PROXY=http://xxx.xxx.xxx.xxx:xxxx
+export HTTPS_PROXY=$HTTP_PROXY
 ```
 
 ### 关闭代理
