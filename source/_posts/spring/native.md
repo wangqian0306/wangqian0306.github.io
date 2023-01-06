@@ -43,6 +43,26 @@ tasks.named("bootBuildImage") {
 
 项目可执行文件和根目录都位于 `/workspace` 路径下，可以挂载配置文件至此位置。
 
+### 测试构建的二进制包
+
+由于构建时间较长，所以为了解决频繁打包的问题可以在本地打包二进制程序进行测试：
+
+首先可以安装如下依赖：
+
+```bash
+dnf install libstdc++ libstdc++-docs libstdc++-static -y
+dnf install zlib zlib-static -y
+dnf install freetype freetype-devel -y
+```
+
+然后使用如下命令即可完成构建：
+
+```bash
+./gradlew nativeCompile
+```
+
+生成的二进制文件位于 `build/native/nativeCompile` 路径下，可以直接运行，用于检测打包是否完全。
+
 ### 自定义引入类
 
 由于打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，保证引入内容。

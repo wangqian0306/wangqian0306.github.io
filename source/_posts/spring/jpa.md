@@ -166,3 +166,49 @@ public class Test {
     }
 }
 ```
+
+#### 使用大写的表名和列名
+
+新增如下配置即可：
+
+```java
+import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
+import org.hibernate.boot.model.naming.Identifier;
+import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class CustomNamingConf extends CamelCaseToUnderscoresNamingStrategy {
+
+    @Override
+    public Identifier toPhysicalCatalogName(Identifier logicalName, JdbcEnvironment context) {
+        return logicalName;
+    }
+
+    @Override
+    public Identifier toPhysicalSchemaName(Identifier logicalName, JdbcEnvironment context) {
+        return logicalName;
+    }
+
+    @Override
+    public Identifier toPhysicalTableName(Identifier logicalName, JdbcEnvironment context) {
+        return logicalName;
+    }
+
+    @Override
+    public Identifier toPhysicalSequenceName(Identifier logicalName, JdbcEnvironment context) {
+        return logicalName;
+    }
+
+    @Override
+    public Identifier toPhysicalColumnName(Identifier logicalName, JdbcEnvironment context) {
+        return logicalName;
+    }
+
+    @Override
+    protected boolean isCaseInsensitive(JdbcEnvironment jdbcEnvironment) {
+        return false;
+    }
+
+}
+```
