@@ -10,8 +10,8 @@ export HTTPS_PROXY=$HTTP_PROXY
 ### 关闭代理
 
 ```bash
-unset http_proxy
-unset https_proxy
+unset HTTP_PROXY
+unset HTTPS_PROXY
 ```
 
 ### 配置 git 代理

@@ -34,13 +34,13 @@ sdk list java
 安装 java：
 
 ```bash
-sdk install java 19.0.1-zulu
+sdk install java 22.3.r17-nik
 ```
 
 使用此版本 java：
 
 ```bash
-sdk use java 19.0.1-zulu
+sdk default java 22.3.r17-nik
 ```
 
 ### 参考资料

@@ -29,8 +29,6 @@ Spring Native 支持使用 GraalVM native-image 编译器将 Spring 应用程序
 tasks.named("bootBuildImage") {
     environment["HTTP_PROXY"] = "http://<host>:<port>"
     environment["HTTPS_PROXY"] = "https://<host>:<port>"
-    builder = "paketobuildpacks/builder:tiny"
-    runImage = "paketobuildpacks/run:tiny"
     imageName = "<repository>/<dir>/${rootProject.name}:${project.version}"
 }
 ```
@@ -68,7 +66,6 @@ dnf install freetype freetype-devel -y
 由于打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，保证引入内容。
 
 ```java
-@Configuration
 public class MyRuntimeHints implements RuntimeHintsRegistrar {
 
     @Override
@@ -88,6 +85,12 @@ public class MyRuntimeHints implements RuntimeHintsRegistrar {
     }
 
 }
+```
+
+然后在主类中写入注解：
+
+```java
+@ImportRuntimeHints(MyRuntimeHints.class)
 ```
 
 ### 参考资料
