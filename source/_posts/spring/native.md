@@ -21,7 +21,7 @@ Spring Native 支持使用 GraalVM native-image 编译器将 Spring 应用程序
 ### 使用
 
 - 项目初始化
-  - 建议访问 [Spring Initializr](https://start.spring.io/) ，创建初始化 `gradle` 项目，且引入 `Spring Native [Experimental]` Dependencies
+  - 建议访问 [Spring Initializr](https://start.spring.io/) ，创建初始化 `gradle` 项目，且引入 `GraalVM Native Support` Dependencies
 
 - (可选配置)在 `build.gradle` 中可以填入如下配置：
 
@@ -60,6 +60,8 @@ dnf install freetype freetype-devel -y
 ```
 
 生成的二进制文件位于 `build/native/nativeCompile` 路径下，可以直接运行，用于检测打包是否完全。
+
+> 注：如果遇到 137 代表构建内存不足，需要尝试清下内存或者使用如下环境变量限制内存：`export JAVA_TOOL_OPTIONS=-Xmx{size}m`。
 
 ### 自定义引入类
 

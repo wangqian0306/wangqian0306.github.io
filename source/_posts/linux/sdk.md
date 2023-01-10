@@ -17,7 +17,14 @@ SDKMAN 是一款在大多数基于 Unix 的系统上管理多个并行版本软�
 
 ### 安装方式
 
-可以使用如下命令安装：
+首先需要确保以下依赖已经正确安装：
+
+- unzip
+- zip
+- curl
+- sed
+
+然后可以使用如下命令安装：
 
 ```bash
 curl -s "https://get.sdkman.io" | bash
