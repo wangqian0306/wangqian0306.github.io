@@ -14,16 +14,14 @@ categories: Spring
 
 ### 简介
 
-Spring Native 支持使用 GraalVM native-image 编译器将 Spring 应用程序编译为本机可执行文件和容器，非常适合容器云平台。
-
-> 注：
+Spring Boot 可以通过默认的 `gradle` 或 `maven` 插件省略 `Dockerfile` 的形式构建容器，而且在 3.0 版本之后也支持使用 GraalVM native-image 编译器将 Spring 应用程序编译为本机可执行文件和容器，非常适合容器云平台。
 
 ### 使用
 
 - 项目初始化
-  - 建议访问 [Spring Initializr](https://start.spring.io/) ，创建初始化 `gradle` 项目，且引入 `GraalVM Native Support` Dependencies
+  - 建议访问 [Spring Initializr](https://start.spring.io/) ，创建初始化 `gradle` 项目，(可选)引入 `GraalVM Native Support` Dependencies
 
-- (可选配置)在 `build.gradle` 中可以填入如下配置：
+- (可选)在 `build.gradle` 中可以配置加速和镜像名：
 
 ```groovy
 tasks.named("bootBuildImage") {
@@ -33,9 +31,11 @@ tasks.named("bootBuildImage") {
 }
 ```
 
+> 注: 如果引入了 `GraalVM Native Support` 则会默认使用 `paketobuildpacks/builder:tiny` 否则使用 `paketobuildpacks/builder:base`，且首次拉取镜像所花的时间会比较长。
+
 - 运行打包命令 `./gradlew bootBuildImage` 等待镜像打包完成即可。
 
-> 注：打包时间较长，且针对网络和内存需求比较严苛，建议提前配置好 github 加速，清理设备空余内存保证可用内存至少有 4 GB。
+> 注：打包时间较长，且针对网络和内存需求比较严苛，建议提前配置好 github 加速。
 
 - 修改配置文件
 
@@ -43,9 +43,9 @@ tasks.named("bootBuildImage") {
 
 ### 测试构建的二进制包
 
-由于构建时间较长，所以为了解决频繁打包的问题可以在本地打包二进制程序进行测试：
+在引入 `GraalVM Native Support` 之后会将程序打包成二进制包，然后再引入 Docker 中，构建时间较长，为了解决频繁打包的问题建议在本地打包二进制程序进行测试：
 
-首先可以安装如下依赖：
+首先可以安装如下 `c++` 依赖：
 
 ```bash
 dnf install libstdc++ libstdc++-docs libstdc++-static -y
@@ -65,7 +65,7 @@ dnf install freetype freetype-devel -y
 
 ### 自定义引入类
 
-由于打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，保证引入内容。
+在引入 `GraalVM Native Support` 之后，打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，手动标识引入内容。
 
 ```java
 public class MyRuntimeHints implements RuntimeHintsRegistrar {
@@ -96,5 +96,7 @@ public class MyRuntimeHints implements RuntimeHintsRegistrar {
 ```
 
 ### 参考资料
+
+[Spring Boot Gradle Plugin 官方文档](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/)
 
 [官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html)
