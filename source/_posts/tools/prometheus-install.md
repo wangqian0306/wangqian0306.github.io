@@ -22,21 +22,15 @@ version: '3'
 
 services:
   prometheus:
-    image: bitnami/prometheus:latest
+    image: prom/prometheus:latest
     environment:
       TZ: Asia/Shanghai
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
-      - ./prometheus-data:/opt/bitnami/prometheus/data
-```
-
-> 注: 本地存储需要赋予用户 1001 读取文件夹的权限
-
-```bash
-mkdir prometheus-data
-chown 1001:1001 prometheus-data
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
 ```
 
 ### 监控自身(测试)
@@ -45,7 +39,7 @@ chown 1001:1001 prometheus-data
 
 ```yaml
 global:
-  scrape_interval:     15s # 默认情况下，每 15 秒提取一次数据
+  scrape_interval: 15s # 默认情况下，每 15 秒提取一次数据
 
   # 在与外部系统（联邦集群、远程存储、报警系统）通信时，将这些标签附加到任何时间序列或警报。
   external_labels:
@@ -60,7 +54,7 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: [ 'localhost:9090' ]
 ```
 
 - 启动服务
@@ -82,7 +76,7 @@ Prometheus 官方提供了 JMX 监控的导出工具 [JMX exporter](https://gith
   - job_name: '<name>'
     scrape_interval: <time_interval>
     static_configs:
-      - targets: ['<host>:<port>']
+      - targets: [ '<host>:<port>' ]
 ```
 
 在项目中编写导出参数项的配置文件 `config.yaml` 内容样例如下：

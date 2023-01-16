@@ -19,9 +19,19 @@ WSL 是 windows推出的可让开发人员不需要安装虚拟机或者设置�
 
 在管理员模式下打开 PowerShell 并输入如下命令，待命令完成后重启计算机。
 
+列出可用的 Linux 子系统
+
 ```bash
-wsl --install
+wsl --list --online
 ```
+
+安装 Linux 子系统
+
+```bash
+wsl --install <distribution>
+```
+
+> 注：不要在 windows 更新的时候安装 Docker，更新完毕后重启电脑然后再安装。
 
 ### 常见问题
 
