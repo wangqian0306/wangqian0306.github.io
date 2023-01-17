@@ -94,6 +94,55 @@ java -javaagent:./jmx_prometheus_javaagent-0.17.0.jar=<port>:config.yaml -jar <j
 
 在程序启动后即可访问 `http://localhost:port` 看到监控数据。
 
+### 监控 Mysql 
+
+新建配置文件 `prometheus.yml` ：
+
+```text
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'check-web'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'mysqlexporter:9104' ]
+```
+
+新建 `docker-compose.yaml` ：
+
+```yaml
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: demo
+    ports:
+      - "3306:3306"
+  mysqlexporter:
+    image: prom/mysqld-exporter:latest
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=root:123456@(mysql:3306)/demo
+    depends_on:
+      - mysql
+  prometheus:
+    image: prom/prometheus:latest
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "9090:9090"
+    volumes:
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+```
+
 ### 参考资料
 
 [官方文档](https://prometheus.io/docs/prometheus/latest/getting_started/)
