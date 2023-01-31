@@ -226,7 +226,7 @@ zone "<domain>" IN {
         notify no;
 };
 
-zone "reverse_ip_area.in-addr.arpa" IN {
+zone "<reverse_ip_area>.in-addr.arpa" IN {
        type slave;
        masters { <bind1_ip>; };
        masterfile-format text;
@@ -266,6 +266,38 @@ nmcli connection modify <name> ipv4.dns <dns_server_ip>
 nmcli connection down <name>; nmcli connection up <name>
 ```
 
+### 动态配置
+
+bind 服务适配了 RFC2136 规范，如果在 `/etc/named.conf` 文件中打开配置项，即可完成动态更新。
+
+```text
+allow-update { any; };
+```
+
+测试命令如下：
+
+```bash
+nsupdate
+```
+
+然后输入如下内容：
+
+```text
+> server <server_ip>
+> zone <domain>
+> update add <host> 86400 A <ip>
+> send
+> quit
+```
+
+之后即可进行如下测试：
+
+```bash
+ping <host>
+```
+
+> 注：若出现配置的 IP 则证明动态更新成功。
+
 ### 常见问题
 
 #### Permission Denied
@@ -283,3 +315,9 @@ vim /etc/selinux/conf
 ```
 
 然后修改配置项即可 `SELINUX=disabled`
+
+### 参考资料
+
+[官方文档](https://bind9.readthedocs.io/en/latest/index.html)
+
+[RFC2136](https://www.rfc-editor.org/rfc/rfc2136)
