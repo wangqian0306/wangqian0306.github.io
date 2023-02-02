@@ -20,7 +20,7 @@ Home Assistant 可以通过四种方式进行安装：
 - OS(系统级别安装)
 - Container(独立容器)
 - Core(使用 Python venv 手动安装)
-- Supervised(在系统中安装软件)
+- Supervised(在系统中安装软件，但是只支持 Debian 系统)
 
 官方推荐的安装方式为：
 
