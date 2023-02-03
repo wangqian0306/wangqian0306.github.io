@@ -41,6 +41,21 @@ Home Assistant 可以通过四种方式进行安装：
 |          [Backups](https://www.home-assistant.io/common-tasks/os/#backups)           | :o: |    :o:    | :o:  |    :o:     |
 |                                      Managed OS                                      | :o: |    :x:    | :x:  |    :x:     |
 
+### 插件
+
+HomeAssistant 还支持很多官方插件，可以控制智能家居或者安装一些常用的服务，例如：
+
+- Jellyfin(本地媒体库)
+- Xiaomi(小米插件)
+- Yeelight(易来插件)
+- Matter(Matter 协议服务器)
+
+除此之外还可以使用 HACS(Home Assistant Community Store) 社区版本的应用商店来安装新的应用：
+
+- Xiaomi Miot Auto(小米独有规范集成插件)
+
 ### 参考资料
 
 [官方文档](https://www.home-assistant.io/)
+
+[HACS](https://hacs.xyz/)
