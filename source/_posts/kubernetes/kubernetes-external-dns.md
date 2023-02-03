@@ -54,6 +54,21 @@ zone "k8s.example.org" {
 };
 ```
 
+然后编写 `/etc/bind/pri/k8s/k8s.zone` 文件
+
+```text
+$TTL 60 ; 1 minute
+k8s.example.org         IN SOA  k8s.example.org. root.k8s.example.org. (
+                                16         ; serial
+                                60         ; refresh (1 minute)
+                                60         ; retry (1 minute)
+                                60         ; expire (1 minute)
+                                60         ; minimum (1 minute)
+                                )
+                        NS      ns.k8s.example.org.
+ns                      A       123.456.789.012
+```
+
 然后在任意可以链接到 Kubernetes 的设备上编写 `external-dns.yaml` 文件并部署即可：
 
 ```yaml
