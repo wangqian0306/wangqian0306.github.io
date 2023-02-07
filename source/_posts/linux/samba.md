@@ -25,7 +25,7 @@ yum install -y samba
 mv /etc/samba/smb.conf /etc/samba/smb.conf.bk
 ```
 
-编辑配置文件 `/etc/samba/smb.conf`：
+创建分享目录 `<path>`，编辑配置文件 `/etc/samba/smb.conf`：
 
 ```text
 [global]
@@ -74,6 +74,19 @@ mv /etc/samba/smb.conf /etc/samba/smb.conf.bk
     directory mask=0755
 ```
 
+```配置防火墙
+firewall-cmd --permanent --add-service=smb.service
+firewall-cmd --reload
+```
+
+启动服务
+
+```bash
+systemctl enable smb --now
+```
+
+### 账户配置
+
 使用如下命令创建账户：
 
 ```bash
@@ -84,6 +97,19 @@ smbpasswd -a <username>
 
 ```bash
 pdbedit -L
+```
+
+在 `[myshare]` 类似的配置单元中可以写入如下限制条件：
+
+```text
+valid users=<user_1>,<user_2>
+write list=<user>
+```
+
+重新启动服务：
+
+```bash
+systemctl restart smb
 ```
 
 ### 参考资料
