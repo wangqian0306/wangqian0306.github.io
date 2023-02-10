@@ -54,6 +54,18 @@ HomeAssistant 还支持很多官方插件，可以控制智能家居或者安装
 
 - Xiaomi Miot Auto(小米独有规范集成插件)
 
+### 自定义面板
+
+在 GitHub 上有很多的 Home-Assistant 仪表盘配置样例，可以美化面板。
+
+例如：
+
+[hass-config-lajv](https://github.com/lukevink/hass-config-lajv)
+
+教学视频地址如下：
+
+[video](https://www.bilibili.com/video/BV1jA4y1f7av)
+
 ### 参考资料
 
 [官方文档](https://www.home-assistant.io/)
