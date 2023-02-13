@@ -76,6 +76,7 @@ services:
       - "8080:8080"
     volumes:
       - ./xxx.yaml:/opt/mapproxy/mapproxy.yaml
+      - <path>:/tmp/mapcenter/cache
 ```
 
 #### 样例配置
@@ -122,6 +123,8 @@ globals:
     lock_dir: '/tmp/mapcenter/cache/locks'
 ```
 
+#### 手动缓存
+
 如需缓存数据可以编写如下配置和命令：
 
 ```yaml
@@ -144,6 +147,46 @@ mapproxy-seed -f mapcenter.yaml -s seed.yaml -c 1 --reseed-interval 14d --reseed
 ```
 
 > 注：此命令代表重新缓存需要间隔 14 天，且保存执行过程和时间到缓存文件中，如果有需要可以配合 `--continue` 命令继续执行。
+
+#### 独立部署
+
+如果需要将缓存之后的文件单独部署为服务可以使用如下配置：
+
+```text
+services:
+  demo:
+  wmts:
+    md:
+      title: demo
+      abstract: demo
+      online_resource: http://demo:8080
+
+layers:
+  - name: demo
+    title: EPSG:3857
+    sources: [ demo_cache ]
+
+caches:
+  demo_cache:
+    sources: []
+    format: image/png
+    grids: [ osm_grid ]
+
+grids:
+  osm_grid:
+    name: EPSG:3857
+    srs: EPSG:3857
+    origin: nw
+    num_levels: 19
+    bbox: [ -20037508.3427892,-20037508.3427892,20037508.3427892,20037508.3427892 ]
+
+globals:
+  cache:
+    base_dir: '/tmp/mapcenter/cache'
+    lock_dir: '/tmp/mapcenter/cache/locks'
+```
+
+> 注：在缓存目录中应该存在如下名称的数据文件夹 `demo_cache_EPSG3857`,`tile_locks`
 
 ### 参考资料
 
