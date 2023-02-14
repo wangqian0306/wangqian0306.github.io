@@ -1,6 +1,6 @@
 ---
 title: Ray casting 算法
-date: 20231-01-12 22:26:13
+date: 2022-01-12 22:26:13
 tags: "算法"
 id: ray-casting
 no_word_count: true
