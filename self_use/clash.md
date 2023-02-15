@@ -79,6 +79,12 @@ services:
     network_mode: "bridge"
 ```
 
+### 更新配置
+
+```bash
+curl -X PUT http://localhost:9090?force=true -H 'Content-Type: application/json' -d '{"path": "<path>"}'
+```
+
 ### 参考资料
 
 [官方项目](https://github.com/Dreamacro/clash)

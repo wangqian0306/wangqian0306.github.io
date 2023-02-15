@@ -121,6 +121,11 @@ public class TestController {
         return ResponseEntity.ok(Arrays.stream(result).collect(Collectors.toList()));
     }
 
+    @GetMapping
+    public ResponseEntity<Boolean> check(@RequestParam String path) {
+        return ResponseEntity.ok(ftpRemoteFileTemplate.exists(path));
+    }
+
     @GetMapping("/read")
     public ResponseEntity<String> read(@RequestParam String path) {
         if (!ftpRemoteFileTemplate.exists(path)) {
