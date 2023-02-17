@@ -76,6 +76,12 @@ public class Test {
 
 > 注: 如果任务需要异步执行，则需要引入 `@Async` 注解。
 
+如果有多个任务可能涉及到同时运行还需要在配置文件中写入线程池设置：
+
+```properties
+spring.task.scheduling.pool.size=5
+```
+
 ### Quartz
 
 首先需要引入下面的依赖包：
@@ -238,3 +244,5 @@ public class DemoController {
 [Spring 定时任务参考代码](https://github.com/eugenp/tutorials/tree/master/spring-scheduling)
 
 [Spring Quartz 参考代码](https://github.com/eugenp/tutorials/tree/master/spring-quartz)
+
+[Spring 定时任务多线程配置](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.task-execution-and-scheduling)
