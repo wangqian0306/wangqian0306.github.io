@@ -56,4 +56,6 @@ docker-compose up -d
 
 [视频教程](https://www.bilibili.com/video/BV19B4y1s7n4)
 
+[anti-AD 规则列表](https://github.com/privacy-protection-tools/anti-AD)
+
 [Adguard 过滤规则分享](https://wsgzao.github.io/post/adguard/)
