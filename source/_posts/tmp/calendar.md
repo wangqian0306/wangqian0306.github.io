@@ -23,9 +23,21 @@ no_toc: false
 可以订阅如下地址：
 
 ```text
-https://github.com/lanceliao/china-holiday-calender
+https://www.shuyz.com/githubfiles/china-holiday-calender/master/holidayCal.ics
 ```
+
+#### 生日
+
+由于 Google Calendar 不支持农历格式的生日提醒，所以需要手动进行添加，可以访问如下地址在线生成订阅地址。
+
+```
+https://lunar-calendar-anniversary-ics.vercel.app/
+```
+
+> 注：如果是公历的生日可以直接添加联系人并指定生日即可。
 
 ### 参考资料
 
 [中国节假日补班日历](https://github.com/lanceliao/china-holiday-calender)
+
+[农历纪念日日历订阅生成工具](https://github.com/baranwang/lunar-calendar-anniversary-ics)
