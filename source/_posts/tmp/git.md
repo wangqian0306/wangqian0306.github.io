@@ -1,8 +1,8 @@
 ---
 title: Git 麻瓜操作
 date: 2023-02-22 21:57:04
-tags: "git"
-id: git
+tags: "随笔"
+id: self-git
 no_word_count: true
 no_toc: true
 ---

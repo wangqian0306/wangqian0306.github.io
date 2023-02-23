@@ -4,7 +4,7 @@ date: 2021-10-27 21:32:58
 tags:
 - "Java"
 - "Spring Cloud"
-id: caching
+id: openfeign
 no_word_count: true
 no_toc: false
 categories: Spring
@@ -40,6 +40,34 @@ public interface FeignTest {
 }
 ```
 
+在主类启用 OpenFeign
+
+```java
+@SpringBootApplication
+@EnableFeignClients
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+
+配置请求方式
+
+```yaml
+spring:
+    cloud:
+        openfeign:
+            client:
+                config:
+                    default:
+                        connectTimeout: 5000
+                        readTimeout: 5000
+                        loggerLevel: basic
+```
+
 ### 参考资料
 
-[手把手教你使用 OpenFeign](https://www.jianshu.com/p/f083660c65bf)
+[官方文档](https://docs.spring.io/spring-cloud-openfeign/docs/4.0.1/reference/html/)

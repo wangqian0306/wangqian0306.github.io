@@ -112,8 +112,8 @@ theme: fluid
 #  type: ''
 deploy:
   type: git
-  repository: git@github.com:wangqian0306/wangqian0306.github.io.git
-  branch: dev
+  repository: https://github.com/wangqian0306/wangqian0306.github.io.git
+  branch: release
 
 search:
   enable: true

@@ -1,7 +1,7 @@
 .PHONY: init,deploy,test,update
 
 init:
-	npm install hexo-cli -g
+	npm install hexo-cli npm-check-updates -g
 
 deploy:
 	hexo clean
