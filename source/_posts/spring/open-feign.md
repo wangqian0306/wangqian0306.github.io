@@ -68,6 +68,42 @@ spring:
                         loggerLevel: basic
 ```
 
+### 自定义异常类
+
+在默认情况下 Feign 只会抛出 FeignException 异常，如有需求可以使用 ErrorDecoder 抛出异常。
+
+```java
+public class StashErrorDecoder implements ErrorDecoder {
+
+    @Override
+    public Exception decode(String methodKey, Response response) {
+        if (response.status() >= 400 && response.status() <= 499) {
+            return new StashClientException(
+                    response.status(),
+                    response.reason()
+            );
+        }
+        if (response.status() >= 500 && response.status() <= 599) {
+            return new StashServerException(
+                    response.status(),
+                    response.reason()
+            );
+        }
+        return errorStatus(methodKey, response);
+    }
+}
+```
+
+```java
+public class MyFeignClientConfiguration {
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new StashErrorDecoder();
+    }
+}
+```
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-cloud-openfeign/docs/4.0.1/reference/html/)
