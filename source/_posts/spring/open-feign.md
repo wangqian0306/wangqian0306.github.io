@@ -104,6 +104,50 @@ public class MyFeignClientConfiguration {
 }
 ```
 
+### fallback
+
+Spring Cloud CircuitBreaker 支持回退的概念：当远程地址无法链接或出现错误时执行的默认代码。要为给定的 @FeignClient 启用 fallback，需要将该属性设置为实现回退的类名。
+
+```java
+@FeignClient(name = "test", url = "http://localhost:${server.port}/", fallback = Fallback.class)
+protected interface TestClient {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    Hello getHello();
+
+    @RequestMapping(method = RequestMethod.GET, value = "/hellonotfound")
+    String getException();
+
+}
+
+@Component
+static class Fallback implements TestClient {
+
+    @Override
+    public Hello getHello() {
+        throw new NoFallbackAvailableException("Boom!", new RuntimeException());
+    }
+
+    @Override
+    public String getException() {
+        return "Fixed response";
+    }
+
+}
+```
+
+并且配置如下参数：
+
+```yaml
+spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        alphanumeric-ids:
+          enabled: true
+```
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-cloud-openfeign/docs/4.0.1/reference/html/)
