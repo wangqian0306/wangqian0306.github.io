@@ -167,10 +167,11 @@ public class TestController {
     }
 
     @PostMapping
-    public Boolean write(@RequestParam MultipartFile file, @RequestParam String path) throws IOException {
+    public Boolean write(@RequestParam MultipartFile file, @RequestParam String path) {
         String dest = FileSystems.getDefault().getPath(path, file.getOriginalFilename()).toString();
-        String originName = ftpRemoteFileTemplate.send(new GenericMessage<>(file.getInputStream().readAllBytes()), path, FileExistsMode.REPLACE);
-        ftpRemoteFileTemplate.rename(originName, dest);
+        Session<FTPFile> session = ftpRemoteFileTemplate.getSession();
+        session.write(file.getInputStream(), dest);
+        session.close();
         return true;
     }
 
