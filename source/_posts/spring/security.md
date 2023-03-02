@@ -228,7 +228,7 @@ import java.security.interfaces.RSAPublicKey;
  * @author Josh Cummings
  */
 @Configuration
-public class RestConfig extends WebSecurityConfigurerAdapter {
+public class RestConfig {
 
     @Value("${jwt.public.key}")
     RSAPublicKey key;
@@ -249,14 +249,15 @@ public class RestConfig extends WebSecurityConfigurerAdapter {
             "/login"
     };
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().authenticated();
+        return http.build();
     }
 
     @Bean
