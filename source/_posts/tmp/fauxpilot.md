@@ -57,7 +57,7 @@ IDEA 官方插件当中并没有参数可以设置，但是在项目 [Issue](htt
 
 ```text
 windows: C:\Users\<user>\AppData\Roaming\JetBrains\<version>\plugins\github-copilot-intellij\copilot-agent\dist\agent.js
-linux: ~/Library/Application Support/JetBrains/<version>/plugins/github-copilot-intellij\copilot-agent\dist\agent.js
+linux: ~/.local/share/JetBrains/<version>/github-copilot-intellij/copilot-agent/dist/agent.js
 ```
 
 在配置中可以寻找如下配置项并进行修改：
