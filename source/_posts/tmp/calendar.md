@@ -36,6 +36,20 @@ https://lunar-calendar-anniversary-ics.vercel.app/
 
 > 注：如果是公历的生日可以直接添加联系人并指定生日即可。
 
+#### 纪念日检索
+
+可以使用如下 SQL 语句检索最近 7 天内的纪念日。
+
+```mysql
+SELECT *
+FROM users
+WHERE DATE_ADD(brith,
+               INTERVAL YEAR(CURDATE()) - YEAR(brith)
+                   + IF(DAYOFYEAR(CURDATE()) > DAYOFYEAR(brith), 1, 0)
+               YEAR)
+          BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY);
+```
+
 ### 参考资料
 
 [中国节假日补班日历](https://github.com/lanceliao/china-holiday-calender)
