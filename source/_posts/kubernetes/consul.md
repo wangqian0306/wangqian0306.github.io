@@ -91,7 +91,7 @@ GET http://<host>:8500/v1/agent/checks
 GET http://<host>:8500/v1/agent/services
 
 ### 刪除空服务
-PUT http://<host>:8500/v1/agent/service/deregister/gateway-consul
+PUT http://<host>:8500/v1/agent/service/deregister/<service-name>
 ```
 
 ### 在 Kubernetes 上开发与部署服务
