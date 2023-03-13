@@ -101,3 +101,16 @@ firewall-cmd --permanent --add-port=<端口名>/<协议类型>
 ```bash
 firewall-cmd --reload
 ```
+
+查看目前开放的端口
+```bash
+firewall-cmd --zone=public --list-ports
+```
+
+## 查看端口状态
+
+查看目前开放的端口及对应的服务：
+
+```bash
+netstat -lnpt
+```
