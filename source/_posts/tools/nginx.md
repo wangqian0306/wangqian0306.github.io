@@ -27,7 +27,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
 ```
 
 ### 常见使用模式

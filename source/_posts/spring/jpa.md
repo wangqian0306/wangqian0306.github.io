@@ -60,6 +60,9 @@ public class Test {
     @LastModifiedDate
     private Date updatedDate;
 
+    @Transient
+    private String cache;
+
 }
 ```
 
