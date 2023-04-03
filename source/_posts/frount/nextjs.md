@@ -141,6 +141,48 @@ export const emptySplitApi = createApi({
 npx @rtk-query/codegen-openapi openapi-config.ts
 ```
 
+### 修改内容后自动刷新页面
+
+在 `api.ts` 中可以定义 `tagTypes` 属性，标识缓存内容的类型。此外还可以在获取数据的 API 上标识请求返回的数据为 `providesTags: ['xxx'],`，在更新数据的 API 上标识 `invalidatesTags: ['Post'],` 即可完成自动更新逻辑。
+
+```typescript
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+import type { Post, User } from './types'
+
+const api = createApi({
+  baseQuery: fetchBaseQuery({
+    baseUrl: '/',
+  }),
+  tagTypes: ['Post', 'User'],
+  endpoints: (build) => ({
+    getPosts: build.query<Post[], void>({
+      query: () => '/posts',
+      providesTags: ['Post'],
+    }),
+    getUsers: build.query<User[], void>({
+      query: () => '/users',
+      providesTags: ['User'],
+    }),
+    addPost: build.mutation<Post, Omit<Post, 'id'>>({
+      query: (body) => ({
+        url: 'post',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Post'],
+    }),
+    editPost: build.mutation<Post, Partial<Post> & Pick<Post, 'id'>>({
+      query: (body) => ({
+        url: `post/${body.id}`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Post'],
+    }),
+  }),
+})
+```
+
 ### 参考资料
 
 [Next.js 官方文档](https://nextjs.org/docs/getting-started)
