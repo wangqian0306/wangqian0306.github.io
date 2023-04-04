@@ -55,7 +55,7 @@ export default function App({ Component, pageProps }: AppProps) {
 首先需要安装依赖包：
 
 ```bash
-npm install @reduxjs/toolkit redux react-redux @types/react-redux redux-persist
+npm install @reduxjs/toolkit react-redux redux-persist
 ```
 
 然后需要创建 `src/store/reducer.ts`，并填入如下样例内容：
@@ -74,18 +74,40 @@ export default rootReducer;
 ```typescript
 import {configureStore} from '@reduxjs/toolkit';
 import rootReducer from "@/store/reducer";
-import {persistStore} from "redux-persist";
+import {FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE} from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
-const store = configureStore({
-  reducer: rootReducer,
+const persistConfig = {
+  key: 'root',
+  storage
+}
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+
+export const store = configureStore({
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware(),
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export const persist = persistStore(store);
+export type AppDispatch = typeof store.dispatch
+```
 
-export default store;
+创建 `src/store/hook.ts`，并填入如下样例内容：
+
+```typescript
+import { useDispatch, useSelector } from 'react-redux'
+import type { TypedUseSelectorHook } from 'react-redux'
+import type { RootState, AppDispatch } from './store'
+
+export const useAppDispatch: () => AppDispatch = useDispatch
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 ```
 
 之后需要编辑 `src/pages/_app.tsx` 文件，引入相关配置：
@@ -97,16 +119,102 @@ import { Provider } from 'react-redux';
 import { store } from '@/store/store';
 import { persist} from "@/store/store";
 import { PersistGate } from 'redux-persist/integration/react'
+import { ChakraProvider } from "@chakra-ui/react";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persist}>
+        <ChakraProvider>
           <Component {...pageProps} />
+        </ChakraProvider>
       </PersistGate>
     </Provider>
-  );
+  )
 }
+```
+
+如果还需要样例可以使用下面的代码：
+
+创建 `features/counter/counterSlice.ts` 文件:
+
+```typescript
+import {createSlice} from '@reduxjs/toolkit'
+
+interface CounterState {
+  value: number
+}
+
+// Define the initial state using that type
+const initialState: CounterState = {
+  value: 0,
+}
+
+export const counterSlice = createSlice({
+  name: 'counter',
+  // `createSlice` will infer the state type from the `initialState` argument
+  initialState,
+  reducers: {
+    increment: (state: CounterState) => {
+      state.value += 1
+    },
+    decrement: (state: CounterState) => {
+      state.value -= 1
+    },
+    // Use the PayloadAction type to declare the contents of `action.payload`
+  },
+})
+
+export const {increment, decrement} = counterSlice.actions
+
+export default counterSlice.reducer
+```
+
+创建 `test.tsx` 页面：
+
+```typescript
+import {Box, Button, Flex, Text} from "@chakra-ui/react";
+import {decrement, increment} from "@/features/counter/counterSlice";
+import Head from "next/head";
+import {useAppDispatch, useAppSelector} from "@/store/hooks";
+
+export default function Test() {
+  const dispatch = useAppDispatch();
+  const counterState = useAppSelector((state) => state["counter"]);
+
+  return (
+    <>
+      <Head>
+        <title>Test</title>
+        <link rel="icon" href="/favicon.ico"/>
+      </Head>
+      <Flex>
+        <Box>
+          <Text>Counter: {counterState.value}</Text>
+          <Button onClick={() => dispatch(increment(counterState))}>
+            Increment
+          </Button>
+          <Button onClick={() => dispatch(decrement(counterState))}>
+            Decrement
+          </Button>
+        </Box>
+      </Flex>
+    </>
+  )
+}
+```
+
+在 `store/reducer.ts` 中引入 `counterReducer`:
+
+```typescript
+import { combineReducers } from 'redux';
+import counterReducer from '@/features/counter/counterSlice'
+
+const rootReducer = combineReducers({
+  counter: counterReducer,
+});
+
+export default rootReducer;
 ```
 
 ### 根据 OpenAPI 生成代码
