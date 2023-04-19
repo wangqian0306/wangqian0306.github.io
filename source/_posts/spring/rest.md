@@ -146,6 +146,10 @@ GET http://localhost:8080/api/user/search
 GET http://localhost:8080/api/user/search/findByName?name=demo
 ```
 
+使用关联表：
+
+> 注：设顶或更新关联字段为 URL 即可。
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-data/rest/docs/current/reference/html/)
