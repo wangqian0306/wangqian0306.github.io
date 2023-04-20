@@ -148,7 +148,30 @@ GET http://localhost:8080/api/user/search/findByName?name=demo
 
 使用关联表：
 
-> 注：设顶或更新关联字段为 URL 即可。
+> 注：设顶或更新关联字段为 URL 即可，例如 `/{id}`。但是如果输入 id 不存在则会跳过该字段，不会报错。如需报错需要设置改字段为必填。
+
+```java
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity(name = "Phone")
+public class Phone {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String number;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "person_id", nullable = false, foreignKey = @ForeignKey(name = "PERSON_ID_FK"))
+    private Person person;
+
+}
+```
 
 ### 参考资料
 
