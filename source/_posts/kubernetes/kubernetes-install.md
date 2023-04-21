@@ -91,31 +91,9 @@ EOF
 sudo sysctl --system
 ```
 
-## 配置 `Docker`
+## 配置 Containerd 
 
-- 修改配置项
-
-```bash
-sudo mkdir /etc/docker
-cat <<EOF | sudo tee /etc/docker/daemon.json
-{
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "storage-driver": "overlay2"
-}
-EOF
-```
-
-- 重新启动服务
-
-```bash
-sudo systemctl enable docker
-sudo systemctl daemon-reload
-sudo systemctl restart docker
-```
+> 注：参照 Containerd 文档。
 
 ## 安装 `kubeadm`,`kubelet`,`kubectl` 命令
 
@@ -141,10 +119,6 @@ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 
 sudo systemctl enable --now kubelet
 ```
-
-## 安装 CRI
-
-> 注：建议参考 containerd 文档。
 
 ## 初始化控制节点
 

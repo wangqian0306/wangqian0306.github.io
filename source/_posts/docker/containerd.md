@@ -15,11 +15,21 @@ categories: Container
 
 containerd 是一个行业标准的容器运行时，强调简单性、健壮性和可移植性。它可作为 Linux 和 Windows 的守护进程，可以管理其主机系统的完整容器生命周期。
 
-### 安装方式
+### 安装
 
-> 注：参见安装手册(建议通过源码安装，版本新一点)，且必须安装 CNI plugins。
+```bash
+wget https://github.com/containerd/containerd/releases/download/v1.6.20/containerd-1.6.20-linux-amd64.tar.gz
+tar Cxzvf /usr/local containerd-1.6.20-linux-amd64.tar.gz
+wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service -P /usr/local/lib/systemd/system/
+wget https://github.com/opencontainers/runc/releases/download/v1.1.6/runc.amd64
+install -m 755 runc.amd64 /usr/local/sbin/runc
+wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz
+mkdir -p /opt/cni/bin
+tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.1.1.tgz
+systemctl daemon-reload
+```
 
-### 配置方式
+### 配置
 
 生成配置文件：
 
@@ -50,10 +60,10 @@ timeout: 10
 debug: false
 ```
 
-重启服务：
+启动服务：
 
 ```bash
-systemctl restart containerd
+systemctl enable --now containerd
 ```
 
 ### 配置文件参考
