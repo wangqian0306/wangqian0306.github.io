@@ -17,6 +17,8 @@ containerd 是一个行业标准的容器运行时，强调简单性、健壮性
 
 ### 安装
 
+#### 使用二进制包
+
 ```bash
 wget https://github.com/containerd/containerd/releases/download/v1.6.20/containerd-1.6.20-linux-amd64.tar.gz
 tar Cxzvf /usr/local containerd-1.6.20-linux-amd64.tar.gz
@@ -25,8 +27,26 @@ wget https://github.com/opencontainers/runc/releases/download/v1.1.6/runc.amd64
 install -m 755 runc.amd64 /usr/local/sbin/runc
 wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz
 mkdir -p /opt/cni/bin
-tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.1.1.tgz
+tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.2.0.tgz
 systemctl daemon-reload
+```
+
+#### 使用软件源安装
+
+```bash
+sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+sudo yum install -y yum-utils
+sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y containerd.io
 ```
 
 ### 配置
@@ -34,6 +54,7 @@ systemctl daemon-reload
 生成配置文件：
 
 ```bash
+mkdir -p /etc/containerd
 /usr/local/bin/containerd config default > /etc/containerd/config.toml
 ```
 

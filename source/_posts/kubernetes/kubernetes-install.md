@@ -216,13 +216,13 @@ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outfor
 使用如下命令检查 Kubernetes 节点列表
 
 ```bash
-kubectl get nodes --all-namespace
+kubectl get nodes --all-namespaces
 ```
 
 使用如下命令检查 Kubernetes 集群中运行的所有的 Pod
 
 ```bash
-kubectl get pods --all-namespace
+kubectl get pods --all-namespaces
 ```
 
 ## 部署 Ingress Controller 
