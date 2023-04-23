@@ -246,29 +246,55 @@ public class Address {
 
 ##### `@NotFound`
 
-```java
+联系方式类：
 
+```java
+@Entity(name = "Phone")
+public class Phone {
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "number")
+    private String number;
+
+    @OneToOne
+    @NotFound(action = NotFoundAction.EXCEPTION)
+    @JoinColumn(name = "details_id")
+    private PhoneDetails details;
+
+}
+```
+
+联系方式详情类：
+
+```java
+@Entity(name = "PhoneDetails")
+public class PhoneDetails {
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
+
+    private String provider;
+
+    private String technology;
+
+}
 ```
 
 ##### `@Any`
 
-```java
-
-```
+> 注：略，不清楚有什么用。
 
 ##### `@JoinFormula`
 
-```java
-
-```
+> 注：略，不清楚有什么用。
 
 ##### `@JoinColumnOrFormula`
 
-```java
-
-```
-
-##### 
+> 注：略，不清楚有什么用。
 
 ### 参考资料
 
