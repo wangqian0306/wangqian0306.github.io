@@ -22,52 +22,7 @@ ExternalDNS 项目可以把 Kubernetes 集群内的 Service 和 Ingress 实例�
 
 ### 安装方式
 
-> 注：本示例采用支持 RFC2136 标准的 BIND 服务，前期准备参见 BIND 文档。
-
-首先需要在外部 DNS 服务器上运行如下命令，生成密钥：
-
-```bash
-tsig-keygen -a hmac-sha256 externaldns
-```
-
-应该得到这样的输出，将其放置在 `/etc/named.conf` 文件中：
-
-```text
-key "externaldns" {
-        algorithm hmac-sha256;
-        secret "<secret>";
-};
-```
-
-在 `/etc/named.conf` 文件中，修改 `zone` 配置：
-
-```text
-zone "k8s.example.org" {
-    type master;
-    file "/etc/bind/pri/k8s/k8s.zone";
-    allow-transfer {
-        key "externaldns-key";
-    };
-    update-policy {
-        grant externaldns-key zonesub ANY;
-    };
-};
-```
-
-然后编写 `/etc/bind/pri/k8s/k8s.zone` 文件
-
-```text
-$TTL 60 ; 1 minute
-k8s.example.org         IN SOA  k8s.example.org. root.k8s.example.org. (
-                                16         ; serial
-                                60         ; refresh (1 minute)
-                                60         ; retry (1 minute)
-                                60         ; expire (1 minute)
-                                60         ; minimum (1 minute)
-                                )
-                        NS      ns.k8s.example.org.
-ns                      A       123.456.789.012
-```
+> 注：本示例采用支持 RFC2136 标准的 BIND 服务，前期准备参见 BIND 文档的 **动态配置** 章节。
 
 然后在任意可以链接到 Kubernetes 的设备上编写 `external-dns.yaml` 文件并部署即可：
 
@@ -78,6 +33,53 @@ metadata:
   name: external-dns
   labels:
     name: external-dns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: external-dns
+  namespace: external-dns
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  - nodes
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - extensions
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-dns
+  namespace: external-dns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: external-dns-viewer
+  namespace: external-dns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: external-dns
+subjects:
+- kind: ServiceAccount
+  name: external-dns
+  namespace: external-dns
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -93,23 +95,24 @@ spec:
       labels:
         app: external-dns
     spec:
+      serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: registry.k8s.io/external-dns/external-dns:v0.13.1
+        image: registry.k8s.io/external-dns/external-dns:v0.13.4
         args:
         - --registry=txt
         - --txt-prefix=external-dns-
         - --txt-owner-id=k8s
         - --provider=rfc2136
-        - --rfc2136-host=<host>
+        - --rfc2136-host=<dns_server_host>
         - --rfc2136-port=53
-        - --rfc2136-zone=<zone:k8s.example.org>
-        - --rfc2136-tsig-secret=<secret>
+        - --rfc2136-zone=<zone>
+        - --rfc2136-tsig-secret=<key.secret>
         - --rfc2136-tsig-secret-alg=hmac-sha256
         - --rfc2136-tsig-keyname=externaldns-key
         - --rfc2136-tsig-axfr
         - --source=ingress
-        - --domain-filter=<zone:k8s.example.org>
+        - --domain-filter=<zone>
 ```
 
 使用如下命令部署即可：
@@ -118,7 +121,17 @@ spec:
 kubectl apply -f external-dns.yaml
 ```
 
-之后正常创建 Ingress 后 ping 相应域名即可完成检查。
+之后正常创建 Ingress ，并使用如下命令可以检查服务日志：
+
+```bash
+kubectl logs -f deploy/external-dns -n external-dns
+```
+
+若出现如下内容即可访问对应 URL：
+
+```text
+"Adding RR: xxxx 0 A xxx.xxx.xxx.xxx"
+```
 
 ### 参考资料
 
