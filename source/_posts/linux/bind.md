@@ -50,7 +50,7 @@ options {
 	recursing-file  "/var/named/data/named.recursing";
 	secroots-file   "/var/named/data/named.secroots";
 	allow-query     { any; };
-    allow-transfer  { localhost; <bind-2_ip>; };
+        allow-transfer  { localhost; <bind-2_ip>; };
 
 	recursion yes;
 
@@ -187,8 +187,8 @@ options {
 	memstatistics-file "/var/named/data/named_mem_stats.txt";
 	recursing-file  "/var/named/data/named.recursing";
 	secroots-file   "/var/named/data/named.secroots";
-    allow-query     { any; };
-    allow-transfer  { localhost; <bind-2_ip>; };
+        allow-query     { any; };
+        allow-transfer  { localhost; <bind-2_ip>; };
 
 	recursion yes;
 
@@ -270,14 +270,40 @@ nmcli connection down <name>; nmcli connection up <name>
 
 bind 服务适配了 RFC2136 规范，如果在 `/etc/named.conf` 文件中打开配置项，即可完成动态更新。
 
+首先需要在外部 DNS 服务器上运行如下命令，生成密钥：
+
+```bash
+tsig-keygen -a hmac-sha256 externaldns-key
+```
+
+应该得到这样的输出，将其放置在 `/etc/named.conf` 文件中，并将其保存成密钥文件 `key.txt`：
+
 ```text
-allow-update { any; };
+key "externaldns" {
+        algorithm hmac-sha256;
+        secret "<secret>";
+};
+```
+
+之后在需要更新的 `zone` 部分进行如下配置即可：
+
+```text
+zone "xxxx" {
+    type master;
+    file "xxxx";
+    allow-transfer {
+        key "externaldns-key";
+    };
+    update-policy {
+        grant externaldns-key zonesub ANY;
+    };
+};
 ```
 
 测试命令如下：
 
 ```bash
-nsupdate
+nsupdate -k key.txt
 ```
 
 然后输入如下内容：
@@ -289,6 +315,8 @@ nsupdate
 > send
 > quit
 ```
+
+> 注：若没有额外的错误输出则证明配置完成。
 
 之后即可进行如下测试：
 
