@@ -1,6 +1,6 @@
 ---
 title: Kubernetes 安装
-date: 2021-04-25 21:41:32
+date: 2023-02-01 21:41:32
 tags:
 - "Container"
 - "Docker"
@@ -15,23 +15,21 @@ categories: Kubernetes
 
 Kubernetes是一个可移植的，可扩展的开源平台，用于管理容器化的工作负载和服务，。
 
-[官方文档](https://kubernetes.io/)
+### 安装前的准备
 
-## 安装前的准备
-
-### 检查系统兼容性
+#### 检查系统兼容性
 
 Kubernetes 为基于 Debian 和 Red Hat 的通用 Linux 发行版提供了支持，对其他发行版提供了通用说明。
 
-### 检查硬件配置
+#### 检查硬件配置
 
 - 2 CPU 及以上的处理器
 - 2 GB 及以上内存
 
-### 检查网络配置
+#### 检查网络配置
 
 - 确保集群中的设备可以互通(公有'DNS'或私有‘host’皆可)
-    - 使用 `ping 命令检测
+    - 使用 `ping` 命令检测
 - 集群中每个设备都需要独立的 Hostname, MAC 地址 和 Product_uuid。
     - 使用 `ipconfig -a` 检测 Hostname, MAC 地址 是否冲突
     - 使用 `sudo cat /sys/class/dmi/id/product_uuid` 检测 Product_uuid 是否冲突
@@ -59,7 +57,7 @@ Kubernetes 为基于 Debian 和 Red Hat 的通用 Linux 发行版提供了支持
 > * 标记的端口是可以修改的，确保对应端口开放即可。
 > † 标记的端口是 `NodePort` 服务的默认端口范围。
 
-### 关闭 `Swap`
+#### 关闭 `Swap`
 
 使用如下命令单次禁用 `Swap`
 
@@ -75,7 +73,7 @@ vim /etc/fstab
 
 使用 `#` 号注释 Swap 所处行即可
 
-## 配置 `iptables`
+### 配置 `iptables`
 
 使用如下命令配置网络
 
@@ -91,11 +89,11 @@ EOF
 sudo sysctl --system
 ```
 
-## 配置 Containerd 
+### 配置 Containerd 
 
 > 注：参照 Containerd 文档。
 
-## 安装 `kubeadm`,`kubelet`,`kubectl` 命令
+### 安装 `kubeadm`,`kubelet`,`kubectl` 命令
 
 使用如下命令进行安装
 
@@ -120,7 +118,7 @@ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 sudo systemctl enable --now kubelet
 ```
 
-## 初始化控制节点
+### 初始化控制节点
 
 编写如下配置文件 `kubeadm-config.yaml`：
 
@@ -159,7 +157,7 @@ kubeadm init --config kubeadm-config.yaml -v 5
 
 > 注：如果遇到问题，可以根据命令提示进行修复，并使用 `kubeadm reset -f --cri-socket unix:///run/containerd/containerd.sock` 移除之前的配置。
 
-## 用户配置
+### 用户配置
 
 root 用户配置
 
@@ -179,19 +177,19 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-## 部署网络插件
+### 部署网络插件
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
-## (可选) 在主机上运行除集群管理外的其他服务
+### (可选) 在主机上运行除集群管理外的其他服务
 
 ```bash
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
-## 加入集群
+### 加入集群
 
 - 如果原先 token 过期需要刷新 token，(默认一天)
 
@@ -211,7 +209,7 @@ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outfor
 
 - 运行 join 命令
 
-## 检查集群
+### 检查集群
 
 使用如下命令检查 Kubernetes 节点列表
 
@@ -225,101 +223,8 @@ kubectl get nodes --all-namespaces
 kubectl get pods --all-namespaces
 ```
 
-## 部署 Ingress Controller 
+### 参考资料
 
-使用如下命令部署：
+[官方文档](https://kubernetes.io/)
 
-```bash
-wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
-mv deploy.yaml ingress-nginx-controller.yaml
-sed -i 's#registry.k8s.io/ingress-nginx#registry.aliyuncs.com/google_containers#g' ingress-nginx-controller.yaml
-sed -i 's#registry.aliyuncs.com/google_containers/controller#registry.aliyuncs.com/google_containers/nginx-ingress-controller#g' ingress-nginx-controller.yaml
-kubectl apply -f ingress-nginx-controller.yaml
-```
-
-> 注：最新版本参见 [官方文档](https://github.com/kubernetes/ingress-nginx) 与 [部署说明](https://kubernetes.github.io/ingress-nginx/deploy/)
-
-检查 pod 和 svc 状态：
-
-```bash
-kubectl get pods -n ingress-nginx
-kubectl get svc -n ingress-nginx
-```
-
-> 注：在单节点部署的时候出现了外部 IP 绑定处于 Pending 的状况，使用如下命令进行了配置 `kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer", "externalIPs":["xxx.xxx.xxx.xxx"]}}'`
-
-## 部署仪表板
-
-使用如下命令部署仪表版：
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-```
-
-> 注：最新版本参见 [官方文档](https://github.com/kubernetes/dashboard)
-
-编写 `dashboard-ingress.yaml` 文件开放外网访问：
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-  name: dashboard-ingress
-  namespace: kubernetes-dashboard
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: <host>
-      http:
-        paths:
-          - backend:
-              service:
-                name: kubernetes-dashboard
-                port:
-                  number: 443
-            path: /
-            pathType: Prefix
-status:
-  loadBalancer: {}
-```
-
-> 注：host (样例 `k8s-dashboard.xxx.xxx`) 需要写入 dns 服务器或者 hosts 文件中。
-
-部署完成后可以使用如下命令检查 Ingress 状态，若能获得 ADDRESS 则可以正常访问 `https://<host>`：
-
-```bash
-kubectl get ingress -n kubernetes-dashboard
-```
-
-之后可以新建 `dashboard-sa.yaml` 并填入如下内容和命令来创建 service account 并赋予权限生成 token:
-
-```text
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kubernetes-dashboard
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: admin-user
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: admin-user
-  namespace: kubernetes-dashboard
-```
-
-```bash
-kubectl apply -f dashboard-sa.yaml
-kubectl -n kubernetes-dashboard create token admin-user
-```
-
-将生成的 Token 填入 dashboard 即可。
+[安装文档](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/)
