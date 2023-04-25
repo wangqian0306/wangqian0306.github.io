@@ -42,7 +42,7 @@ yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce
 - 安装软件
 
 ```bash
-yum install -y docker-ce docker-ce-cli containerd.io
+yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 ## 关闭 SELinux

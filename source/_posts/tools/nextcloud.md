@@ -20,6 +20,8 @@ Nextcloud 是一款开源网盘服务。提供了 Windows Linux 和 mac 平台�
 
 #### Docker
 
+##### 本地运行版
+
 编写 `docker-compose.yaml` 文件：
 
 ```yaml
@@ -56,6 +58,9 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
+      - NEXTCLOUD_ADMIN_USER=<username>
+      - NEXTCLOUD_ADMIN_PASSWORD=<password>
+      - NEXTCLOUD_TRUSTED_DOMAINS=<domains_xxx.xxx.xxx xxx.xxx.xxx>
 ```
 
 启动服务
@@ -64,29 +69,13 @@ services:
 docker-compose up -d 
 ```
 
-进入容器本地卷，修改 `/var/lib/docker/volumes/<name>_nextcloud/_data/config/config.php` 文件，修改信任的域名部分
-
-```text
-'trusted_domains' => 
-  array (
-    0 => 'localhost:8080',
-  )
-```
-
-例如：
-
-```text
-'trusted_domains' => 
-  array (
-    0 => 'localhost:8080',
-    1 => '192.168.1.xxx',
-    2 => 'xxx.xxx.xxx'
-  )
-```
-
 登陆网页 [http://localhost:8080](http://localhost:8080) 并根据页面提示进行初始化即可
 
 > 注：建议配合 [客户端](https://nextcloud.com/install/) 一起使用。
+
+##### 公网运行版
+
+此处 NextCloud 提供了 [官方示例](https://github.com/nextcloud/docker/tree/master/.examples)
 
 ### 参考资料
 
