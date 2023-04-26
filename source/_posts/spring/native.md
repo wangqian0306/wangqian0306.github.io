@@ -67,6 +67,8 @@ dnf install freetype freetype-devel -y
 
 在引入 `GraalVM Native Support` 之后，打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，手动标识引入内容。
 
+#### ImportRuntimeHints
+
 ```java
 public class MyRuntimeHints implements RuntimeHintsRegistrar {
 
@@ -94,6 +96,14 @@ public class MyRuntimeHints implements RuntimeHintsRegistrar {
 ```java
 @ImportRuntimeHints(MyRuntimeHints.class)
 ```
+
+#### RegisterReflectionForBinding
+
+在类上直接使用 `@RegisterReflectionForBinding` 注解。
+
+#### Reflective
+
+在方法上使用 `@Reflective` 注解。
 
 ### 参考资料
 
