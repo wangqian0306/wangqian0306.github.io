@@ -86,10 +86,56 @@ subjects:
 
 ```bash
 kubectl apply -f dashboard-sa.yaml
+```
+
+#### Token 方式登录
+
+使用如下命令:
+
+```bash
 kubectl -n kubernetes-dashboard create token admin-user
 ```
 
 将生成的 Token 填入 dashboard 即可。
+
+#### Config 方式登录
+
+在服务器上获取样例配置信息：
+
+```bash
+kubectl config view --raw
+```
+
+使用如下命令生成永不过期的 Token，并将其保存下来:
+
+```bash
+kubectl -n kubernetes-dashboard create token admin-user --duration=0s
+```
+
+参考样例配置，在客户端编写 `config` 文件：
+
+```text
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <certificate-authority-data>
+    server: <server>
+  name: <cluster_name>
+contexts:
+- name: admin-user@<cluster_name>
+  context:
+    cluster: <cluster_name>
+    user: admin-user
+current-context: admin-user@<cluster_name>
+kind: Config
+preferences: {}
+users:
+- name: admin-user
+  user:
+    token: <token>
+```
+
+然后使用此文件登录 dashboard 即可。
 
 ### 参考资料
 
