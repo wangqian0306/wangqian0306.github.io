@@ -215,3 +215,16 @@ public class CustomNamingConf extends CamelCaseToUnderscoresNamingStrategy {
 
 }
 ```
+
+#### 使用自定义的 SQL 文件
+
+在初始化时可以采用自定义的 SQL 文件：
+
+```yaml
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: schema.sql
+      data-locations: data.sql
+```
