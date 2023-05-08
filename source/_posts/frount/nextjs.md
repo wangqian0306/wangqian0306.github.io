@@ -1,5 +1,5 @@
 ---
-title: ncu
+title: Next.js
 date: 2023-03-17 21:41:32
 tags:
 - "Node.js"
@@ -23,8 +23,10 @@ Next.js 是一个用于生产环境的 React 应用框架。Redux 则是一种�
 在安装完 Node 之后就可以使用如下命令快速生成项目
 
 ```bash
-npx create-next-app@latest --typescript
+npx create-next-app@latest
 ```
+
+> 注：注意在创建项目时，不要使用推荐的 App Router ，此选项会使项目结构产生变化，暂时不利于对接其他框架。
 
 ### chakra-ui 插件
 
