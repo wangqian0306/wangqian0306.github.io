@@ -63,6 +63,14 @@ public class KafkaDemoController {
     @Resource
     KafkaTemplate<String, String> kafkaTemplate;
 
+    @Bean
+    public NewTopic topic() {
+        return TopicBuilder.name("topic1")
+                .partitions(10)
+                .replicas(1)
+                .build();
+    }
+
     @GetMapping("/sync")
     public HttpEntity<String> syncSend() {
         try {

@@ -57,6 +57,8 @@ producer.send('<topic>', key=b'<key>', value=b"<value>")
 producer.close()
 ```
 
+> 注：尽量使用域名而不要写 IP 地址！因为此问题在之前的使用过程中遇到了程序正常运行却没有输出的麻瓜问题。
+
 ### Consumer API
 
 Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
