@@ -6,7 +6,7 @@ tags:
 - "Next.js"
 - "React"
 - "Redux"
-id: nextjs
+id: next.js
 no_word_count: true
 no_toc: false
 categories: 前端
@@ -38,7 +38,7 @@ npm i @chakra-ui/react @emotion/react @emotion/styled framer-motion
 
 在安装完成后需要修改 `src/pages/_app.tsx` 文件，引入 ui 插件：
 
-```typescript
+```typescript jsx
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ChakraProvider } from "@chakra-ui/react";
@@ -114,7 +114,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 之后需要编辑 `src/pages/_app.tsx` 文件，引入相关配置：
 
-```typescript
+```typescript jsx
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux';
@@ -174,7 +174,7 @@ export default counterSlice.reducer
 
 创建 `test.tsx` 页面：
 
-```typescript
+```typescript jsx
 import {Box, Button, Flex, Text} from "@chakra-ui/react";
 import {decrement, increment} from "@/features/counter/counterSlice";
 import Head from "next/head";
@@ -232,23 +232,129 @@ export const emptySplitApi = createApi({
 })
 ```
 
-然后需要初始化如下配置 `openapi-config.json` 文件，填入如下内容:
+在项目根目录编写 `openapi-config.ts` 文件，填入如下内容：
 
-```json
-{
-  "schemaFile": "https://petstore3.swagger.io/api/v3/openapi.json",
-  "apiFile": "./src/store/emptyApi.ts",
-  "apiImport": "emptySplitApi",
-  "outputFile": "./src/store/petApi.ts",
-  "exportName": "petApi",
-  "hooks": true
+```typescript
+import type { ConfigFile } from '@rtk-query/codegen-openapi'
+
+const config: ConfigFile = {
+    schemaFile: 'http://localhost:8080/v3/api-docs',
+    apiFile: './store/emptyApi.ts',
+    apiImport: 'emptySplitApi',
+    outputFile: './store/api.ts',
+    exportName: 'api',
+    hooks: true,
 }
+
+export default config
+```
+
+使用如下命令安装相关依赖：
+
+```bash
+npm install -D @rtk-query/codegen-openapi esbuild-runner ts-node
 ```
 
 之后可以使用如下命令生成代码了：
 
 ```bash
 npx @rtk-query/codegen-openapi openapi-config.ts
+```
+
+#### JWT 验证
+
+如果说项目使用了 JWT 等验证方式则需要进一步进行配置，具体样例如下：
+
+编写 `src/store/AuthSlice.ts` 文件并填入如下内容：
+
+```typescript
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+
+interface AuthState {
+  token: string | null;
+}
+
+const initialState: AuthState = {
+  token: null,
+};
+
+const AuthSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setToken: (state:AuthState, action: PayloadAction<string | null>) => {
+      state.token = action.payload;
+    },
+  },
+});
+
+export const {setToken} = AuthSlice.actions;
+
+export default AuthSlice.reducer;
+```
+
+在 `src/store/reducer.ts` 中引入 `authReducer`:
+
+```typescript
+import { combineReducers } from 'redux';
+import counterReducer from '../features/counter/counterSlice'
+import authReducer from './AuthSlice'
+
+// 将抽离的counterReducer 合并到rootRender上
+const rootReducer = combineReducers({
+    counter: counterReducer,
+    auth: authReducer
+});
+
+export default rootReducer;
+```
+
+在 `src/store/emptyApi.ts` 修改请求地址位置并放置 `Token`:
+
+```typescript
+import {BaseQueryFn, createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError} from '@reduxjs/toolkit/query/react'
+import {RootState} from "@/store/store";
+import {setToken} from './AuthSlice';
+
+export interface MessageData {
+    message: string;
+}
+
+const customBaseQuery = fetchBaseQuery({
+    baseUrl: process.env.NODE_ENV === "development" ? 'http://localhost:8080' : '/',
+    prepareHeaders: (headers, api) => addDefaultHeaders(headers, api),
+});
+
+function addDefaultHeaders(headers: Headers, api: { getState: () => unknown }) {
+    headers.set('Accept', 'application/json');
+    headers.set('Content-Type', 'application/json');
+    const token: any = (api.getState() as RootState).auth.token;
+    if (token !== null) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+}
+
+const BaseQueryWithAuth: BaseQueryFn<
+    string | FetchArgs,
+    unknown,
+    FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+    let result = await customBaseQuery(args, api, extraOptions);
+    if (result.error && result.error.status === 401) {
+        api.dispatch(setToken(null));
+    }
+    if (result.error !== undefined) {
+        let message: string = (result.error.data as MessageData).message;
+        console.error(message);
+    }
+    return result;
+};
+
+export const emptySplitApi = createApi({
+    baseQuery: customBaseQuery,
+    endpoints: () => ({}),
+})
 ```
 
 ### 修改内容后自动刷新页面
