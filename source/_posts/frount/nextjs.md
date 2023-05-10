@@ -352,7 +352,7 @@ const BaseQueryWithAuth: BaseQueryFn<
 };
 
 export const emptySplitApi = createApi({
-    baseQuery: customBaseQuery,
+    baseQuery: BaseQueryWithAuth,
     endpoints: () => ({}),
 })
 ```
