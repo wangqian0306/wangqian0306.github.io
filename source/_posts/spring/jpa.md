@@ -133,6 +133,17 @@ public class Test {
 }
 ```
 
+如果需要联表查询则可使用如下的方式：
+
+```java
+public static Specification<Author> hasBookWithTitle(String bookTitle) {
+    return (root, query, criteriaBuilder) -> {
+        Join<Book, Author> authorsBook = root.join("books");
+        return criteriaBuilder.equal(authorsBook.get("title"), bookTitle);
+    };
+}
+```
+
 #### 表名或列名大写
 
 在配置中填入如下内容即可：
