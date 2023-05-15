@@ -172,6 +172,12 @@ public class CustomKafkaListener implements ConsumerSeekAware {
         ack.acknowledge();
     }
 
+    @KafkaListener(topics = "topic", groupId = "#{T(java.util.UUID).randomUUID().toString()}")
+    public void listenBroadcast(ConsumerRecord<String, String> record, Acknowledgment ack) {
+        log.error(record.key() + " " + record.value() + " " + record.partition() + " " + record.offset());
+        ack.acknowledge();
+    }
+
     @KafkaListener(topics = "topic", groupId = "group")
     public void seekListener(ConsumerRecord<String, String> record) {
         if (seekFlag) {
