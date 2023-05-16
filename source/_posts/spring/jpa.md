@@ -239,3 +239,51 @@ spring:
       schema-locations: schema.sql
       data-locations: data.sql
 ```
+
+#### 使用 JPA 中的关系
+
+使用如下模型类：
+
+```java
+@Entity
+@NamedEntityGraph(name = "Item.characteristics",
+        attributeNodes = @NamedAttributeNode("characteristics")
+)
+public class Item {
+
+    @Id
+    private Long id;
+    private String name;
+    
+    @OneToMany(mappedBy = "item")
+    private List<Characteristic> characteristics = new ArrayList<>();
+
+    // getters and setters
+}
+```
+
+```java
+@Entity
+public class Characteristic {
+
+    @Id
+    private Long id;
+    private String type;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    private Item item;
+
+    //Getters and Setters
+}
+```
+
+然后在 Repository 中声明启用相关图即可：
+
+```java
+public interface ItemRepository extends JpaRepository<Item, Long> {
+
+    @EntityGraph(value = "Item.characteristics")
+    Item findByName(String name);
+}
+```
