@@ -101,49 +101,6 @@ public class TestApplication {
 }
 ```
 
-#### 动态构建查询
-
-首先需要在 Repository 中额外引入 `JpaSpecificationExecutor`
-
-```java
-@Repository
-public interface TestRepository extends JpaRepository<Test, String>, JpaSpecificationExecutor<Test> {
-}
-```
-
-然后即可在查询中进行如下操作
-
-```java
-@Service
-public class Test {
-    @Resource
-    private TestRepository testRepository;
-
-    public void test() {
-        testRepository.findAll((root, criteriaQuery, cb) -> {
-            List<Predicate> predicate = new ArrayList<>();
-            // 此处可以添加条件，需要注意的是所填写的列名要和模型对象名一致
-            Path<String> testPath = root.get("test");
-            predicate.add(cb.like(testPath, "test"));
-            Predicate[] pre = new Predicate[predicate.size()];
-            criteriaQuery.where(predicate.toArray(pre));
-            return criteriaQuery.getRestriction();
-        });
-    }
-}
-```
-
-如果需要联表查询则可使用如下的方式：
-
-```java
-public static Specification<Author> hasBookWithTitle(String bookTitle) {
-    return (root, query, criteriaBuilder) -> {
-        Join<Book, Author> authorsBook = root.join("books");
-        return criteriaBuilder.equal(authorsBook.get("title"), bookTitle);
-    };
-}
-```
-
 #### 表名或列名大写
 
 在配置中填入如下内容即可：
@@ -285,5 +242,160 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @EntityGraph(value = "Item.characteristics")
     Item findByName(String name);
+}
+```
+
+#### 动态构建查询
+
+
+##### 基本查询
+
+首先需要在 Repository 中额外引入 `JpaSpecificationExecutor`
+
+```java
+@Repository
+public interface TestRepository extends JpaRepository<Test, String>, JpaSpecificationExecutor<Test> {
+}
+```
+
+然后即可在查询中进行如下操作
+
+```java
+@Service
+public class Test {
+    @Resource
+    private TestRepository testRepository;
+
+    public void test() {
+        testRepository.findAll((root, criteriaQuery, cb) -> {
+            List<Predicate> predicate = new ArrayList<>();
+            // 此处可以添加条件，需要注意的是所填写的列名要和模型对象名一致
+            Path<String> testPath = root.get("test");
+            predicate.add(cb.like(testPath, "test"));
+            Predicate[] pre = new Predicate[predicate.size()];
+            criteriaQuery.where(predicate.toArray(pre));
+            return criteriaQuery.getRestriction();
+        });
+    }
+}
+```
+
+##### 连表查询
+
+如果需要联表查询则可使用如下的方式：
+
+```java
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
+
+@Data
+@Entity
+public class Book {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+}
+```
+
+```java
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@Entity
+public class Author {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Book> books;
+
+}
+```
+
+```java
+@Repository
+public interface AuthorsRepository extends JpaRepository<Author, Long>, JpaSpecificationExecutor<Author> {
+}
+```
+
+```java
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public TestService {
+    public static Specification<Author> hasBookWithTitle(String bookTitle) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Book, Author> authorsBook = root.join("books");
+            return criteriaBuilder.equal(authorsBook.get("title"), bookTitle);
+        };
+    }
+}
+```
+
+##### 引入关系图
+
+在模型上声明关系图：
+
+```java
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@Entity
+@NamedEntityGraph(
+        name = "author.all",
+        includeAllAttributes = true
+)
+public class Author {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstName;
+
+    private String lastName;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Book> books;
+
+}
+```
+
+```java
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AuthorRepository extends JpaRepository<Author,String>, Specification<Author> {
+
+    @EntityGraph(value = "author.all")
+    Page<Author> findAll(Specification<Author> spec, Pageable pageable);
+
 }
 ```
