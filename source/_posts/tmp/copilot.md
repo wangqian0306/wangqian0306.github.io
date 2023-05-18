@@ -106,6 +106,17 @@ class User:
         return '<User %r>' % self.username
 ```
 
+### Copilot Chat
+
+Copilot Chat 是 Copilot X 当中的一个子功能，类似于 ChatGPT。目前使用 Copilot Chat 需要提前进行申请然后等待审批，在审批完成后会收到邮件提示。
+
+在使用时需要先下载：
+
+- [VS Code 内部版](https://code.visualstudio.com/insiders/)
+- [GitHub Copilot Nightly extension 插件](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-nightly)
+
+然后在软件左侧即可看到图标。
+
 ### 参考资料
 
 [官方文档](https://docs.github.com/en/copilot/getting-started-with-github-copilot)
@@ -113,3 +124,5 @@ class User:
 [Github Copilot 使用技巧](https://www.jianshu.com/p/35359b1d0636)
 
 [Using GitHub Copilot to Automate Tests](https://applitools.com/blog/using-github-copilot-to-automate-tests/)
+
+[Github Copilot X](https://github.com/features/preview/copilot-x)
