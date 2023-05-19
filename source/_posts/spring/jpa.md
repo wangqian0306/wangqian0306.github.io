@@ -66,21 +66,35 @@ public class Test {
 }
 ```
 
-创建如下的操作员获取类
+创建如下的操作员获取类：
 
 ```java
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class AuditorConfig implements AuditorAware<String> {
 
+    @NotNull
     @Override
     public Optional<String> getCurrentAuditor() {
-        // 这里应根据实际业务情况获取具体信息
-        return Optional.of(userName);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Jwt) {
+            return Optional.ofNullable(((Jwt) principal).getSubject());
+        } else {
+            return Optional.empty();
+        }
     }
 
 }
 ```
+
+> 注：此样例为 SpringSecurity 启用 JWT 之后获取用户名的方式。
 
 开启编辑审计功能(在启动类中加入下面的注解即可)
 

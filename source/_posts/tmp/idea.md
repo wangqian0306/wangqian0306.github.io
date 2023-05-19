@@ -118,6 +118,46 @@ categories: JetBrains
 |`sout`|System.out.println|
 |`serr`|System.err.println|
 
+## Http 请求工具
+
+随着 IDEA 的更新，目前 http 请求工具现在也可以通过请求设置参数了，比较方便进行测试。
+
+在请求前可以声明当前请求的所属环境配置文件 `http-client.env.json`：
+
+```json
+{
+  "local": {
+    "host": "localhost:8080"
+  },
+  "development": {
+    "host": "xxx.xxx.xxx"
+  },
+  "production": {
+    "host": "xxx.xxx.xxx"
+  }
+}
+```
+
+然后即可编写请求 `check.http`：
+
+```text
+### LOGIN
+POST http://{{host}}/api/v1/user/login
+Content-Type: application/json
+
+{
+  "username": "xxxxx",
+  "password": "xxxxx"
+}
+
+> {% client.global.set("token", response.body.token); %}
+
+### GET_CURRENT_USER
+GET http://{{host}}/api/v1/user
+Authorization: Bearer {{token}}
+Content-Type: application/json
+```
+
 ## 常见问题
 
 ### 在 Linux 环境中无法输入中文
