@@ -366,3 +366,48 @@ public TestService {
     }
 }
 ```
+
+#### QueryDSL 
+
+> 注：和 Specification 类似，但是对 GraphQL 更友好。且官网建议用 Maven，样例也没一个是 Gradle，所以此处暂时先用 Maven。
+
+引入依赖：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.querydsl</groupId>
+        <artifactId>querydsl-jpa</artifactId>
+        <version>${querydsl.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.querydsl</groupId>
+        <artifactId>querydsl-apt</artifactId>
+        <version>${querydsl.version}</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+安装插件：
+
+```xml
+<plugin>
+    <groupId>com.mysema.maven</groupId>
+    <artifactId>apt-maven-plugin</artifactId>
+    <version>1.1.3</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>process</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>target/generated-sources/java</outputDirectory>
+                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+编写模型，然后使用 `mvn compile` 即可在对应目录找到查询类。
