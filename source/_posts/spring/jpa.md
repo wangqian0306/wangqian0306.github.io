@@ -369,7 +369,9 @@ public TestService {
 
 #### QueryDSL 
 
-> 注：和 Specification 类似，但是对 GraphQL 更友好。且官网建议用 Maven，样例也没一个是 Gradle，所以此处暂时先用 Maven。
+> 注：和 Specification 类似，但是对 GraphQL 更友好。
+
+- Maven
 
 引入依赖：
 
@@ -410,4 +412,21 @@ public TestService {
 </plugin>
 ```
 
-编写模型，然后使用 `mvn compile` 即可在对应目录找到查询类。
+编写模型，加上 `@Table` 与 `@Entity` 注解，然后使用 `mvn compile` 即可在对应目录找到查询类。
+
+- Gradle
+
+引入依赖：
+
+```grovvy
+dependencies {
+    implementation("com.querydsl:querydsl-core:5.0.0")
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor(
+            "com.querydsl:querydsl-apt:5.0.0:jakarta",
+            "jakarta.persistence:jakarta.persistence-api:3.1.0"
+    )
+}
+```
+
+编写模型，加上 `@Table` 与 `@Entity` 注解，然后使用 `./gradlew compileJava` 即可在对应目录找到查询类。
