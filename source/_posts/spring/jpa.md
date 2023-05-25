@@ -430,3 +430,85 @@ dependencies {
 ```
 
 编写模型，加上 `@Table` 与 `@Entity` 注解，然后使用 `./gradlew compileJava` 即可在对应目录找到查询类。
+
+如果准备与 SpringDataJpa 一起使用则可以依照如下方式编写 Repository :
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AuthorRepository extends JpaRepository<Author, Long>, QuerydslPredicateExecutor<Author> {
+}
+```
+
+然后按如下方式进行查询即可:
+
+```java
+import com.querydsl.core.types.Predicate;
+import jakarta.annotation.Resource;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class TestController {
+
+    @Resource
+    private AuthorRepository authorRepository;
+
+    @QueryMapping
+    Iterable<Author> authors(@Argument String name) {
+        if (name != null) {
+            QAuthor author = QAuthor.author;
+            Predicate predicate = author.name.eq(name);
+            return authorRepository.findAll(predicate);
+        } else {
+            return authorRepository.findAll();
+        }
+    }
+}
+```
+
+如果使用 QueryDSL 原始的查询方式则可以按照如下方式编写代码:
+
+```java
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class QueryDSLConfig {
+    @Bean
+    public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
+        return new JPAQueryFactory(entityManager);
+    }
+
+}
+```
+
+```java
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.Resource;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class TestController {
+
+    @Resource
+    private JPAQueryFactory queryFactory;
+
+    @QueryMapping
+    Iterable<Author> queryAuthor(@Argument String name, @Argument String publisher) {
+        QAuthor author = QAuthor.author;
+        QBook book = QBook.book;
+        return queryFactory.selectFrom(author).leftJoin(author.books, book).fetchJoin().where(author.name.like(name).and(book.publisher.eq(publisher))).fetch();
+    }
+
+}
+```
