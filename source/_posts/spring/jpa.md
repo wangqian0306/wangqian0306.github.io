@@ -512,3 +512,31 @@ public class TestController {
 
 }
 ```
+
+返回分页对象：
+
+```java
+import com.querydsl.core.QueryResults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+public interface OrderRepository extends JpaRepository<Order, Long>, QuerydslPredicateExecutor<Order> {
+    default Page<Order> findAllWithCustomer(Pageable pageable) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(this.getEntityManager());
+        QOrder qOrder = QOrder.order;
+
+        QueryResults<Order> queryResults = queryFactory.selectFrom(qOrder)
+                .leftJoin(qOrder.customer, QCustomer.customer)
+                .fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+
+        List<Order> orders = queryResults.getResults();
+        long total = queryResults.getTotal();
+
+        return new PageImpl<>(orders, pageable, total);
+    }
+}
+```

@@ -270,4 +270,6 @@ query {
 
 [Introduction to Spring GraphQL with Spring Boot](https://www.youtube.com/watch?v=atA2OovQBic)
 
-[官方文档](https://docs.spring.io/spring-graphql/docs/current/reference/html/)
+[Spring Fro GraphQL 官方文档](https://docs.spring.io/spring-graphql/docs/current/reference/html/)
+
+[GraphQL 官方文档](https://graphql.org/learn/)
