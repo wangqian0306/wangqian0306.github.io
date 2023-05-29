@@ -266,6 +266,14 @@ query {
 }
 ```
 
+### 常见问题
+
+#### 数据分页
+
+GraphQL 本身包含自己的 [分页请求模型与方式](https://graphql.org/learn/pagination/) ，与 SpringData 的 Page 类不同。可以采用 Slice 类作为替代。
+
+> 注：此处 Spring 官方文档当中大致说明了实现方式，但是我没看懂，也没找到样例代码。 
+
 ### 参考资料
 
 [Introduction to Spring GraphQL with Spring Boot](https://www.youtube.com/watch?v=atA2OovQBic)

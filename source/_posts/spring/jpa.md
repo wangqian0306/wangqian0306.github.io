@@ -19,6 +19,32 @@ Spring Data JPA 旨在通过减少实际需要的工作量来显着改进数据�
 
 ### 常见使用方式
 
+#### Repository 中的返回对象及分页与排序参数
+
+在查询大量数据时，Spring 提供了多种的返回对象与输入参数，可以在不同情况下进行采用。
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserRepository extends JpaRepository<User,Long> {
+    
+    // 较为适合 RESTful
+    Page<User> findByLastname(String lastname, Pageable pageable);
+
+    // 较为适合 GraphQL
+    Slice<User> findByLastname(String lastname, Pageable pageable);
+
+    Window<User> findTop10ByLastname(String lastname, ScrollPosition position, Sort sort);
+
+    List<User> findByLastname(String lastname, Sort sort);
+
+    List<User> findByLastname(String lastname, Pageable pageable);
+
+}
+```
+
 #### 自动获取更新时间创建时间等内容
 
 首先需要按照如下样例创建模型类
