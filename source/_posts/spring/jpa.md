@@ -539,30 +539,41 @@ public class TestController {
 }
 ```
 
-返回分页对象：
+> 注：此处实现过程中遇到了一些问题：
 
 ```java
-import com.querydsl.core.QueryResults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 
-public interface OrderRepository extends JpaRepository<Order, Long>, QuerydslPredicateExecutor<Order> {
-    default Page<Order> findAllWithCustomer(Pageable pageable) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(this.getEntityManager());
-        QOrder qOrder = QOrder.order;
+import java.util.List;
 
-        QueryResults<Order> queryResults = queryFactory.selectFrom(qOrder)
-                .leftJoin(qOrder.customer, QCustomer.customer)
-                .fetchJoin()
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetchResults();
+@Slf4j
+@Controller
+public class TestController {
 
-        List<Order> orders = queryResults.getResults();
-        long total = queryResults.getTotal();
+    @Resource
+    private JPAQueryFactory queryFactory;
 
-        return new PageImpl<>(orders, pageable, total);
+    @QueryMapping
+    List<Author> pageAuthor(@Argument String name, @Argument String publisher) {
+        QAuthor author = QAuthor.author;
+        QBook book = QBook.book;
+        JPAQuery<Author> query = queryFactory.selectFrom(author).leftJoin(author.books, book).fetchJoin().where(author.name.like(name).and(book.publisher.eq(publisher)));
+        Long count = queryFactory.selectFrom(author).leftJoin(author.books, book).fetchJoin().where(author.name.like("Josh").and(book.publisher.eq("wq"))).fetchCount();
+        log.error(count.toString()); // 2
+        List<Author> authors = query.fetch();
+        log.error(String.valueOf(authors.size())); // 1
+        return authors;
     }
 }
 ```
+
+> 注：此处 QueryDSL 自己做了数据合并，关于包装分页对象的逻辑待完成。
