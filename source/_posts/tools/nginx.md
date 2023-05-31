@@ -23,12 +23,15 @@ Nginx 是一个高性能的 HTTP 和反向代理 web 服务器。
 version: "3"
 services:
   nginx:
-    image: "nginx:latest" 
+    image: nginx:latest
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - <path>/nginx.conf:/etc/nginx/nginx.conf
+      - <path>/html:/usr/share/nginx/html:ro
 ```
+
+> 注：如果部署之后出现访问权限异常，则最好先检查下文件，重新构建一次前端项目试试。
 
 ### 常见使用模式
 
