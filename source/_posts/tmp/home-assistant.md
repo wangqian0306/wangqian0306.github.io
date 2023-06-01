@@ -54,6 +54,12 @@ HomeAssistant 还支持很多官方插件，可以控制智能家居或者安装
 
 - Xiaomi Miot Auto(小米独有规范集成插件)
 
+### 自动化设置
+
+#### 蓝图
+
+[样例](https://github.com/home-assistant/core/blob/dev/homeassistant/components/automation/blueprints/motion_light.yaml)
+
 ### 自定义面板
 
 在 GitHub 上有很多的 Home-Assistant 仪表盘配置样例，可以美化面板。
