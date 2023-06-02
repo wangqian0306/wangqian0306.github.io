@@ -539,21 +539,20 @@ public class TestController {
 }
 ```
 
-> 注：此处实现过程中遇到了一些问题：
+分页和排序功能如下：
 
 ```java
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
-
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -563,17 +562,20 @@ public class TestController {
     private JPAQueryFactory queryFactory;
 
     @QueryMapping
-    List<Author> pageAuthor(@Argument String name, @Argument String publisher) {
+    Page<Author> pageAuthor(@Argument String name, @Argument String publisher) {
+        Pageable pageable = PageRequest.of(0, 2);
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
         QAuthor author = QAuthor.author;
         QBook book = QBook.book;
+        List<Long> count = queryFactory.select(author.id.countDistinct()).from(author).leftJoin(book).on(book.author.id.eq(author.id)).where(author.name.like(name).and(book.publisher.eq(publisher))).fetch();
+        PathBuilder<Author> authorPathBuilder = new PathBuilder<>(Author.class, author.getMetadata().getName());
         JPAQuery<Author> query = queryFactory.selectFrom(author).leftJoin(author.books, book).fetchJoin().where(author.name.like(name).and(book.publisher.eq(publisher)));
-        Long count = queryFactory.selectFrom(author).leftJoin(author.books, book).fetchJoin().where(author.name.like("Josh").and(book.publisher.eq("wq"))).fetchCount();
-        log.error(count.toString()); // 2
-        List<Author> authors = query.fetch();
-        log.error(String.valueOf(authors.size())); // 1
-        return authors;
+        sort.get().forEach(order -> query.orderBy(QueryDSLUtil.toOrderSpecifier(order, authorPathBuilder)));
+        query.offset(pageable.getOffset());
+        query.limit(pageable.getPageSize());
+        return new PageImpl<>(query.fetch(), pageable, count.get(0));
     }
 }
 ```
 
-> 注：此处 QueryDSL 自己做了数据合并，关于包装分页对象的逻辑待完成。
+> 注：此处由于检索逻辑复杂，所以 QueryDSL 在内存中做了数据合并，并不能依照正常的方式完成数据分页，在使用时需要尤其注意。
