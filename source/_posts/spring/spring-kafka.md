@@ -209,6 +209,35 @@ public class CustomKafkaListener implements ConsumerSeekAware {
 
 > 注: consumer-concurrency 可以配置 Consumer 的线程数。且 seek 操作需要在有数据消费时才能触发。
 
+### 单元测试
+
+在单元测试中可以加入 `@EmbeddedKafka` 注解进行单元测试，样例如下
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@EmbeddedKafka(partitions = 1, brokerProperties = {
+    "listeners=PLAINTEXT://localhost:9092", "port=9092"
+})
+public class KafkaConsumerTest {
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private KafkaConsumer kafkaConsumer;
+
+    @Test
+    public void testReceive() throws Exception {
+        String message = "Hello, world!";
+        kafkaTemplate.send("test-topic", message);
+        kafkaConsumer.getLatch().await(10000, TimeUnit.MILLISECONDS);
+        assertThat(kafkaConsumer.getLatch().getCount()).isEqualTo(0);
+        assertThat(kafkaConsumer.getPayload()).isEqualTo(message);
+    }
+}
+```
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-kafka/docs/current/reference/html/#preface)

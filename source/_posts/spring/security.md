@@ -515,6 +515,30 @@ public class OpenAPIConf {
 }
 ```
 
+### 单元测试
+
+在测试中可以使用如下方式指定测试用户：
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class UserControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    @WithMockUser(username = "user", roles = "USER")
+    public void testGetUser() throws Exception {
+        mockMvc.perform(get("/api/users/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.username").value("user"));
+    }
+}
+```
+
 ### 参考资料
 
 [Spring Security 例程](https://github.com/spring-projects/spring-security-samples)
