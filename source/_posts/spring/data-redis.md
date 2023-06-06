@@ -73,6 +73,10 @@ public class RedisUtil {
 
 [拒绝原文](https://github.com/spring-projects/spring-data-redis/issues/1937)
 
+### 单元测试
+
+在编写单元测试时需要加上 `@DataRedisTest` 注解，此注解会使用内存数据库进行测试，而不会产生多余的测试数据。 
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)

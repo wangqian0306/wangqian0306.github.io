@@ -266,6 +266,25 @@ query {
 }
 ```
 
+### IDEA 插件
+
+在 IDEA 插件中可以找到 GraphQL 插件，此插件可以完成一些代码提示和运行测试的功能。
+
+在安装完成后可以编写如下配置文件 `graphql.config.yaml`：
+
+```yaml
+schema: schema.graphqls
+documents: '**/*.graphql'
+exclude: 'src/**/__tests__/**'
+include: src/**
+extensions:
+  endpoints:
+    default:
+      url: http://localhost:8080/graphql
+      headers:
+        Authorization: Bearer ${TOKEN}
+```
+
 ### 常见问题
 
 #### 数据分页
