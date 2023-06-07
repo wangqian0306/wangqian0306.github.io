@@ -285,6 +285,47 @@ extensions:
         Authorization: Bearer ${TOKEN}
 ```
 
+### 单元测试
+
+可以编写如下样例进行单元测试：
+
+```java
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.security.test.context.support.WithMockUser;
+
+@Import({AuthorRepository.class})
+@DataJpaTest
+@AutoConfigureGraphQlTester
+@AutoConfigureMockMvc
+class TestControllerTest {
+
+    @Resource
+    private GraphQlTester graphQlTester;
+
+    @Test
+    @WithMockUser(username = "test", roles = "USER")
+    void testFindAll() {
+        // language=GraphQL
+        String document = """
+                query {
+                  authors {
+                    id
+                    name
+                  }
+                }
+                """;
+        graphQlTester.document(document).execute().path("authors").entityList(Author.class).hasSize(2);
+    }
+
+}
+```
+
 ### 常见问题
 
 #### 数据分页
