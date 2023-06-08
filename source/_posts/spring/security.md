@@ -231,30 +231,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .cors().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasAuthority(ADMIN_ROLE_NAME)
+                        .requestMatchers("/api/v1/admin").hasAuthority(ADMIN_ROLE_NAME)
+                        .requestMatchers("/api/v1/notice").hasAnyAuthority(USER_ROLE_NAME, ADMIN_ROLE_NAME)
+                        .anyRequest().authenticated()
+                )
+                .csrf((csrf) -> csrf.ignoringRequestMatchers("/token"))
                 .httpBasic(Customizer.withDefaults())
-                .authorizeHttpRequests()
-                .requestMatchers(AUTH_WHITELIST).permitAll()
-                .requestMatchers("/api/v1/admin/**").hasAuthority(ADMIN_ROLE_NAME)
-                .requestMatchers("/api/v1/admin").hasAuthority(ADMIN_ROLE_NAME)
-                .requestMatchers("/api/v1/notice").hasAnyAuthority(USER_ROLE_NAME, ADMIN_ROLE_NAME)
-                .anyRequest().authenticated()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .exceptionHandling()
-                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                .accessDeniedHandler(new BearerTokenAccessDeniedHandler());
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                        )
+                )
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()));
         return http.build();
-    }
-
-    @Bean
-    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-        return new SecurityEvaluationContextExtension();
     }
 
     @Bean
@@ -383,7 +380,7 @@ public class UserServiceImpl implements UserService {
         if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
             loginResponse.setToken(generateToken(userDetails));
         } else {
-            throw new ReportBadException(ErrorEnum.PASSWORD_MISMATCH);
+            throw new RuntimeException("Invalid password");
         }
         return loginResponse;
     }
@@ -392,7 +389,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()){
-            throw new ReportBadException(ErrorEnum.NOT_FOUND_EXCEPTION);
+            throw new RuntimeException("Not Found");
         }
         return optionalUser.get();
     }
@@ -410,6 +407,69 @@ public class UserServiceImpl implements UserService {
                 .claim("scope", scope)
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+}
+```
+
+```java
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@Getter
+@Setter
+public class CustomUserPrincipal implements UserDetails {
+
+    private CustomUser user;
+
+    public CustomUserPrincipal(CustomUser user) {
+        this.user = user;
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.getEnabled();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
     }
 
 }
@@ -442,7 +502,7 @@ public class UserController {
             String username = ((Jwt) principal).getSubject();
             return ResponseEntity.ok(userService.getUserByUsername(username));
         } else {
-            throw new ReportBadException(ErrorEnum.TOKEN_EXCEPTION);
+            throw new RuntimeException("Token error");
         }
     }
 
@@ -512,6 +572,18 @@ public class OpenAPIConf {
                                         "Provide the JWT token. JWT token can be obtained from the Login API. For testing, use the credentials <strong>john/password</strong>")
                                 .bearerFormat("JWT")));
     }
+}
+```
+
+### 与 Spring Data 集成
+
+可以在依赖中添加 `org.springframework.security:spring-security-data` 来与 SpringData 集成，通过下面的查询直接返回用户所拥有的内容：
+
+```java
+@Repository
+public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
+	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
+	Page<Message> findInbox(Pageable pageable);
 }
 ```
 
