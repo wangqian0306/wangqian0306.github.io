@@ -249,8 +249,9 @@ public class SecurityConfig {
                         )
                 )
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling((exceptions) -> exceptions
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()));
+                .exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                );
         return http.build();
     }
 
@@ -510,6 +511,16 @@ public class UserController {
     @Operation(summary = "login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(userService.login(loginRequest));
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<List<String>> authorities() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<String> authorities = new ArrayList<>();
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            authorities.add(authority.getAuthority());
+        }
+        return ResponseEntity.ok(authorities);
     }
 
 }
