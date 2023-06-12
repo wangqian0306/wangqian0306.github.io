@@ -17,6 +17,8 @@ categories: JAVA
 
 在需要将带有额外包的程序部署在集群上的时候，可以通过使用下面的方式将外部包与代码进行合并打包。
 
+> 注：如果是 Spring Boot 项目则可以直接使用 GraalVM Native Support 打包成可执行文件。
+
 ### Maven
 
 样例如下：

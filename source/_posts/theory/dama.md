@@ -19,7 +19,7 @@ DAMA 国际是一个全球性数据管理和业务专业志愿人士组成的非
 
 ### 主要讲述的内容
 
-![DAMA 车轮图](https://s6.jpg.cm/2022/09/22/Pb7YEp.png)
+![DAMA 车轮图](https://d3lut3gzcpx87s.cloudfront.net/image_encoded/aHR0cHM6Ly9zaWxrc3RhcnQuczMuYW1hem9uYXdzLmNvbS81ZjhmMWYxNTE5OTVjNzQyN2RkNzNmOGMuanBn/x)
 
 - 数据治理(Data Governance)通过建立一个能够满足企业数据需求的决策体系，为数据管理提供指导和监督
 - 数据架构(Data Architecture)定义了与组织战略协调的管理数据资产蓝图，以建立战略性数据需求及满足需求的总体设计
