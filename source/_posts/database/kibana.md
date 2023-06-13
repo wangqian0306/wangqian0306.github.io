@@ -4,7 +4,7 @@ date: 2022-09-07 23:09:32
 tags:
 - "Kibana"
 - "Elastic Stack"
-id: elasticsearch
+id: kibana
 no_word_count: true
 no_toc: false
 categories: "Elastic Stack"
@@ -140,8 +140,58 @@ volumes:
 
 > 注：容器启动之后需要等待 `startup` 服务完成配置。之后即可使用 `elastic` 账户和之前配置的密码访问 [kibana](http://localhost:5601)
 
+### RPM 部署
+
+使用如下命令配置依赖：
+
+```bash
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+vim /etc/yum.repos.d/kibana.repo
+```
+
+然后填入如下内容：
+
+```text
+[kibana-8.x]
+name=Kibana repository for 8.x packages
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+```
+
+使用如下命令进行安装：
+
+```bash
+sudo yum install kibana
+```
+
+使用如下命令启动服务：
+
+```bash
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable kibana.service
+sudo systemctl start kibana.service
+```
+
+- 配置
+
+软件配置在 `/etc/kibana` 目录中。
+
+默认日志在 `/var/log/kibana` 目录中。
+
+- 关闭服务
+
+```bash
+sudo systemctl stop kibana.service
+```
+
 ### 参考资料
 
 [官方文档](https://www.elastic.co/guide/en/kibana/current/introduction.html)
 
 [容器说明](https://hub.docker.com/_/kibana)
+
+[安装手册](https://www.elastic.co/guide/en/kibana/8.8/rpm.html)

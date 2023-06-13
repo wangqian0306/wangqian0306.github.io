@@ -21,23 +21,27 @@ Elasticsearch 是一个分布式、RESTful 风格的搜索和数据分析引擎�
 在 CentOS 中可以使用如下命令配置软件源
 
 ```bash
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 vim /etc/yum.repos.d/elastic.repo
 ```
 
 写入如下配置项即可
 
 ```text
-[elastic]
-name=elastic
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/elasticstack/yum/elastic-7.x/
-enable=1
-gpgcheck=0
+[elasticsearch]
+name=Elasticsearch repository for 8.x packages
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=0
+autorefresh=1
+type=rpm-md
 ```
 
 在写入完成后可以使用如下命令安装软件
 
 ```bash
-yum install elasticsearch -y
+sudo yum install --enablerepo=elasticsearch elasticsearch
 ```
 
 - 配置
@@ -51,6 +55,20 @@ yum install elasticsearch -y
 Xms 和 Xms 设置成一样。
 
 XMx 不要超过机器内存的 50 %，不要超过 30 GB。
+
+- 启动服务
+
+```bash
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+sudo systemctl start elasticsearch.service
+```
+
+- 关闭服务
+
+```bash
+sudo systemctl stop elasticsearch.service
+```
 
 ### 容器化安装
 
@@ -433,3 +451,5 @@ DELETE demo/_doc/1
 ### 参考资料
 
 [官方文档](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
+
+[安装手册](https://www.elastic.co/guide/en/elasticsearch/reference/8.8/rpm.html#rpm-running-systemd)
