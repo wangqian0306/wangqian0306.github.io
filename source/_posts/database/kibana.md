@@ -182,11 +182,30 @@ sudo systemctl start kibana.service
 
 默认日志在 `/var/log/kibana` 目录中。
 
+> 注：默认 kibana 不会开放外部访问，如有需求请参照注释编辑 kibana.yml 文件。
+
+样例配置如下：
+
+```yaml
+server.host: "xxx.xxx.xxx.xxx"
+elasticsearch.ssl.certificate: /etc/kibana/certs/http_ca.crt
+```
+
 - 关闭服务
 
 ```bash
 sudo systemctl stop kibana.service
 ```
+
+等待服务启动完成后即可访问 [kibana](http://localhost:5601) 页面进行初始化配置。
+
+在运行 ElasticSearch 的设备上运行如下命令获取 token：
+
+```bash
+/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+```
+
+> 注：使用此 Token 可以快速初始化 Kibana ，需要注意的是目前页面上显示的链接地址如果错误也可以尝试下一步，遇到问题再去使用手动配置方式。
 
 ### 参考资料
 

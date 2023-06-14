@@ -19,23 +19,27 @@ Logstash 是免费且开放的服务器端数据处理管道，能够从多个�
 在 CentOS 中可以使用如下命令配置软件源
 
 ```bash
-vim /etc/yum.repos.d/elastic.repo
+sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+vim /etc/yum.repos.d/logstash.repo
 ```
 
 写入如下配置项即可
 
 ```text
-[elastic]
-name=elastic
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/elasticstack/yum/elastic-7.x/
-enable=1
-gpgcheck=0
+[logstash-8.x]
+name=Elastic repository for 8.x packages
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
 ```
 
 在写入完成后可以使用如下命令安装 logstash 软件
 
 ```bash
-yum install logstash -y
+sudo yum install logstash -y
 ```
 
 ## 配置
