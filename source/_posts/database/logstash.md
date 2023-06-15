@@ -92,33 +92,39 @@ systemctl disable logstash
 
 ### 读取 Kafka 将数据写入 Elasticsearch
 
+例如：`kafka-to-es.conf`
+
 ```text
 input {
     kafka {
-        bootstrap_servers => ["demo.wqnice.local:9092"]
+        bootstrap_servers => ["rbfish-07.rainbowfish11000.prod:9092,rbfish-08.rainbowfish11000.prod:9092,rbfish-09.rainbowfish11000.prod:9092"]
         auto_commit_interval_ms => "1000"
-        group_id => "demo"
+        group_id => "LOGSTASH"
         codec => "json"
         auto_offset_reset => "latest"
-        consumer_threads => 5
+        consumer_threads => 1
         decorate_events => true
-        topics => ["demo"]
-        type => "demo"
+        topics => ["ShipAnalise"]
     }
 }
+
 output {
-    if[type] == "demo" {
-        elasticsearch {
-            hosts => ["demo.wqnice.prod:9200"]
-            index => "demo-%{+YYYY.MM.dd}"
-            manage_template => true
-            codec => "json"
-        }
+    elasticsearch {
+        hosts => ["https://xxx.xxx.xxx.xxx:9200"]
+        index => "xxxx-%{+YYYY.MM.dd}"
+        ssl => true
+        cacert => "/xxxx/xxx/http_ca.crt"
+        user => "xxxxx"
+        password => "xxxxxx"
     }
 }
 ```
 
+> 注：cacert 别放到 /etc/logstash 里，有权限问题。
+
 ### 从 Elasticsearch 迁移至 Elasticsearch
+
+例如：`es-to-es.conf`
 
 ```text
 input {
@@ -140,3 +146,9 @@ output {
   }
 }
 ```
+
+### 参考资料
+
+[官方文档](https://www.elastic.co/guide/en/logstash/current/introduction.html)
+
+[安装手册](https://www.elastic.co/guide/en/logstash/current/installing-logstash.html)
