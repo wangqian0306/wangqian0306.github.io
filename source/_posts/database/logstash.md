@@ -92,7 +92,7 @@ systemctl disable logstash
 
 ### 读取 Kafka 将数据写入 Elasticsearch
 
-例如：`kafka-to-es.conf`
+例如：`kafka-to-es.conf` 建议先去 ES 里创建 IndexTemplate 和 KafkaTopic 然后再来编写如下样例程序：
 
 ```text
 input {
@@ -112,6 +112,7 @@ output {
     elasticsearch {
         hosts => ["https://xxx.xxx.xxx.xxx:9200"]
         index => "xxxx-%{+YYYY.MM.dd}"
+        template_name => "xxxx"
         ssl => true
         cacert => "/xxxx/xxx/http_ca.crt"
         user => "xxxxx"
