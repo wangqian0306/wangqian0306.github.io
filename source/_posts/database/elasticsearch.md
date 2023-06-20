@@ -400,6 +400,7 @@ DELETE demo/_doc/1
 ```json
 {
   "size": 0,
+  "query": {},
   "aggs": {
     "<result_field>": {
       "AGG_TYPE": {}
@@ -421,6 +422,36 @@ DELETE demo/_doc/1
       "aggs": {
         "sum": {
           "field": "<field>"
+        }
+      }
+    }
+  }
+}
+```
+
+按照时间聚合：
+
+```json
+{
+  "size": 0,
+  "aggs": {
+    "group_by_xxx": {
+      "terms": {
+        "field": "xxx"
+      },
+      "aggs": {
+        "window_by_hour": {
+          "date_histogram": {
+            "field": "xxx",
+            "interval": "1d"
+          },
+          "aggs": {
+            "avg_xxx": {
+              "avg": {
+                "field": "xxx"
+              }
+            }
+          }
         }
       }
     }
