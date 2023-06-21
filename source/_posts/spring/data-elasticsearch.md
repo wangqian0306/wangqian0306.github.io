@@ -150,6 +150,23 @@ spring:
 
 > 注：bundle 方式还可以用到其他需要 SSL 配置的数据库中，例如：MongoDB，Redis 等。
 
+### 复杂查询
+
+#### IN 查询
+
+```java
+TermsQueryField termsQueryField = new TermsQueryField.Builder()
+                    .value(List.of("1","2","3").stream().map(FieldValue::of).toList())
+                    .build();
+```
+
+#### 子查询
+
+```java
+Aggregation avgAgg = AggregationBuilders.avg(a -> a.field("value"));
+Aggregation dateAgg = new Aggregation.Builder().dateHistogram(dH -> dH.field("messageTime").calendarInterval(CalendarInterval.Hour)).aggregations("avg_value",avgAgg).build();
+```
+
 ### 单元测试
 
 在单元测试时可以加上 `@DataElasticsearchTest` 注解避免实际插入数据。
