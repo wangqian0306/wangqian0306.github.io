@@ -162,9 +162,26 @@ TermsQueryField termsQueryField = new TermsQueryField.Builder()
 
 #### 子查询
 
+构建查询：
+
 ```java
+NativeQueryBuilder nativeQueryBuilder = NativeQuery.builder();
 Aggregation avgAgg = AggregationBuilders.avg(a -> a.field("value"));
 Aggregation dateAgg = new Aggregation.Builder().dateHistogram(dH -> dH.field("messageTime").calendarInterval(CalendarInterval.Hour)).aggregations("avg_value",avgAgg).build();
+nativeQueryBuilder.withAggregation("agg_by_date", dateAgg);
+NativeQuery nativeQuery = nativeQueryBuilder.build()
+```
+
+结果解析：
+
+```java
+List<ElasticsearchAggregation> aggregationList = (List<ElasticsearchAggregation>) searchHit.getAggregations().aggregations();
+for (ElasticsearchAggregation elasticsearchAggregation : aggregationList) {
+    List<DateHistogramBucket> byHour = elasticsearchAggregation.aggregation().getAggregate().dateHistogram().buckets().array();
+    for (DateHistogramBucket dbk : byHour) {
+        Double value = dbk.aggregations().get("avg_value").avg().value()
+    }
+}
 ```
 
 ### 单元测试
