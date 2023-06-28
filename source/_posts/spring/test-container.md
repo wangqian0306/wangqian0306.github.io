@@ -61,24 +61,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import net.bytebuddy.utility.dispatcher.JavaDispatcher.Container;
 
 @SpringBootTest
 @Testcontainers
 class DemoApplicationTests {
 
-	@Container
+    @Container
     @ServiceConnection
-    static MySQLContainer<?> mysqlContainer() {
-        return new MySQLContainer<>("mysql:latest");
-    }
+    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:latest");
 
-	@Test
-	void contextLoads() {
-		
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
 ```
