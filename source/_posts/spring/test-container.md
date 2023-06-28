@@ -17,6 +17,24 @@ categories: Spring
 
 Testcontainers 是一个开源框架，用于提供数据库、消息总线、WEB 浏览器或任何可以在 Docker 容器中运行的东西的一次性轻量级实例。
 
+目前，SpringBoot 支持了如下这些容器：
+
+- `CassandraContainer`
+- `CouchbaseContainer`
+- `ElasticsearchContainer`
+- `GenericContainer` 可以使用 `redis` 或 `openzipkin/zipkin`
+- `JdbcDatabaseContainer`
+- `KafkaContainer`
+- `MongoDBContainer`
+- `MariaDBContainer`
+- `MSSQLServerContainer`
+- `MySQLContainer`
+- `Neo4jContainer`
+- `OracleContainer`
+- `PostgreSQLContainer`
+- `RabbitMQContainer`
+- `RedpandaContainer`
+
 ### 使用方式
 
 在项目创建的时候引入 `Testcontainer`，在样例中以 MySQL 作为样例，依赖如下：
