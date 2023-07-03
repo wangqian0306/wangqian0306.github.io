@@ -17,7 +17,11 @@ categories: Spring
 
 Spring Authorization Server 是一个框架，提供 OAuth 2.1 和 OpenID Connect 1.0 规范以及其他相关规范的实现。
 
+通常与 Spring Authorization Server 一起使用的组件还有 OAuth2 Resource Server (负责保护受保护的资源，并验证访问令牌以确保客户端和用户有权访问这些资源。) 和 OAuth2 Client (负责代表用户请求所需资源)
+
 ### 使用方式
+
+#### OAuth2 Authorization Server
 
 在创建项目时引入 `OAuth2 Authorization Server` 依赖即可，样例如下：
 
@@ -47,18 +51,21 @@ spring:
         client:
           client-1:
             registration:
-              client-id: "admin-client"
+              client-id: "client"
               # the client secret is "secret" (without quotes)
               client-secret: "{bcrypt}$2a$10$jdJGhzsiIqYFpjJiYWMl/eKDOd8vdyQis2aynmFN0dgJ53XvpzzwC"
               client-authentication-methods: "client_secret_basic"
-              authorization-grant-types: "client_credentials"
+              authorization-grant-types: "client_credentials,authorization_code,refresh_token"
+              redirect-uris: "http://127.0.0.1:8082/login/oauth2/code/spring"
               scopes: "user.read,user.write"
+            token:
+              access-token-time-to-live: 1d              
 ```
 
 启动程序然后使用如下命令即可获得 Token:
 
 ```bash
-http -f POST :8080/oauth2/token grant_type=client_credentials scope='user.read' -a admin-client:secret
+http -f POST :8080/oauth2/token grant_type=client_credentials scope='user.read' -a client:secret
 ```
 
 > 注：如果没有 httpie 工具则可以使用 IDEA 自带的 Http 工具。
@@ -70,6 +77,144 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials&scope=user.read
 ```
+
+#### OAuth2 Resource Server
+
+在创建项目时引入 `OAuth2 Resource Server` 依赖即可，样例如下：
+
+```grovvy
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+```
+
+然后编写如下 Contorller 即可：
+
+```java
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping
+public class TestController {
+
+    @GetMapping
+    public ResponseEntity<String> user() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Jwt) {
+            String username = ((Jwt) principal).getSubject();
+            return ResponseEntity.ok(username);
+        } else {
+            throw new RuntimeException("Token error");
+        }
+    }
+
+}
+```
+
+然后编写如下配置项：
+
+```yaml
+server:
+  port: 8081
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080
+```
+
+启动服务，然后使用之前获取到的 Token 令牌访问即可：
+
+> 注: 默认 Token 的有效期是 5 分钟，建议重新生成一个再访问。
+
+```http
+### GET USER
+GET http://localhost:8081/
+Authorization: Bearer {token}
+```
+
+#### OAuth2 Client
+
+在创建项目时引入 `OAuth2 Client` 和 `Spring Cloud Gateway` 依赖即可，样例如下：
+
+```grovvy
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+}
+```
+
+按照如下代码修改主类：
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class AuthclientApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AuthclientApplication.class, args);
+    }
+
+    @Bean
+    RouteLocator gateway(RouteLocatorBuilder rlb) {
+        return rlb
+                .routes()
+                .route(rs -> rs
+                        .path("/")
+                        .filters(GatewayFilterSpec::tokenRelay)
+                        .uri("http://localhost:8081"))
+                .build();
+    }
+}
+```
+
+然后编写配置文件如下即可：
+
+```yaml
+server:
+  port: 8082
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          spring:
+            provider: spring
+            client-id: client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_basic
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: user.read,openid
+        provider:
+          spring:
+            issuer-uri: http://localhost:8080
+```
+
+测试方式：
+
+访问如下地址，按照页面提示输入用户名和密码登录即可：
+
+[http://127.0.0.1:8082](http://127.0.0.1:8082)
+
+> 注：访问后会自动跳转到 OAuth2 Authorization Server 登录，然后由 Spring Cloud Gateway 添加 Token 并将请求转发到 OAuth2 Resource Server 中。
 
 ### 参考资料
 
