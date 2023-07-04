@@ -214,7 +214,7 @@ spring:
 
 [http://127.0.0.1:8082](http://127.0.0.1:8082)
 
-> 注：访问后会自动跳转到 OAuth2 Authorization Server 登录，然后由 Spring Cloud Gateway 添加 Token 并将请求转发到 OAuth2 Resource Server 中。
+> 注：访问后会自动跳转到 OAuth2 Authorization Server 登录，并将使用 Session 存储用户信息。然后 Spring Cloud Gateway 通过读取 Session 生成 Token 并将请求转发到 OAuth2 Resource Server 中。
 
 ### 参考资料
 
