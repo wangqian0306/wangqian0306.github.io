@@ -41,7 +41,7 @@ Home Assistant 可以通过四种方式进行安装：
 |          [Backups](https://www.home-assistant.io/common-tasks/os/#backups)           | :o: |    :o:    | :o:  |    :o:     |
 |                                      Managed OS                                      | :o: |    :x:    | :x:  |    :x:     |
 
-> 注：如果采用系统安装的方式则会遇到一些网络问题而且相对而言较为封闭，需要安装 ssh 插件之后才能运行一些基本命令。
+> 注：如果采用系统安装的方式则会遇到一些网络问题而且相对而言较为封闭，需要安装 ssh 插件之后就能链接到 Alpine 里去了 。
 
 ### 测试方式
 
