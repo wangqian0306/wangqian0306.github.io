@@ -41,6 +41,16 @@ Home Assistant 可以通过四种方式进行安装：
 |          [Backups](https://www.home-assistant.io/common-tasks/os/#backups)           | :o: |    :o:    | :o:  |    :o:     |
 |                                      Managed OS                                      | :o: |    :x:    | :x:  |    :x:     |
 
+> 注：如果采用系统安装的方式则会遇到一些网络问题而且相对而言较为封闭，需要安装 ssh 插件之后才能运行一些基本命令。
+
+### 测试方式
+
+可以使用 VMware Workstation 先在本地进行测试安装和试用：
+
+创建虚拟机然后选择稍后安装操作系统，指定虚拟磁盘为下载解压后的虚拟磁盘并启用 UEFI 启动方式即可。
+
+[测试安装文档](https://www.home-assistant.io/installation/windows)
+
 ### 插件
 
 HomeAssistant 还支持很多官方插件，可以控制智能家居或者安装一些常用的服务，例如：
