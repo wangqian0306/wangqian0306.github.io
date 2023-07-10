@@ -87,12 +87,23 @@ allow_remote_port_forwarding: false
 allow_tcp_forwarding: false
 ```
 
-> 注：使用默认 hassio 登录之后就会变成 root 账户。
-
 - 返回 `Info` 配置页
 - 开启 `Start on boot` `Show in sidebar` 选项
 
 > 注：如果想在 SSH 中使用 docker 命令还需关闭 `Protection mode` 选项。
+
+### 获取 Root 权限
+
+在安装完成 `Advanced SSH & Web Terminal` 插件后还需要如下操作才能获取到 Root 权限。
+
+- 准备一个格式为 FAT, ext4 或 NTFS 格式的 U 盘，将其重命名为 `CONFIG` (注意大小写)
+- 生成一个 ssh 公钥，并将其复制出来，写入一个换行符为 `LF` 文件编码为 `ISO 8859-1` 文件名为 `authorized_keys` 的文件将其放置在 U 盘中
+- 将 U 盘从电脑上拔出，插入 Homeassistant 设备上
+- 使用 `ha os import` 命令引入配置文件，之后即可使用如下命令 ssh 链接至 Homeassistant 了
+
+```bash
+ssh root@homeassistant.local -p 22222
+```
 
 ### 自动化设置
 
@@ -117,3 +128,7 @@ allow_tcp_forwarding: false
 [官方文档](https://www.home-assistant.io/)
 
 [HACS](https://hacs.xyz/)
+
+[配置方式](https://github.com/home-assistant/operating-system/blob/dev/Documentation/configuration.md)
+
+[Debugging the Home Assistant Operating System](https://developers.home-assistant.io/docs/operating-system/debugging/)
