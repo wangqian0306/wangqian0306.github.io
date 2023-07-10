@@ -64,6 +64,36 @@ HomeAssistant 还支持很多官方插件，可以控制智能家居或者安装
 
 - Xiaomi Miot Auto(小米独有规范集成插件)
 
+### SSH
+
+在 Home Assistant OS 中需要安装 SSH 插件才能通过 SSH 的方式链接进入 HomeAssistant。插件安装和配置流程如下：
+
+- 进入设置
+- 选择`Add-ons` 插件
+- 点击右下角的 `ADD-ON STORE` 
+- 检索 `SSH` 即可得到 `Advanced SSH & Web Terminal` 插件
+- 点击安装即可
+- 在插件导航栏中选择 `Configuration` 配置栏
+- 填入如下配置信息即可
+
+```yaml
+username: hassio
+password: xxxxx
+authorized_keys: []
+sftp: false
+compatibility_mode: false
+allow_agent_forwarding: false
+allow_remote_port_forwarding: false
+allow_tcp_forwarding: false
+```
+
+> 注：使用默认 hassio 登录之后就会变成 root 账户。
+
+- 返回 `Info` 配置页
+- 开启 `Start on boot` `Show in sidebar` 选项
+
+> 注：如果想在 SSH 中使用 docker 命令还需关闭 `Protection mode` 选项。
+
 ### 自动化设置
 
 #### 蓝图
