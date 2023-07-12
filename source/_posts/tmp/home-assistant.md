@@ -41,7 +41,48 @@ Home Assistant 可以通过四种方式进行安装：
 |          [Backups](https://www.home-assistant.io/common-tasks/os/#backups)           | :o: |    :o:    | :o:  |    :o:     |
 |                                      Managed OS                                      | :o: |    :x:    | :x:  |    :x:     |
 
-> 注：如果采用系统安装的方式则会遇到一些网络问题而且相对而言较为封闭，需要安装 ssh 插件之后就能链接到 Alpine 里去了 。
+> 注：如果采用系统安装的方式则会遇到一些网络问题而且相对而言较为封闭，有很多系统级别的限制，不太适合在 HAOS 上运行其他的服务。
+
+#### Supervised 方式安装记录
+
+- 安装依赖
+
+```bash
+apt install \
+apparmor \
+jq \
+wget \
+curl \
+udisks2 \
+libglib2.0-bin \
+network-manager \
+dbus \
+lsb-release \
+systemd-journal-remote \
+systemd-resolved -y
+```
+
+- 安装 Docker
+
+```bash
+curl -fsSL get.docker.com | sh
+```
+
+- 安装 OS-Agent
+
+```bash
+wget https://github.com/home-assistant/os-agent/releases/download/1.5.1/os-agent_1.5.1_linux_x86_64.deb
+dpkg -i os-agent_1.5.1_linux_x86_64.deb
+```
+
+> 注：具体版本号需要手动替换一下。
+
+- 安装主程序包
+
+```bash
+wget https://github.com/home-assistant/supervised-installer/releases/latest/download/homeassistant-supervised.deb
+apt install ./homeassistant-supervised.deb
+```
 
 ### 测试方式
 
@@ -92,7 +133,7 @@ allow_tcp_forwarding: false
 
 > 注：如果想在 SSH 中使用 docker 命令还需关闭 `Protection mode` 选项。
 
-### 获取 Root 权限
+### HAOS 获取 Root 权限
 
 在安装完成 `Advanced SSH & Web Terminal` 插件后还需要如下操作才能获取到 Root 权限。
 
@@ -132,3 +173,7 @@ ssh root@homeassistant.local -p 22222
 [配置方式](https://github.com/home-assistant/operating-system/blob/dev/Documentation/configuration.md)
 
 [Debugging the Home Assistant Operating System](https://developers.home-assistant.io/docs/operating-system/debugging/)
+
+[Supervised 安装文档](https://github.com/home-assistant/supervised-installer)
+
+[os-agent 安装文档](https://github.com/home-assistant/os-agent/tree/main#using-home-assistant-supervised-on-debian)
