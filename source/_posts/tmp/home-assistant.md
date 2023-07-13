@@ -71,8 +71,8 @@ curl -fsSL get.docker.com | sh
 - 安装 OS-Agent
 
 ```bash
-wget https://github.com/home-assistant/os-agent/releases/download/1.5.1/os-agent_1.5.1_linux_x86_64.deb
-dpkg -i os-agent_1.5.1_linux_x86_64.deb
+wget https://github.com/home-assistant/os-agent/releases/download/<version>/os-agent_<version>_linux_x86_64.deb
+dpkg -i os-agent_<version>_linux_x86_64.deb
 ```
 
 > 注：具体版本号需要手动替换一下。
@@ -84,7 +84,15 @@ wget https://github.com/home-assistant/supervised-installer/releases/latest/down
 apt install ./homeassistant-supervised.deb
 ```
 
-### 测试方式
+- 安装完成后需要进行一次重启
+
+```bash
+reboot now
+```
+
+重启完成后访问 `<ip>:8123` 即可看到 homeassistant 的页面了。
+
+#### VMware 安装方式记录
 
 可以使用 VMware Workstation 先在本地进行测试安装和试用：
 
@@ -163,6 +171,24 @@ ssh root@homeassistant.local -p 22222
 教学视频地址如下：
 
 [video](https://www.bilibili.com/video/BV1jA4y1f7av)
+
+### 常见问题
+
+#### DNS 服务 1.1.1.1:853 或 1.0.0.1:853 connection refused
+
+首先使用如下命令确认自己的网络情况：
+
+```bash
+ha resolution info
+```
+
+如果出现 `unhealthy: []` 则证明当前网络环境是正常的，即可运行如下配置关闭 dns fallback
+
+```bash
+ha dns options --fallback=false
+```
+
+> 注：关闭之后 hassio-dns 容器就会重新启动，且不会再遇到此报错了。
 
 ### 参考资料
 
