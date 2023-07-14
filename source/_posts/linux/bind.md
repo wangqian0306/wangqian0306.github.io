@@ -180,58 +180,58 @@ vim /etc/named.conf
 ```text
 options {
     listen-on port 53 { any; };
-	listen-on-v6 { any; };
-	directory 	"/var/named";
-	dump-file 	"/var/named/data/cache_dump.db";
-	statistics-file "/var/named/data/named_stats.txt";
-	memstatistics-file "/var/named/data/named_mem_stats.txt";
-	recursing-file  "/var/named/data/named.recursing";
-	secroots-file   "/var/named/data/named.secroots";
-        allow-query     { any; };
-        allow-transfer  { localhost; <bind-2_ip>; };
-
-	recursion yes;
-
-	dnssec-enable yes;
-	dnssec-validation yes;
-
-	bindkeys-file "/etc/named.root.key";
-
-	managed-keys-directory "/var/named/dynamic";
-
-	pid-file "/run/named/named.pid";
-	session-keyfile "/run/named/session.key";
+    listen-on-v6 { any; };
+    directory 	"/var/named";
+    dump-file 	"/var/named/data/cache_dump.db";
+    statistics-file "/var/named/data/named_stats.txt";
+    memstatistics-file "/var/named/data/named_mem_stats.txt";
+    recursing-file  "/var/named/data/named.recursing";
+    secroots-file   "/var/named/data/named.secroots";
+    allow-query     { any; };
+    allow-transfer  { localhost; <bind-2_ip>; };
+    
+    recursion yes;
+    
+    dnssec-enable yes;
+    dnssec-validation yes;
+    
+    bindkeys-file "/etc/named.root.key";
+    
+    managed-keys-directory "/var/named/dynamic";
+    
+    pid-file "/run/named/named.pid";
+    session-keyfile "/run/named/session.key";
 };
 
 logging {
-        channel default_debug {
-                file "data/named.run";
-                severity dynamic;
-        };
+    channel default_debug {
+        file "data/named.run";
+        severity dynamic;
+    };
 };
 
 zone "." IN {
-	type hint;
-	file "named.ca";
+    type hint;
+    file "named.ca";
 };
 
 include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 
 zone "<domain>" IN {
-        type slave;
-        masters { <bind1_ip>; };
-        masterfile-format text;
-        file "slaves/<domain>.lan";
-        notify no;
+    type slave;
+    masters { <bind1_ip>; };
+    masterfile-format text;
+    file "slaves/<domain>.lan";
+    notify no;
 };
 
 zone "<reverse_ip_area>.in-addr.arpa" IN {
-       type slave;
-       masters { <bind1_ip>; };
-       masterfile-format text;
-       file "slaves/reverse_ip_area.db";
-       notify no;
+   type slave;
+   masters { <bind1_ip>; };
+   masterfile-format text;
+   file "slaves/reverse_ip_area.db";
+   notify no;
 };
 ```
 
@@ -280,8 +280,8 @@ tsig-keygen -a hmac-sha256 externaldns-key
 
 ```text
 key "externaldns" {
-        algorithm hmac-sha256;
-        secret "<secret>";
+    algorithm hmac-sha256;
+    secret "<secret>";
 };
 ```
 
@@ -343,6 +343,24 @@ vim /etc/selinux/conf
 ```
 
 然后修改配置项即可 `SELINUX=disabled`
+
+
+#### 部分域名无法解析
+
+此问题可能是 Bind 在转发 DNS 时遇到了网络问题，可以按照如下逻辑修改配置项：
+
+```text
+options {
+    ....
+    dnssec-enable no;
+    dnssec-validation no;
+    forward only;
+    forwarders { 114.114.114.114; };
+    ....
+};
+```
+
+> 注：此处的 114.114.114.114 (电信公共 DNS) 仅仅是示例，可以根据网络条件进行填写。
 
 ### 参考资料
 

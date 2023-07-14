@@ -1,7 +1,10 @@
 ---
 title: GitHub 小技巧
 date: 2020-04-01 21:57:04
-tags: "随笔"
+tags: 
+- "Codespaces"
+- "Gitpod"
+
 id: github
 no_word_count: true
 no_toc: true
@@ -42,6 +45,15 @@ https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 
 > 注：建议使用 VSCode 作为在线编辑工具，JetBrains 系列需要配合 Gateway 一起使用，不是很方便。
 
+### Vercel
+
+Vercel 是一个框架、它提供了工作流程和基础设施，可以将 github 项目部署到外网。
+
+使用方式：
+
+- 从 GitHub 项目创建(详情参照官方手册)
+- 从 [模板项目](https://vercel.com/new/templates) 创建
+
 ### 参考资料
 
 [GitHub 官方手册](https://docs.github.com/cn)
@@ -49,3 +61,5 @@ https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 [GitPod 官方手册](https://www.gitpod.io/docs)
 
 [Codespaces 官方手册](https://docs.github.com/en/codespaces)
+
+[Vercel 官方手册](https://vercel.com/docs)
