@@ -266,6 +266,90 @@ query {
 }
 ```
 
+### 数据分页
+
+GraphQL 本身包含自己的 [分页请求模型与方式](https://graphql.org/learn/pagination/)，在项目中可以使用如下方式实现。
+
+修改 Repository：
+
+```java
+import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.graphql.data.GraphQlRepository;
+
+@GraphQlRepository
+public interface AuthorRepository extends ListCrudRepository<Author, Long> {
+
+    Window<Author> findBy(ScrollPosition position, Limit limit);
+
+}
+```
+
+> 注：此处可以额外添加查询参数和排序等内容。
+
+修改请求类：
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.query.ScrollSubrange;
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class TestController {
+
+    @Resource
+    private AuthorRepository authorRepository;
+
+    @QueryMapping
+    Window<Author> authors(ScrollSubrange subrange) {
+        ScrollPosition scrollPosition = subrange.position().orElse(ScrollPosition.offset());
+        Limit limit = Limit.of(subrange.count().orElse(1));
+        return authorRepository.findBy(scrollPosition, limit);
+    }
+
+}
+```
+
+修改 graphql 配置文件：
+
+```text
+type Query {
+    authors(first: Int,last: Int,before: String,after: String): AuthorConnection
+}
+
+type Author {
+    id: ID!
+    name: String!
+}
+```
+
+在 graphiql 页面中即可使用如下查询：
+
+```text
+query{
+  authors {
+    edges{
+      node {
+        id
+        name
+      }
+    }
+    pageInfo {
+      hasPreviousPage
+      hasNextPage
+      startCursor
+      endCursor
+    }
+  }
+}
+```
+
 ### IDEA 插件
 
 在 IDEA 插件中可以找到 GraphQL 插件，此插件可以完成一些代码提示和运行测试的功能。
@@ -445,13 +529,6 @@ public class TestController {
 }
 ```
 
-### 常见问题
-
-#### 数据分页
-
-GraphQL 本身包含自己的 [分页请求模型与方式](https://graphql.org/learn/pagination/) ，与 SpringData 的 Page 类不同。可以采用 Slice 类作为替代。
-
-> 注：此处 Spring 官方文档当中大致说明了实现方式，但是我没看懂，也没找到样例代码。 
 
 ### 参考资料
 
