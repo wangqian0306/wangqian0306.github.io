@@ -350,6 +350,61 @@ query{
 }
 ```
 
+### 嵌套查询
+
+在 GraphQL 中还可以嵌套查询逻辑，样例如下：
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
+
+import java.util.List;
+
+@Controller
+public class TestController {
+
+    @Resource
+    private AuthorRepository authorRepository;
+
+    @Resource
+    private BookRepository bookRepository;
+
+    @QueryMapping
+    List<Author> authors() {
+        return authorRepository.findAll();
+    }
+
+    @SchemaMapping
+    List<Book> books(Author author,@Argument String publisher) {
+        return bookRepository.findAllByAuthorIdAndPublisherLike(author.getId(), publisher);
+    }
+
+}
+```
+
+`resources/graphql/schema.graphqls` 配置文件：
+
+```text
+type Query {
+    authors: [Author]
+}
+
+type Author {
+    id: ID!
+    name: String!
+    books(publisher:String): [Book]
+}
+
+type Book {
+    id: ID!
+    title: String!
+    publisher: String
+}
+```
+
 ### IDEA 插件
 
 在 IDEA 插件中可以找到 GraphQL 插件，此插件可以完成一些代码提示和运行测试的功能。
