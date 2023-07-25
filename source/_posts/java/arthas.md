@@ -90,10 +90,54 @@ jad <package>.<class>
 
 #### watch 
 
-可以使用 watch 函数监测程序返回值
+可以使用 watch 命令监测程序返回值(returnObj)，抛出异常(target)和入参(params)
 
 ```bash
 watch <package>.<class> <function> returnObj -x 4
+```
+
+#### trace
+
+可以使用 trace 命令检索方法调用路径，统计调用链路上的性能开销
+
+```bash
+trace <package>.<class> <function>
+```
+
+#### stack
+
+可以使用 stack 命令输出当前方法被调用的调用路径
+
+```bash
+stack <package>.<class> <function>
+```
+
+#### tt
+
+可以使用 tt 命令记录下当时方法调用的所有入参和返回值、抛出的异常
+
+- 开始记录
+
+```bash
+tt -t <package>.<class> <function>
+```
+
+- 查看当前记录清单
+
+```bash
+tt -l
+```
+
+- 根据 ID 获取记录内容
+
+```bash
+tt -i <index>
+```
+
+- 重新调用进行测试
+
+```bash
+tt -i <index> -p
 ```
 
 #### profiler
