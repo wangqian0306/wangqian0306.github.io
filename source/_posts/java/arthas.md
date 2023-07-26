@@ -164,6 +164,13 @@ profiler stop --format html
 
 > 注：profiler 只支持 Linux 和 Mac 系统。
 
+### web 控制台
+
+在链接到 java 进程之后就可以访问 [http://127.0.0.1:8563/](http://127.0.0.1:8563/) 进入控制台。
+
+> 注：默认监听地址为 127.0.0.1 不建议修改可能有安全风险，如果想要使用可以指定 `--target-ip` 参数指定监听地址。
+
+
 ### 参考资料
 
 [官方项目](https://github.com/alibaba/arthas)
