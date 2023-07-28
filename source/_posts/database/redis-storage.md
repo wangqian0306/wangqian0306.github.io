@@ -69,6 +69,7 @@ AOF(Append Only File)，利用独立日志的方式记录写命令，在重启�
 |appendonly <m>| AOF 功能开关(可选: yes,no)|
 |appendfilename <m>| AOF 日志文件(默认值为 appendonly.aof)|
 |appendfsync <m>| 执行策略(可选: always,everysec,no)|
+|no-appendfsync-on-rewrite <m>|在有线程调用时不进行 AOF 写入操作，如果开启可优化性能但是可能丢 30s 的数据(可选：yes,no) |
 |auto-aof-rewrite-percentage <m>| 在AOF增长大小/AOF文件大小>=<m>时进行自动重写|
 |auto-aof-rewrite-min-size <m>|当 AOF 文件达到<m>时进行自动重写|
 |aof-load-truncated <m>| 在恢复数据时是否忽略最后一条可能存在问题的指令(默认值为 yes)|
@@ -86,6 +87,11 @@ AOF(Append Only File)，利用独立日志的方式记录写命令，在重启�
 #### 缺点：
 
 - 与 RDB 相较而言 AOF 要占用更多的存储空间
+- 效率可能低于 RDB
+
+#### Redis 7.0 更新
+
+从 Redis 7.0.0 开始，当计划进行 AOF 重写时，Redis 父进程会打开一个新的增量 AOF 文件(incremental AOF file)以继续写入。子进程将执行重写逻辑并生成新的基本 AOF(base AOF)。Redis 将使用临时清单文件(temporary manifest file)来跟踪新生成的基本文件和增量文件。在准备就绪后，Redis 将执行原子替换操作以使此临时清单文件生效。为了避免在 AOF 重写重复失败和重试的情况下创建许多增量文件的问题，Redis 引入了 AOF 重写限制机制，以确保以越来越慢的速度重试失败的 AOF 重写。
 
 ### RDB VS AOF
 
@@ -100,7 +106,7 @@ AOF(Append Only File)，利用独立日志的方式记录写命令，在重启�
 |资源消耗|高|低|
 |启动优先级|低|高|
 
-### 混合持久化(我全都要)
+### 混合持久化
 
 在 Redis 4.0 版本之后新增了混合持久化的方案，可以修改如下的配置项：
 
