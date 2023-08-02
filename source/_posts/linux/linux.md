@@ -34,6 +34,23 @@ categories: Linux
 |MEM|free -m|
 |DISK|fdisk -l|
 |NET|ethtool xxx(网卡名)|
+|Graphics|lshw -C video|
+
+## 查看系统版本
+
+可以使用如下命令查看当前系统的版本：
+
+```bash
+cat /etc/os-release
+lsb_release -a
+hostnamectl
+```
+
+可以使用如下命令查看内核版本：
+
+```bash
+uname -r
+```
 
 ## sudo免密配置
 
