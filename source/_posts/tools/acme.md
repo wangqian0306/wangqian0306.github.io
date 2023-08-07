@@ -25,6 +25,41 @@ Automatic Certificate Management Environment (ACME) 协议是一种通信协议�
 curl https://get.acme.sh | sh -s email=<email>
 ```
 
+使用如下命令即可签发证书：
+
+```bash
+acme.sh --issue -d <domain> --nginx /etc/nginx/conf.d/<domain>.conf
+```
+
+> 注：配置需手动修改，默认签发的证书会在 `~/.acme.sh/` 目录下
+
+使用证书:
+
+```bash
+acme.sh --install-cert -d <domain> \
+--key-file       /path/to/keyfile/in/nginx/key.pem  \
+--fullchain-file /path/to/fullchain/nginx/cert.pem \
+--reloadcmd     "service nginx force-reload"
+```
+
+查看证书相关信息：
+
+```bash
+acme.sh --info -d <domain>
+```
+
+自动更新证书需要开启 cronjob 并写入如下内容：
+
+```text
+56 * * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null
+```
+
+检查 cronjob 可以使用如下命令：
+
+```bash
+crontab  -l
+```
+
 ### 参考资料
 
 [维基百科](https://en.wikipedia.org/wiki/Automatic_Certificate_Management_Environment)
