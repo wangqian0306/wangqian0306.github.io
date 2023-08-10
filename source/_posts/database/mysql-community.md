@@ -160,6 +160,37 @@ stream {
 }
 ```
 
+### 存储引擎
+
+#### InnoDB
+
+在 InnoDB 中的数据结构分为以下两个部分：
+
+- 内存
+- 磁盘
+
+![InnoDB 架构](https://dev.mysql.com/doc/refman/8.0/en/images/innodb-architecture-8-0.png)
+
+##### 内存架构
+
+在内存中的数据类型有以下四种：
+
+- Buffer Pool
+- Change Buffer
+- Adaptive Hash Index
+- Log Buffer
+
+##### 磁盘架构
+
+在磁盘中的数据类型有以下六种：
+
+- Tables
+- Indexes
+- Tablespaces
+- Doublewrite Buffer
+- Redo Log
+- Undo Logs
+
 ### 常见问题
 
 #### 字符集与排序方式
