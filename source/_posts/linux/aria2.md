@@ -75,13 +75,29 @@ rm -rf AriaNg-DailyBuild-master
 可以使用编写 `docker-compose.yaml` 来快速部署服务
 
 ```yaml
-version: "3.5"
+version: '3'
 services:
-  aria2-ui:
-    restart: unless-stopped
-    image: wahyd4/aria2-ui:latest
+  ariang:
+    image: wahyd4/aria2-ui
     ports:
       - "80:80"
+      - "443:443"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - ENABLE_AUTH=true
+      - RPC_SECRET=Hello
+      - DOMAIN=https://example.com
+      - ARIA2_SSL=false
+      - ARIA2_USER=user
+      - ARIA2_PWD=pwd
+      - ARIA2_EXTERNAL_PORT=443
+    volumes:
+      - /yourdata:/data
+      - /app/a.db:/app/filebrowser.db
+      - /yoursslkeys/:/app/conf/key
+      - /path/to/aria2.conf:/app/conf/aria2.conf
+      - /path/to/aria2.session:/app/conf/aria2.session
 ```
 
 ### 参考资料
