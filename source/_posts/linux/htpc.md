@@ -91,8 +91,7 @@ services:
       - ./content/downloads:/downloads
     ports:
       - 8112:8112
-      - 6881:6881
-      - 6881:6881/udp
+      - 58846:58846
     restart: unless-stopped
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -111,8 +110,6 @@ services:
   bazarr:
     container_name: bazarr
     image: linuxserver/bazarr
-    restart: unless-stopped
-    network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
@@ -121,8 +118,24 @@ services:
       - ./bazarr/config:/config
       - ./content/movies:/movies
       - ./content/tv:/tv
+    ports:
+      - 6767:6767
+    restart: unless-stopped
 ```
 
+在容器启动后需要按照下文顺序进行配置。
+
+#### Deluge
+
+访问 [http://localhost:8112](http://localhost:8112) 即可找到登录页面，然后按照如下指示进行配置：
+
+- 在防火墙中开启 58846 端口
+- 确认容器存储路径权限，例如 `downloads`
+- 使用 admin/deluge 默认账户登录登录页面
+- 配置连接信息 `<ip>` `58846` `admin` `deluge`, 若状态显示 Online 则证明配置无误 
+- 配置文件下载地址为 `/downloasd`
+
+> 注：配置完成后建议下个文件做验证
 
 ### 参考资料
 
