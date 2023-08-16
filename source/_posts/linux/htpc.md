@@ -137,6 +137,26 @@ services:
 
 > 注：配置完成后建议下个文件做验证
 
+#### Jackett
+
+访问 [http://localhost:9117](http://localhost:9117) 即可找到登录页面，然后按照如下指示进行配置：
+
+- 配置 `Admin passoword`
+- 配置 `Proxy type` `Proxy URL` `Proxy port` `Proxy username` `Proxy password`
+- 添加 `Indexer` 例如：
+  - 1337x
+  - ACG.RIP
+  - dmhy
+  - EZTV
+  - Nyaa.si
+  - RuTracker(需要注册账号并配置密码)
+  - The Pirate Bay
+  - YTS
+- 点击 `Test All` 按钮进行测试，若状态显示对勾则证明配置无误
+- 点击对应 `Indexer` 中的搜索按钮即可进行资源搜索
+
+> 注：为了保证后续流程也能正常识别所以建议在搜索的时候采用 [TVDB](https://thetvdb.com/search) 中的英文名。
+
 ### 参考资料
 
 [Sonarr 项目](https://github.com/Sonarr/Sonarr)
