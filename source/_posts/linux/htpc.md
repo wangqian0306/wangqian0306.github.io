@@ -157,6 +157,52 @@ services:
 
 > 注：为了保证后续流程也能正常识别所以建议在搜索的时候采用 [TVDB](https://thetvdb.com/search) 中的英文名。
 
+#### Radarr
+
+访问 [http://localhost:7878](http://localhost:7878) 即可找到登录页面，然后按照如下指示进行配置：
+
+- 进入 `Settings` 配置项
+  - 选择 `Media Management` 子项
+    - 开启 `Rename Movies` 功能
+    - 编辑 `Root Folders` 添加 `/downloads` 文件夹
+  - 选择 `Profiles` 子项
+    - 点击 `Any` 类型
+      - 勾选所有类型(包括 `Unknow`)
+  - 选择 `Quality` 子项
+    - 设置 `Unknow` 格式的大小限制为 `Unlimit`
+  - 选择 `Indexers` 子项
+    - 添加 `Torznab` 格式的 `Indexer` (此处添加方式参见 Jackett) 
+  - 选择 `Download Clients` 子项
+    - 添加 `deluge` 即可 (此处添加内容参见 deluge 部分) 
+    - 添加远程路径映射 (全部映射至 `/downloads` 即可)
+
+#### Sonarr 
+
+> 注：待补充
+
+#### Bazarr
+
+访问 [http://localhost:6767](http://localhost:6767) 即可找到登录页面，然后按照如下指示进行配置：
+
+- 进入 `Settings` 配置项
+  - 选择 `General` 子项
+    - 配置 `Proxy`
+    - 关闭 `Analyics` (可选)
+  - 选择 `Languages` 子项
+    - 在 `Lanuguage Filter` 中添加所需语言
+  - 选择 `Providers` 子项，并添加如下供应商
+    - `YIFY Subtitles`
+    - `OpenSubtitles.org` (需要账号)
+  - 选择 `Sonarr` 子项
+    - 开启开关
+    - 配置链接地址
+  - 选择 `Radarr` 子项
+    - 开启开关
+    - 配置链接地址
+- 进入 `System` 配置项
+  - 选择 `Backups` 子项
+    - 点击 `Backup Now` 进行备份
+
 ### 参考资料
 
 [Sonarr 项目](https://github.com/Sonarr/Sonarr)
