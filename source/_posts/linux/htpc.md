@@ -24,11 +24,11 @@ HTPC(Home Theater Personal Computer) 即家庭影院电脑。
 
 - Sonarr：流媒体(电视)下载流程编辑软件
 - Radarr：电影下载流程编辑软件
-- NZBGet：nzb 格式下载器
 - Deluge：种子下载器
 - Bazarr：字幕刮削工具
 - Jackett：网关
 - Jellyfin：影音库
+- Jellyseerr: 请求管理和媒体发现工具
 
 ### 使用方式
 
@@ -64,19 +64,6 @@ services:
       - ./content/downloads:/downloads
     ports:
       - 7878:7878
-    restart: unless-stopped
-  nzbget:
-    container_name: nzbget
-    image: linuxserver/nzbget:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Shanghai
-    volumes:
-      - ./nzbget/config:/config
-      - ./content/downloads:/downloads
-    ports:
-      - 6789:6789
     restart: unless-stopped
   deluge:
     image: lscr.io/linuxserver/deluge:latest
@@ -120,6 +107,29 @@ services:
       - ./content/tv:/tv
     ports:
       - 6767:6767
+    restart: unless-stopped
+  jellyfin:
+    image: nyanmisaka/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellfin/cache:/cache
+      - ./content/movies:/media/movies
+      - ./content/tv:/media/tv
+    restart: 'unless-stopped'
+    ports:
+      - 8096:8096
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=error
+      - TZ=Asia/Shanghai
+    ports:
+      - 5055:5055
+    volumes:
+      - ./jellyseerr/config:/app/config
     restart: unless-stopped
 ```
 
@@ -168,6 +178,9 @@ services:
   - 选择 `Profiles` 子项
     - 点击 `Any` 类型
       - 勾选所有类型(包括 `Unknow`)
+      - 将语言设置为 `Any` 即，不筛选下载语言
+    - 点击其他类型
+      - 将语言设置为 `Any` 即，不筛选下载语言
   - 选择 `Quality` 子项
     - 设置 `Unknow` 格式的大小限制为 `Unlimit`
   - 选择 `Indexers` 子项
@@ -228,3 +241,11 @@ services:
 [Deluge 项目](https://hub.docker.com/r/linuxserver/deluge)
 
 [Deluge 容器页](https://hub.docker.com/r/linuxserver/deluge)
+
+[Jellyfin 项目](https://github.com/jellyfin/jellyfin)
+
+[Jellyfin 官方网站](https://jellyfin.org/)
+
+[Jellyseerr 项目](https://github.com/Fallenbagel/jellyseerr)
+
+[Jellyseerr 容器页](https://hub.docker.com/r/fallenbagel/jellyseerr)
