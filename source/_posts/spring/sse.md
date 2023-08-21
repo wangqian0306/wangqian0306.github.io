@@ -18,22 +18,6 @@ Server-Sent Events (SSE) 是一种服务器推送技术，使客户端能够通�
 
 ### 实现方式
 
-编写 `Client` 类：
-
-```java
-import lombok.Data;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-@Data
-public class Client {
-
-    private String userId;
-
-    private SseEmitter emitter;
-
-}
-```
-
 编写 `Message` 类：
 
 ```java
@@ -59,49 +43,40 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
 public class EventHandler {
 
     private static final long DEFAULT_TIMEOUT = 60 * 60 * 1000L;
-    private final Set<Client> registeredClients = new HashSet<>();
+    private final ConcurrentHashMap<String, SseEmitter> emitterConcurrentHashMap = new ConcurrentHashMap<>();
 
     public SseEmitter registerClient(String userId) {
-        for (Client client : registeredClients) {
-            if (client.getUserId().equals(userId)) {
-                log.info("Client {} already registered", userId);
-                return client.getEmitter();
-            }
+        if (emitterConcurrentHashMap.containsKey(userId)) {
+            return emitterConcurrentHashMap.get(userId);
+        } else {
+            SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
+            emitter.onCompletion(() -> emitterConcurrentHashMap.remove(userId));
+            emitter.onError((err) -> removeAndLogError(userId));
+            emitter.onTimeout(() -> removeAndLogError(userId));
+            return emitterConcurrentHashMap.put(userId, emitter);
         }
-        Client client = new Client();
-        client.setUserId(userId);
-        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
-        client.setEmitter(emitter);
-        emitter.onCompletion(() -> registeredClients.remove(client));
-        emitter.onError((err) -> removeAndLogError(client));
-        emitter.onTimeout(() -> removeAndLogError(client));
-        registeredClients.add(client);
-        return emitter;
     }
 
-    private void removeAndLogError(Client client) {
-        log.info("Error during communication. Unregister client {}", client.getUserId());
-        registeredClients.remove(client);
+    private void removeAndLogError(String userId) {
+        log.info("Error during communication. Unregister client {}", userId);
+        emitterConcurrentHashMap.remove(userId);
     }
 
     public void broadcastMessage(Message message) {
-        for (Client client : registeredClients) {
-            sendMessage(client, message);
-        }
+        emitterConcurrentHashMap.forEach((k, v) -> sendMessage(k, message));
     }
 
-    private void sendMessage(Client client, Message message) {
-        var sseEmitter = client.getEmitter();
+    private void sendMessage(String userId, Message message) {
+        var sseEmitter = emitterConcurrentHashMap.get(userId);
         try {
-            log.info("Notify client " + client.getUserId() + " " + message.toString());
+            log.info("Notify client " + userId + " " + message.toString());
             SseEventBuilder eventBuilder = SseEmitter.event().data(message, MediaType.APPLICATION_JSON).name("chat");
             sseEmitter.send(eventBuilder);
         } catch (IOException e) {
@@ -138,7 +113,7 @@ public class SSEController {
 }
 ```
 
-编写 `chat.js` 前端业务逻辑：
+编写 `src/main/resources/static/chat.js` 前端业务逻辑：
 
 ```javascript
 "use strict";
@@ -195,7 +170,7 @@ function connect() {
 }
 ```
 
-编写页面
+编写页面 `src/main/resources/static/index.html`:
 
 ```html
 <!doctype html>
