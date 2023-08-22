@@ -38,8 +38,48 @@ kubectl get svc -n ingress-nginx
 
 > 注：在单节点部署的时候出现了外部 IP 绑定处于 Pending 的状况，使用如下命令进行了配置 `kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer", "externalIPs":["xxx.xxx.xxx.xxx"]}}'`
 
+### 配置
+
+有三种方法可以配置 NGINX：
+
+- ConfigMap (全局)
+- Annotations (独立)
+- Custom template (高级)
+
+#### Annotations 配置
+
+样例如下：
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: <name>
+  name: <name>
+  namespace: <namespace>
+  annotations:
+    nginx.org/proxy-connect-timeout: "75s"
+    nginx.org/proxy-read-timeout: "75s"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: <host>
+      http:
+        paths:
+          - backend:
+              service:
+                name: <service_name>
+                port:
+                  number: <port>
+            path: /
+            pathType: Prefix
+```
+
 ### 参考资料
 
 [官方文档](https://github.com/kubernetes/ingress-nginx)
 
 [部署说明](https://kubernetes.github.io/ingress-nginx/deploy/)
+
+[配置文档](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/)

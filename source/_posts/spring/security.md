@@ -541,6 +541,52 @@ curl --location --request POST 'localhost:8080/api/v1/user/login' \
 curl --request GET 'http://localhost:8080/api/v1/user' --header 'Authorization: Bearer <token>'
 ```
 
+### 在 Get 参数或 Form 中携带 token
+
+首先需要参照如下样例修改配置类：
+
+```java
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+        DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+        resolver.setAllowUriQueryParameter(true);
+        resolver.setAllowFormEncodedBodyParameter(true);
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/user/login")).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .bearerTokenResolver(resolver)
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder())
+                        )
+                )
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()));
+        return http.build();
+    }
+}
+```
+
+然后即可在请求中添加 `access_token` 参数即可，GET 请求样例如下：
+
+```bash
+curl --request GET 'http://localhost:8080/api/v1/user?access_token=<token>'
+```
+
+> 注：无需添加 `Bearer` 字段
+
 ### 获取用户相关信息的基本方式
 ```java
 @RestController

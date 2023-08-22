@@ -201,6 +201,12 @@ function connect() {
 </html>
 ```
 
+### 常见问题
+
+#### 链接超时
+
+由于是长连接所以可能出现链接超时的情况，例如在 k8s 上使用 nginx-ingress-controller 就可能遇到，建议参照 ingress 文档进行配置。
+
 ### 参考资料
 
 [Server-Sent Events in Spring](https://www.baeldung.com/spring-server-sent-events)
