@@ -864,3 +864,5 @@ public class TestController {
 [Spring Fro GraphQL 官方文档](https://docs.spring.io/spring-graphql/docs/current/reference/html/)
 
 [GraphQL 官方文档](https://graphql.org/learn/)
+
+[官方 WebSocket 例程](https://github.com/spring-projects/spring-graphql/tree/1.0.x/samples/webflux-websocket)
