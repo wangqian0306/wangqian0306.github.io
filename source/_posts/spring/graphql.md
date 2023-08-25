@@ -207,7 +207,7 @@ public class TestController {
 }
 ```
 
-编写 `resources/graphql/schema.graphqls` 配置文件：
+编写 `src/main/resources/graphql/schema.graphqls` 配置文件：
 
 ```text
 type Query {
@@ -385,7 +385,7 @@ public class TestController {
 }
 ```
 
-`resources/graphql/schema.graphqls` 配置文件：
+`src/main/resources/graphql/schema.graphqls` 配置文件：
 
 ```text
 type Query {
@@ -403,6 +403,278 @@ type Book {
     title: String!
     publisher: String
 }
+```
+
+### WebSocket 
+
+首先需要切换 Web 至 WebFlux，样例如下：
+
+```grovvy
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
+}
+```
+
+然后编写 `DataRepository` ： 
+
+```java
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+
+@Repository
+public class DataRepository {
+
+    public String getBasic() {
+        return "Hello world!";
+    }
+
+    public Mono<String> getGreeting() {
+        return Mono.delay(Duration.ofMillis(50)).map(aLong -> "Hello!");
+    }
+
+    public Flux<String> getGreetings() {
+        return Mono.delay(Duration.ofMillis(50))
+                .flatMapMany(aLong -> Flux.just("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!"));
+    }
+
+    public Flux<String> getGreetingsStream() {
+        return Mono.delay(Duration.ofMillis(50))
+                .flatMapMany(aLong -> Flux.just("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!"));
+    }
+
+}
+```
+
+编写 Controller：
+
+```java
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
+import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Controller
+public class SampleController {
+
+    private final DataRepository repository;
+
+    public SampleController(DataRepository dataRepository) {
+        this.repository = dataRepository;
+    }
+
+    @QueryMapping
+    public String greeting() {
+        return this.repository.getBasic();
+    }
+
+    @QueryMapping
+    public Mono<String> greetingMono() {
+        return this.repository.getGreeting();
+    }
+
+    @QueryMapping
+    public Flux<String> greetingsFlux() {
+        return this.repository.getGreetings();
+    }
+
+    @SubscriptionMapping
+    public Flux<String> greetings() {
+        return this.repository.getGreetingsStream();
+    }
+
+}
+```
+
+编写 `src/main/resources/graphql/schema.graphqls` 配置文件：
+
+```text
+type Query {
+    greeting: String
+    greetingMono : String
+    greetingsFlux : [String]
+}
+type Subscription {
+    greetings: String
+}
+```
+
+编写 `application.yaml` 配置文件：
+
+```yaml
+server:
+  port: 8080
+spring:
+  application:
+    name: gql
+  graphql:
+    graphiql:
+        enabled: true
+    websocket:
+      path: /graphql
+```
+
+启动程序，然后访问 `http://localhost:8080/graphiql` 即可看到调试控制台，输入如下内容即可完成测试。
+
+```text
+subscription {
+  greetings
+}
+```
+
+还可以按照如下样例编写单元测试
+
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.net.URI;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class WebFluxWebSocketSampleIntegrationTests {
+
+    @LocalServerPort
+    private int port;
+
+    @Value("http://localhost:${local.server.port}${spring.graphql.websocket.path}")
+    private String baseUrl;
+
+    private GraphQlTester graphQlTester;
+
+
+    @BeforeEach
+    void setUp() {
+        URI url = URI.create(baseUrl);
+        this.graphQlTester = WebSocketGraphQlTester.builder(url, new ReactorNettyWebSocketClient()).build();
+    }
+
+    @Test
+    void greetingMono() {
+        this.graphQlTester.document("{greetingMono}")
+                .execute()
+                .path("greetingMono")
+                .entity(String.class)
+                .isEqualTo("Hello!");
+    }
+
+    @Test
+    void greetingsFlux() {
+        this.graphQlTester.document("{greetingsFlux}")
+                .execute()
+                .path("greetingsFlux")
+                .entityList(String.class)
+                .containsExactly("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!");
+    }
+
+    @Test
+    void subscriptionWithEntityPath() {
+        Flux<String> result = this.graphQlTester.document("subscription { greetings }")
+                .executeSubscription()
+                .toFlux("greetings", String.class);
+
+        StepVerifier.create(result)
+                .expectNext("Hi!")
+                .expectNext("Bonjour!")
+                .expectNext("Hola!")
+                .expectNext("Ciao!")
+                .expectNext("Zdravo!")
+                .verifyComplete();
+    }
+
+    @Test
+    void subscriptionWithResponse() {
+        Flux<GraphQlTester.Response> result = this.graphQlTester.document("subscription { greetings }")
+                .executeSubscription()
+                .toFlux();
+
+        StepVerifier.create(result)
+                .consumeNextWith(response -> response.path("greetings").hasValue())
+                .consumeNextWith(response -> response.path("greetings").matchesJson("\"Bonjour!\""))
+                .consumeNextWith(response -> response.path("greetings").matchesJson("\"Hola!\""))
+                .expectNextCount(2)
+                .verifyComplete();
+    }
+
+}
+```
+
+在页面中可以按照如下样例编写读取程序 `src/main/resources/static/index.html`：
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>GraphQL over WebSocket</title>
+    <script type="text/javascript" src="https://unpkg.com/graphql-ws/umd/graphql-ws.js"></script>
+</head>
+<body>
+<p>Check the console for subscription messages.</p>
+<script type="text/javascript">
+  const client = graphqlWs.createClient({
+    url: 'ws://localhost:8080/graphql',
+  });
+
+  // query
+  (async () => {
+    const result = await new Promise((resolve, reject) => {
+      let result;
+      client.subscribe(
+        {
+          query: '{ greeting }',
+        },
+        {
+          next: (data) => (result = data),
+          error: reject,
+          complete: () => resolve(result),
+        },
+      );
+    });
+
+    console.log("Query result: " + result);
+  })();
+
+  // subscription
+  (async () => {
+    const onNext = (data) => {
+      console.log("Subscription data:", data);
+    };
+
+    await new Promise((resolve, reject) => {
+      client.subscribe(
+        {
+          query: 'subscription { greetings }',
+        },
+        {
+          next: onNext,
+          error: reject,
+          complete: resolve,
+        },
+      );
+    });
+  })();
+
+</script>
+</body>
+</html>
 ```
 
 ### IDEA 插件
