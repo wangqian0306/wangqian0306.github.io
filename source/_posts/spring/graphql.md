@@ -422,39 +422,6 @@ dependencies {
 }
 ```
 
-然后编写 `DataRepository` ： 
-
-```java
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-
-@Repository
-public class DataRepository {
-
-    public String getBasic() {
-        return "Hello world!";
-    }
-
-    public Mono<String> getGreeting() {
-        return Mono.delay(Duration.ofMillis(50)).map(aLong -> "Hello!");
-    }
-
-    public Flux<String> getGreetings() {
-        return Mono.delay(Duration.ofMillis(50))
-                .flatMapMany(aLong -> Flux.just("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!"));
-    }
-
-    public Flux<String> getGreetingsStream() {
-        return Mono.delay(Duration.ofMillis(50))
-                .flatMapMany(aLong -> Flux.just("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!"));
-    }
-
-}
-```
-
 编写 Controller：
 
 ```java
@@ -462,35 +429,28 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @Controller
 public class SampleController {
 
-    private final DataRepository repository;
-
-    public SampleController(DataRepository dataRepository) {
-        this.repository = dataRepository;
-    }
-
     @QueryMapping
     public String greeting() {
-        return this.repository.getBasic();
-    }
-
-    @QueryMapping
-    public Mono<String> greetingMono() {
-        return this.repository.getGreeting();
-    }
-
-    @QueryMapping
-    public Flux<String> greetingsFlux() {
-        return this.repository.getGreetings();
+        return "Hello world!";
     }
 
     @SubscriptionMapping
     public Flux<String> greetings() {
-        return this.repository.getGreetingsStream();
+        return Flux.fromStream(Stream.generate(new Supplier<String>() {
+            @Override
+            public String get() {
+                return "Hello " + Instant.now() + "!";
+            }
+        })).delayElements(Duration.ofSeconds(1)).take(5);
     }
 
 }
@@ -501,8 +461,6 @@ public class SampleController {
 ```text
 type Query {
     greeting: String
-    greetingMono : String
-    greetingsFlux : [String]
 }
 type Subscription {
     greetings: String
@@ -535,68 +493,26 @@ subscription {
 还可以按照如下样例编写单元测试
 
 ```java
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.graphql.test.tester.GraphQlTester;
-import org.springframework.graphql.test.tester.WebSocketGraphQlTester;
-import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import java.net.URI;
+@GraphQlTest(SampleController.class)
+public class WebFluxWebSocketSampleTests {
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class WebFluxWebSocketSampleIntegrationTests {
-
-    @LocalServerPort
-    private int port;
-
-    @Value("http://localhost:${local.server.port}${spring.graphql.websocket.path}")
-    private String baseUrl;
-
+    @Autowired
     private GraphQlTester graphQlTester;
-
-
-    @BeforeEach
-    void setUp() {
-        URI url = URI.create(baseUrl);
-        this.graphQlTester = WebSocketGraphQlTester.builder(url, new ReactorNettyWebSocketClient()).build();
-    }
 
     @Test
     void greetingMono() {
-        this.graphQlTester.document("{greetingMono}")
+        this.graphQlTester.document("{greeting}")
                 .execute()
-                .path("greetingMono")
+                .path("greeting")
                 .entity(String.class)
-                .isEqualTo("Hello!");
-    }
-
-    @Test
-    void greetingsFlux() {
-        this.graphQlTester.document("{greetingsFlux}")
-                .execute()
-                .path("greetingsFlux")
-                .entityList(String.class)
-                .containsExactly("Hi!", "Bonjour!", "Hola!", "Ciao!", "Zdravo!");
-    }
-
-    @Test
-    void subscriptionWithEntityPath() {
-        Flux<String> result = this.graphQlTester.document("subscription { greetings }")
-                .executeSubscription()
-                .toFlux("greetings", String.class);
-
-        StepVerifier.create(result)
-                .expectNext("Hi!")
-                .expectNext("Bonjour!")
-                .expectNext("Hola!")
-                .expectNext("Ciao!")
-                .expectNext("Zdravo!")
-                .verifyComplete();
+                .isEqualTo("Hello world!");
     }
 
     @Test
@@ -607,8 +523,8 @@ public class WebFluxWebSocketSampleIntegrationTests {
 
         StepVerifier.create(result)
                 .consumeNextWith(response -> response.path("greetings").hasValue())
-                .consumeNextWith(response -> response.path("greetings").matchesJson("\"Bonjour!\""))
-                .consumeNextWith(response -> response.path("greetings").matchesJson("\"Hola!\""))
+                .consumeNextWith(response -> response.path("greetings").hasValue())
+                .consumeNextWith(response -> response.path("greetings").hasValue())
                 .expectNextCount(2)
                 .verifyComplete();
     }
