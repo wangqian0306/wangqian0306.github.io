@@ -14,6 +14,12 @@ no_toc: false
 
 Hugging Face 是一个专注于机器学习，数据集和 AI 应用的社区。
 
+### 外部项目
+
+[Meta Llama 2](https://huggingface.co/meta-llama)
+
+[Code Llama](https://huggingface.co/codellama)
+
 ### 常用内容
 
 #### Chat
