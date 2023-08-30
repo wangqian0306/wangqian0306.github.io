@@ -63,6 +63,85 @@ public class TestController {
 }
 ```
 
+编写配置文件 `application.yaml`：
+
+```yaml
+server:
+  port: 8080
+spring:
+  rsocket:
+    server:
+      port: 7000
+```
+
+编写单元测试：
+
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.messaging.rsocket.RSocketStrategies;
+import org.springframework.util.MimeTypeUtils;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+@SpringBootTest
+public class TestControllerTest {
+
+    private RSocketRequester requester;
+
+    @Autowired
+    private RSocketStrategies rSocketStrategies;
+
+    @BeforeEach
+    public void setup() {
+        requester = RSocketRequester.builder()
+                .rsocketStrategies(rSocketStrategies)
+                .dataMimeType(MimeTypeUtils.APPLICATION_JSON)
+                .tcp("localhost", 7000);
+    }
+
+    @Test
+    public void testGetByName() {
+        Mono<Message> result = requester
+                .route("getByName")
+                .data("demo")
+                .retrieveMono(Message.class);
+
+        // Verify that the response message contains the expected data
+        StepVerifier
+                .create(result)
+                .consumeNextWith(message -> {
+                    assertThat(message.name()).isEqualTo("demo");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testCreate() {
+        Mono<Message> result = requester
+                .route("create")
+                .data(new Message("TEST", "Request"))
+                .retrieveMono(Message.class);
+
+        // Verify that the response message contains the expected data
+        StepVerifier
+                .create(result)
+                .consumeNextWith(message -> {
+                    assertThat(message.name()).isEqualTo("TEST");
+                    assertThat(message.content()).isEqualTo("Request");
+                })
+                .verifyComplete();
+    }
+
+}
+```
+
 ### 调试工具
 
 #### RSocket Requests In HTTP Client
@@ -95,20 +174,22 @@ Content-Type: application/json
 使用如下命令即可完成测试：
 
 ```bash
-java -jar rsc.jar --debug --request --data "wq" --route getByName tcp://localhost:9090
+java -jar rsc.jar --debug --request --data "wq" --route getByName tcp://localhost:7000
 ```
 
 或：
 
 ```bash
-java -jar rsc.jar --debug --request --data '{"name":"wq","content":"nice"}' --route create tcp://localhost:9090
+java -jar rsc.jar --debug --request --data '{"name":"wq","content":"nice"}' --route create tcp://localhost:7000
 ```
 
-> 注：在本地它报错了，尚且不清楚原因。
+> 注：在 Windows 环境中报错了，但可以用 IDEA 插件进行测试。
 
 ### 参考资料
 
-[官方文档](https://docs.spring.io/spring-framework/reference/rsocket.html)
+[Spring Framework 官方文档](https://docs.spring.io/spring-framework/reference/rsocket.html)
+
+[Spring Boot 官方文档](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#messaging.rsocket)
 
 [Getting Started With RSocket On Spring Boot](https://github.com/benwilcock/spring-rsocket-demo)
 
