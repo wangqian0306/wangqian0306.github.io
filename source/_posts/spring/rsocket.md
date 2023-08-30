@@ -142,6 +142,33 @@ public class TestControllerTest {
 }
 ```
 
+### WebSocket 
+
+除了使用 tcp 链接之外还可以采用 WebSocket 协议，仅需完成如下配置:
+
+```yaml
+server:
+  port: 8080
+spring:
+  rsocket:
+    server:
+      port: 7000
+      mapping-path: /rsocket
+      transport: websocket
+```
+
+测试类的部分则需要修改链接的建立方式：
+
+```java
+@BeforeEach
+public void setup() {
+    requester = RSocketRequester.builder()
+            .rsocketStrategies(rSocketStrategies)
+            .dataMimeType(MimeTypeUtils.APPLICATION_JSON)
+            .websocket(URI.create("ws://localhost:7000/rsocket"));
+}
+```
+
 ### 调试工具
 
 #### RSocket Requests In HTTP Client
@@ -149,14 +176,14 @@ public class TestControllerTest {
 在 JetBrains Marketplace 中寻找 `RSocket Requests In HTTP Client` 插件并安装即可使用如下的 `test.http` 文件进行测试：
 
 ```text
-### rsocket get demo
+### rsocket getByName
 RSOCKET getByName
 Host: localhost:9090
 Content-Type: application/json
 
 1
 
-### rsocket complex_param demo
+### rsocket create
 RSOCKET create
 Host: localhost:9090
 Content-Type: application/json
@@ -165,6 +192,13 @@ Content-Type: application/json
   "name": "wq",
   "content": "wqnice"
 }
+
+### rsocket getByName websocket
+RSOCKET getByName
+Host: ws://localhost:7000/rsocket
+Content-Type: application/json
+
+1
 ```
 
 #### RSocket Client CLI (RSC)
@@ -184,6 +218,12 @@ java -jar rsc.jar --debug --request --data '{"name":"wq","content":"nice"}' --ro
 ```
 
 > 注：在 Windows 环境中报错了，但可以用 IDEA 插件进行测试。
+
+在 WebSocket 协议中应该采用下面的命令：
+
+```bash
+java -jar rsc.jar --debug --request --data '1' --route getByName ws://localhost:7000/rsocket
+```
 
 ### 参考资料
 
