@@ -593,6 +593,109 @@ public class WebFluxWebSocketSampleTests {
 </html>
 ```
 
+### RSocket
+
+首先需要切换 Web 至 WebFlux，并引入 RSocket 样例如下：
+
+```grovvy
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework.boot:spring-boot-starter-rsocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
+}
+```
+
+编写 Record 类：
+
+```java
+public record Message(String name, String content) {
+}
+```
+
+编写 Controller：
+
+```java
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+@Controller
+public class SampleController {
+
+    @MessageMapping("graphql")
+    public String greeting() {
+        return "Hello world!";
+    }
+
+    @MessageMapping("graphql")
+    public Flux<String> greetings() {
+        return Flux.fromStream(Stream.generate(new Supplier<String>() {
+            @Override
+            public String get() {
+                return "Hello " + Instant.now() + "!";
+            }
+        })).delayElements(Duration.ofSeconds(1)).take(5);
+    }
+
+}
+```
+
+编写 `src/main/resources/graphql/schema.graphqls` 配置文件：
+
+```text
+type Query {
+    greeting: String
+}
+type Subscription {
+    greetings: String
+}
+```
+
+编写 `src/main/resources/application.yaml` 配置文件
+
+```yaml
+server:
+  port: 8080
+spring:
+  rsocket:
+    server:
+      port: 7000
+      mapping-path: /rsocket
+      transport: websocket
+```
+
+参照 RSocket 文档使用如下命令即可完成测试：
+
+```bash
+java -jar rsc.jar --request --route=graphql --dataMimeType="application/graphql+json" --data '{"query": "query {\n  greeting\n}"}' --debug ws://localhost:7000/rsocket
+java -jar rsc.jar --stream --route=graphql --dataMimeType="application/graphql+json" --data='{"subscription": "subscription { greetings { greeting } }"}' --debug ws://localhost:7000/rsocket
+```
+
+或者使用 RSocket Requests In HTTP Client：
+
+```text
+### query
+GRAPHQL rsocketws://localhost:8080/rsocket/graphql
+
+query {greeting}
+
+### sub
+GRAPHQL rsocketws://localhost:8080/rsocket/graphql
+
+subscription { greetings }
+```
+
 ### IDEA 插件
 
 在 IDEA 插件中可以找到 GraphQL 插件，此插件可以完成一些代码提示和运行测试的功能。

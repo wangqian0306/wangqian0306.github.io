@@ -217,7 +217,7 @@ java -jar rsc.jar --debug --request --data "wq" --route getByName tcp://localhos
 java -jar rsc.jar --debug --request --data '{"name":"wq","content":"nice"}' --route create tcp://localhost:7000
 ```
 
-> 注：在 Windows 环境中报错了，但可以用 IDEA 插件进行测试。
+> 注：不要使用 CMD 或 Power Shell 直接用 Bash，否则会报错。
 
 在 WebSocket 协议中应该采用下面的命令：
 
