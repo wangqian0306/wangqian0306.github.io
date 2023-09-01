@@ -199,6 +199,12 @@ Host: ws://localhost:7000/rsocket
 Content-Type: application/json
 
 1
+
+### rsocket stream
+STREAM st
+Host: ws://localhost:7000/rsocket
+Content-Type: application/json
+
 ```
 
 #### RSocket Client CLI (RSC)
