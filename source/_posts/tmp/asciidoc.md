@@ -37,8 +37,26 @@ AsciiDoc 有很多的处理器(例如 Asciidoctor)读取 AsciiDoc 源并将其�
 
 > 注：虽然名字是 AsciiDoc 但实际上是 Asciidoctor 的插件。
 
+### Asciidoctor 环境安装
+
+Asciidoctor 需要 ruby 环境才能进行安装具体命令如下：
+
+```bash
+dnf install ruby -y
+gem install asciidoctor
+gem install asciidoctor-pdf --pre
+```
+
+此外由于 `Asciidoctor` 不支持中文，所以还需要自行安装中文字体和字形，可以使用 [参考字库及文件](https://github.com/life888888/asciidoctor-pdf-cjk-ext) 中的 `notosans-cjk-sc.zip` 压缩包来预览渲染结果，使用命令如下：
+
+```bash
+asciidoctor-pdf -a pdf-theme=default-notosans-cjk-sc-theme.yml -a pdf-fontsdir=. test.adoc
+```
+
 ### 参考资料
 
 [语法文档](https://docs.asciidoctor.org/asciidoc/latest/)
 
 [处理器文档](https://docs.asciidoctor.org/asciidoctor/latest/)
+
+[参考字库及文件](https://github.com/life888888/asciidoctor-pdf-cjk-ext)
