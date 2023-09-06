@@ -59,4 +59,10 @@ asciidoctor-pdf -a pdf-theme=default-notosans-cjk-sc-theme.yml -a pdf-fontsdir=.
 
 [处理器文档](https://docs.asciidoctor.org/asciidoctor/latest/)
 
+[PDF 主题配置](https://docs.asciidoctor.org/pdf-converter/latest/theme/)
+
+[自定义字体和主题](https://docs.asciidoctor.org/pdf-converter/latest/theme/cjk/)
+
 [参考字库及文件](https://github.com/life888888/asciidoctor-pdf-cjk-ext)
+
+[Noto Sans CJK 字库](https://github.com/notofonts/noto-cjk)
