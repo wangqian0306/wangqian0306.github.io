@@ -22,6 +22,7 @@ VNC (Virtual Network Console) 为一种使用 RFB 协议的屏幕画面分享及
 dnf install tigervnc-server
 firewall-cmd --add-service=vnc-server
 firewall-cmd --runtime-to-permanent
+firewall-cmd --reload
 ```
 
 然后使用如下命令配置密码：
