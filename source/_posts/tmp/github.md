@@ -4,7 +4,6 @@ date: 2020-04-01 21:57:04
 tags: 
 - "Codespaces"
 - "Gitpod"
-
 id: github
 no_word_count: true
 no_toc: true
@@ -54,6 +53,19 @@ Vercel 是一个框架、它提供了工作流程和基础设施，可以将 git
 - 从 GitHub 项目创建(详情参照官方手册)
 - 从 [模板项目](https://vercel.com/new/templates) 创建
 
+### OpenCommit
+
+OpenCommit 是一款根据提交文件的变动自动生成 commit-log 的软件。
+
+使用方式：
+
+```bash
+npm install -g opencommit
+oco config set OCO_OPENAI_API_KEY=<your_api_key>
+```
+
+> 注：需要 OpenAI 的 Token，目前可以使用 Azure 免费搭建个人版。
+
 ### 参考资料
 
 [GitHub 官方手册](https://docs.github.com/cn)
@@ -63,3 +75,5 @@ Vercel 是一个框架、它提供了工作流程和基础设施，可以将 git
 [Codespaces 官方手册](https://docs.github.com/en/codespaces)
 
 [Vercel 官方手册](https://vercel.com/docs)
+
+[OpenCommit](https://github.com/di-sukharev/opencommit)
