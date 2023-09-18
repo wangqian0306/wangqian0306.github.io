@@ -31,14 +31,63 @@ dependencies {
 
 在使用时仅需要编辑 `application.yaml` 配置文件即可，具体样例如下： 
 
-#### 开启设备运行状态信息
-
 ```yaml
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "health,info"
 ```
+
+> 注：上面的样例表示了开放 health 和 info 信息，其他内容请参照官方文档。
 
 #### 开启版本和服务信息
 
 ```yaml
+management:
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+    java:
+      enabled: true
+    os:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+info:
+  app:
+    name: demo
+    description: demo server
+    verion: 1.0.0
+    author: demo
+    docs: http://www.google.com
+```
+
+### 自定义端点
+
+```java
+import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
+import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.stereotype.Service;
+
+@Service
+@Endpoint(id = "demo")
+public class DemoEndpoint {
+
+    @ReadOperation
+    public String demo() {
+        return "{\"hello\":\"demo\"}";
+    }
+
+}
 ```
 
 ### 参考资料
