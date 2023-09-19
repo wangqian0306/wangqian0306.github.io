@@ -48,6 +48,12 @@ tasks.named("bootBuildImage") {
 首先可以安装如下 `c++` 依赖：
 
 ```bash
+dnf insatll gcc -y
+```
+
+> 注：目前版本好像这个就够了，且由于 ld 包更新的原因导致最新版的 fedora 无法构建 native 容器。
+
+```bash
 dnf install libstdc++ libstdc++-docs libstdc++-static -y
 dnf install zlib zlib-static -y
 dnf install freetype freetype-devel -y
