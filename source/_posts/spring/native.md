@@ -53,16 +53,19 @@ dnf insatll gcc -y
 
 > 注：目前版本好像这个就够了，且由于 ld 包更新的原因导致最新版的 fedora 无法构建 native 容器。
 
-```bash
-dnf install libstdc++ libstdc++-docs libstdc++-static -y
-dnf install zlib zlib-static -y
-dnf install freetype freetype-devel -y
-```
 
 然后使用如下命令即可完成构建：
 
 ```bash
 ./gradlew nativeCompile
+```
+
+若构建失败则可以尝试安装如下包：
+
+```bash
+dnf install libstdc++ libstdc++-docs libstdc++-static -y
+dnf install zlib zlib-static -y
+dnf install freetype freetype-devel -y
 ```
 
 生成的二进制文件位于 `build/native/nativeCompile` 路径下，可以直接运行，用于检测打包是否完全。
