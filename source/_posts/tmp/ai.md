@@ -22,6 +22,14 @@ no_toc: false
 
 此项目可以在本地搭建一个聊天服务器，并且可以替换各种模型
 
+#### Tabby
+
+项目地址：[Tabby](https://github.com/TabbyML/tabby)
+
+此项目可以在本地搭建一个代码提示服务器，并且可以使用不同参数的 CodeLama 和 StarCoder 等模型。
+
+> 注：目前已有 VS Code，IntelliJ Platform 和 VIM 的支持插件。 
+
 ### 环境准备
 
 #### PyTorch
