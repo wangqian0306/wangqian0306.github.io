@@ -195,6 +195,24 @@ public class TestController {
 ```
 
 
+### 常见问题
+
+#### 获取请求状态码
+
+可以使用如下样例获取请求结果对象，然后读取状态码等信息
+
+```java
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.service.annotation.GetExchange;
+
+public interface JokeClient {
+
+    @GetExchange("/")
+    ResponseEntity<JokeResponse> random();
+
+}
+```
+
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/docs/6.0.7/reference/html/web-reactive.html#webflux-client)
