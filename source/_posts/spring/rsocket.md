@@ -231,6 +231,59 @@ java -jar rsc.jar --debug --request --data '{"name":"wq","content":"nice"}' --ro
 java -jar rsc.jar --debug --request --data '1' --route getByName ws://localhost:7000/rsocket
 ```
 
+### 常见问题
+
+#### 聊天室 Demo
+
+```java
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+@Controller
+public class RsocketController {
+
+    private final ConcurrentHashMap<String, FluxSink<Message>> clientMap = new ConcurrentHashMap<>();
+
+    @MessageMapping("data")
+    Flux<Message> data(@Payload String id) {
+        return Flux.create(sink -> clientMap.put(id, sink));
+    }
+
+    @MessageMapping("chat")
+    Mono<Void> chat(@Payload Message message) {
+        clientMap.forEach((userId, sink) -> sink.next(message));
+        return Mono.empty();
+    }
+
+}
+```
+
+#### 与 SpringSecurity 和 JWT 集成
+
+需要修改引入的类
+
+```grovvy
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-rsocket'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+  implementation 'org.springframework.security:spring-security-messaging'
+  implementation 'org.springframework.security:spring-security-rsocket'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'io.projectreactor:reactor-test'
+  testImplementation 'org.springframework.security:spring-security-test'
+}
+```
+
+[与 Spring Security 集成](https://docs.spring.io/spring-security/reference/reactive/integrations/rsocket.html#rsocket-authentication-setup-vs-request)
+
 ### 参考资料
 
 [Spring Framework 官方文档](https://docs.spring.io/spring-framework/reference/rsocket.html)
