@@ -8,7 +8,8 @@ tags:
 id: jpa
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- Spring
 ---
 
 ## Spring Data JPA
@@ -383,7 +384,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public TestService {
+public class TestService {
     public static Specification<Author> hasBookWithTitle(String bookTitle) {
         return (root, query, criteriaBuilder) -> {
             Join<Book, Author> authorsBook = root.join("books");
@@ -583,3 +584,44 @@ public class TestController {
 #### 单元测试
 
 在编写单元测试时需要加上 `@DataJpaTest` 注解，此注解会使用内存数据库进行测试，而不会产生多余的测试数据。 
+样例如下：
+
+```java
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+
+@DataJdbcTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+public class DataTest {
+    
+}
+```
+
+还可以在测试时指定独立的配置环境：
+
+```java
+import org.springframework.test.context.ActiveProfiles;
+
+@ActiveProfiles("dev")
+public class DataTest {
+
+}
+```
+
+或是直接使用测试容器：
+
+```java
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class DataTest {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.0");
+    
+}
+```
