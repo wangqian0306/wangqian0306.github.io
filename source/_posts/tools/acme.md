@@ -19,13 +19,20 @@ Automatic Certificate Management Environment (ACME) 协议是一种通信协议�
 
 #### acme.sh
 
-使用如下命令即可完成安装和配置：
+使用如下命令即可完成安装：
 
 ```bash
 curl https://get.acme.sh | sh -s email=<email>
 ```
 
-使用如下命令即可签发证书：
+如果没有 nginx 服务器则使用如下命令：
+
+```bash
+yum install -y socat
+acme.sh --issue -d <domain> --standalone
+```
+
+如有 Nginx 服务器则使用如下命令：
 
 ```bash
 acme.sh --issue -d <domain> --nginx /etc/nginx/conf.d/<domain>.conf
@@ -42,19 +49,15 @@ acme.sh --install-cert -d <domain> \
 --reloadcmd     "service nginx force-reload"
 ```
 
+> 注：`--reloadcmd` 可以自行替换，如使用 `docker-compose` 则可以使用 `cd /opt/nginx && docker-compose restart` 
+
 查看证书相关信息：
 
 ```bash
 acme.sh --info -d <domain>
 ```
 
-自动更新证书需要开启 cronjob 并写入如下内容：
-
-```text
-56 * * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null
-```
-
-检查 cronjob 可以使用如下命令：
+在安装完成后会自动添加 `cronjob` ，检查 cronjob 可以使用如下命令：
 
 ```bash
 crontab  -l
