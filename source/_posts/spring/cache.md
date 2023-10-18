@@ -34,7 +34,9 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 
 > 注：后续将使用 Redis 作为缓存库进行说明。
 
-### 环境依赖
+### Redis
+
+#### 环境依赖
 
 使用 Redis 缓存需要新增下面的依赖
 
@@ -52,13 +54,13 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 </dependency>
 ```
 
-### 链接配置
+#### 链接配置
 
 由于使用了 Redis 作为存储组件，所以需要配置 Redis 的链接。
 
 详细内容请参照[官方文档](https://docs.spring.io/spring-data/redis/docs/2.3.1.RELEASE/reference/html/#redis)
 
-#### 单机模式
+##### 单机模式
 
 简单使用和测试的话可以使用单机模式进行配置，仅需要在配置文件中写入如下内容即可:
 
@@ -68,7 +70,7 @@ spring.redis.port=6379
 spring.redis.database=0
 ```
 
-#### 主从 + 哨兵模式
+##### 主从 + 哨兵模式
 
 主从加哨兵模式可以使用如下的配置项:
 
@@ -78,12 +80,48 @@ spring.redis.sentinel.nodes=192.168.1.1:26379,192.168.1.2:26379,192.168.1.3:2637
 spring.redis.sentinel.password=123456789
 ```
 
-#### 集群模式
+##### 集群模式
 
 集群模式可以使用如下的配置项:
 
 ```properties
 spring.redis.cluster.nodes=192.168.1.1:16379,192.168.1.2:16379,192.168.1.3:16379
+```
+
+### Caffeine
+
+#### 简介
+
+Caffeine 是一款本地缓存的框架，详细技术栈参照如下文档：
+
+[Design Of A Modern Cache](http://highscalability.com/blog/2016/1/25/design-of-a-modern-cache.html)
+
+[Design Of A Modern Cache—Part Deux](http://highscalability.com/blog/2019/2/25/design-of-a-modern-cachepart-deux.html)
+
+#### 环境依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+```
+
+```xml
+<dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>caffeine</artifactId>
+</dependency>
+```
+
+#### 配置项
+
+```yaml
+spring:
+  cache:
+    cache-names: "cache1,cache2"
+    caffeine:
+      spec: "maximumSize=500,expireAfterAccess=600s"
 ```
 
 ### 相关注解及说明
