@@ -675,3 +675,5 @@ public class UserControllerTest {
 [baeldung 教程](https://www.baeldung.com/security-spring)
 
 [RSA 密钥生成](http://www.metools.info/code/c80.html)
+
+[spring-boot-3-jwt-security](https://github.com/ali-bouali/spring-boot-3-jwt-security)
