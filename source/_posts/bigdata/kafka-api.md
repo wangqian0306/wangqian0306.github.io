@@ -96,7 +96,7 @@ Producer API 允许应用程序从 Kafka 集群中的主题拉取数据流。
 ```python
 from kafka import KafkaConsumer
 
-consumer = KafkaConsumer(bootstrap_servers='xxxx:xxxx,xxxx:xxxx', topic='<topic>', group_id='<group>')
+consumer = KafkaConsumer('<topic>', bootstrap_servers='xxxx:xxxx,xxxx:xxxx', group_id='<group>')
 for msg in consumer:
     print (msg)
 ```

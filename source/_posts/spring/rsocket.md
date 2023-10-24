@@ -284,6 +284,48 @@ dependencies {
 
 [与 Spring Security 集成](https://docs.spring.io/spring-security/reference/reactive/integrations/rsocket.html#rsocket-authentication-setup-vs-request)
 
+```java
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
+import org.springframework.stereotype.Component;
+
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
+@Component
+public class RSocketSecurityConfig {
+
+    @Value("${jwt.public.key}")
+    RSAPublicKey publicKey;
+
+    @Value("${jwt.private.key}")
+    RSAPrivateKey privateKey;
+
+    @Bean
+    PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+        rsocket
+                .authorizePayload(authorize ->
+                        authorize
+                                .anyRequest().authenticated()
+                                .anyExchange().permitAll()
+                )
+                .jwt(Customizer.withDefaults());
+        return rsocket.build();
+    }
+
+    @Bean
+    ReactiveJwtDecoder jwtDecoder() {
+        return NimbusReactiveJwtDecoder.withPublicKey(publicKey).build();
+    }
+
+}
+```
+
 ### 参考资料
 
 [Spring Framework 官方文档](https://docs.spring.io/spring-framework/reference/rsocket.html)
