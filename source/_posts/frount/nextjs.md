@@ -38,7 +38,7 @@ npm i @chakra-ui/react @emotion/react @emotion/styled framer-motion
 
 在安装完成后需要修改 `src/pages/_app.tsx` 文件，引入 ui 插件：
 
-```typescript jsx
+```typescript
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ChakraProvider } from "@chakra-ui/react";
