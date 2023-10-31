@@ -453,6 +453,14 @@ const api = createApi({
 })
 ```
 
+### chroma-js
+
+chroma-js 是一个用于操作颜色的库。其在 typescript 中的安装方式如下：
+
+```bash
+npm install @types/chroma-js chroma-js
+```
+
 ### 参考资料
 
 [Next.js 官方文档](https://nextjs.org/docs/getting-started)
