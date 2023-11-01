@@ -35,6 +35,18 @@ npx create-next-app@latest
 npm install @mui/material @emotion/react @emotion/styled
 ```
 
+#### 与 Next.js 带主题集成
+
+```typescript jsx
+
+```
+
+#### 自定义带参数 mui 插件
+
+```typescript jsx
+
+```
+
 ### chakra-ui 插件
 
 使用如下命令安装即可：
