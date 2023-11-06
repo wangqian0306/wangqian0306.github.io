@@ -1,9 +1,39 @@
 ## V2ray
 
-### 部署
+### V2rayN
 
-```bash
-docker run -d --name v2ray -v /path/to/config.json:/etc/v2ray/config.json -p 10086:10086 v2fly/v2fly-core run -c /etc/v2ray/config.json
+> 注：需要安装 .Net core 
+
+- 添加订阅分组
+- 更新当前订阅
+- 测试全部
+- 选择服务器
+
+### V2rayNG
+
+> 注：直接访问 Play 商店即可
+
+- 点击设置
+    - 订阅分组设置
+        - 添加
+- 点击选项
+    - 更新订阅
+    - 测试全部
+- 选择服务器
+- 点击 V 图标
+
+### 容器部署
+
+```yaml
+version: '3'
+services:
+  v2ray:
+    image: v2fly/v2fly-core
+    ports:
+      - "10086:10086"
+    volumes:
+      - /path/to/config.json:/etc/v2ray/config.json
+    command: run -c /etc/v2ray/config.json
 ```
 
 ### 参考资料
