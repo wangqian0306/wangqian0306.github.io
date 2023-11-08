@@ -151,27 +151,40 @@ export default function RootLayout({
 #### 自定义带参数 mui 插件
 
 ```typescript jsx
-import Box from "@mui/material/Box";
-import { styled } from "@mui/material/styles";
+import * as React from 'react';
+import { styled } from '@mui/material/styles';
+import Slider, { SliderProps } from '@mui/material/Slider';
 
-enum Variant {
-    Contained,
-    Gradient
+interface StyledSliderProps extends SliderProps {
+  success?: boolean;
 }
 
-export interface BoxState {
-    variant?: Variant | string,
-    bgColor?: string,
-    boxColor?: string,
-    opacity?: number,
-    boxBorderRadius?: string,
-    shadow?: string
-}
+const StyledSlider = styled(Slider, {
+  shouldForwardProp: (prop) => prop !== 'success',
+})<StyledSliderProps>(({ success, theme }) => ({
+  ...(success &&
+    {
+      // TODO
+    }),
+}));
+```
 
-const SoftBox = styled(Box)<BoxState>(({ theme, variant,bgColor,boxColor,boxBorderRadius,shadow, opacity }) => {
-    return {}
-});
-export default SoftBox;
+#### 自定义主题参数
+
+```typescript jsx
+declare module '@mui/material/styles' {
+  interface Theme {
+    status: {
+      danger: string;
+    };
+  }
+  // allow configuration using `createTheme`
+  interface ThemeOptions {
+    status?: {
+      danger?: string;
+    };
+  }
+}
 ```
 
 ### chakra-ui 插件
