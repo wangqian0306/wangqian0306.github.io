@@ -11,7 +11,13 @@ categories: JAVA
 
 ## AWT
 
-### 合并图片
+### 简介
+
+抽象视窗工具组(Abstract Window Toolkit，简称：AWT) 是Java的平台独立的视窗系统，也是图形和使用界面的工具包。
+
+### 常见使用样例
+
+#### 合并图片并设定位置
 
 ```java
 import javax.imageio.ImageIO;

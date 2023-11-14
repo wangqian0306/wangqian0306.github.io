@@ -34,3 +34,5 @@ services:
 [项目](https://github.com/MetaCubeX/Clash.Meta/tree/Alpha)
 
 [面板](https://github.com/MetaCubeX/metacubexd/tree/main)
+
+[另一款](https://github.com/hiddify/hiddify-next)
