@@ -17,6 +17,35 @@ categories: JAVA
 
 ### 常见使用样例
 
+#### 获取图像宽高
+
+```java
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+public class ImageSizeExample {
+
+    public static void main(String[] args) {
+        String imagePath = "path/to/your/image.jpg";
+
+        try {
+            File imageFile = new File(imagePath);
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+
+            int width = bufferedImage.getWidth();
+            int height = bufferedImage.getHeight();
+
+            System.out.println("Image Width: " + width);
+            System.out.println("Image Height: " + height);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
 #### 合并图片并设定位置
 
 ```java
