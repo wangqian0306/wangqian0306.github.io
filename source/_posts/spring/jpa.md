@@ -64,6 +64,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Date;
 
+enum TypeEnum {
+    A,
+    B
+}
+
 @Getter
 @Setter
 @ToString
@@ -74,6 +79,9 @@ public class Test {
 
     @Id
     private String id;
+    
+    @Enumerated(EnumType.STRING)
+    private TypeEnum type = TypeEnum.A;
 
     @CreatedBy
     private String createdBy;
