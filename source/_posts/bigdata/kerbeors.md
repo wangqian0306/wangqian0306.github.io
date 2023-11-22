@@ -415,6 +415,19 @@ kadmin.local
 xst -norandkey -k admin.keytab cloudera-scm/admin@<realm>
 ```
 
+- 检查登录密钥：
+
+```text
+[xxxx@xxxx xxxx]# ktutil
+ktutil:  read_kt admin.keytab
+ktutil:  list
+slot KVNO Principal
+---- ---- ---------------------------------------------------------------------
+   1    2 xxxx/xxxxx@<realm>
+   ....
+ktutil:  quit
+```
+
 - 使用秘钥登录
 
 ```bash
