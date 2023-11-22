@@ -21,6 +21,10 @@ GraphCast 是一种基于机器学习的天气预报方式，单纯使用数据�
 
 ```bash
 pip install --upgrade https://github.com/deepmind/graphcast/archive/master.zip
+pip uninstall -y shapely
+yum install gcc gcc-c++ python3.11-devel epel-release -y
+yum install geos geos-devel -y
+pip install shapely --no-binary shapely
 ```
 
 具体使用请参见 [Colab](https://colab.research.google.com/github/deepmind/graphcast/blob/master/graphcast_demo.ipynb)
