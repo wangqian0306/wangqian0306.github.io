@@ -44,6 +44,8 @@ https://gitpod.io/#/github.com/wangqian0306/wangqian0306.github.io
 
 > 注：建议使用 VSCode 作为在线编辑工具，JetBrains 系列需要配合 Gateway 一起使用，不是很方便。
 
+在容器内默认安装了 `sdkman` 和 `pyenv` 可以轻松的切换环境版本。
+
 ### Vercel
 
 Vercel 是一个框架、它提供了工作流程和基础设施，可以将 github 项目部署到外网。
