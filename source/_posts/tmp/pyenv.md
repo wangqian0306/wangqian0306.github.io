@@ -19,6 +19,7 @@ pyenv 是一款多个版本 Python 的管理工具。
 使用如下命令安装：
 
 ```bash
+yum -y install git gcc zlib-devel bzip2-devel readline-devel sqlite-devel openssl-devel libffi libffi-devel lzma-sdk 
 curl https://pyenv.run | bash
 ```
 
