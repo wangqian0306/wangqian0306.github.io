@@ -24,6 +24,7 @@ GloonCV 提供了最先进的（SOTA）深度学习算法在计算机视觉中�
 pip3 install --upgrade mxnet
 pip3 install torch torchvision torchaudio
 pip3 install --upgrade gluoncv
+pip3 install mxnet-mkl==1.5.0
 ```
 
 ### 使用
@@ -37,16 +38,12 @@ from gluoncv import model_zoo, data, utils
 from matplotlib import pyplot as plt
 
 net = model_zoo.get_model('ssd_512_resnet50_v1_voc', pretrained=True)
-im_fname = utils.download('https://github.com/dmlc/web-data/blob/master/' +
-                          'gluoncv/detection/street_small.jpg?raw=true',
-                          path='street_small.jpg')
+im_fname = utils.download('https://github.com/dmlc/web-data/blob/master/' + 'gluoncv/detection/street_small.jpg?raw=true',path='street_small.jpg')
 x, img = data.transforms.presets.ssd.load_test(im_fname, short=512)
 print('Shape of pre-processed image:', x.shape)
 class_IDs, scores, bounding_boxes = net(x)
-
-ax = utils.viz.plot_bbox(img, bounding_boxes[0], scores[0],
-                         class_IDs[0], class_names=net.classes)
-plt.show()
+ax = utils.viz.plot_bbox(img, bounding_boxes[0], scores[0], class_IDs[0], class_names=net.classes)
+plt.savefig('output.png')
 ```
 
 ### 参考资料
