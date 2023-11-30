@@ -12,7 +12,9 @@ no_toc: false
 
 ### 简介
 
-GloonCV 提供了最先进的（SOTA）深度学习算法在计算机视觉中的实现。
+GloonCV 提供了最先进的(SOTA) 深度学习算法在计算机视觉中的实现。
+
+> 注：此项目很久没更新了，而且依赖的 Apache MXNet 项目已经处于 archive 状态。
 
 ### 安装
 
@@ -33,7 +35,7 @@ pip3 install mxnet-mkl==1.5.0
 
 编写如下样例程序即可：
 
-```bash
+```python
 from gluoncv import model_zoo, data, utils
 from matplotlib import pyplot as plt
 
@@ -46,8 +48,45 @@ ax = utils.viz.plot_bbox(img, bounding_boxes[0], scores[0], class_IDs[0], class_
 plt.savefig('output.png')
 ```
 
+可以使用如下程序监控视频流：
+
+```python
+import gluoncv as gcv
+from gluoncv.utils import try_import_cv2
+cv2 = try_import_cv2()
+import datetime
+import mxnet as mx
+
+net = gcv.model_zoo.get_model('ssd_512_mobilenet1.0_voc', pretrained=True)
+net.hybridize()
+
+cap = cv2.VideoCapture('face-demographics-walking.mp4')
+axes = None
+print(datetime.datetime.now())
+while True:
+    ret, frame = cap.read()
+
+    if ret:
+        frame = mx.nd.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).astype('uint8')
+        rgb_nd, frame = gcv.data.transforms.presets.ssd.transform_test(frame, short=512, max_size=700)
+        class_IDs, scores, bounding_boxes = net(rgb_nd)
+        img = gcv.utils.viz.cv_plot_bbox(frame, bounding_boxes[0], scores[0], class_IDs[0], class_names=net.classes)
+        gcv.utils.viz.cv_plot_image(img)
+    else:
+        break
+
+    # Press 'q' to quit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+print(datetime.datetime.now())
+cap.release()
+cv2.destroyAllWindows()
+```
+
 ### 参考资料
 
 [官方网站](https://cv.gluon.ai/)
 
 [官方手册](https://cv.gluon.ai/contents.html)
+
+[测试视频项目](https://github.com/intel-iot-devkit/sample-videos)
