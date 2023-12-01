@@ -18,8 +18,17 @@ pyenv 是一款多个版本 Python 的管理工具。
 
 使用如下命令安装：
 
+- CentOS, Fedora, Rocky Linux
+
 ```bash
-yum -y install git gcc zlib-devel bzip2-devel readline-devel sqlite-devel openssl-devel libffi libffi-devel lzma-sdk 
+yum -y install git gcc zlib-devel bzip2-devel readline-devel sqlite-devel openssl-devel libffi libffi-devel tk-devel xz xz-devel -y
+curl https://pyenv.run | bash
+```
+
+- Ubuntu
+
+```bash
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev openssl git -y
 curl https://pyenv.run | bash
 ```
 
