@@ -25,9 +25,17 @@ pip uninstall -y shapely
 yum install gcc gcc-c++ python3.11-devel epel-release -y
 yum install geos geos-devel -y
 pip install shapely --no-binary shapely
+git clone https://github.com/deepmind/graphcast
+cd graphcast
 ```
 
 具体使用请参见 [Colab](https://colab.research.google.com/github/deepmind/graphcast/blob/master/graphcast_demo.ipynb)
+
+在项目中可以找到 `graphcast.py` 文件，此文件即时程序运行的入口。可以参照如下代码从头开始训练模型：
+
+```python
+
+```
 
 ### 参考资料
 
