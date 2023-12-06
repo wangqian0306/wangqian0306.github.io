@@ -17,6 +17,8 @@ GraphCast 是一种基于机器学习的天气预报方式，单纯使用数据�
 
 ### 使用方式
 
+#### 原生样例
+
 安装依赖：
 
 ```bash
@@ -194,6 +196,20 @@ if __name__ == "__main__":
 
 > 注：由于不知道怎样构建其它数据的 stats 参数和模型，而且官方文档并未对这些内容进行详细说明，故需要找一下其他的方式。
 
+#### Nvidia Modulus
+
+Modulus 是一个开源的深度学习框架，用于使用最先进的物理ML方法构建、训练和微调深度学习模型。
+
+在 Modulus 示例中有预先调整和下载的 GraphCast 样例。
+
+安装环境：
+
+```bash
+git clone https://github.com/NVIDIA/modulus.git
+cd modulus/examples/weather/graphcast
+pip install nvidia-modulus matplotlib wandb 
+```
+
 ### 参考资料
 
 [Learning skillful medium-range global weather forecasting 论文 ](https://www.science.org/stoken/author-tokens/ST-1550/full)
@@ -203,5 +219,7 @@ if __name__ == "__main__":
 [graphcast 官方项目](https://github.com/google-deepmind/graphcast)
 
 [Colab (Notepad)](https://colab.research.google.com/github/deepmind/graphcast/blob/master/graphcast_demo.ipynb)
+
+[GraphCast for weather forecasting(Modulus)](https://github.com/NVIDIA/modulus/tree/main/examples/weather/graphcast)
 
 [Graph Weather](https://github.com/openclimatefix/graph_weather)
