@@ -207,7 +207,22 @@ Modulus 是一个开源的深度学习框架，用于使用最先进的物理ML�
 ```bash
 git clone https://github.com/NVIDIA/modulus.git
 cd modulus/examples/weather/graphcast
-pip install nvidia-modulus matplotlib wandb 
+pip install nvidia-modulus matplotlib wandb netCDF4 scikit-learn
+```
+
+> 注：目前处于 Beta 阶段资料不全，项目运行时读取的静态文件部分没有说明，代码中的读取方式和样例数据不一致，依赖库没有完全安装，所以没有进行详细测试。
+
+#### Graph Weather
+
+Graph Weather 是一种使用 PyTorch 的开源实现。
+
+安装环境：
+
+> 注：此处需要首先访问 [官网](https://pytorch.org/get-started/locally/) 下载对应版本的 PyTorch，然后再安装其余内容。
+
+```bash
+git clone https://github.com/openclimatefix/graph_weather.git
+pip install graph-weather
 ```
 
 ### 参考资料
@@ -221,5 +236,7 @@ pip install nvidia-modulus matplotlib wandb
 [Colab (Notepad)](https://colab.research.google.com/github/deepmind/graphcast/blob/master/graphcast_demo.ipynb)
 
 [GraphCast for weather forecasting(Modulus)](https://github.com/NVIDIA/modulus/tree/main/examples/weather/graphcast)
+
+[Modulus Globus Files](https://app.globus.org/file-manager?origin_id=945b3c9e-0f8c-11ed-8daf-9f359c660fbd&origin_path=%2F)
 
 [Graph Weather](https://github.com/openclimatefix/graph_weather)
