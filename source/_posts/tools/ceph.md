@@ -65,6 +65,54 @@ Ceph Block Device 的特点是简单的配置，可调整存储大小，将数�
 
 如需在 Kubernetes 中使用则可以创建 Ceph PV，又或者使用 [RBD](https://docs.ceph.com/en/latest/rbd/rbd-kubernetes/)
 
+### 开关集群
+
+[集群关闭官方文档](https://access.redhat.com/documentation/zh-cn/red_hat_ceph_storage/3/html/administration_guide/powering-down-and-rebooting-a-red-hat-ceph-storage-cluster-management)
+
+使用如下命令即可：
+
+```bash
+ceph osd set noout
+ceph osd set norecover
+ceph osd set norebalance
+ceph osd set nobackfill
+ceph osd set nodown
+ceph osd set pause
+```
+
+然后关闭 OSD 节点：
+
+```bash
+systemctl stop ceph-osd.target
+```
+
+关闭监控节点：
+
+```bash
+systemctl stop ceph-mon.target
+```
+
+在开机时反向启动节点即可：
+
+```bash
+systemctl start ceph-mon.target
+```
+
+```bash
+systemctl start ceph-osd.target
+```
+
+等待所有节点出现，然后运行如下命令：
+
+```bash
+ceph osd unset noout
+ceph osd unset norecover
+ceph osd unset norebalance
+ceph osd unset nobackfill
+ceph osd unset nodown
+ceph osd unset pause
+```
+
 ### 参考资料
 
 [官方文档](https://docs.ceph.com/en/quincy/start/intro/)
