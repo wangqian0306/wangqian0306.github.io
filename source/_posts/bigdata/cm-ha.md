@@ -1140,6 +1140,7 @@ chmod 755 /etc/rc.d/init.d/cloudera-scm-server
 
 ```bash
 systemctl start corosync
+systemctl enab corosync
 ```
 
 - 关闭 `cloudera-scm-server` 服务自启动和服务
@@ -1283,6 +1284,7 @@ chmod 755 /etc/rc.d/init.d/cloudera-scm-agent
 
 ```bash
 systemctl start corosync
+systemctl enable corosync
 ```
 
 - 关闭 `cloudera-scm-agent` 服务自启动和服务
