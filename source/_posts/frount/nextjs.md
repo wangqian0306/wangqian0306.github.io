@@ -35,14 +35,15 @@ npx create-next-app@latest
 npm install @mui/material @emotion/react @emotion/styled
 ```
 
-#### 与 Next.js 带主题集成
+#### 与 Next.js 带主题集成并进行本地化
 
 主题文件样例如下 `src/assets/index.ts`：
 
 ```typescript
 import {createTheme} from "@mui/material/styles";
+import { zhCN } from '@mui/material/locale';
 
-const theme = createTheme({});
+const theme = createTheme({},zhCN,);
 export default theme;
 ```
 
@@ -56,7 +57,7 @@ import {CacheProvider} from '@emotion/react';
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import React from "react";
-import theme from "@/assets/theme/index"
+import theme from "@/assets"
 
 
 export type ThemeProps = {
@@ -184,6 +185,125 @@ declare module '@mui/material/styles' {
       danger?: string;
     };
   }
+}
+```
+
+#### 复杂表格
+
+需要额外安装插件：
+
+```bash
+npm install @mui/x-data-grid
+```
+
+然后即可编辑如下样例表格：
+
+```typescript jsx
+import * as React from "react";
+import {
+  DataGrid,
+  gridFilteredTopLevelRowCountSelector,
+  gridPageSizeSelector,
+  GridPagination,
+  useGridApiContext,
+  useGridSelector,
+  useGridRootProps,
+} from "@mui/x-data-grid";
+import { createFakeServer } from "@mui/x-data-grid-generator";
+import MuiPagination from "@mui/material/Pagination";
+import { TablePaginationProps } from "@mui/material/TablePagination";
+
+const SERVER_OPTIONS = {
+  useCursorPagination: false,
+};
+
+const { useQuery, ...data } = createFakeServer({}, SERVER_OPTIONS);
+
+const getPageCount = (rowCount: number, pageSize: number): number => {
+  if (pageSize > 0 && rowCount > 0) {
+    return Math.ceil(rowCount / pageSize);
+  }
+
+  return 0;
+};
+
+function Pagination({
+  page,
+  onPageChange,
+  className,
+}: Pick<TablePaginationProps, "page" | "onPageChange" | "className">) {
+  const apiRef = useGridApiContext();
+  const rootProps = useGridRootProps();
+
+  const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
+  const visibleTopLevelRowCount = useGridSelector(
+    apiRef,
+    gridFilteredTopLevelRowCountSelector
+  );
+  const pageCount = getPageCount(
+    rootProps.rowCount ?? visibleTopLevelRowCount,
+    pageSize
+  );
+
+  return (
+    <MuiPagination
+      showFirstButton={true}
+      showLastButton={true}
+      color="primary"
+      className={className}
+      count={pageCount}
+      page={page + 1}
+      onChange={(event, newPage) => {
+        onPageChange(event as any, newPage - 1);
+      }}
+    />
+  );
+}
+
+function CustomPagination(props: any) {
+  return <GridPagination ActionsComponent={Pagination} {...props} />;
+}
+
+export default function ServerPaginationGrid() {
+  const [paginationModel, setPaginationModel] = React.useState({
+    page: 0,
+    pageSize: 5,
+  });
+
+  const { isLoading, rows, pageInfo } = useQuery(paginationModel);
+
+  // Some API clients return undefined while loading
+  // Following lines are here to prevent `rowCountState` from being undefined during the loading
+  const [rowCountState, setRowCountState] = React.useState(
+    pageInfo?.totalRowCount || 0
+  );
+  React.useEffect(() => {
+    setRowCountState((prevRowCountState) =>
+      pageInfo?.totalRowCount !== undefined
+        ? pageInfo?.totalRowCount
+        : prevRowCountState
+    );
+  }, [pageInfo.totalRowCount, setRowCountState]);
+
+  console.log(rowCountState);
+
+  return (
+    <div style={{ height: 400, width: "100%" }}>
+      <DataGrid
+        rows={rows}
+        {...data}
+        rowCount={rowCountState}
+        loading={isLoading}
+        pageSizeOptions={[5, 10]}
+        paginationModel={paginationModel}
+        paginationMode="server"
+        onPaginationModelChange={setPaginationModel}
+        slots={{
+          pagination: CustomPagination,
+        }}
+      />
+    </div>
+  );
 }
 ```
 
