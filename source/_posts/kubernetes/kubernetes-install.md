@@ -223,6 +223,20 @@ kubectl get nodes --all-namespaces
 kubectl get pods --all-namespaces
 ```
 
+### 证书续期
+
+集群的默认证书只有一年，可以使用如下命令检测过期时长：
+
+```bash
+kubeadm certs check-expiration
+```
+
+如果有 `RESIDUAL TIME` 项异常则可以使用此命令进行续期：
+
+```bash
+kubeadm certs renew <CERTIFICATE>
+```
+
 ### 参考资料
 
 [官方文档](https://kubernetes.io/)
