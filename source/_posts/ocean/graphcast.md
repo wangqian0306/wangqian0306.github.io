@@ -225,6 +225,42 @@ git clone https://github.com/openclimatefix/graph_weather.git
 pip install graph-weather
 ```
 
+
+
+
+### 获取数据
+
+> 注：此样例严格限制 Python 版本为 3.10。在演示中采用的具体版本是 3.10.13
+
+ECMWF 提供了一个样例项目用于便捷的生成预测数据，安装方式如下：
+
+```bash
+pip install ai-models
+pip install ai-models-graphcast
+git clone https://github.com/ecmwf-lab/ai-models-graphcast.git 
+cd ai-models-graphcast
+```
+
+如果使用 CPU 则需要使用如下命令：
+
+```bash
+pip install -r requirements.txt
+```
+
+如果使用 GPU 则需要使用如下命令：
+
+```bash
+pip install -r requirements-gpu.txt -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+```
+
+然后使用如下命令即可获取预测数据：
+
+```bash
+ai-models graphcast --date 20231220 --input cds --output output --download-assets
+```
+
+> 注：此程序需要从 [cds](https://cds.climate.copernicus.eu/) 获取数据，需要一个账号。(可以免费注册)
+
 ### 参考资料
 
 [Learning skillful medium-range global weather forecasting 论文 ](https://www.science.org/stoken/author-tokens/ST-1550/full)
@@ -240,3 +276,5 @@ pip install graph-weather
 [Modulus Globus Files](https://app.globus.org/file-manager?origin_id=945b3c9e-0f8c-11ed-8daf-9f359c660fbd&origin_path=%2F)
 
 [Graph Weather](https://github.com/openclimatefix/graph_weather)
+
+[ai-models-graphcast](https://github.com/ecmwf-lab/ai-models-graphcast)
