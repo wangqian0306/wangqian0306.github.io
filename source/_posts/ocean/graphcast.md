@@ -256,7 +256,7 @@ pip install -r requirements-gpu.txt -f https://storage.googleapis.com/jax-releas
 然后使用如下命令即可获取预测数据：
 
 ```bash
-ai-models graphcast --date 20231220 --input cds --output output --download-assets
+ai-models graphcast --date 20231214 --input cds --output file --download-assets
 ```
 
 > 注：此程序需要从 [cds](https://cds.climate.copernicus.eu/) 获取数据，需要一个账号。(可以免费注册)
