@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "css": "^3.0.0",
-    "hexo": "^6.3.0",
+    "hexo": "^7.0.0",
     "hexo-browsersync": "^0.3.0",
     "hexo-deployer-git": "^4.0.0",
     "hexo-filter-plantuml": "^2.1.1",
@@ -35,8 +35,8 @@
     "hexo-tag-aplayer": "^3.0.4",
     "hexo-tag-chart": "^1.0.8",
     "hexo-tag-dplayer": "^0.3.3",
-    "hexo-theme-fluid": "^1.9.4",
+    "hexo-theme-fluid": "^1.9.7",
     "hexo-theme-landscape": "^1.0.0",
-    "markdown-it-emoji": "^2.0.2"
+    "markdown-it-emoji": "^3.0.0"
   }
 }
