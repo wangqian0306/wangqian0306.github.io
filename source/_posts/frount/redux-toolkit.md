@@ -28,17 +28,19 @@ Redux 是一款针对于 javascript 的可预测状态的容器，而 Redux Tool
 npx create-next-app --example with-redux my-app
 ```
 
+> 注：默认采用了 Next.js 的 APP Router 但是它和 redux-persist 有兼容性上的问题，所以仅建议作为参考。
+
 #### 手动配置
+
+> 注：使用 Next.js 自带的命令生成项目即可。!!! 不要勾选 APP Router !!!
 
 首先需要安装依赖包：
 
 ```bash
-npm install @reduxjs/toolkit react-redux
+npm install @reduxjs/toolkit react-redux redux-persist
 ```
 
 然后需要创建 `lib/redux/rootReducer.ts`，并填入如下样例内容：
-
-> 注：lib 目录于 app 目录同级
 
 ```typescript
 import { combineReducers } from 'redux';
@@ -55,21 +57,57 @@ export default reducer;
 /* Core */
 import { configureStore, type ThunkAction, type Action } from '@reduxjs/toolkit'
 import {
-  useSelector as useReduxSelector,
-  useDispatch as useReduxDispatch,
-  type TypedUseSelectorHook,
+    useSelector as useReduxSelector,
+    useDispatch as useReduxDispatch,
+    type TypedUseSelectorHook,
 } from 'react-redux'
 
 /* Instruments */
 import { reducer } from './rootReducer'
-import { middleware } from './middleware'
+
+
+import {persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER} from 'redux-persist'
+import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
+const createNoopStorage = () => {
+    return {
+        getItem(_key: any) {
+            return Promise.resolve(null);
+        },
+        setItem(_key: any, value: any) {
+            return Promise.resolve(value);
+        },
+        removeItem(_key: any) {
+            return Promise.resolve();
+        },
+    };
+};
+const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
+
+const persistConfig = {
+    key: 'root',
+    storage: storage
+}
+
+const persistedReducer = persistReducer(persistConfig, reducer)
+
+function makeStore() {
+    return configureStore({
+        reducer: persistedReducer,
+        devTools: process.env.NODE_ENV !== "production"
+    });
+}
 
 export const reduxStore = configureStore({
-  reducer,
-  middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().concat(middleware)
-  },
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }),
 })
+
+export const persist = persistStore(reduxStore);
 export const useDispatch = () => useReduxDispatch<ReduxDispatch>()
 export const useSelector: TypedUseSelectorHook<ReduxState> = useReduxSelector
 
@@ -78,10 +116,10 @@ export type ReduxStore = typeof reduxStore
 export type ReduxState = ReturnType<typeof reduxStore.getState>
 export type ReduxDispatch = typeof reduxStore.dispatch
 export type ReduxThunkAction<ReturnType = void> = ThunkAction<
-  ReturnType,
-  ReduxState,
-  unknown,
-  Action
+    ReturnType,
+    ReduxState,
+    unknown,
+    Action
 >
 ```
 
@@ -104,10 +142,33 @@ export * from './slices'
 import { Provider } from 'react-redux'
 
 /* Instruments */
-import { reduxStore } from '@/lib/redux'
+import {persist, reduxStore} from '@/lib/redux'
+import {PersistGate} from "redux-persist/integration/react";
 
 export const Providers = (props: React.PropsWithChildren) => {
-  return <Provider store={reduxStore}>{props.children}</Provider>
+  return (
+      <Provider store={reduxStore}>
+          <PersistGate persistor={persist} loading={null}>
+              {props.children}
+          </PersistGate>
+      </Provider>
+  );
+}
+```
+
+还需要将 Provider 注入到 `_app.tsx` 文件中：
+
+```typescript jsx
+import '@/styles/globals.css'
+import type { AppProps } from 'next/app'
+import {Providers} from "@/lib/providers";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+      <Providers>
+          <Component {...pageProps} />
+      </Providers>
+  )
 }
 ```
 
