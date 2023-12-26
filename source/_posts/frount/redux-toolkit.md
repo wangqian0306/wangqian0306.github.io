@@ -236,7 +236,7 @@ export const reducer = combineReducers({
 });
 ```
 
-创建 `app/demo/page.tsx` 页面：
+创建 `pages/counter/index.tsx` 页面：
 
 ```typescript jsx
 'use client'
@@ -274,6 +274,13 @@ export default function Test() {
 
 ### 根据 OpenAPI 生成代码
 
+
+使用如下命令安装相关依赖：
+
+```bash
+npm install -D @rtk-query/codegen-openapi esbuild-runner ts-node
+```
+
 然后需要初始化 `lib/redux/emptyApi.ts` 文件，填入如下内容：
 
 ```typescript
@@ -292,20 +299,14 @@ import type { ConfigFile } from '@rtk-query/codegen-openapi'
 
 const config: ConfigFile = {
     schemaFile: 'http://localhost:8080/v3/api-docs',
-    apiFile: './store/emptyApi.ts',
+    apiFile: './lib/redux/emptyApi.ts',
     apiImport: 'emptySplitApi',
-    outputFile: './store/api.ts',
+    outputFile: './lib/redux/api.ts',
     exportName: 'api',
     hooks: true,
 }
 
 export default config
-```
-
-使用如下命令安装相关依赖：
-
-```bash
-npm install -D @rtk-query/codegen-openapi esbuild-runner ts-node
 ```
 
 之后可以使用如下命令生成代码了：
