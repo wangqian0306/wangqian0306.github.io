@@ -319,56 +319,81 @@ npx @rtk-query/codegen-openapi openapi-config.ts
 
 如果说项目使用了 JWT 等验证方式则需要进一步进行配置，具体样例如下：
 
-编写 `lib/redux/slices/AuthSlice.ts` 文件并填入如下内容：
+编写 `lib/redux/slices/authSlice/authSlice.ts` 文件并填入如下内容：
 
 ```typescript
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {User} from "@/lib/redux/api";
 
-interface AuthState {
-  token: string | null;
+export interface AuthSliceState {
+    token: string | null;
+    user: User | null;
 }
 
-const initialState: AuthState = {
-  token: null,
+const initialState: AuthSliceState = {
+    token: null,
+    user: null
 };
 
-const AuthSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    setToken: (state:AuthState, action: PayloadAction<string | null>) => {
-      state.token = action.payload;
-    },
-  },
+export const authSlice = createSlice({
+    name: 'auth',
+    initialState,
+    reducers: {
+        setToken: (state: AuthSliceState, action: PayloadAction<string | null>) => {
+            state.token = action.payload;
+            if (!action.payload) {
+                state.user = null
+            }
+        },
+        setUser: (state: AuthSliceState, action: PayloadAction<User | null>) => {
+            state.user = action.payload
+        }
+    }
 });
-
-export const {setToken} = AuthSlice.actions;
-
-export default AuthSlice.reducer;
 ```
 
-在 `src/store/reducer.ts` 中引入 `authReducer`:
+编写 `lib/redux/slices/authSlice/selector.ts` :
 
 ```typescript
-import { combineReducers } from 'redux';
-import counterReducer from '../features/counter/counterSlice'
-import authReducer from './AuthSlice'
+/* Instruments */
+import type { ReduxState } from '@/lib/redux'
 
-// 将抽离的counterReducer 合并到rootRender上
-const rootReducer = combineReducers({
-    counter: counterReducer,
-    auth: authReducer
-});
-
-export default rootReducer;
+export const selectAuth = (state: ReduxState) => state.auth
 ```
 
-在 `src/store/emptyApi.ts` 修改请求地址位置并放置 `Token`:
+> 注：此处因为还没有引入 reducer 所以会暂时报错，无需关注
+
+编写 `lib/redux/slices/authSlice/index.ts`
+
+```typescript
+export * from './authSlice'
+export * from './selectors'
+```
+
+修改 `lib/redux/slices/index.ts` :
+
+```typescript
+export * from './authSlice'
+```
+
+在 `lib/redux/rootReducer.ts` 中引入 `authReducer`:
+
+```typescript
+/* Instruments */
+import {authSlice} from './slices'
+import {combineReducers} from "redux";
+
+export const reducer = combineReducers({
+    auth: authSlice.reducer,
+});
+```
+
+在 `lib/redux/emptyApi.ts` 修改请求地址位置并放置 `Token`:
 
 ```typescript
 import {BaseQueryFn, createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError} from '@reduxjs/toolkit/query/react'
-import {RootState} from "@/store/store";
-import {setToken} from './AuthSlice';
+import {ReduxState} from "@/lib/redux/store";
+import {authSlice} from '@/lib/redux/slices/authSlice';
 
 export interface MessageData {
     message: string;
@@ -382,7 +407,10 @@ const customBaseQuery = fetchBaseQuery({
 function addDefaultHeaders(headers: Headers, api: { getState: () => unknown }) {
     headers.set('Accept', 'application/json');
     headers.set('Content-Type', 'application/json');
-    const token: any = (api.getState() as RootState).auth.token;
+    if (process.env.NODE_ENV === "development") {
+        headers.set('Origin', '*');
+    }
+    const token: any = (api.getState() as ReduxState).auth.token;
     if (token !== null) {
         headers.set('Authorization', `Bearer ${token}`);
     }
@@ -396,7 +424,7 @@ const BaseQueryWithAuth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
     let result = await customBaseQuery(args, api, extraOptions);
     if (result.error && result.error.status === 401) {
-        api.dispatch(setToken(null));
+        api.dispatch(authSlice.actions.setToken(null));
     }
     if (result.error !== undefined) {
         let message: string = (result.error.data as MessageData).message;
@@ -410,6 +438,8 @@ export const emptySplitApi = createApi({
     endpoints: () => ({}),
 })
 ```
+
+之后即可编写页面进行测试。
 
 ### 修改内容后自动刷新页面
 
