@@ -382,10 +382,26 @@ export * from './authSlice'
 /* Instruments */
 import {authSlice} from './slices'
 import {combineReducers} from "redux";
+import {api} from '@/lib/redux/api'
 
 export const reducer = combineReducers({
     auth: authSlice.reducer,
+    [api.reducerPath]: api.reducer
 });
+```
+
+在 'store' 配置中也需要引入中间件：
+
+```typescript
+export const reduxStore = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }).contact(api.middleware),
+})
 ```
 
 在 `lib/redux/emptyApi.ts` 修改请求地址位置并放置 `Token`:
@@ -407,9 +423,6 @@ const customBaseQuery = fetchBaseQuery({
 function addDefaultHeaders(headers: Headers, api: { getState: () => unknown }) {
     headers.set('Accept', 'application/json');
     headers.set('Content-Type', 'application/json');
-    if (process.env.NODE_ENV === "development") {
-        headers.set('Origin', '*');
-    }
     const token: any = (api.getState() as ReduxState).auth.token;
     if (token !== null) {
         headers.set('Authorization', `Bearer ${token}`);
