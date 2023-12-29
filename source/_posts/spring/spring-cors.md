@@ -56,6 +56,20 @@ public class WebConfig implements WebMvcConfigurer {
 }
 ```
 
+如果使用了 SpringSecurity 还需要进行额外的配置，样例如下：
+
+```java
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+
+@Bean
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	http
+		// ...
+		.cors(AbstractHttpConfigurer::disable);
+	return http.build();
+}
+```
+
 ### 测试
 
 使用如下命令即可：
