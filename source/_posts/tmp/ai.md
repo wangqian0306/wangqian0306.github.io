@@ -16,6 +16,18 @@ no_toc: false
 
 ### 相关项目
 
+#### LongChain
+
+项目地址：[LongChain](https://github.com/langchain-ai/langchain)
+
+LangChain 是一个用于开发由语言模型驱动的应用程序的框架。它使应用程序能够：
+
+上下文感知：将语言模型连接到上下文源(提示指令、少量镜头示例、内容以使其响应为基础等)
+
+原因：依靠语言模型进行推理(关于如何根据提供的上下文回答、采取什么行动等)
+
+此框架还提供了网页和插件规范。
+
 #### Text generation web UI
 
 项目地址：[Text generation web UI](https://github.com/oobabooga/text-generation-webui)
