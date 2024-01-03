@@ -31,7 +31,7 @@ Kubernetes 为基于 Debian 和 Red Hat 的通用 Linux 发行版提供了支持
 - 确保集群中的设备可以互通(公有'DNS'或私有‘host’皆可)
     - 使用 `ping` 命令检测
 - 集群中每个设备都需要独立的 Hostname, MAC 地址 和 Product_uuid。
-    - 使用 `ipconfig -a` 检测 Hostname, MAC 地址 是否冲突
+    - 使用 `ifconfig -a` 检测 Hostname, MAC 地址 是否冲突
     - 使用 `sudo cat /sys/class/dmi/id/product_uuid` 检测 Product_uuid 是否冲突
 - 检测集群中的端口是否开放
 
@@ -85,6 +85,7 @@ EOF
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward                = 1
 EOF
 sudo sysctl --system
 ```

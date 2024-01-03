@@ -55,7 +55,7 @@ sudo yum install -y containerd.io
 
 ```bash
 mkdir -p /etc/containerd
-/usr/local/bin/containerd config default > /etc/containerd/config.toml
+containerd config default > /etc/containerd/config.toml
 ```
 
 编辑配置文件 `/etc/containerd/config.toml`，主要改动以下项：
