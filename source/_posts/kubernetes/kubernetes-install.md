@@ -178,12 +178,6 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-### 部署网络插件
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-```
-
 ### (可选) 在主机上运行除集群管理外的其他服务
 
 ```bash
@@ -209,6 +203,12 @@ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outfor
 > `kubeadm join <host>:<port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>`
 
 - 运行 join 命令
+
+### 部署网络插件
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+```
 
 ### 检查集群
 
