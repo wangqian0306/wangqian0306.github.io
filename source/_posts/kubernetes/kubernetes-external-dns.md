@@ -24,6 +24,9 @@ ExternalDNS 项目可以把 Kubernetes 集群内的 Service 和 Ingress 实例�
 
 > 注：本示例采用支持 RFC2136 标准的 BIND 服务，前期准备参见 BIND 文档的 **动态配置** 章节。
 
+
+> 注：！！！由于服务在启动的时候会将上次创建的内容全部删除，所以一个集群只可以链接一个 DNS 服务器。千万注意对应关系！！！
+
 然后在任意可以链接到 Kubernetes 的设备上编写 `external-dns.yaml` 文件并部署即可：
 
 ```yaml
