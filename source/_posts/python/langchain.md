@@ -1,16 +1,16 @@
 ---
-title: LongChain
+title: LangChain
 date: 2024-01-08 21:41:32
 tags: 
 - "Python"
 - "AI"
 - "LLAMA"
-id: longchain
+id: langchain
 no_word_count: true
 no_toc: false
 ---
 
-## LongChain
+## LangChain
 
 ### 简介
 
@@ -53,6 +53,53 @@ curl http://localhost:11434/api/generate -d '{
   "prompt":"Why is the sky blue?"
 }'
 ```
+
+然后即可安装 `Langchain` ：
+
+```bash
+pip install langchain
+pip install "langserve[all]"
+pip install langchain-cli
+pip install pydantic==1.10.13
+```
+
+然后可以编写服务端程序 `demo-server.py`：
+
+```bash
+from fastapi import FastAPI
+from langchain_community.chat_models import ChatOllama
+
+from langserve import add_routes
+
+app = FastAPI(
+    title="LangChain Server",
+    version="1.0",
+    description="Spin up a simple api server using Langchain's Runnable interfaces",
+)
+
+add_routes(
+    app,
+    ChatOllama(model="llama2"),
+    path="/ollama",
+)
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+使用如下命令即可运行服务端：
+
+```bash
+python demo-server.py
+```
+
+然后访问如下页面即可：
+
+[doc](http://localhost:8000/docs/)
+
+[playground](http://localhost:8000/ollama/playground/)
 
 ### 参考资料
 

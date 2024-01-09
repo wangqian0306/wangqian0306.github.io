@@ -70,6 +70,30 @@ pyenv install <VERSION>
 pyenv local <VERSION>
 ```
 
+创建 venv 环境：
+
+```bash
+pyenv virtualenv <version> <venv_name>
+```
+
+列出 venv 环境：
+
+```bash
+pyenv virtualenvs
+```
+
+使用 venv 环境：
+
+```bash
+pyenv activate <venv_name>
+```
+
+退出 venv 环境：
+
+```bash
+pyenv deactivate
+```
+
 卸载版本：
 
 ```bash
