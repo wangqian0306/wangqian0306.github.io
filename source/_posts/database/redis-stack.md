@@ -62,6 +62,22 @@ Redis Stack 与原版 Redis 相比有如下的增强：
   - Count-min Sketch 算法
   - Top-K 工具
 
+### 使用样例
+
+#### 检索数组
+
+可以使用如下方式插入样例数据：
+
+```text
+JSON.SET demo $ '{"name":"Paul John","email":"paul.john@example.com","age":42,"city":"London","temp":[1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9,10,11.11,12.12,13.13,14.14,15.15,16.16,17.17,18.18]}'
+```
+
+使用如下命令即可获取数组中取样步长为2的所有元素：
+
+```text
+JSON.GET demo $.temp[0:-1:2]
+```
+
 ### 参考资料
 
 [官方文档](https://redis.io/docs/stack/)
