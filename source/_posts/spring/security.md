@@ -527,6 +527,72 @@ public class UserController {
 }
 ```
 
+新建用户和权限初始化程序：
+
+```java
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.lang.Nullable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Component
+public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
+
+    boolean alreadySetup = false;
+
+    private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public SetupDataLoader(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    @Transactional
+    public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
+        if (alreadySetup)
+            return;
+        Role adminRole = createRoleIfNotFound("ROLE_ADMIN");
+        createUserIfNotFound(adminRole);
+        alreadySetup = true;
+    }
+
+    @Transactional
+    public Role createRoleIfNotFound(String name) {
+        Role role = roleRepository.findByName(name);
+        if (role == null) {
+            role = new Role();
+            role.setName(name);
+            roleRepository.save(role);
+        }
+        return role;
+    }
+
+    @Transactional
+    public void createUserIfNotFound(Role adminRole) {
+        Optional<User> optional = userRepository.findByUsername("admin");
+        if (optional.isEmpty()) {
+            User user = new User();
+            user.setUsername("admin");
+            user.setPassword(passwordEncoder.encode("admin"));
+            user.setRoles(List.of(adminRole));
+            user.setEnabled(true);
+            userRepository.save(user);
+        }
+    }
+}
+```
+
 ### 使用方式
 
 ```bash
