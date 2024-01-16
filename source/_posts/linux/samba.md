@@ -66,16 +66,16 @@ mv /etc/samba/smb.conf /etc/samba/smb.conf.bk
 	directory mask = 0775
 
 [myshare]
-    path=<path>            
-    public=yes
-    browseable=yes
-    writable=yes
-    create mask=0644
-    directory mask=0755
+	path=<path>            
+	public=yes
+	browseable=yes
+	writable=yes
+	create mask=0644
+	directory mask=0755
 ```
 
 ```配置防火墙
-firewall-cmd --permanent --add-service=smb.service
+firewall-cmd --permanent --add-service=samba
 firewall-cmd --reload
 ```
 

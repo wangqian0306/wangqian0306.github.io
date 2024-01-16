@@ -61,7 +61,7 @@ vim /etc/exports.d/<config>.exports
 ```bash
 firewall-cmd --permanent --add-service=mountd
 firewall-cmd --permanent --add-service=rpc-bind
-firewall-cmd --permanent --add-service=nfs
+firewall-cmd --permanent --add-service=nfs-server
 firewall-cmd --reload
 ```
 
@@ -69,7 +69,7 @@ firewall-cmd --reload
 
 ```bash
 systemctl enable rpcbind --now
-systemctl enable nfs --now
+systemctl enable nfs-server --now
 ```
 
 如果新增了目录可以使用如下命令刷新服务
