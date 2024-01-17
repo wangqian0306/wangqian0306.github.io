@@ -198,111 +198,155 @@ npm install @mui/x-data-grid
 然后即可编辑如下样例表格：
 
 ```typescript jsx
+'use client'
+
 import * as React from "react";
 import {
-  DataGrid,
-  gridFilteredTopLevelRowCountSelector,
-  gridPageSizeSelector,
-  GridPagination,
-  useGridApiContext,
-  useGridSelector,
-  useGridRootProps,
+    DataGrid,
+    gridFilteredTopLevelRowCountSelector,
+    gridPageSizeSelector,
+    GridPagination,
+    GridToolbarContainer,
+    GridToolbarExport,
+    GridToolbarColumnsButton,
+    GridToolbarFilterButton,
+    GridToolbarDensitySelector,
+    useGridApiContext,
+    useGridRootProps,
+    useGridSelector
 } from "@mui/x-data-grid";
-import { createFakeServer } from "@mui/x-data-grid-generator";
+import {createFakeServer} from "@mui/x-data-grid-generator";
 import MuiPagination from "@mui/material/Pagination";
-import { TablePaginationProps } from "@mui/material/TablePagination";
+import {TablePaginationProps} from "@mui/material/TablePagination";
+import {Box} from "@mui/material";
+import { Input as BaseInput } from '@mui/base/Input';
 
 const SERVER_OPTIONS = {
-  useCursorPagination: false,
+    useCursorPagination: false,
 };
 
-const { useQuery, ...data } = createFakeServer({}, SERVER_OPTIONS);
+const {useQuery, ...data} = createFakeServer({}, SERVER_OPTIONS);
 
 const getPageCount = (rowCount: number, pageSize: number): number => {
-  if (pageSize > 0 && rowCount > 0) {
-    return Math.ceil(rowCount / pageSize);
-  }
+    if (pageSize > 0 && rowCount > 0) {
+        return Math.ceil(rowCount / pageSize);
+    }
 
-  return 0;
+    return 0;
 };
 
+function MyToolbar(props: any) {
+    return (
+        <Box sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+            width: "100%"
+        }}>
+            <BaseInput
+                value={props.value}
+                onChange={props.change}
+                placeholder={"Search by name"}
+            />
+            <GridToolbarContainer>
+                <GridToolbarColumnsButton/>
+                <GridToolbarFilterButton/>
+                <GridToolbarDensitySelector/>
+                <GridToolbarExport/>
+            </GridToolbarContainer>
+        </Box>
+    )
+}
+
 function Pagination({
-  page,
-  onPageChange,
-  className,
-}: Pick<TablePaginationProps, "page" | "onPageChange" | "className">) {
-  const apiRef = useGridApiContext();
-  const rootProps = useGridRootProps();
+                        page,
+                        onPageChange,
+                        className,
+                    }: Pick<TablePaginationProps, "page" | "onPageChange" | "className">) {
+    const apiRef = useGridApiContext();
+    const rootProps = useGridRootProps();
 
-  const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-  const visibleTopLevelRowCount = useGridSelector(
-    apiRef,
-    gridFilteredTopLevelRowCountSelector
-  );
-  const pageCount = getPageCount(
-    rootProps.rowCount ?? visibleTopLevelRowCount,
-    pageSize
-  );
+    const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
+    const visibleTopLevelRowCount = useGridSelector(
+        apiRef,
+        gridFilteredTopLevelRowCountSelector
+    );
+    const pageCount = getPageCount(
+        rootProps.rowCount ?? visibleTopLevelRowCount,
+        pageSize
+    );
 
-  return (
-    <MuiPagination
-      showFirstButton={true}
-      showLastButton={true}
-      color="primary"
-      className={className}
-      count={pageCount}
-      page={page + 1}
-      onChange={(event, newPage) => {
-        onPageChange(event as any, newPage - 1);
-      }}
-    />
-  );
+    return (
+        <MuiPagination
+            showFirstButton={true}
+            showLastButton={true}
+            color="primary"
+            className={className}
+            count={pageCount}
+            page={page + 1}
+            onChange={(event, newPage) => {
+                onPageChange(event as any, newPage - 1);
+            }}
+        />
+    );
 }
 
 function CustomPagination(props: any) {
-  return <GridPagination ActionsComponent={Pagination} {...props} />;
+    return <GridPagination ActionsComponent={Pagination} {...props} />;
 }
 
 export default function ServerPaginationGrid() {
-  const [paginationModel, setPaginationModel] = React.useState({
-    page: 0,
-    pageSize: 5,
-  });
+    const [paginationModel, setPaginationModel] = React.useState({
+        page: 0,
+        pageSize: 5,
+    });
 
-  const { isLoading, rows, pageInfo } = useQuery(paginationModel);
+    const {isLoading, rows, pageInfo} = useQuery(paginationModel);
 
-  // Some API clients return undefined while loading
-  // Following lines are here to prevent `rowCountState` from being undefined during the loading
-  const [rowCountState, setRowCountState] = React.useState(
-    pageInfo?.totalRowCount || 0
-  );
-  React.useEffect(() => {
-    setRowCountState((prevRowCountState) =>
-      pageInfo?.totalRowCount !== undefined
-        ? pageInfo?.totalRowCount
-        : prevRowCountState
+    // Some API clients return undefined while loading
+    // Following lines are here to prevent `rowCountState` from being undefined during the loading
+    const [rowCountState, setRowCountState] = React.useState(
+        pageInfo?.totalRowCount || 0
     );
-  }, [pageInfo.totalRowCount, setRowCountState]);
+    const [searchText, setSearchText] = React.useState('');
 
-  console.log(rowCountState);
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchText(e.target.value);
+    };
+    React.useEffect(() => {
+        setRowCountState((prevRowCountState) =>
+            pageInfo?.totalRowCount !== undefined
+                ? pageInfo?.totalRowCount
+                : prevRowCountState
+        );
+    }, [pageInfo.totalRowCount, setRowCountState]);
 
-  return (
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        {...data}
-        rowCount={rowCountState}
-        loading={isLoading}
-        pageSizeOptions={[5, 10]}
-        paginationModel={paginationModel}
-        paginationMode="server"
-        onPaginationModelChange={setPaginationModel}
-        slots={{
-          pagination: CustomPagination,
-        }}
-      />
-    </div>
-  );
+    console.log(rowCountState);
+
+    return (
+        <div style={{height: 400, width: "100%"}}>
+            <DataGrid
+                rows={rows}
+                {...data}
+                rowCount={rowCountState}
+                loading={isLoading}
+                pageSizeOptions={[5, 10]}
+                paginationModel={paginationModel}
+                paginationMode="server"
+                onPaginationModelChange={setPaginationModel}
+                slots={{
+                    pagination: CustomPagination,
+                    toolbar: MyToolbar
+                }}
+                slotProps={{
+                    toolbar: {
+                        value: searchText,
+                        change: handleSearch,
+                    }
+                }}
+            />
+        </div>
+    );
 }
 ```
 
