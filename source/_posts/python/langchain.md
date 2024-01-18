@@ -61,15 +61,33 @@ pip install langchain
 pip install "langserve[all]"
 pip install langchain-cli
 pip install pydantic==1.10.13
+pip install pdfminer
+pip install pdfminer.six
 ```
 
 然后可以编写服务端程序 `demo-server.py`：
 
 ```bash
-from fastapi import FastAPI
-from langchain_community.chat_models import ChatOllama
+import base64
+from typing import Any, Dict, List, Tuple
 
-from langserve import add_routes
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from langchain_community.chat_models import ChatOllama
+from langchain.document_loaders.blob_loaders import Blob
+from langchain.document_loaders.parsers.pdf import PDFMinerParser
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain.schema.messages import (
+    AIMessage,
+    BaseMessage,
+    FunctionMessage,
+    HumanMessage,
+)
+from langchain.schema.runnable import RunnableLambda
+from langchain_core.runnables import RunnableParallel
+
+from langserve import CustomUserType
+from langserve.server import add_routes
 
 app = FastAPI(
     title="LangChain Server",
@@ -77,9 +95,70 @@ app = FastAPI(
     description="Spin up a simple api server using Langchain's Runnable interfaces",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
+class ChatHistory(CustomUserType):
+    chat_history: List[Tuple[str, str]] = Field(
+        ...,
+        examples=[[("a", "aa")]],
+        extra={"widget": {"type": "chat", "input": "question", "output": "answer"}},
+    )
+    question: str
+
+
+def _format_to_messages(input: ChatHistory) -> List[BaseMessage]:
+    """Format the input to a list of messages."""
+    history = input.chat_history
+    user_input = input.question
+
+    messages = []
+
+    for human, ai in history:
+        messages.append(HumanMessage(content=human))
+        messages.append(AIMessage(content=ai))
+    messages.append(HumanMessage(content=user_input))
+    return messages
+
+model = ChatOllama(model="llama2")
+chat_model = RunnableParallel({"answer": (RunnableLambda(_format_to_messages) | model)})
 add_routes(
     app,
-    ChatOllama(model="llama2"),
+    chat_model.with_types(input_type=ChatHistory),
+    config_keys=["configurable"],
+    path="/chat",
+)
+
+class FileProcessingRequest(BaseModel):
+    file: bytes = Field(..., extra={"widget": {"type": "base64file"}})
+    num_chars: int = 100
+
+
+def process_file(input: Dict[str, Any]) -> str:
+    """Extract the text from the first page of the PDF."""
+    content = base64.decodebytes(input["file"])
+    blob = Blob(data=content)
+    documents = list(PDFMinerParser().lazy_parse(blob))
+    content = documents[0].page_content
+    return content[: input["num_chars"]]
+
+
+add_routes(
+    app,
+    RunnableLambda(process_file).with_types(input_type=FileProcessingRequest),
+    config_keys=["configurable"],
+    path="/pdf",
+)
+
+add_routes(
+    app,
+    model,
     path="/ollama",
 )
 
@@ -99,7 +178,11 @@ python demo-server.py
 
 [doc](http://localhost:8000/docs/)
 
-[playground](http://localhost:8000/ollama/playground/)
+[ollama playground](http://localhost:8000/ollama/playground/)
+
+[chat playground](http://localhost:8000/chat_message/playground/)
+
+[pdf playground](http://localhost:8000/pdf/playground/)
 
 ### 参考资料
 
