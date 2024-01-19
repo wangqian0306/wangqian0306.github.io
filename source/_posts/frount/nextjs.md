@@ -350,6 +350,8 @@ export default function ServerPaginationGrid() {
 }
 ```
 
+> 注：表格中开放了很多的插槽，可以修改图标，完善翻页功能等，请参照 [官方文档](https://mui.com/x/api/data-grid/data-grid/#slots)
+
 ### chakra-ui 插件
 
 使用如下命令安装即可：

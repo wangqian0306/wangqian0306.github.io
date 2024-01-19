@@ -191,3 +191,5 @@ python demo-server.py
 [官方项目](https://github.com/langchain-ai/langchain)
 
 [Ollama](https://github.com/jmorganca/ollama)
+
+[LangChain Tools](https://python.langchain.com/docs/integrations/tools)
