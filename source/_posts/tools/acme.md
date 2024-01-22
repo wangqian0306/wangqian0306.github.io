@@ -40,7 +40,7 @@ acme.sh --issue -d <domain> --nginx /etc/nginx/conf.d/<domain>.conf
 
 > 注：配置需手动修改，默认签发的证书会在 `~/.acme.sh/` 目录下
 
-使用证书:
+使用证书(nginx):
 
 ```bash
 acme.sh --install-cert -d <domain> \
@@ -49,7 +49,17 @@ acme.sh --install-cert -d <domain> \
 --reloadcmd     "service nginx force-reload"
 ```
 
-> 注：`--reloadcmd` 可以自行替换，如使用 `docker-compose` 则可以使用 `cd /opt/nginx && docker-compose restart` 
+使用证书(standalone):
+
+```bash
+acme.sh --install-cert -d <domain> \
+--key-file       /path/to/keyfile/in/nginx/key.pem  \
+--fullchain-file /path/to/fullchain/nginx/cert.pem \
+--pre-hook "cd <dir> && docker-compose stop" \
+--reloadcmd "cd <dir> && docker-compose restart"
+```
+
+> 注：由于续签证书的时候需要 80 端口运行服务进行验证所以需要提前让容器终止运行，然后再进行续期。
 
 查看证书相关信息：
 
