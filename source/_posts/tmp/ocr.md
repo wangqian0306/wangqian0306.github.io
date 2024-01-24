@@ -13,6 +13,10 @@ no_toc: false
 
 #### 国外
 
+- [DocTranslator](https://www.onlinedoctranslator.com/en/translationform)
+
+> 注：此网站支持在线将文档进行翻译并转化为 Word。
+
 - [onlineocr(网页)](https://www.onlineocr.net/)
 
 > 注：此工具支持中文解析，但是效果不是特别的好。
@@ -40,3 +44,7 @@ no_toc: false
 ##### 车牌识别应用场景
 
 [一种基于PaddleOCR的轻量级车牌识别模型](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/applications/%E8%BD%BB%E9%87%8F%E7%BA%A7%E8%BD%A6%E7%89%8C%E8%AF%86%E5%88%AB.md)
+
+#### Surya
+
+[Surya 官方项目](https://github.com/VikParuchuri/surya)
