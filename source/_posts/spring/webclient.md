@@ -110,6 +110,27 @@ public class TestController {
 }
 ```
 
+更换支持库(可选)：
+
+```java
+@Bean
+public JettyResourceFactory resourceFactory() {
+	return new JettyResourceFactory();
+}
+
+@Bean
+public WebClient webClient() {
+
+	HttpClient httpClient = new HttpClient();
+	ClientHttpConnector connector =
+			new JettyClientHttpConnector(httpClient, resourceFactory()); 
+
+	return WebClient.builder().clientConnector(connector).build(); 
+}
+```
+
+> 注：每种库的日志需要单独调节，支持库的清单参阅官方文档。
+
 ### RestClient 实现
 
 引入 Web 包：
@@ -194,6 +215,21 @@ public class TestController {
 }
 ```
 
+更换支持库(可选)：
+
+```java
+@Bean
+public RestClient restClient() {
+    JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory()
+	RestClient client = RestClient.builder()
+                .requestFactory(requestFactory)
+                .build();
+    HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();
+	return client; 
+}
+```
+
+> 注：每种库的日志需要单独调节，支持库的清单参阅官方文档。
 
 ### 常见问题
 
@@ -215,6 +251,6 @@ public interface JokeClient {
 
 ### 参考资料
 
-[WebClient 文档](https://docs.spring.io/spring-framework/docs/6.0.7/reference/html/web-reactive.html#webflux-client)
+[WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
 
-[RestClient 博客](https://spring.io/blog/2023/07/13/new-in-spring-6-1-restclient)
+[RestClient 文档](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
