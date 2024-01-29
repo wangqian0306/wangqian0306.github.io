@@ -114,8 +114,14 @@ public class MyRuntimeHints implements RuntimeHintsRegistrar {
 
 在方法上使用 `@Reflective` 注解。
 
+### 自定义运行容器
+
+由于在使用 `GraalVM Native Image` 的时候没有地方编写 Dockerfile。所以在需要安装额外依赖包的时候需要构建一个独属的 Builder，相关内容请参阅 cnb 文档。
+
 ### 参考资料
 
 [Spring Boot Gradle Plugin 官方文档](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/)
 
 [官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html)
+
+[Gradle 插件官方文档](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)

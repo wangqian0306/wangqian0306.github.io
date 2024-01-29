@@ -18,7 +18,7 @@ Cloud Native Buildpacks 是一种标准接口，目标是将任何应用程序�
 
 ### 核心概念
 
-- **BuildPack**：Buildpack 负责检查应用程序源代码，识别和收集依赖关系，并输出符合 OCI 规范的应用程序和依赖容器层。
+- **BuildPack**：Buildpack 负责检查应用程序源代码，识别和收集依赖关系，并输出符合 OCI 规范的应用程序和依赖容器层
 - **Builder**：Builder 是包含了构建过程中所需全部内容的一个容器镜像
 
 ### 安装方式
