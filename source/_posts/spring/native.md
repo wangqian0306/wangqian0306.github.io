@@ -114,9 +114,9 @@ public class MyRuntimeHints implements RuntimeHintsRegistrar {
 
 在方法上使用 `@Reflective` 注解。
 
-### 自定义运行容器
+### 安装其他命令
 
-由于在使用 `GraalVM Native Image` 的时候没有地方编写 Dockerfile。所以在需要安装额外依赖包的时候需要构建一个独属的 Builder，相关内容请参阅 cnb 文档。
+在项目中需要额外的软件或命令的时候，使用此方式就很烦了。spring 官方使用了 Paketo Buildpacks 作为 builder 但是它采用了 buildpack 弃用的 stack 方式来构建项目。自定义构建包难度好大，但是可以通过挂载卷的方式将命令挂载到容器中进行执行。
 
 ### 参考资料
 
