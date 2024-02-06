@@ -187,6 +187,35 @@ declare module '@mui/material/styles' {
 }
 ```
 
+#### 日期选择器
+
+安装依赖：
+
+```bash
+npm install @mui/x-date-pickers dayjs
+```
+
+需要在 `src/app/ThemeRegistry.tsx` 中进行如下修改：
+
+```typescript jsx
+import {LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+...
+export default function ThemeRegistry(props: ThemeProps) {
+    ...
+    return (
+        <CacheProvider value={cache}>
+            <ThemeProvider theme={theme}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="zh-cn">
+                    <CssBaseline/>
+                    {children}
+                </LocalizationProvider>
+            </ThemeProvider>
+        </CacheProvider>
+    );
+}
+```
+
 #### 复杂表格
 
 需要额外安装插件：
