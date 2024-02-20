@@ -3,6 +3,7 @@ title: Hugging Face
 date: 2023-08-04 22:26:13
 tags:
 - "Hugging Face"
+- "AI"
 id: hugging-face
 no_word_count: true
 no_toc: false

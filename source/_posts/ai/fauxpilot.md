@@ -3,6 +3,7 @@ title: FauxPilot
 date: 2023-03-03 22:26:13
 tags:
 - "FauxPilot"
+- "AI"
 id: fauxpilot
 no_word_count: true
 no_toc: false

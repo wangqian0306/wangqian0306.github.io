@@ -3,6 +3,7 @@ title: PyTorch
 date: 2023-12-01 21:41:32
 tags: 
 - "Python"
+- "AI"
 id: torch
 no_word_count: true
 no_toc: false

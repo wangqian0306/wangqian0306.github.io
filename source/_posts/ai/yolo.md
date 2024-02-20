@@ -3,6 +3,7 @@ title: YOLO
 date: 2023-11-23 21:41:32
 tags: 
 - "Python"
+- "AI"
 id: yolo
 no_word_count: true
 no_toc: false

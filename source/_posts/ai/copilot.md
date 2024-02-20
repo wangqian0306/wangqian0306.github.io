@@ -3,6 +3,7 @@ title: Github Copilot 技巧梳理
 date: 2023-04-11 22:26:13
 tags:
 - "Github Copilot"
+- "AI"
 id: copilot
 no_word_count: true
 no_toc: false

@@ -3,6 +3,7 @@ title: GluonCV
 date: 2023-11-29 21:41:32
 tags: 
 - "Python"
+- "AI"
 id: gluoncv
 no_word_count: true
 no_toc: false
