@@ -46,8 +46,18 @@ python3 main.py --listen 0.0.0.0
 
 点击 `View Queue` 即可查看任务清单。
 
+### 绘制样例
+
+在 ComfyUI 的 web 控制台中可以通过拖拽放入图片或者载入图片或配置文件的方式，来快速拷贝绘图配置。
+
+[功能示例](https://comfyanonymous.github.io/ComfyUI_examples/)
+
+> 注：在使用的时候注意切换模型。
+
 ### 参考资料
 
 [官方项目](https://github.com/comfyanonymous/ComfyUI)
 
 [客制化模型下载](https://civitai.com/models)
+
+[社区文档](https://blenderneko.github.io/ComfyUI-docs/)
