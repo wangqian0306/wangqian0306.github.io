@@ -499,3 +499,5 @@ const api = createApi({
 ### 参考资料
 
 [Redux 官方文档](https://redux.js.org/tutorials/fundamentals/part-1-overview)
+
+[使用 OpenAPI 接口生成代码](https://redux-toolkit.js.org/rtk-query/usage/code-generation#openapi)

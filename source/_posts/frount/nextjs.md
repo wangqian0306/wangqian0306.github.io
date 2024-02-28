@@ -467,4 +467,4 @@ npm install @types/chroma-js chroma-js
 
 [Next.js 官方文档](https://nextjs.org/docs/getting-started)
 
-[使用 OpenAPI 接口生成代码](https://redux-toolkit.js.org/rtk-query/usage/code-generation#openapi)
+[Next.js 官方示例教程](https://nextjs.org/learn/dashboard-app)
