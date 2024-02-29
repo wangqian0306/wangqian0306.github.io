@@ -1,0 +1,784 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="数据仓库概念梳理 简介  注：此处内容来源于维基百科。  在数据处理领域中，数据仓库(DW 或 DWH)，也被称为企业数据仓库(EDW)。 它是一种用于业务报告和数据分析的系统，通常被认为是商业智能(BI)的核心组件。 数据仓库是一个集成了来自于一个或者多个不同来源的系统数据的中央存储库。 它将当前和历史数据存储在一个位置，用于为整个企业的员工创建分析报告。 存储在仓库中的数据是从运营系统(如营销">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据仓库概念梳理">
+<meta property="og:url" content="https://wangqian0306.github.io/2020/data_warehouse/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="数据仓库概念梳理 简介  注：此处内容来源于维基百科。  在数据处理领域中，数据仓库(DW 或 DWH)，也被称为企业数据仓库(EDW)。 它是一种用于业务报告和数据分析的系统，通常被认为是商业智能(BI)的核心组件。 数据仓库是一个集成了来自于一个或者多个不同来源的系统数据的中央存储库。 它将当前和历史数据存储在一个位置，用于为整个企业的员工创建分析报告。 存储在仓库中的数据是从运营系统(如营销">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-12T13:32:58.000Z">
+<meta property="article:modified_time" content="2024-02-20T06:48:19.000Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="数据仓库">
+<meta property="article:tag" content="Data warehouse">
+<meta property="article:tag" content="Data Mart">
+<meta property="article:tag" content="数据集市">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>数据仓库概念梳理 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"gtag":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="数据仓库概念梳理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-07-12 21:32" pubdate>
+          2020年7月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">数据仓库概念梳理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="数据仓库概念梳理">数据仓库概念梳理</h2>
+<h3 id="简介">简介</h3>
+<blockquote>
+<p>注：此处内容来源于维基百科。</p>
+</blockquote>
+<p>在数据处理领域中，数据仓库(DW 或 DWH)，也被称为企业数据仓库(EDW)。
+它是一种用于业务报告和数据分析的系统，通常被认为是商业智能(BI)的核心组件。
+数据仓库是一个集成了来自于一个或者多个不同来源的系统数据的中央存储库。
+它将当前和历史数据存储在一个位置，用于为整个企业的员工创建分析报告。</p>
+<p>存储在仓库中的数据是从运营系统(如营销或者销售)上传的。
+数据可能会通过 ODS 与数据清理等操作来确保数据质量，然后再用于最终的分析报告。</p>
+<p>ETL 和 ELT 是两种建设数据仓库的主要方式。</p>
+<blockquote>
+<p>注：提取(Extract)、转换(Transform)、加载(Load)</p>
+</blockquote>
+<h3 id="建设数仓的好处">建设数仓的好处</h3>
+<p>数据仓库维护来自源系统的信息副本。这种架构提供了以下的好处：</p>
+<ul>
+<li>将来自多个来源的数据集成到单个数据库和数据模型中。因为我们将很多的数据聚合到单个数据库中，所以可以使用单个查询引擎在 ODS 中呈现数据。</li>
+<li>缓解由于在 OLTP 数据库中运行大型、长时间运行的分析查询而导致的数据库隔离级别锁争用问题。</li>
+<li>维护数据历史，即使源系统没有。</li>
+<li>集成来自多个源系统的数据，实现整个企业的中央视图。</li>
+<li>通过提供一致的代码和描述、标记甚至修复错误数据来提高数据质量。</li>
+<li>一致地呈现组织信息。</li>
+<li>不管数据的来源如何，统一为所有相关的数据提供单一通用的数据模型。</li>
+<li>重构数据模型，使其对业务有实际意义。</li>
+<li>重构数据模型，使其即使对于复杂的分析查询也能提供出色的查询性能，而不会影响原有系统。</li>
+<li>为运营业务应用程序增加价值。</li>
+<li>使决策支持查询更容易编写。</li>
+<li>组织和消除重复数据的歧义。</li>
+</ul>
+<h3 id="数据集市">数据集市</h3>
+<p>数据集市是在数据仓库环境中的一种数据结构或是访问模式，它经常被用于检索面向客户的数据。
+数据集市通常是数据仓库面向特定的业务线或团队的一个子集。
+数据仓库通常管理企业范围，而数据集市中的信息则属于单个部门。
+在某些情况中，每个部门或业务单位都被视为其数据集市的所有者，包括所有硬件、软件和数据。
+这使每个部门能够隔离其数据的使用、操作和开发。
+在使用一致维度的其他部署中，此业务单元所有权不适用于客户、产品等共享维度。</p>
+<p>建立仓库和数据集市是因为数据库中的信息没有按照易于访问的方式进行组织。
+这种组织方式过于复杂、以至于难以访问或进行资源密集型的查询。</p>
+<p>虽然 OLTP 旨在更新数据，但数据仓库或集市是只读的。
+数据仓库旨在访问大量相关记录。
+数据集市通过以支持一组用户的集体视图的方式提供数据，允许用户访问他们最常查看的特定类型的数据，从而缩短了最终用户的响应时间。</p>
+<p>数据集市基本上是数据仓库的浓缩和更集中的版本，它反映了组织内每个业务部门的法规和流程规范。
+每个数据集市专用于特定的业务功能或区域。
+该数据子集可能跨越企业的许多或所有功能主题领域。
+通常使用多个数据集市来满足各个业务部门的需求。</p>
+<h3 id="通用内容">通用内容</h3>
+<p>数据仓库和集市的通用环境包括以下内容：</p>
+<ul>
+<li>向仓库或集市提供数据的源系统</li>
+<li>数据集成技术和工作流</li>
+<li>在面对不同用户时提供不同的存储架构</li>
+<li>为各种用户提供不同的工具和应用程序</li>
+<li>充分的元数据、完整的数据质量和完善的治理流程，</li>
+</ul>
+<h3 id="特性">特性</h3>
+<p>数据仓库定义中数据的基本特性包括</p>
+<ul>
+<li>面向主题(特定的数据分析领域与目标)</li>
+<li>数据集成(数据仓库一般都要涉及多个分析主题)</li>
+<li>反应历史变化(数据仓库中的数据反映历史变化)</li>
+<li>稳定(数据仓库中的数据是稳定的)</li>
+</ul>
+<h3 id="数仓分层模型">数仓分层模型</h3>
+<p>在阿里巴巴的数据体系中数据仓库被分成了三层，自上而下为：</p>
+<ul>
+<li>数据应用层(ADS，Application Data Service)
+<ul>
+<li>个性化指标加工：定制化、复杂性指标(复合指标)</li>
+<li>基于应用的数据组装：宽表集市、趋势指标</li>
+</ul>
+</li>
+<li>数据公共层(CDM，Common Data Model)
+<ul>
+<li>纬度表(DIM，Dimension)：建立一致数据分析维表、降低数据计算口径和算法不统一风险</li>
+<li>公共汇总层(DWS，Data WareHouse Service)：构建命名规范、口径一致的统计指标，为上层提供公共指标，建立汇总宽表</li>
+<li>明细事实表(DWD，Data Warehouse Detail)：基于维表建模，明细宽表，服用关联计算，减少数据扫描</li>
+</ul>
+</li>
+<li>数据引入层(ODS，Operation Data Store)
+<ul>
+<li>同步：结构化数据增量或全量同步</li>
+<li>结构化：非结构化数据进行结构化处理</li>
+<li>保存历史、清洗：根据业务、审计、稽查的需求保留历史数据或进行清洗</li>
+</ul>
+</li>
+</ul>
+<p>在阿里的样例中数据流向如下图所示：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSI5NnB4IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBzdHlsZT0id2lkdGg6NDAxcHg7aGVpZ2h0Ojk2cHg7YmFja2dyb3VuZDojRkZGRkZGOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNDAxIDk2IiB3aWR0aD0iNDAxcHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48IS0tZW50aXR5IE9EUy0tPjxnIGlkPSJlbGVtX09EUyI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyMi4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI1MSIgeD0iNyIgeT0iMzYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMSIgeD0iMTciIHk9IjUxLjk5NTEiPk9EUzwvdGV4dD48L2c+PCEtLWVudGl0eSBEV1MtLT48ZyBpZD0iZWxlbV9EV1MiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMjIuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNTQiIHg9IjM0MSIgeT0iNyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM0IiB4PSIzNTEiIHk9IjIyLjk5NTEiPkRXUzwvdGV4dD48L2c+PCEtLWVudGl0eSBEV0QtLT48ZyBpZD0iZWxlbV9EV0QiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMjIuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNTYiIHg9IjIyNSIgeT0iMzYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzNiIgeD0iMjM1IiB5PSI1MS45OTUxIj5EV0Q8L3RleHQ+PC9nPjwhLS1lbnRpdHkgRElNLS0+PGcgaWQ9ImVsZW1fRElNIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIyLjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjQ3IiB4PSIxMTgiIHk9IjY4Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMjciIHg9IjEyOCIgeT0iODMuOTk1MSI+RElNPC90ZXh0PjwvZz48IS0tZW50aXR5IEFEUy0tPjxnIGlkPSJlbGVtX0FEUyI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyMi4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI1MCIgeD0iMzQzIiB5PSI2NCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjMwIiB4PSIzNTMiIHk9Ijc5Ljk5NTEiPkFEUzwvdGV4dD48L2c+PCEtLWxpbmsgT0RTIHRvIERJTS0tPjxnIGlkPSJsaW5rX09EU19ESU0iPjxwYXRoIGQ9Ik01OC4wNDgsNTQuMzQxNCBDNzYuMDY0Miw1OS43Mjk1IDk0LjYwMDMsNjUuMjcyOSAxMTIuMTQzNiw3MC41MTk1ICIgZmlsbD0ibm9uZSIgaWQ9Ik9EUy10by1ESU0iIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTE3Ljg5Miw3Mi4yMzg3LDExMC40MTU1LDY1LjgyNzcsMTEzLjEwMTYsNzAuODA2MSwxMDguMTIzMiw3My40OTIyLDExNy44OTIsNzIuMjM4NyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1saW5rIE9EUyB0byBEV0QtLT48ZyBpZD0ibGlua19PRFNfRFdEIj48cGF0aCBkPSJNNTguMTQsNDcgQzk5LjMyMzQsNDcgMTc1LjgzOCw0NyAyMTguNzE4LDQ3ICIgZmlsbD0ibm9uZSIgaWQ9Ik9EUy10by1EV0QiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMjI0LjcxOCw0NywyMTUuNzE4LDQzLDIxOS43MTgsNDcsMjE1LjcxOCw1MSwyMjQuNzE4LDQ3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48L2c+PCEtLWxpbmsgRElNIHRvIERXRC0tPjxnIGlkPSJsaW5rX0RJTV9EV0QiPjxwYXRoIGQ9Ik0xNjUuMTg4LDcyLjM2OTYgQzE4Mi40NzgsNjcuMzE2OSAyMDAuNTk0OSw2Mi4wMjI2IDIxOC45MzE5LDU2LjY2MzggIiBmaWxsPSJub25lIiBpZD0iRElNLXRvLURXRCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyMjQuNjkxLDU0Ljk4MDgsMjE0LjkzMDMsNTMuNjY2LDIxOS44OTE3LDU2LjM4MzMsMjE3LjE3NDQsNjEuMzQ0OCwyMjQuNjkxLDU0Ljk4MDgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tbGluayBEV0QgdG8gRFdTLS0+PGcgaWQ9ImxpbmtfRFdEX0RXUyI+PHBhdGggZD0iTTI4MS4wNjYsNDAuMDUzOCBDMjk5LjIxOCwzNS4zOTU0IDMxNy4xODAzLDMwLjc4NTQgMzM1LjEyMTMsMjYuMTgxMyAiIGZpbGw9Im5vbmUiIGlkPSJEV0QtdG8tRFdTIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjM0MC45MzMsMjQuNjg5OSwzMzEuMjIxMiwyMy4wNTI2LDMzNi4wODk5LDI1LjkzMjgsMzMzLjIwOTgsMzAuODAxNSwzNDAuOTMzLDI0LjY4OTkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tbGluayBEV0QgdG8gQURTLS0+PGcgaWQ9ImxpbmtfRFdEX0FEUyI+PHBhdGggZD0iTTI4MS4wNjYsNTMuNzA2NyBDMjk5Ljg3MSw1OC4zNjYyIDMxOC44ODYxLDYzLjA3OCAzMzcuMDIxMSw2Ny41NzE3ICIgZmlsbD0ibm9uZSIgaWQ9IkRXRC10by1BRFMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzQyLjg0NSw2OS4wMTQ4LDMzNS4wNzEzLDYyLjk2NzYsMzM3Ljk5MTgsNjcuODEyMiwzMzMuMTQ3MSw3MC43MzI3LDM0Mi44NDUsNjkuMDE0OCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1TUkM9W29xYkRBcjRlb0xTZW9hcEZBNTU4b0luQUpJeDlwQ19adWFmRUI0Zkh5N1M5WFoxU21rNEM1b1ozcW5WMlMwSWd1RzhnTEQzTGpHRUJtamIwZkswLVdYdGswY0s3bXpiMHBHMDBdLS0+PC9nPjwvc3ZnPg=='>
+<p>此外在其他文章中还有这样的数据流向：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSIxOTlweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjI0MHB4O2hlaWdodDoxOTlweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNDAgMTk5IiB3aWR0aD0iMjQwcHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48IS0tZW50aXR5IEFEUy0tPjxnIGlkPSJlbGVtX0FEUyI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyMi4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI1MCIgeD0iOTkiIHk9IjciLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMCIgeD0iMTA5IiB5PSIyMi45OTUxIj5BRFM8L3RleHQ+PC9nPjwhLS1lbnRpdHkgRFdTLS0+PGcgaWQ9ImVsZW1fRFdTIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIyLjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjU0IiB4PSI3IiB5PSI4OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM0IiB4PSIxNyIgeT0iMTA0Ljk5NTEiPkRXUzwvdGV4dD48L2c+PCEtLWVudGl0eSBEV0QtLT48ZyBpZD0iZWxlbV9EV0QiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMjIuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNTYiIHg9Ijk2IiB5PSI4OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjM2IiB4PSIxMDYiIHk9IjEwNC45OTUxIj5EV0Q8L3RleHQ+PC9nPjwhLS1lbnRpdHkgRElNLS0+PGcgaWQ9ImVsZW1fRElNIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIyLjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjQ3IiB4PSIxODcuNSIgeT0iODkiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIyNyIgeD0iMTk3LjUiIHk9IjEwNC45OTUxIj5ESU08L3RleHQ+PC9nPjwhLS1lbnRpdHkgT0RTLS0+PGcgaWQ9ImVsZW1fT0RTIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIyLjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjUxIiB4PSI1My41IiB5PSIxNzEiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMSIgeD0iNjMuNSIgeT0iMTg2Ljk5NTEiPk9EUzwvdGV4dD48L2c+PCEtLXJldmVyc2UgbGluayBBRFMgdG8gRFdELS0+PGcgaWQ9ImxpbmtfQURTX0RXRCI+PHBhdGggZD0iTTEyNCwzNS4xMzIgQzEyNCw1MC41MiAxMjQsNzMuNjExIDEyNCw4OC45NSAiIGZpbGw9Im5vbmUiIGlkPSJBRFMtYmFja3RvLURXRCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMjQsMjkuMTMyLDEyMCwzOC4xMzIsMTI0LDM0LjEzMiwxMjgsMzguMTMyLDEyNCwyOS4xMzIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tcmV2ZXJzZSBsaW5rIEFEUyB0byBEV1MtLT48ZyBpZD0ibGlua19BRFNfRFdTIj48cGF0aCBkPSJNMTA4LjExNjUsMzMuMTE4MiBDOTAuODA1LDQ4LjUwNjIgNjIuNTYyOCw3My42MTEgNDUuMzA2LDg4Ljk1ICIgZmlsbD0ibm9uZSIgaWQ9IkFEUy1iYWNrdG8tRFdTIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjExMi42MDEsMjkuMTMyLDEwMy4yMTY5LDMyLjEyMTYsMTA4Ljg2NCwzMi40NTM4LDEwOC41MzE4LDM4LjEwMDksMTEyLjYwMSwyOS4xMzIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwvZz48IS0tcmV2ZXJzZSBsaW5rIEFEUyB0byBESU0tLT48ZyBpZD0ibGlua19BRFNfRElNIj48cGF0aCBkPSJNMTM5LjQzNTUsMzMuMTkzMyBDMTU2LjE2OTUsNDguNTgxMyAxODMuMzg5LDczLjYxMSAyMDAuMDcxLDg4Ljk1ICIgZmlsbD0ibm9uZSIgaWQ9IkFEUy1iYWNrdG8tRElNIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjEzNS4wMTksMjkuMTMyLDEzOC45MzYzLDM4LjE2ODMsMTM4LjY5OTUsMzIuNTE2NCwxNDQuMzUxMywzMi4yNzk2LDEzNS4wMTksMjkuMTMyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48L2c+PCEtLXJldmVyc2UgbGluayBEV0QgdG8gT0RTLS0+PGcgaWQ9ImxpbmtfRFdEX09EUyI+PHBhdGggZD0iTTExNS4zNTk0LDExNi4zNjE1IEMxMDYuNzAzNCwxMzEuNzQ5OCA5My4yODE0LDE1NS42MTA5IDg0LjY1MywxNzAuOTUwMiAiIGZpbGw9Im5vbmUiIGlkPSJEV0QtYmFja3RvLU9EUyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMTguMzAxLDExMS4xMzIxLDExMC40MDIzLDExNy4wMTUyLDExNS44NDk3LDExNS40OSwxMTcuMzc0OSwxMjAuOTM3MywxMTguMzAxLDExMS4xMzIxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48L2c+PCEtLXJldmVyc2UgbGluayBEV1MgdG8gT0RTLS0+PGcgaWQ9ImxpbmtfRFdTX09EUyI+PHBhdGggZD0iTTQyLjY0MDksMTE2LjM2MTYgQzUxLjI5NjgsMTMxLjc0OTkgNjQuNzE4NiwxNTUuNjEwOSA3My4zNDcsMTcwLjk1MDIgIiBmaWxsPSJub25lIiBpZD0iRFdTLWJhY2t0by1PRFMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzkuNjk5MywxMTEuMTMyMSw0MC42MjUzLDEyMC45MzczLDQyLjE1MDYsMTE1LjQ5LDQ3LjU5NzksMTE3LjAxNTIsMzkuNjk5MywxMTEuMTMyMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PC9nPjwhLS1TUkM9W0lxdWlJYjVtVDBkY0lXT25OQ0JYMzFTZW16Q05tbDA3Z2s0MkFiSW1xVEs1SW9GT21HV3NLM0xHM2ltNlFHM0FtVFcwXS0tPjwvZz48L3N2Zz4='>
+<h3 id="建模方法论">建模方法论</h3>
+<p>目前业内有如下建模方法，大致可以进行如下的区分：</p>
+<img src='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSI1MjhweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjczMnB4O2hlaWdodDo1MjhweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA3MzIgNTI4IiB3aWR0aD0iNzMycHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU7IiB3aWR0aD0iOTAiIHg9IjEwIiB5PSIyNDUuMTg3NSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjcwIiB4PSIyMCIgeT0iMjY4LjE4MjYiPiYjMjQzMTQ7JiMyNzE2OTsmIzI2MDQxOyYjMjc4NjE7JiMzNTc3MDs8L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjE3MyIgeD0iMTUwIiB5PSIxMDQuNDQ1MyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE1MyIgeD0iMTYwIiB5PSIxMjcuNDQwNCI+SW5tb24oJiMzODU5ODsmIzMyNDQ3OyYjMjIxMjA7JiMyMDMwNzsmIzMxOTk1OyYjMjY1NTA7JiMyNjUwMDspPC90ZXh0PjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSIxMjMiIHg9IjM3MyIgeT0iMjAiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMDMiIHg9IjM4MyIgeT0iNDIuOTk1MSI+QmlsbCBJbm1vbiAmIzI1NTUyOyYjMjA5ODY7PC90ZXh0PjxwYXRoIGQ9Ik0zMjMsMTIyLjU5MzggTDMzMywxMjIuNTkzOCBDMzQ4LDEyMi41OTM4IDM0OCwzOC4xNDg0IDM2MywzOC4xNDg0IEwzNzMsMzguMTQ4NCAiIGZpbGw9Im5vbmUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSIxMzIiIHg9IjM3MyIgeT0iNzYuMjk2OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjExMiIgeD0iMzgzIiB5PSI5OS4yOTIiPiYjMjE0ODI7JiMyMzU0NTsmIzE5OTk0OyYjMjExNTM7JiMyNzk2OTsmIzMxMjQzOyYjMzYxMjc7JiMzNjEzMTs8L3RleHQ+PHBhdGggZD0iTTMyMywxMjIuNTkzOCBMMzMzLDEyMi41OTM4IEMzNDgsMTIyLjU5MzggMzQ4LDk0LjQ0NTMgMzYzLDk0LjQ0NTMgTDM3Myw5NC40NDUzICIgZmlsbD0ibm9uZSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjM0NyIgeD0iMzczIiB5PSIxMzIuNTkzOCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjMyNyIgeD0iMzgzIiB5PSIxNTUuNTg4OSI+JiMxOTk2ODsmIzMzMzI0OyYjMjE0ODI7JiMyMjMxMjsmIzI1OTY4OyYjMjU0NTQ7JiMyMDE3OTsmIzI0MjExOyYjMzAzNDA7JiMyNDIxMzsmIzIzNjE4OyYjMzczMTk7JiMyOTk5MjsgRS1SICYjMjA4NTE7JiMzMTk5NTsmIzI3MTY5OyYjMjI0MTE7JiMzNjgyNzsmIzM0ODkyOyYjMzU3NzQ7JiMzNTc0NTs8L3RleHQ+PHBhdGggZD0iTTMyMywxMjIuNTkzOCBMMzMzLDEyMi41OTM4IEMzNDgsMTIyLjU5MzggMzQ4LDE1MC43NDIyIDM2MywxNTAuNzQyMiBMMzczLDE1MC43NDIyICIgZmlsbD0ibm9uZSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjIwNSIgeD0iMzczIiB5PSIxODguODkwNiIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE4NSIgeD0iMzgzIiB5PSIyMTEuODg1NyI+JiMzNjk4MTsmIzI0NDkwOyAzTkYmIzY1MjkyOyYjMzMyNTg7JiMxOTk3OTsmIzMyNzgwOyYjMTk5Nzg7JiMzNjgyNzsmIzM0ODkyOyYjMjY1MDA7JiMyNDMxNDs8L3RleHQ+PHBhdGggZD0iTTMyMywxMjIuNTkzOCBMMzMzLDEyMi41OTM4IEMzNDgsMTIyLjU5MzggMzQ4LDIwNy4wMzkxIDM2MywyMDcuMDM5MSBMMzczLDIwNy4wMzkxICIgZmlsbD0ibm9uZSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBhdGggZD0iTTEwMCwyNjMuMzM1OSBMMTEwLDI2My4zMzU5IEMxMjUsMjYzLjMzNTkgMTI1LDEyMi41OTM4IDE0MCwxMjIuNTkzOCBMMTUwLDEyMi41OTM4ICIgZmlsbD0ibm9uZSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjE2OCIgeD0iMTUwIiB5PSIzNTcuNzgxMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE0OCIgeD0iMTYwIiB5PSIzODAuNzc2NCI+S2ltYmFsbCgmIzM4NTk4OyYjMjQwNjY7JiMyNDYzNTsmIzMyNDQ3OyYjMjY1NTA7JiMyNjUwMDspPC90ZXh0PjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSIxMDYiIHg9IjM2OCIgeT0iMjQ1LjE4NzUiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI4NiIgeD0iMzc4IiB5PSIyNjguMTgyNiI+S2ltYmFsbCAmIzI1NTUyOyYjMjA5ODY7PC90ZXh0PjxwYXRoIGQ9Ik0zMTgsMzc1LjkyOTcgTDMyOCwzNzUuOTI5NyBDMzQzLDM3NS45Mjk3IDM0MywyNjMuMzM1OSAzNTgsMjYzLjMzNTkgTDM2OCwyNjMuMzM1OSAiIGZpbGw9Im5vbmUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSIyMTYiIHg9IjM2OCIgeT0iMzAxLjQ4NDQiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxOTYiIHg9IjM3OCIgeT0iMzI0LjQ3OTUiPiYjMjE0ODI7JiMyMzU0NTsmIzIwOTk4OyYjMjY1MTI7JiMyMDkxNTsmIzMxNTc0OyYjMzg2NTY7JiMyNzcxNDsmIzIwOTg2OyYjMjE0NTc7JiMyNjUwMDsmIzI0MzE0OyYjMjcxNjk7JiMyMjQxMTs8L3RleHQ+PHBhdGggZD0iTTMxOCwzNzUuOTI5NyBMMzI4LDM3NS45Mjk3IEMzNDMsMzc1LjkyOTcgMzQzLDMxOS42MzI4IDM1OCwzMTkuNjMyOCBMMzY4LDMxOS42MzI4ICIgZmlsbD0ibm9uZSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9IjQ4IiB4PSIzNjgiIHk9IjM4NS45Mjk3Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMjgiIHg9IjM3OCIgeT0iNDA4LjkyNDgiPiYjMjA5OTg7JiMzMTg2Nzs8L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS41OyIgd2lkdGg9Ijc2IiB4PSI0NjYiIHk9IjM1Ny43ODEzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNTYiIHg9IjQ3NiIgeT0iMzgwLjc3NjQiPiYjMjYxNDM7JiMyMjQxMTsmIzI3MTY5OyYjMjI0MTE7PC90ZXh0PjxwYXRoIGQ9Ik00MTYsNDA0LjA3ODEgTDQyNiw0MDQuMDc4MSBDNDQxLDQwNC4wNzgxIDQ0MSwzNzUuOTI5NyA0NTYsMzc1LjkyOTcgTDQ2NiwzNzUuOTI5NyAiIGZpbGw9Im5vbmUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuNTsiIHdpZHRoPSI3NiIgeD0iNDY2IiB5PSI0MTQuMDc4MSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjU2IiB4PSI0NzYiIHk9IjQzNy4wNzMyIj4mIzM4NjM0OyYjMzM0NTc7JiMyNzE2OTsmIzIyNDExOzwvdGV4dD48cGF0aCBkPSJNNDE2LDQwNC4wNzgxIEw0MjYsNDA0LjA3ODEgQzQ0MSw0MDQuMDc4MSA0NDEsNDMyLjIyNjYgNDU2LDQzMi4yMjY2IEw0NjYsNDMyLjIyNjYgIiBmaWxsPSJub25lIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cGF0aCBkPSJNMzE4LDM3NS45Mjk3IEwzMjgsMzc1LjkyOTcgQzM0MywzNzUuOTI5NyAzNDMsNDA0LjA3ODEgMzU4LDQwNC4wNzgxIEwzNjgsNDA0LjA3ODEgIiBmaWxsPSJub25lIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjU7IiB3aWR0aD0iMTQ2IiB4PSIzNjgiIHk9IjQ3MC4zNzUiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMjYiIHg9IjM3OCIgeT0iNDkzLjM3MDEiPiYjMjY1MDA7JiMyNDMxNDsmIzM2ODA3OyYjMzEyNDM7JiM2NTI5MjsmIzMzMjU4OyYjMTk5Nzg7JiMzMjc4MDsmIzE5OTc5OzwvdGV4dD48cGF0aCBkPSJNMzE4LDM3NS45Mjk3IEwzMjgsMzc1LjkyOTcgQzM0MywzNzUuOTI5NyAzNDMsNDg4LjUyMzQgMzU4LDQ4OC41MjM0IEwzNjgsNDg4LjUyMzQgIiBmaWxsPSJub25lIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cGF0aCBkPSJNMTAwLDI2My4zMzU5IEwxMTAsMjYzLjMzNTkgQzEyNSwyNjMuMzM1OSAxMjUsMzc1LjkyOTcgMTQwLDM3NS45Mjk3IEwxNTAsMzc1LjkyOTcgIiBmaWxsPSJub25lIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48IS0tU1JDPVtQUDUxUm45MTVDVmwtb2RVNEpRWHFLZVFxckRKZk1lNXF2SkktbThoY1JXeEl2TzF1dXNJb1hBV2VHUGZzakJHNDJ5UmVZWVhETkpIeWNMc1BlVUpOeTdQdEpPc3lKUnBfaHl0eF96X2lyNFlZYWJxWEZFd0tmSGFlN0U3c0tEc1NpRWNGSnZzOTVjNkxyV3RTNkpQaHRsRVdmeFB4ay1rRHZzcG1LeXNFOG1BTk9QRGY2YVgxUW5wSjJxZGdEQkVZN3dfU01WZGozYmFybVVVdFU5TmJfcGdJbzJ3aW9mbFZGTUgydmxyVmgyWmlKbGxLZ1ZoZEh6SWZxU2RqUUxiVVB6aklDSHNXTndTLVdGajhIc3EtQUJGWHNxLWxrTlpPVjNHeWsyUXRleFdvUGtqRnhfUXQxZ3ZpblFsampyUENvSTVIdjc4Sl80UXdMYjVxX21TVDVQWnJSYjh5cDM0ZFZ2XzBqZ2VpeTRuaEstelJvVkJZb2dScjhIRUV2XzJmcURSOFR3ZVV2RXZWdkkxZEx3QXlaekg2RXNGVTdGbzAwX3gtUzhJY3hkdHRXb3lqd0dETFZwN3RQejhFdmcySUlRTFg4ZmdiZjFPeWtFTHJLVWh5UEx1TFlOQU1ZSTN0czdaRk9RU2VIVUhmVzkxa1hnTDhZenNhYjBvb2NQRVhKbWc0SERib3FHcUh3TGpmUUIwUlhkeHQzaHVqeVhVQVdoZm43cUg0aFkySjBGaEFZUkl6ZHVnWEUyYkdUOTVXbUptTVpvc1lHWWFMTER1V2xzS3o1bnpndkdyOGJmcEhYeFhtWmZhemhQWUp3TWFXV2piZkkwNmdMWHdQZVcxdldVWGZWeTJdLS0+PC9nPjwvc3ZnPg=='>
+<p>具体的构建关键点为：</p>
+<ul>
+<li>需求</li>
+<li>模型</li>
+<li>数据</li>
+</ul>
+<blockquote>
+<p>注：根据不同的方法论可以决定起点和方向。</p>
+</blockquote>
+<p>具体特性如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">Kimball</th>
+<th style="text-align:center">InMon</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">时间</td>
+<td style="text-align:center">快速交付</td>
+<td style="text-align:center">长</td>
+</tr>
+<tr>
+<td style="text-align:center">开发难度</td>
+<td style="text-align:center">小</td>
+<td style="text-align:center">大</td>
+</tr>
+<tr>
+<td style="text-align:center">维护难度</td>
+<td style="text-align:center">大	小</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">技能要求</td>
+<td style="text-align:center">入门级</td>
+<td style="text-align:center">专家级</td>
+</tr>
+<tr>
+<td style="text-align:center">数据要求</td>
+<td style="text-align:center">特定业务</td>
+<td style="text-align:center">企业级</td>
+</tr>
+</tbody>
+</table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%A6%82%E5%BF%B5/" class="category-chain-item">大数据概念</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93/" class="print-no-link">#数据仓库</a>
+      
+        <a href="/tags/Data-warehouse/" class="print-no-link">#Data warehouse</a>
+      
+        <a href="/tags/Data-Mart/" class="print-no-link">#Data Mart</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E9%9B%86%E5%B8%82/" class="print-no-link">#数据集市</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>数据仓库概念梳理</div>
+      <div>https://wangqian0306.github.io/2020/data_warehouse/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年7月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/springdoc-openapi/" title="springdoc-openapi">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">springdoc-openapi</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/design-pattern-proxy/" title="代理模式">
+                        <span class="hidden-mobile">代理模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
