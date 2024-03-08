@@ -82,7 +82,7 @@ qemu-img convert -p -f raw <filename>.raw -O vmdk <diskname>.vmdk
 6. 创建一个空的虚拟机。
 7. 将 vmdk 做为磁盘配置在虚拟机中。
 
-> 注：此处遇到了虚拟机启动失败的情况，大概率是阿里云导出的问题，修起来太复杂了，不如直接挂载到其他 Linux 设备上直接读文件。
+> 注：在本地启动服务时遇到了 `dracut-initqueue timeout could not boot` 问题，解决方案参见重构 grub 并重装内核文档。
 
 ### 参考资料
 
