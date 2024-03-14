@@ -42,6 +42,14 @@ services:
 
 密码：geoserver
 
+### 数据来源
+
+GeoServer 可以作为代理，接管天地图或 OpenStreetMap 等 WMS,WMTS 服务。
+
+也可以接入 shp 文件或 PostGIS 数据等内容。
+
+> 注：[POI数据](https://www.poi86.com/) 可以在此处下载国内的 shp 数据文件。
+
 ### 常见问题
 
 #### 忘记密码
