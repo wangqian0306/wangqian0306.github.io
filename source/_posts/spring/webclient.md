@@ -74,19 +74,19 @@ public class Application {
     }
 
     @Bean
-    JokeClient dadJokeClient() {
-        WebClient client = WebClient.builder()
-                .baseUrl("https://icanhazdadjoke.com")
+    JokeClient jokeClient(WebClient.Builder builder) {
+        WebClient client = builder
+                .baseUrl("https://icanhazdadjoke.com/")
                 .defaultHeader("Accept", "application/json")
                 .build();
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.forClient(client)).build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();
         return factory.createClient(JokeClient.class);
     }
 
 }
 ```
 
-编写测试：
+编写测试接口：
 
 ```java
 import jakarta.annotation.Resource;
@@ -179,9 +179,9 @@ public class Application {
     }
 
     @Bean
-    JokeClient dadJokeClient() {
-        RestClient client = RestClient.builder()
-                .baseUrl("https://icanhazdadjoke.com")
+    JokeClient jokeClient(RestClient.Builder builder) {
+        RestClient client = builder
+                .baseUrl("https://icanhazdadjoke.com/")
                 .defaultHeader("Accept", "application/json")
                 .build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();
@@ -246,6 +246,49 @@ public interface JokeClient {
     @GetExchange("/")
     ResponseEntity<JokeResponse> random();
 
+}
+```
+
+#### Mock 测试
+
+编写如下测试程序即可：
+
+```java
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+
+@RestClientTest(JokeClient.class)
+public class JokeTest {
+
+    @Autowired
+    MockRestServiceServer server;
+
+    @Autowired
+    JokeClient jokeClient;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Test
+    public void shouldReturnAllPosts() throws JsonProcessingException {
+        JokeResponse jokeResponse = new JokeResponse("1", "demo", 1);
+        this.server
+                .expect(requestTo("https://icanhazdadjoke.com/"))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(jokeResponse), MediaType.APPLICATION_JSON));
+
+        JokeResponse result = jokeClient.random();
+        assertThat(result.joke()).isEqualTo("demo");
+    }
 }
 ```
 
