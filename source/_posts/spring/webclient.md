@@ -292,6 +292,64 @@ public class JokeTest {
 }
 ```
 
+#### 拦截器
+
+可以使用拦截器的方式改变请求中的内容样例如下：
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+@Component
+public class TokenInterceptor implements ClientHttpRequestInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(TokenInterceptor.class);
+
+    @Override
+    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        log.info("Intercepting request: " + request.getURI());
+        request.getHeaders().add("x-request-id", "12345");
+        return execution.execute(request, body);
+    }
+
+}
+```
+
+```java
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
+@Component
+public class JokeClient {
+
+    private final RestClient restClient;
+
+    public JokeClient(RestClient.Builder builder, ClientHttpRequestInterceptor tokenInterceptor) {
+        this.restClient = builder
+                .baseUrl("https://icanhazdadjoke.com")
+                .defaultHeader("Accept", "application/json")
+                .requestInterceptor(tokenInterceptor)
+                .build();
+    }
+
+    public JokeResponse random() {
+        return restClient.get()
+                .uri("/")
+                .retrieve()
+                .body(JokeResponse.class);
+    }
+
+}
+```
+
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
