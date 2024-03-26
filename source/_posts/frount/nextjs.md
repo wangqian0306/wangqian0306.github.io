@@ -26,107 +26,52 @@ Next.js 是一个用于生产环境的 React 应用框架。Redux 则是一种�
 npx create-next-app@latest
 ```
 
+> 注：剩余配置全部默认即可
+
 ### MUI 插件
 
 使用如下命令安装即可：
 
 ```bash
-npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/material @emotion/react @emotion/styled @mui/material-nextjs @emotion/cache
 ```
 
 #### 与 Next.js 带主题集成并进行本地化
 
-主题文件样例如下 `src/assets/index.ts`：
-
-```typescript
-import {createTheme} from "@mui/material/styles";
-import { zhCN } from '@mui/material/locale';
-
-const theme = createTheme({},zhCN,);
-export default theme;
-```
-
-主题配置类如下 `src/app/ThemeRegistry.tsx`：
+主题配置类如下 `app/theme.ts`：
 
 ```typescript jsx
 'use client';
-import createCache, {Options} from '@emotion/cache';
-import {useServerInsertedHTML} from 'next/navigation';
-import {CacheProvider} from '@emotion/react';
-import {ThemeProvider} from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import React from "react";
-import theme from "@/assets"
 
+import { Roboto } from 'next/font/google';
+import { createTheme } from '@mui/material/styles';
 
-export type ThemeProps = {
-    options: Options,
-    children: React.ReactNode
-}
+const roboto = Roboto({
+  weight: ['300', '400', '500', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+});
 
-export default function ThemeRegistry(props: ThemeProps) {
-    const {options, children} = props;
+const theme = createTheme({
+  typography: {
+    fontFamily: roboto.style.fontFamily,
+  },
+});
 
-    const [{cache, flush}] = React.useState(() => {
-        const cache = createCache(options);
-        cache.compat = true;
-        const prevInsert = cache.insert;
-        let inserted: string[] = [];
-        cache.insert = (...args) => {
-            const serialized = args[1];
-            if (cache.inserted[serialized.name] === undefined) {
-                inserted.push(serialized.name);
-            }
-            return prevInsert(...args);
-        };
-        const flush = () => {
-            const prevInserted = inserted;
-            inserted = [];
-            return prevInserted;
-        };
-        return {cache, flush};
-    });
-
-    useServerInsertedHTML(() => {
-        const names = flush();
-        if (names.length === 0) {
-            return null;
-        }
-        let styles = '';
-        for (const name of names) {
-            styles += cache.inserted[name];
-        }
-        return (
-            <style
-                key={cache.key}
-                data-emotion={`${cache.key} ${names.join(' ')}`}
-                dangerouslySetInnerHTML={{
-                    __html: styles,
-                }}
-            />
-        );
-    });
-
-    return (
-        <CacheProvider value={cache}>
-            <ThemeProvider theme={theme}>
-                <CssBaseline/>
-                {children}
-            </ThemeProvider>
-        </CacheProvider>
-    );
-}
+export default theme;
 ```
 
-向 layout 文件 `src/app/layout.tsx` 中引入主题配置类：
+向 layout 文件 `app/layout.tsx` 中引入主题配置类：
 
 ```typescript jsx
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import type {Metadata} from 'next'
+import {Inter} from 'next/font/google'
 import './globals.css'
-import ThemeRegistry from "@/app/ThemeRegistry";
+import {ThemeProvider} from '@mui/material/styles';
+import {AppRouterCacheProvider} from '@mui/material-nextjs/v14-appRouter'
+import theme from "@/app/theme";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({subsets: ['latin']})
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -134,15 +79,19 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ThemeRegistry options={{ key: 'mui' }}>{children}</ThemeRegistry>
-      </body>
+    <body className={inter.className}>
+    <AppRouterCacheProvider options={{key: 'css', enableCssLayer: true}}>
+      <ThemeProvider theme={theme}>
+        {children}
+      </ThemeProvider>
+    </AppRouterCacheProvider>
+    </body>
     </html>
   )
 }
@@ -195,26 +144,13 @@ declare module '@mui/material/styles' {
 npm install @mui/x-date-pickers dayjs
 ```
 
-需要在 `src/app/ThemeRegistry.tsx` 中进行如下修改：
+需要在 `app/layout.tsx` 中进行如下修改：
 
 ```typescript jsx
-import {LocalizationProvider} from '@mui/x-date-pickers';
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-...
-export default function ThemeRegistry(props: ThemeProps) {
-    ...
-    return (
-        <CacheProvider value={cache}>
-            <ThemeProvider theme={theme}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="zh-cn">
-                    <CssBaseline/>
-                    {children}
-                </LocalizationProvider>
-            </ThemeProvider>
-        </CacheProvider>
-    );
-}
+
 ```
+
+> 注：此处 LocalizationProvider 注入失败
 
 #### 复杂表格
 

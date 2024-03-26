@@ -6,7 +6,8 @@ tags:
 id: nodejs
 no_word_count: true
 no_toc: false
-categories: 前端
+categories: 
+- "前端"
 ---
 
 ## Node.js 环境准备
@@ -77,4 +78,14 @@ npm config get registry
 
 ```bash 
 npm install -g yarn
+```
+
+### 常见问题
+
+#### ENOENT: no such file or directory, lstat 'C:\Users\xxx\AppData\Roaming\npm'
+
+重新安装 npm 即可：
+
+```bash
+npm install -g npm@latest
 ```
