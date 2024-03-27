@@ -144,13 +144,25 @@ declare module '@mui/material/styles' {
 npm install @mui/x-date-pickers dayjs
 ```
 
-需要在 `app/layout.tsx` 中进行如下修改：
+然后需要在使用日期选择器的使用页面编写如下代码即可
 
 ```typescript jsx
+'use client';
 
+import {LocalizationProvider} from '@mui/x-date-pickers';
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker} from "@mui/x-date-pickers";
+
+export default function Home() {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="zh-cn">
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        <DatePicker/>
+      </main>
+    </LocalizationProvider>
+  );
+}
 ```
-
-> 注：此处 LocalizationProvider 注入失败
 
 #### 复杂表格
 
