@@ -113,6 +113,37 @@ Coordinator 必须确认究竟使用哪种分配策略。在分配时组内的�
 
 所选成员应在重新平衡超时内完成分配过程。当成员收到通知时 Coordinator 端开始计时。如果该过程未在重新平衡超时内完成，则组协调员将选取另一个成员来运行分配。请注意，此处未对先前选择的成员进行隔离，因为隔离仅基于会话。
 
+### 简单理解
+
+假设某个主题有 6 个分区，然后有两个消费者 A B 以 Epoch 5 为当前阶段：
+
+```text
+Consumer        Group Coordinator Current        Group Coordinator Target
+A(5) [1,2,3]        A(5) [1,2,3]                     A(5) [1,2,3]
+B(5) [4,5,6]        B(5) [4,5,6]                     B(5) [4,5,6]
+```
+
+在心跳信息返回正常的情况下会持续进行消费，如果此时来了个 C 客户端，向 Group Coordinator 发送注册请求的时候，Group Coordinator 会回复给他，当前在 Epoch 5，然后向 A B 发出撤销 `[3]`, `[6]` 命令撤销完成后更新 Epoch，Group Coordinator 再分配给 C：
+
+```text
+Consumer        Group Coordinator Current        Group Coordinator Target
+A(5) [1,2,3]        A(5) [1,2,3]                     A(6) [1,2]
+B(5) [4,5,6]        B(5) [4,5,6]                     B(6) [4,5]
+C(0) []                                              C(6) [3,6]
+```
+
+假设此时 A 挂了，但是 B 正常运行：
+
+```text
+Consumer        Group Coordinator Current        Group Coordinator Target
+B(6) [4,5]        B(6) [4,5]                         B(7) [4,5,1]
+C(6) [6]          C(6) [6]                           C(7) [6,2,3]
+```
+
+之后和上一步的流程一样，最后就会变成  `B(7) [4,5,1]` `C(7) [6,2,3]`。
+
 ### 参考资料
 
 [KIP-848 The Next Generation of the Consumer Rebalance Protocol](https://cwiki.apache.org/confluence/display/KAFKA/KIP-848%3A+The+Next+Generation+of+the+Consumer+Rebalance+Protocol)
+
+[Apache Kafka's Next-Gen Rebalance Protocol: Towards More Stable and Scalable Consumer Groups](https://www.confluent.io/events/current/2023/apache-kafkas-next-gen-rebalance-protocol-towards-more-stable-and-scalable/)
