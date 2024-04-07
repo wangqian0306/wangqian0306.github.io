@@ -22,7 +22,7 @@ categories:
 
 #### Ollama Chat
 
-在 [Spring Initilazier](https://start.spring.io/) 里可以引入如下内容：
+在 [Spring Initializer](https://start.spring.io/) 里可以引入如下内容：
 
 - Ollama
 - Spring Web
@@ -43,6 +43,7 @@ ext {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.ai:spring-ai-transformers-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-ollama-spring-boot-starter'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -134,6 +135,14 @@ public class DadJokeController {
 }
 ```
 
+如果想要使用自定义数据源则可以采用如下方式：
+
+```java
+
+```
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-ai/reference/index.html)
+
+[spring-into-ai](https://github.com/danvega/spring-into-ai)
