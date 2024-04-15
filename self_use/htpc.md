@@ -114,7 +114,7 @@ services:
     user: 1000:1000
     volumes:
       - ./jellyfin/config:/config
-      - ./jellfin/cache:/cache
+      - ./jellyfin/cache:/cache
       - ./content/movies:/media/movies
       - ./content/tv:/media/tv
     restart: 'unless-stopped'
@@ -215,6 +215,16 @@ services:
 - 进入 `System` 配置项
   - 选择 `Backups` 子项
     - 点击 `Backup Now` 进行备份
+
+#### Jellyseerr
+
+访问 [http://localhost:5055](http://localhost:5055) 即可找到登录页面，然后按照如下指示进行配置：
+
+- 选择使用 Jellyfin 模式进行登录
+  - 输入链接地址 `http://jellyfin:8096` 
+  - 输入任意邮箱
+  - 输入 Jellyfin 用户名
+  - 输入 Jellyfin 密码
 
 ### 参考资料
 
