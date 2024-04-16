@@ -144,6 +144,9 @@ services:
 - 使用 admin/deluge 默认账户登录登录页面
 - 配置连接信息 `<ip>` `58846` `admin` `deluge`, 若状态显示 Online 则证明配置无误 
 - 配置文件下载地址为 `/downloasd`
+- 点击 `Preferebce` 按钮
+  - 选择 `Plugins` 插件
+    - 启用 `Label` 插件
 
 > 注：配置完成后建议下个文件做验证
 
@@ -178,9 +181,9 @@ services:
   - 选择 `Profiles` 子项
     - 点击 `Any` 类型
       - 勾选所有类型(包括 `Unknow`)
-      - 将语言设置为 `Any` 即，不筛选下载语言
+      - 将语言设置为 `Any` 即，不筛选下载语言，并针对想要的分辨率进行排序
     - 点击其他类型
-      - 将语言设置为 `Any` 即，不筛选下载语言
+      - 将语言设置为 `Any` 即，不筛选下载语言，并针对想要的分辨率进行排序
   - 选择 `Quality` 子项
     - 设置 `Unknow` 格式的大小限制为 `Unlimit`
   - 选择 `Indexers` 子项
@@ -191,8 +194,26 @@ services:
 
 #### Sonarr 
 
-> 注：待补充
+访问 [http://localhost:8989](http://localhost:8989) 即可找到登录页面，然后按照如下指示进行配置：
 
+- 进入 `Settings` 配置项
+  - 选择 `Media Management` 子项
+    - 开启 `Rename Episodes` 功能
+    - 编辑 `Root Folders` 添加 `/downloads` 文件夹
+  - 选择 `Profiles` 子项
+    - 点击 `Any` 类型
+      - 勾选所有类型(包括 `Unknow`)
+      - 将语言设置为 `Any` 即，不筛选下载语言
+    - 点击其他类型
+      - 将语言设置为 `Any` 即，不筛选下载语言
+  - 选择 `Quality` 子项
+    - 设置 `Unknow` 格式的大小限制为 `Unlimit`
+  - 选择 `Indexers` 子项
+    - 添加 `Torznab` 格式的 `Indexer` (此处添加方式参见 Jackett) 
+  - 选择 `Download Clients` 子项
+    - 添加 `deluge` 即可 (此处添加内容参见 deluge 部分) 
+    - 添加远程路径映射 (全部映射至 `/downloads` 即可)
+  
 #### Bazarr
 
 访问 [http://localhost:6767](http://localhost:6767) 即可找到登录页面，然后按照如下指示进行配置：
