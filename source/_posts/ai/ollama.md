@@ -48,7 +48,9 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
-### 图形化界面(Open WebUI)
+### 图形化界面
+
+#### Open WebUI
 
 编写如下 `docker-compose.yaml` 文件：
 
@@ -77,6 +79,28 @@ docker-compose up -d
 ```
 
 > 注：启动时间有些长，记得使用 `docker-compose logs -f` 看日志。
+
+#### LobeChat
+
+编写如下 `docker-compose.yaml` 文件：
+
+```bash
+version: '3.8'
+
+services:
+  lobe-chat:
+    image: lobehub/lobe-chat
+    ports:
+      - "3210:3210"
+    environment:
+      - OLLAMA_PROXY_URL=<ollama_address>/v1
+```
+
+然后使用如下命令启动即可：
+
+```bash
+docker-compose up -d 
+```
 
 ### 参考资料
 

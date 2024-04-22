@@ -59,3 +59,5 @@ docker-compose up -d
 [anti-AD 规则列表](https://github.com/privacy-protection-tools/anti-AD)
 
 [Adguard 过滤规则分享](https://wsgzao.github.io/post/adguard/)
+
+[GOODBYEADS 过滤规则](https://github.com/8680/GOODBYEADS)
