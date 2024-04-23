@@ -102,6 +102,58 @@ services:
 docker-compose up -d 
 ```
 
+### 使用前端库调用
+
+使用如下代码安装依赖：
+
+```bash
+npm install ollama
+```
+
+然后即可编写如下程序访问 API：
+
+```typescript jsx
+'use client';
+
+import {Ollama} from 'ollama/browser'
+import React,{ useState } from 'react';
+
+export default function Dashboard() {
+  const ollama = new Ollama({host: 'http://localhost:11434'})
+  const [data, setData] = useState<String>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await ollama.chat({
+        model: 'llama3',
+        messages: [{role: 'user', content: 'Why is the sky blue?'}],
+      })
+      setData(response.message.content);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Example Page</h1>
+      <button onClick={fetchData} disabled={isLoading}>
+        {isLoading ? 'Loading...' : 'Fetch Data'}
+      </button>
+      {data && (
+        <div>
+          <p>{data}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
 ### 参考资料
 
 [官方项目](https://github.com/ollama/ollama)
