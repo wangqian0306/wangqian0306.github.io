@@ -66,8 +66,8 @@ npx create-next-app -e with-supabase
 然后需要编辑 `.env.example` 文件，并将其重命名为 `.env.local`:
 
 ```text
-  NEXT_PUBLIC_SUPABASE_URL=<SUBSTITUTE_SUPABASE_URL>
-  NEXT_PUBLIC_SUPABASE_ANON_KEY=<SUBSTITUTE_SUPABASE_ANON_KEY>
+NEXT_PUBLIC_SUPABASE_URL=<SUBSTITUTE_SUPABASE_URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<SUBSTITUTE_SUPABASE_ANON_KEY>
 ```
 
 > 注: 此处的地址需要访问创建的 Supabase 仪表板中的项目详情中查看。
@@ -118,7 +118,7 @@ export const createClient = () =>
 
 编写 `lib/supabase/middleware.ts` :
 
-```typescirpt
+```typescript
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -201,7 +201,7 @@ export const updateSession = async (request: NextRequest) => {
 
 编写 `lib/supabase/server.ts` :
 
-```typescirpt
+```typescript
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -238,6 +238,16 @@ export const createClient = () => {
     },
   );
 };
+```
+
+#### 矢量插件
+
+运行以下 sql 可以引入 vector 插件
+
+```sql
+create extension vector
+with
+  schema extensions;
 ```
 
 #### 本地部署(Docker)
