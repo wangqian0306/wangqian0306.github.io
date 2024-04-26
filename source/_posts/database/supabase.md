@@ -240,7 +240,7 @@ export const createClient = () => {
 };
 ```
 
-#### 矢量插件
+#### Vector 插件
 
 运行以下 sql 可以引入 vector 插件
 
@@ -248,6 +248,126 @@ export const createClient = () => {
 create extension vector
 with
   schema extensions;
+```
+
+然后使用如下 sql 即可创建一个表：
+
+```sql
+create table documents (
+  id serial primary key,
+  title text not null,
+  body text not null,
+  embedding vector(384)
+);
+```
+
+使用如下 sql 建立一个语义检索函数：
+
+```sql
+create or replace function match_documents (
+  query_embedding vector(384),
+  match_threshold float,
+  match_count int
+)
+returns setof documents
+language sql
+as $$
+  select *
+  from documents
+  where documents.embedding <#> query_embedding < -match_threshold
+  order by documents.embedding <#> query_embedding asc
+  limit least(match_count, 200);
+$$;
+```
+
+配置 Transformers.js 之后即可使用如下 sql 进行内容检索：
+
+```sql
+select *
+from match_documents(
+  '[...]'::vector(384),
+  0.78,
+  10
+);
+```
+
+修改 `types.d.ts`:
+
+```typescript
+type Message = {
+    content: string
+}
+type Embedding = {
+    embedding: []
+}
+type SelectDocument = {
+    id: number,
+    content: string,
+    embedding: []
+}
+```
+
+或是使用如下代码进行检索：
+
+```typescript jsx
+'use client';
+
+import {createClient} from "@/app/lib/supabase/client";
+import {useState} from 'react'
+
+export default function Test() {
+  const [value, setValue] = useState<string>("");
+  const [documents, setDocuments] = useState<SelectDocument[]>([]);
+  const supabase = createClient()
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+  const classify = async (text: string) => {
+    if (!text)
+      return;
+    try {
+      const result = await fetch(`/test?text=${encodeURIComponent(text)}`);
+      const emb:Embedding = await response.json();
+      const {data} = await supabase.rpc('match_documents', {
+        query_embedding: emb.embedding,
+        match_threshold: 0.78,
+        match_count: 10,
+      })
+      const documents: SelectDocument[] = data.map((item: any) => ({
+        id: item.id,
+        content: item.content,
+        embedding: item.embedding
+      }));
+      setDocuments(documents)
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-12">
+      <h1 className="text-5xl font-bold mb-2 text-center">Transformers.js</h1>
+      <h2 className="text-2xl mb-4 text-center">Next.js template (server-side)</h2>
+      <input
+        type="text"
+        value={value}
+        className="w-full max-w-xs p-2 border border-gray-300 rounded mb-4"
+        placeholder="Enter text here"
+        onChange={handleInputChange}
+      />
+      <button onClick={() => classify(value)}> Transformers</button>
+      <ul>
+        {documents.map(document => (
+          <li key={document.id}>
+            <p>{document.content}</p>
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
+}
 ```
 
 #### 本地部署(Docker)

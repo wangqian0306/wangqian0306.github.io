@@ -45,6 +45,12 @@ Hugging Face 提供的 Transformers.js 可以直接再浏览器中运行 Transfo
 
 在 Next.js 中可以按照如下方式使用：
 
+- 安装依赖
+
+```bash
+npm i @xenova/transformers
+```
+
 - 设置 `next.config.mjs` 配置
 
 ```text
@@ -174,3 +180,5 @@ export default function Home() {
 [Hugging Face Hub 和开源生态介绍](https://www.bilibili.com/video/BV1mm4y1x72Q)
 
 [Hugging Face 主页](https://huggingface.co/)
+
+[Transformers.js](https://huggingface.co/docs/transformers.js/index)
