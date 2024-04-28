@@ -255,8 +255,7 @@ with
 ```sql
 create table documents (
   id serial primary key,
-  title text not null,
-  body text not null,
+  content text not null,
   embedding vector(384)
 );
 ```
@@ -280,17 +279,6 @@ as $$
 $$;
 ```
 
-配置 Transformers.js 之后即可使用如下 sql 进行内容检索：
-
-```sql
-select *
-from match_documents(
-  '[...]'::vector(384),
-  0.78,
-  10
-);
-```
-
 修改 `types.d.ts`:
 
 ```typescript
@@ -307,7 +295,119 @@ type SelectDocument = {
 }
 ```
 
-或是使用如下代码进行检索：
+安装 `transformers.js` :
+
+```bash
+npm i @xenova/transformers
+```
+
+修改 `next.config.mjs` 配置：
+
+```text
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    output: 'standalone',
+    experimental: {
+        serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+    },
+};
+
+export default nextConfig;
+```
+
+编写 `/app/api/transformers/pipeline.ts`：
+
+```typescript
+import {PipelineType} from "@xenova/transformers/types/pipelines";
+import {pipeline} from "@xenova/transformers";
+
+const P = () => class PipelineSingleton {
+  static task: PipelineType = 'feature-extraction';
+  static model = 'Supabase/gte-small';
+  static instance:any = null;
+
+  static async getInstance(progress_callback:any = null) {
+    if (this.instance === null) {
+      this.instance = pipeline(this.task, this.model, { progress_callback });
+    }
+    return this.instance;
+  }
+}
+
+declare const global: {
+  PipelineSingleton?: any;
+};
+
+let PipelineSingleton:any;
+if (process.env.NODE_ENV !== 'production') {
+  if (!global.PipelineSingleton) {
+    global.PipelineSingleton = P();
+  }
+  PipelineSingleton = global.PipelineSingleton;
+} else {
+  PipelineSingleton = P();
+}
+export default PipelineSingleton;
+```
+
+编写 `/app/api/transformers/route.ts` ：
+
+```typescript
+import {NextResponse,NextRequest} from "next/server";
+import PipelineSingleton from "@/app/api/transformers/pipeline";
+
+export async function POST(request:NextRequest) {
+  const {content}: Partial<Message> = await request.json()
+  if (!content) {
+    return NextResponse.json({
+      error: 'Missing content',
+    }, { status: 400 });
+  }
+  const classifier = await PipelineSingleton.getInstance();
+  const result = await classifier(content, {
+    pooling: 'mean',
+    normalize: true,
+  });
+  const embedding = Array.from(result.data)
+  return NextResponse.json({"embedding": embedding})
+}
+```
+
+编写 `/app/api/document/route.ts`
+
+```typescript
+import {NextResponse,NextRequest} from "next/server";
+import PipelineSingleton from "@/app/api/transformers/pipeline";
+import { createClient } from "@/app/lib/supabase/client";
+
+const supabase = createClient()
+
+export async function POST(request:NextRequest) {
+  const {content}: Partial<Message> = await request.json()
+  if (!content) {
+    return NextResponse.json({
+      error: 'Missing content',
+    }, { status: 400 });
+  }
+  const classifier = await PipelineSingleton.getInstance();
+  const result = await classifier(content, {
+    pooling: 'mean',
+    normalize: true,
+  });
+  const embedding = Array.from(result.data)
+  const { data, error } = await supabase.from('documents').insert({
+    content,
+    embedding,
+  })
+  if (error) {
+    throw error;
+  } else {
+    return NextResponse.json(data);
+  }
+}
+```
+
+修改 `/app/page.tsx` 代码即可进行检索：
 
 ```typescript jsx
 'use client';
@@ -318,17 +418,48 @@ import {useState} from 'react'
 export default function Test() {
   const [value, setValue] = useState<string>("");
   const [documents, setDocuments] = useState<SelectDocument[]>([]);
+  const [ready, setReady] = useState<boolean>();
   const supabase = createClient()
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
 
-  const classify = async (text: string) => {
+  const insert = async (text: string) => {
+    if (!text)
+      return;
+    if (ready === null)
+      setReady(false);
+    try {
+      const response = await fetch("/api/document", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: text
+        })
+      });
+      if (!ready)
+        setReady(true);
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
+
+  const search = async (text: string) => {
     if (!text)
       return;
     try {
-      const result = await fetch(`/test?text=${encodeURIComponent(text)}`);
+      const response = await fetch("/api/transformers", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: text
+        })
+      });
       const emb:Embedding = await response.json();
       const {data} = await supabase.rpc('match_documents', {
         query_embedding: emb.embedding,
@@ -357,7 +488,8 @@ export default function Test() {
         placeholder="Enter text here"
         onChange={handleInputChange}
       />
-      <button onClick={() => classify(value)}> Transformers</button>
+      <button onClick={() => insert(value)}>Insert</button>
+      <button onClick={() => search(value)}>Transformers</button>
       <ul>
         {documents.map(document => (
           <li key={document.id}>
@@ -368,6 +500,17 @@ export default function Test() {
     </main>
   );
 }
+```
+
+还可使用如下 sql 进行内容检索：
+
+```sql
+select *
+from match_documents(
+  '[...]'::vector(384),
+  0.78,
+  10
+);
 ```
 
 #### 本地部署(Docker)
