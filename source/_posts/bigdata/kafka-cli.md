@@ -14,37 +14,64 @@ categories: 大数据
 
 ### 容器化试用
 
+#### Confluent 版本
+
+可以使用如下命令安装项目：
+
+```bash
+git clone https://github.com/sknop/kafka-docker-composer
+cd kafka-docker-composer
+pip3 install jinjia2
+```
+
+然后使用如下命令创建 `docker-compose` 文件：
+
+- Zookeeper 版
+
+```bash
+python3 kafka_docker_composer.py -b 1 -z 1
+```
+
+- KRaft 版
+
+```bash
+python3 kafka_docker_composer.py --brokers 1 --controllers 1
+```
+
+开启容器
+
+```bash
+docker-compose up -d
+```
+
+#### 官方镜像版
+
 编写 `docker-compose.yaml` 文件，然后输入如下内容
 
 ```yaml
-version: "2"
-
+version: '2'
 services:
-  zookeeper:
-    image: docker.io/bitnami/zookeeper:3.7
+  broker:
+    image: apache/kafka:latest
+    hostname: broker
+    container_name: broker
     ports:
-      - "2181:2181"
-    volumes:
-      - "zookeeper_data:/bitnami"
+      - '9092:9092'
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-  kafka:
-    image: docker.io/bitnami/kafka:2
-    ports:
-      - "9092:9092"
-    volumes:
-      - "kafka_data:/bitnami"
-    environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-    depends_on:
-      - zookeeper
-
-volumes:
-  zookeeper_data:
-    driver: local
-  kafka_data:
-    driver: local
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT_HOST://localhost:9092,PLAINTEXT://broker:19092'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker:29093'
+      KAFKA_LISTENERS: 'CONTROLLER://:29093,PLAINTEXT_HOST://:9092,PLAINTEXT://:19092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
 ```
 
 开启容器
