@@ -65,6 +65,8 @@ dependencyManagement {
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.parser.ListOutputParser;
 import org.springframework.ai.ollama.OllamaChatClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -95,6 +97,18 @@ public class OllamaChatController {
         return chatClient.stream(prompt);
     }
 
+    @GetMapping("/ollama/outputParser")
+    public List<String> getWithOutputParser(@RequestParam(value = "artist", defaultValue = "Taylor Swift") String artist) {
+        String message = """
+                Please give me a list of top 10 songs for the artist {artist}.  If you don't know the answer , just say "I don't know".And Just give me the important part.
+                {format}
+                """;
+        ListOutputParser outputParser = new ListOutputParser(new DefaultConversionService());
+        PromptTemplate promptTemplate = new PromptTemplate(message, Map.of("artist", artist, "format", outputParser.getFormat()));
+        Prompt prompt = promptTemplate.create();
+        ChatResponse response = chatClient.call(prompt);
+        return outputParser.parse(response.getResult().getOutput().getContent());
+    }
 }
 ```
 
@@ -109,10 +123,12 @@ spring:
       base-url: http://xxx.xxx.xxx.xxx:11434
       chat:
         options:
-          model: llama2
+          model: llama3
 ```
 
-如果是提供自定义提示词则可以使用如下代码：
+> 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试。
+
+多种提示词则可以使用如下代码：
 
 ```java
 @RestController
