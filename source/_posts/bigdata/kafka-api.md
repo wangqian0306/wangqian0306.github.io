@@ -101,6 +101,34 @@ for msg in consumer:
     print (msg)
 ```
 
+消费特定位移并打印时间戳：
+
+```python
+from kafka import KafkaConsumer
+
+def consume_specific_message(topic, partition, offset):
+    consumer = KafkaConsumer(
+        bootstrap_servers='<kafka_broker_host>:9092',
+        auto_offset_reset='earliest',
+        enable_auto_commit=False  # 禁用自动提交偏移量，以确保我们可以手动控制偏移量的位置
+    )
+
+    # 指定要消费的主题、分区和偏移量
+    consumer.assign([{'topic': topic, 'partition': partition, 'offset': offset}])
+
+    for message in consumer:
+        print('Received message: {}, timestamp: {}'.format(message.value.decode('utf-8'), message.timestamp))
+        break  # 一旦找到消息，就停止消费
+
+    consumer.close()
+
+if __name__ == '__main__':
+    topic_name = '<topic_name>'
+    partition_id = 0  # 指定要消费的分区
+    message_offset = 12345  # 指定要查找的消息的偏移量
+    consume_specific_message(topic_name, partition_id, message_offset)
+```
+
 ### Streams API
 
 Kafka Streams 是用于构建应用程序和微服务的客户端库，其中输入和输出数据存储在 Kafka 集群中。
