@@ -48,24 +48,31 @@ spring:
 
 > 注: 此处为单节点模式，其他模式请参照官方文档进行配置。
 
-定义操作类：
+之后参照 SpringData 其他组件的使用方式进行使用即可，例如：
 
 ```java
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-
-@Component
-public class RedisUtil {
+@RestController
+@RequestMapping("/test")
+public class TestController {
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate redisTemplate;
+    
+    @GetMapping
+    public Boolean test(@RequestParam String name) {
+        return redisTemplate.hasKey(name);
+    }
 
 }
-```
 
-之后参照 SpringData 其他组件的使用方式进行使用即可。
+```
 
 ### 客户端缓存
 

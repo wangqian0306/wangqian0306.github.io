@@ -64,28 +64,39 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 
 简单使用和测试的话可以使用单机模式进行配置，仅需要在配置文件中写入如下内容即可:
 
-```properties
-spring.redis.host=localhost
-spring.redis.port=6379
-spring.redis.database=0
+```yaml
+spring:
+  data:
+    redis:
+      host: <host>
+      port: 6379
+      database: 0
 ```
 
 ##### 主从 + 哨兵模式
 
 主从加哨兵模式可以使用如下的配置项:
 
-```properties
-spring.redis.sentinel.master=mymaster
-spring.redis.sentinel.nodes=192.168.1.1:26379,192.168.1.2:26379,192.168.1.3:26379
-spring.redis.sentinel.password=123456789
+```yaml
+spring:
+  data:
+    redis:
+      sentinel:
+        master: mymaster
+        nodes: 192.168.1.1:26379,192.168.1.2:26379,192.168.1.3:26379
+        password: <password>
 ```
 
 ##### 集群模式
 
 集群模式可以使用如下的配置项:
 
-```properties
-spring.redis.cluster.nodes=192.168.1.1:16379,192.168.1.2:16379,192.168.1.3:16379
+```yaml
+spring:
+  data:
+    redis:
+      cluster:
+        nodes: 192.168.1.1:16379,192.168.1.2:16379,192.168.1.3:16379
 ```
 
 ### Caffeine
