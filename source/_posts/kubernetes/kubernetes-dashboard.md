@@ -106,11 +106,13 @@ kubectl -n kubernetes-dashboard create token admin-user
 kubectl config view --raw
 ```
 
-使用如下命令生成永不过期的 Token，并将其保存下来:
+使用如下命令生成 Token，并将其保存下来:
 
 ```bash
-kubectl -n kubernetes-dashboard create token admin-user --duration=0s
+kubectl -n kubernetes-dashboard create token admin-user --duration=4294967296s
 ```
+
+> 注：过期时间约有 136 年，不建议在生产环境中进行如此配置。
 
 参考样例配置，在客户端编写 `config` 文件：
 
