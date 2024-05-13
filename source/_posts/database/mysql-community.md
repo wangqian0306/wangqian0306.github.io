@@ -214,6 +214,45 @@ stream {
 
 ### 常见问题
 
+#### Too many connestions
+
+可以使用如下 SQL 查看当前的连接数：
+
+```sql
+SHOW VARIABLES LIKE 'max_connections';
+```
+
+使用如下 SQL 可以临时设置连接数：
+
+```sql
+SET GLOBAL max_connections = 200;
+```
+
+> 注：SQL 方式只可以配置单次，重启之后会失效。
+
+最好还是修改配置文件：
+
+```text
+[mysqld]
+max_connections=xxx
+```
+
+此外还需要注意 Linux 中的 ulimit 大小：
+
+获取当前 ulimit :
+
+```bash
+ulimit -n 
+```
+
+设置 ulimit ：
+
+```bash
+sudo ulimit -n <number>
+```
+
+相关配置参见 [MySQL 官方文档](https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html#sysvar_open_files_limit)
+
 #### 字符集与排序方式
 
 为了解决中文和表情符号等特殊内容的存储建议采用 `utf8mb4` 字符集，而对于排序方式来说 MySQL 5 和 8 的默认排序方式则是不同的：
