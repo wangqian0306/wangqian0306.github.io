@@ -27,13 +27,15 @@ sudo systemctl daemon-reload
 sudo systemctl restart ollama
 ```
 
+#### Chat
+
 使用如下命令可以拉取大模型：
 
 ```bash
 ollama pull llama2:latest
 ```
 
-然后可以使用如下命令测试 ollama 模型运行情况：
+然后可以使用如下命令测试模型运行情况：
 
 ```bash
 ollama run llama2
@@ -45,6 +47,23 @@ ollama run llama2
 curl http://localhost:11434/api/generate -d '{
   "model": "llama2",
   "prompt":"Why is the sky blue?"
+}'
+```
+
+#### Embedding
+
+使用如下命令可以拉取嵌入模型：
+
+```bash
+ollama pull nomic-embed-text:latest
+```
+
+可以尝试调用 API：
+
+```bash
+curl http://localhost:11434/api/embeddings -d '{
+  "model": "nomic-embed-text",
+  "prompt": "Llamas are members of the camelid family"
 }'
 ```
 
@@ -159,3 +178,5 @@ export default function Dashboard() {
 [官方项目](https://github.com/ollama/ollama)
 
 [大模型清单](https://ollama.com/library)
+
+[Embedding models](https://ollama.com/blog/embedding-models)
