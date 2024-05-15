@@ -124,6 +124,9 @@ spring:
       chat:
         options:
           model: llama3
+      embedding:
+        options:
+          model: nomic-embed-text
 ```
 
 > 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试。
@@ -157,7 +160,7 @@ public class DadJokeController {
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.ai.ollama.OllamaEmbeddingClient;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.transformer.splitter.TextSplitter;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
@@ -182,7 +185,7 @@ public class RagConfiguration {
     private Resource faq;
 
     @Bean
-    SimpleVectorStore simpleVectorStore(EmbeddingClient embeddingClient) {
+    SimpleVectorStore simpleVectorStore(OllamaEmbeddingClient embeddingClient) {
         var simpleVectorStore = new SimpleVectorStore(embeddingClient);
         var vectorStoreFile = new File(vectorStorePath);
         if (vectorStoreFile.exists()) {
@@ -204,11 +207,13 @@ public class RagConfiguration {
 }
 ```
 
-然后修改 `ChatController` : 
+然后修改 `OllamaChatController` : 
 
 ```java
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.chat.ChatResponse;
@@ -235,10 +240,12 @@ public class OllamaChatController {
     private final VectorStore vectorStore;
     @Value("classpath:/prompts/rag-prompt-template.st")
     private Resource ragPromptTemplate;
+    private final EmbeddingClient embeddingClient;
 
-    public OllamaChatController(OllamaChatClient chatClient, VectorStore vectorStore) {
+    public OllamaChatController(OllamaChatClient chatClient, VectorStore vectorStore, EmbeddingClient embeddingClient) {
         this.chatClient = chatClient;
         this.vectorStore = vectorStore;
+        this.embeddingClient = embeddingClient;
     }
 
     @GetMapping("/ollama/generate")
@@ -262,6 +269,11 @@ public class OllamaChatController {
         promptParameters.put("documents", String.join("\n", contentList));
         Prompt prompt = promptTemplate.create(promptParameters);
         return chatClient.call(prompt).getResult().getOutput().getContent();
+    }
+
+    @GetMapping("/ollama/embedding")
+    public EmbeddingResponse embedding(@RequestParam(value = "message", defaultValue = "How can I buy tickets for the Olympic Games Paris 2024") String message) {
+        return this.embeddingClient.embedForResponse(List.of(message));
     }
 
 }
