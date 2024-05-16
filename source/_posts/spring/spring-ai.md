@@ -154,6 +154,18 @@ public class DadJokeController {
 }
 ```
 
+如果需要为不同的接口使用不同的模型则可以使用如下代码：
+
+```java
+ChatResponse response = chatClient.call(
+    new Prompt(
+        "Generate the names of 5 famous pirates.",
+        OllamaOptions.create()
+            .withModel("llama2")
+            .withTemperature(0.4)
+    ));
+```
+
 如果想要使用自定义数据源则可以采用如下方式：
 
 ```java
