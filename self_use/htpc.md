@@ -165,10 +165,12 @@ services:
   - RuTracker(需要注册账号并配置密码)
   - The Pirate Bay
   - YTS
+  - 52BT
+
 - 点击 `Test All` 按钮进行测试，若状态显示对勾则证明配置无误
 - 点击对应 `Indexer` 中的搜索按钮即可进行资源搜索
 
-> 注：为了保证后续流程也能正常识别所以建议在搜索的时候采用 [TVDB](https://thetvdb.com/search) 中的英文名。
+> 注：为了保证后续流程也能正常识别所以建议在搜索的时候采用 [TVDB](https://thetvdb.com/search) 中的英文名。可以访问 [Indexer 推荐站](http://www.ptyqm.com/) 新增一些资源检索站。
 
 #### Radarr
 

@@ -21,6 +21,22 @@ Spring Authorization Server 是一个框架，提供 OAuth 2.1 和 OpenID Connec
 
 ### 使用方式
 
+#### Spring Boot CLI
+
+使用如下命令安装 CLI ：
+
+```bash
+sdk install springboot
+```
+
+然后使用如下命令即可生成密码：
+
+```bash
+spring encodepassword secret
+```
+
+> 注：此处保存生成的密码即可。
+
 #### OAuth2 Authorization Server
 
 在创建项目时引入 `OAuth2 Authorization Server` 依赖即可，样例如下：
@@ -52,15 +68,16 @@ spring:
           client-1:
             registration:
               client-id: "client"
-              # the client secret is "secret" (without quotes)
               client-secret: "{bcrypt}$2a$10$jdJGhzsiIqYFpjJiYWMl/eKDOd8vdyQis2aynmFN0dgJ53XvpzzwC"
               client-authentication-methods: "client_secret_basic"
               authorization-grant-types: "client_credentials,authorization_code,refresh_token"
               redirect-uris: "http://127.0.0.1:8082/login/oauth2/code/spring"
               scopes: "user.read,user.write"
             token:
-              access-token-time-to-live: 1d              
+              access-token-time-to-live: 1d
 ```
+
+> 注：此处可以使用之前生成的密码替换 client-secret。
 
 启动程序然后使用如下命令即可获得 Token:
 
