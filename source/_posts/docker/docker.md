@@ -198,6 +198,12 @@ docker save -o <文件名>.tar <镜像名>
 docker load -i <文件名>.tar
 ```
 
+查看镜像中的内容：
+
+```bash
+docker run -it --entrypoint /bin/bash --name <name> <image>
+```
+
 ## 配置远程链接
 
 Docker 采用了C/S架构，所以能在客户机上仅仅安装一个 docker-cli 就可以方便的链接服务器使用Docker了。
