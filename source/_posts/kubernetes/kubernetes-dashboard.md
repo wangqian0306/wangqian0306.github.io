@@ -109,7 +109,7 @@ kubectl config view --raw
 使用如下命令生成 Token，并将其保存下来:
 
 ```bash
-kubectl -n kubernetes-dashboard create token admin-user --duration=4294967296s
+kubectl create token admin-user --namespace kubernetes-dashboard --duration 4294967296s
 ```
 
 > 注：过期时间约有 136 年，不建议在生产环境中进行如此配置。
