@@ -189,7 +189,7 @@ const config = {
 } satisfies NextAuthConfig
 ```
 
-#### 授权码模式(独立服务简单实现)
+#### 独立服务简单实现
 
 ```typescript
 const config = {

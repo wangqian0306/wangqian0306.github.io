@@ -57,27 +57,60 @@ dependencies {
 }
 ```
 
-然后编辑如下配置项即可：
+然后编辑如下配置类即可：
 
-```yaml
-spring:
-  security:
-    oauth2:
-      authorizationserver:
-        client:
-          client-1:
-            registration:
-              client-id: "client"
-              client-secret: "{bcrypt}$2a$10$jdJGhzsiIqYFpjJiYWMl/eKDOd8vdyQis2aynmFN0dgJ53XvpzzwC"
-              client-authentication-methods: "client_secret_basic"
-              authorization-grant-types: "client_credentials,authorization_code,refresh_token"
-              redirect-uris: "http://127.0.0.1:8082/login/oauth2/code/spring"
-              scopes: "user.read,user.write"
-            token:
-              access-token-time-to-live: 1d
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RegisteredClientRepository registeredClientRepository() {
+        RegisteredClient registeredClient = RegisteredClient.withId("local")
+                .clientId("local")
+                .clientSecret("$xxxx")
+                .redirectUri("http://localhost:8080/test")
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .scope("openid")
+                .scope("profile")
+                .scope("email")
+                .build();
+        return new InMemoryRegisteredClientRepository(registeredClient);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.withUsername("admin")
+                .password(passwordEncoder().encode("admin"))
+                .roles("USER","openid","profile","email")
+                .build();
+        return new InMemoryUserDetailsManager(userDetails);
+    }
+
+}
 ```
 
-> 注：此处可以使用之前生成的密码替换 client-secret。
+> 注：此处可以使用之前生成的密码替换 client-secret，不要带上 `{bcrypt}`。
+
 
 启动程序然后使用如下命令即可获得 Token:
 
@@ -89,7 +122,7 @@ http -f POST :8080/oauth2/token grant_type=client_credentials scope='user.read' 
 
 ```http
 POST http://localhost:8080/oauth2/token
-Authorization: Basic admin-client secret
+Authorization: Basic client secret
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials&scope=user.read
