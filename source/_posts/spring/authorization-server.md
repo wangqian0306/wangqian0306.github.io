@@ -128,6 +128,24 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=client_credentials&scope=user.read
 ```
 
+或者使用如下方式获取 OAuth Token：
+
+```text
+### GET CODE
+GET http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test
+
+### GET TOKEN
+POST http://localhost:8080/oauth2/token
+Authorization: Basic local secret
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = authorization_code &
+client_id = local &
+client_secret = secret &
+code = L8-bx59f2kCAwi8ZgE1LrkwOxhJYCO3-5hF_HKEPmu2Pt-Cl1c-ZQvsxHik-b69rutCrq3VbkVSV6NTo7wbsuB9NHFrxDpG0KqT89JISm_u2BurY2plmvJR1KoSMrx0S &
+redirect_uri = http://localhost:8080/test
+```
+
 #### OAuth2 Resource Server
 
 在创建项目时引入 `OAuth2 Resource Server` 依赖即可，样例如下：
