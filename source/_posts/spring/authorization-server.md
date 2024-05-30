@@ -65,16 +65,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
-public class SecurityConfig {
+public class CustomOAuthConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -82,35 +84,35 @@ public class SecurityConfig {
     }
 
     @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.withUsername("admin")
+                .password(passwordEncoder().encode("admin"))
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    @Bean
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient registeredClient = RegisteredClient.withId("local")
-                .clientId("local")
-                .clientSecret("$xxxx")
+                .clientId("oidc-client")
+                .clientSecret("$xxxxx")
                 .redirectUri("http://localhost:8080/test")
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .scope("openid")
-                .scope("profile")
-                .scope("email")
+                .postLogoutRedirectUri("http://localhost:8080/logout")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
         return new InMemoryRegisteredClientRepository(registeredClient);
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.withUsername("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("USER","openid","profile","email")
-                .build();
-        return new InMemoryUserDetailsManager(userDetails);
     }
 
 }
 ```
 
 > 注：此处可以使用之前生成的密码替换 client-secret，不要带上 `{bcrypt}`。
-
 
 启动程序然后使用如下命令即可获得 Token:
 
@@ -122,7 +124,7 @@ http -f POST :8080/oauth2/token grant_type=client_credentials scope='user.read' 
 
 ```http
 POST http://localhost:8080/oauth2/token
-Authorization: Basic client secret
+Authorization: Basic local secret
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials&scope=user.read
@@ -130,10 +132,13 @@ grant_type=client_credentials&scope=user.read
 
 或者使用如下方式获取 OAuth Token：
 
-```text
-### GET CODE
-GET http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test
+访问如下地址并输入账号密码，点击同意授权：
 
+[http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test](http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test)
+
+之后可以从 URL 中获取到 `code`, 将其填写至下面的请求中即可获取 `Token` 。
+
+```text
 ### GET TOKEN
 POST http://localhost:8080/oauth2/token
 Authorization: Basic local secret
@@ -142,7 +147,7 @@ Content-Type: application/x-www-form-urlencoded
 grant_type = authorization_code &
 client_id = local &
 client_secret = secret &
-code = L8-bx59f2kCAwi8ZgE1LrkwOxhJYCO3-5hF_HKEPmu2Pt-Cl1c-ZQvsxHik-b69rutCrq3VbkVSV6NTo7wbsuB9NHFrxDpG0KqT89JISm_u2BurY2plmvJR1KoSMrx0S &
+code = xxxx &
 redirect_uri = http://localhost:8080/test
 ```
 
