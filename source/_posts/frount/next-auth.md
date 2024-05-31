@@ -149,8 +149,9 @@ const customProvider: OAuthConfig<any> = {
   type: 'oauth',
   authorization: {
     url: "http://<host>/oauth2/authorize",
-    params: { scope: "openid profile" },
+    params: { scope: "profile" },
   },
+  issuer: "http://<host><host>",
   token: 'http://<host>/oauth2/token',
   userinfo: 'http://<host>/oauth2/userinfo',
   clientId: process.env.CUSTOM_CLIENT_ID,
@@ -158,8 +159,7 @@ const customProvider: OAuthConfig<any> = {
   profile(profile) {
     return {
       id: profile.sub,
-      name: profile.name,
-      email: profile.email,
+      name: profile.name
     };
   },
 }
