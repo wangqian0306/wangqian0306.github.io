@@ -3,6 +3,8 @@ title: NextAuth.js
 date: 2024-05-24 21:41:32
 tags:
 - "Next.js"
+- "OAuth"
+- "OIDC"
 id: next-auth
 no_word_count: true
 no_toc: false
@@ -135,6 +137,8 @@ export const { GET, POST } = handlers
 
 ### 常用方式
 
+在 `auth.ts` 中修改  
+
 #### 自定义 OAuth 服务器
 
 > 注：此处可以使用
@@ -166,26 +170,93 @@ const customProvider: OAuthConfig<any> = {
 
 const config = {
   providers: [
-    customProvider
+    customProvider,
   ],
+  basePath: "/auth",
   callbacks: {
-    async jwt({ token, account, profile }) {
-      console.log(token,"token")
-      console.log(account,"account")
-      if (account) {
-        token.accessToken = account.access_token
+    authorized({request, auth}) {
+      const {pathname} = request.nextUrl
+      if (pathname === "/middleware-example") return !!auth
+      return true
+    },
+    jwt({token, trigger, session, account}) {
+      if (trigger === "update") token.name = session.user.name
+      if (account?.provider === "keycloak") {
+        return {...token, accessToken: account.access_token}
       }
       return token
     },
-    async session({ session, token, user }) {
-      console.log(token,"token")
-      console.log(session,"session")
-      return {
-        ...session,
-        ...token,
+    async session({session, token}) {
+      if (token?.accessToken) {
+        session.accessToken = token.accessToken
       }
+      return session
     },
   },
+  experimental: {
+    enableWebAuthn: true,
+  },
+  debug: process.env.NODE_ENV !== "production",
+} satisfies NextAuthConfig
+```
+
+#### 自定义 OIDC 服务器
+
+```typescript
+import type {NextAuthConfig} from "next-auth";
+import {OIDCConfig} from "@auth/core/providers";
+
+const customProvider: OIDCConfig<any> = {
+  id: 'oidc-client',
+  name: 'oidc-client',
+  type: 'oidc',
+  wellKnown: "http://<host>/.well-known/openid-configuration",
+  authorization: {
+    url: "http://<host>/oauth2/authorize",
+    params: {scope: "openid"}
+  },
+  issuer: "http://<host>",
+  userinfo: "http://<host>/userinfo",
+  token: 'http://<host>/oauth2/token',
+  clientId: "oidc-client",
+  clientSecret: "secret",
+  profile(profile) {
+    return {
+      id: profile.sub,
+      name: profile.name
+    }
+  }
+}
+
+const config = {
+  providers: [
+    customProvider,
+  ],
+  basePath: "/auth",
+  callbacks: {
+    authorized({request, auth}) {
+      const {pathname} = request.nextUrl
+      if (pathname === "/middleware-example") return !!auth
+      return true
+    },
+    jwt({token, trigger, session, account}) {
+      if (trigger === "update") token.name = session.user.name
+      if (account?.provider === "keycloak") {
+        return {...token, accessToken: account.access_token}
+      }
+      return token
+    },
+    async session({session, token}) {
+      if (token?.accessToken) {
+        session.accessToken = token.accessToken
+      }
+      return session
+    },
+  },
+  experimental: {
+    enableWebAuthn: true,
+  },
+  debug: process.env.NODE_ENV !== "production",
 } satisfies NextAuthConfig
 ```
 

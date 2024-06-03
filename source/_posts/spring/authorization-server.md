@@ -5,6 +5,7 @@ tags:
 - "Java"
 - "Spring Boot"
 - "OAuth"
+- "OIDC"
 id: authorization-server
 no_word_count: true
 no_toc: false
@@ -57,7 +58,9 @@ dependencies {
 }
 ```
 
-然后编辑如下配置类即可：
+##### OAuth
+
+编辑如下配置类即可：
 
 ```java
 import org.springframework.context.annotation.Bean;
@@ -150,6 +153,68 @@ client_secret = secret &
 code = xxxx &
 redirect_uri = http://localhost:8080/test
 ```
+
+##### Open ID Connect
+
+编写如下 `application.yaml` 配置文件即可：
+
+```yaml
+logging:
+  level:
+    org.springframework.security.oauth2.server.authorization: DEBUG
+    org.springframework.security: DEBUG
+
+spring:
+  application:
+    name: auth-playground
+  security:
+    user:
+      name: admin
+      password: admin
+    oauth2:
+      authorizationserver:
+        client:
+          oidc-client:
+            registration:
+              client-id: "oidc-client"
+              client-secret: "{noop}secret"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://localhost:3000/auth/callback/oidc-client"
+              post-logout-redirect-uris:
+                - "http://localhost:8000/"
+              scopes:
+                - "openid"
+                - "profile"
+            require-authorization-consent: true
+```
+
+使用如下方式获取 Token：
+
+访问如下地址并输入账号密码，点击同意授权：
+
+[http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test](http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test)
+
+之后可以从 URL 中获取到 `code`, 将其填写至下面的请求中即可获取 `Token` 。
+
+```text
+### GET TOKEN
+POST http://localhost:8080/oauth2/token
+Authorization: Basic oidc-client secret
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = authorization_code &
+client_id = oidc-client &
+client_secret = secret &
+code = xxxx &
+redirect_uri = http://localhost:8080/test
+```
+
+又或者使用 [next-auth-example 项目](https://github.com/nextauthjs/next-auth-example) 进行试用。
 
 #### OAuth2 Resource Server
 
