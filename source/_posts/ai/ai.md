@@ -42,6 +42,14 @@ LangChain 是一个用于开发由语言模型驱动的应用程序的框架。�
 
 > 注：目前已有 VS Code，IntelliJ Platform 和 VIM 的支持插件。 
 
+#### Continue 
+
+项目地址：[Continue](https://github.com/continuedev/continue)
+
+使用 Continue 可以让 Ollama 和 IDE 结合起来。
+
+> 注：具体配置参见 [An entirely open-source AI code assistant inside your editor](https://ollama.com/blog/continue-code-assistant) 博客。
+
 ### 环境准备
 
 #### PyTorch
