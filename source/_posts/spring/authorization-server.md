@@ -216,6 +216,85 @@ redirect_uri = http://localhost:8080/test
 
 又或者使用 [next-auth-example 项目](https://github.com/nextauthjs/next-auth-example) 进行试用。
 
+##### 自定义 userinfo 
+
+编辑 `OidcUserInfoService` ： 
+
+```java
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Map;
+
+@Service
+public class OidcUserInfoService {
+
+    public OidcUserInfo loadUser(String username) {
+        return new OidcUserInfo(createUser(username));
+    }
+
+    public Map<String, Object> createUser(String username) {
+        return OidcUserInfo.builder()
+                .subject(username)
+                .name("First Last")
+                .givenName("First")
+                .familyName("Last")
+                .middleName("Middle")
+                .nickname("User")
+                .preferredUsername(username)
+                .profile("https://example.com/" + username)
+                .picture("https://example.com/" + username + ".jpg")
+                .website("https://example.com")
+                .email(username + "@example.com")
+                .emailVerified(true)
+                .gender("female")
+                .birthdate("1970-01-01")
+                .zoneinfo("Europe/Paris")
+                .locale("en-US")
+                .phoneNumber("+1 (604) 555-1234;ext=5678")
+                .phoneNumberVerified(false)
+                .claim("address", Collections.singletonMap("formatted", "Champ de Mars\n5 Av. Anatole France\n75007 Paris\nFrance"))
+                .updatedAt("1970-01-01T00:00:00Z")
+                .build()
+                .getClaims();
+    }
+}
+```
+
+新增配置类：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(
+            OidcUserInfoService userInfoService) {
+        return (context) -> {
+            if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
+                OidcUserInfo userInfo = userInfoService.loadUser(
+                        context.getPrincipal().getName());
+                context.getClaims().claims(claims ->
+                        claims.putAll(userInfo.getClaims()));
+            }
+        };
+    }
+
+}
+```
+
+> 注：在 scope 中新增 `email phone` 等 key 后就可以在 `/userinfo` 路由获取对应信息，或者将 `id_token` 放在 [JWT Debugger](https://jwt.io/) 中也可以解析这些内容。
+
 #### OAuth2 Resource Server
 
 在创建项目时引入 `OAuth2 Resource Server` 依赖即可，样例如下：
