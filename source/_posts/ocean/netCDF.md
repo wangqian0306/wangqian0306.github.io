@@ -121,3 +121,5 @@ arr_xxx=(nc_obj.variables['<xxx>'][:])
 [netCDF-Java](https://docs.unidata.ucar.edu/netcdf-java/current/userguide/index.html)
 
 [netCDF4-Python](https://unidata.github.io/netcdf4-python/)
+
+[开源数据接口集成](https://open-meteo.com/)
