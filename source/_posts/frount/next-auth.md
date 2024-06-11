@@ -41,110 +41,67 @@ AUTH_<OAuth_Provider>_SECRET=<oauth_secret>
 
 > 注：测试服务使用 GitHub 作为服务提供端，服务创建请访问 [示例文档](https://next-auth.js.org/providers/github)。
 
-编写 `auth.ts` 文件：
+编写 `auth/index.ts` 文件：
 
 ```typescript
-import NextAuth from "next-auth"
-import "next-auth/jwt"
+import NextAuth, {NextAuthConfig} from "next-auth"
 
-import GitHub from "next-auth/providers/github"
-import { createStorage } from "unstorage"
-import memoryDriver from "unstorage/drivers/memory"
-import vercelKVDriver from "unstorage/drivers/vercel-kv"
-import { UnstorageAdapter } from "@auth/unstorage-adapter"
-import type { NextAuthConfig } from "next-auth"
+import GitHub from "@auth/core/providers/github";
 
-const storage = createStorage({
-  driver: process.env.VERCEL
-    ? vercelKVDriver({
-        url: process.env.AUTH_KV_REST_API_URL,
-        token: process.env.AUTH_KV_REST_API_TOKEN,
-        env: false,
-      })
-    : memoryDriver(),
-})
+export const BASE_PATH = "/api/auth"
 
-const config = {
-  theme: { logo: "https://authjs.dev/img/logo-sm.png" },
-  adapter: UnstorageAdapter(storage),
+const authOptions:NextAuthConfig = {
   providers: [
-    GitHub,
+    customProvider,
   ],
-  basePath: "/auth",
-  callbacks: {
-    authorized({ request, auth }) {
-      const { pathname } = request.nextUrl
-      if (pathname === "/middleware-example") return !!auth
-      return true
-    },
-    jwt({ token, trigger, session, account }) {
-      if (trigger === "update") token.name = session.user.name
-      if (account?.provider === "keycloak") {
-        return { ...token, accessToken: account.access_token }
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (token?.accessToken) {
-        session.accessToken = token.accessToken
-      }
-      return session
-    },
-  },
-  experimental: {
-    enableWebAuthn: true,
-  },
-  debug: process.env.NODE_ENV !== "production" ? true : false,
-} satisfies NextAuthConfig
+  basePath: BASE_PATH,
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV !== "production"}
 
-export const { handlers, auth, signIn, signOut } = NextAuth(config)
-
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string
-  }
-}
+export const {handlers, auth, signIn, signOut} = NextAuth(authOptions);
 ```
 
 编写 `middleware.ts` :
 
 ```typescript
-export { auth as middleware } from "auth"
+import { NextResponse } from "next/server";
+import { auth, BASE_PATH } from "@/auth";
 
-// Or like this if you need to do something here.
-// export default auth((req) => {
-//   console.log(req.auth) //  { session: { user: { ... } } }
-// })
-
-// Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-}
+};
+
+export default auth((req) => {
+  const reqUrl = new URL(req.url);
+  if (!req.auth && reqUrl?.pathname !== "/") {
+    return NextResponse.redirect(
+      new URL(
+        `${BASE_PATH}/signin?callbackUrl=${encodeURIComponent(
+          reqUrl?.pathname
+        )}`,
+        req.url
+      )
+    );
+  }
+});
 ```
 
 编写 `api/auth/[...nextauth]/route.ts` ：
 
 ```typescript
-import { handlers } from "auth"
-export const { GET, POST } = handlers
+import { handlers } from "@/auth";
+
+export const { GET, POST } = handlers;
 ```
 
 ### 常用方式
 
-在 `auth.ts` 中修改  
 
 #### 自定义 OAuth 服务器
 
-> 注：此处可以使用
+在 `auth.ts` 中修改
 
 ```typescript
-import type {NextAuthConfig} from "next-auth";
 import {OAuthConfig} from "@auth/core/providers";
 
 const customProvider: OAuthConfig<any> = {
@@ -167,97 +124,27 @@ const customProvider: OAuthConfig<any> = {
     };
   },
 }
-
-const config = {
-  providers: [
-    customProvider,
-  ],
-  basePath: "/auth",
-  callbacks: {
-    authorized({request, auth}) {
-      const {pathname} = request.nextUrl
-      if (pathname === "/middleware-example") return !!auth
-      return true
-    },
-    jwt({token, trigger, session, account}) {
-      if (trigger === "update") token.name = session.user.name
-      if (account?.provider === "keycloak") {
-        return {...token, accessToken: account.access_token}
-      }
-      return token
-    },
-    async session({session, token}) {
-      if (token?.accessToken) {
-        session.accessToken = token.accessToken
-      }
-      return session
-    },
-  },
-  experimental: {
-    enableWebAuthn: true,
-  },
-  debug: process.env.NODE_ENV !== "production",
-} satisfies NextAuthConfig
 ```
 
 #### 自定义 OIDC 服务器
 
 ```typescript
-import type {NextAuthConfig} from "next-auth";
 import {OIDCConfig} from "@auth/core/providers";
 
 const customProvider: OIDCConfig<any> = {
   id: 'oidc-client',
   name: 'oidc-client',
   type: 'oidc',
-  wellKnown: "http://<host>/.well-known/openid-configuration",
   authorization: {
-    url: "http://<host>/oauth2/authorize",
-    params: {scope: "openid"}
+    url: "http://<host>:<port>/oauth2/authorize",
+    params: { scope: "openid" },
   },
-  issuer: "http://<host>",
-  userinfo: "http://<host>/userinfo",
-  token: 'http://<host>/oauth2/token',
-  clientId: "oidc-client",
-  clientSecret: "secret",
-  profile(profile) {
-    return {
-      id: profile.sub,
-      name: profile.name
-    }
-  }
+  issuer: "http://<host>:<port>",
+  token: 'http://<host>:<port>/oauth2/token',
+  userinfo: 'http://<host>:<port>/oauth2/userinfo',
+  clientId: process.env.CUSTOM_CLIENT_ID,
+  clientSecret: process.env.CUSTOM_SECRET,
 }
-
-const config = {
-  providers: [
-    customProvider,
-  ],
-  basePath: "/auth",
-  callbacks: {
-    authorized({request, auth}) {
-      const {pathname} = request.nextUrl
-      if (pathname === "/middleware-example") return !!auth
-      return true
-    },
-    jwt({token, trigger, session, account}) {
-      if (trigger === "update") token.name = session.user.name
-      if (account?.provider === "keycloak") {
-        return {...token, accessToken: account.access_token}
-      }
-      return token
-    },
-    async session({session, token}) {
-      if (token?.accessToken) {
-        session.accessToken = token.accessToken
-      }
-      return session
-    },
-  },
-  experimental: {
-    enableWebAuthn: true,
-  },
-  debug: process.env.NODE_ENV !== "production",
-} satisfies NextAuthConfig
 ```
 
 #### 独立服务简单实现
@@ -293,6 +180,93 @@ const config = {
     })
   ],
 } satisfies NextAuthConfig
+```
+
+#### 无页面跳转登录
+
+编写 `auth/helpers.ts` 文件
+
+```typescript
+"use server";
+import {signIn as naSignIn, signOut as naSignOut} from ".";
+
+export async function signIn(prop:any) {
+  await naSignIn(prop);
+}
+
+export async function signOut() {
+  await naSignOut();
+}
+```
+
+编写 `app/AuthButton.client.tsx` 文件：
+
+```typescript jsx
+"use client"
+
+import {useSession} from "next-auth/react";
+
+import {Button} from "@mui/material"
+
+import {signIn, signOut} from "@/auth/helpers";
+
+export default function AuthButton() {
+  const session = useSession();
+  return session?.data?.user? (
+    <Button onClick={async ()=> await signOut()}>
+      {session.data?.user?.name}: Sign Out
+    </Button>
+  ) : (
+    <Button onClick={async ()=> await signIn('oidc-client')}>
+      Sign In
+    </Button>
+  );
+}
+```
+
+编写 `app/AuthButton.server.tsx` 文件
+
+```typescript jsx
+import {SessionProvider} from "next-auth/react";
+import {BASE_PATH, auth} from "@/auth";
+
+import AuthButtonClient from "@/app/AuthButton.client";
+
+export default async function AuthButton() {
+  const session = await auth();
+  if (session && session.user) {
+    session.user = {
+      name: session.user.name,
+      email: session.user.email
+    };
+  }
+
+  return (
+    <SessionProvider basePath={BASE_PATH} session={session}>
+      <AuthButtonClient/>
+    </SessionProvider>
+  )
+}
+```
+
+修改 `app/page.tsx` 文件
+
+```typescript jsx
+import {auth} from "@/auth";
+import AuthButton from "@/app/AuthButton.server";
+
+export default async function Home() {
+  const session = await auth();
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <h1 className="text-3xl font-bold underline">
+        Hello world!
+      </h1>
+      <pre>{JSON.stringify(session, null, 2)}</pre>
+      <AuthButton/>
+    </main>
+  );
+}
 ```
 
 ### 参考资料
