@@ -8,7 +8,8 @@ tags:
 id: next-auth
 no_word_count: true
 no_toc: false
-categories: 前端
+categories: 
+- "前端"
 ---
 
 ## NextAuth.js
@@ -269,8 +270,59 @@ export default async function Home() {
 }
 ```
 
+#### 服务端和客户端获取用户信息
+
+编写 `WhoAmIServerAction.tsx` ：
+
+```typescript jsx
+"use client";
+
+import {useEffect, useState} from "react";
+
+export default function WhoAmIServerAction({
+                                             onGetUserAction,
+                                           }: {
+  onGetUserAction: () => Promise<string | null>;
+}) {
+  const [user, setUser] = useState<string | null>();
+
+  useEffect(() => {
+    onGetUserAction().then((user) => setUser(user));
+  }, []);
+  return <div>Who Am I (server action): {user}</div>;
+}
+```
+
+编写 `page.tsx` ：
+
+```typescript jsx
+import {auth} from "@/auth";
+
+import WhoAmIServerAction from "./WhoAmIServerAction";
+
+export default async function TestRoute() {
+  const session = await auth();
+
+  async function onGetUserAction() {
+    "use server";
+    const session = await auth();
+    return session?.user?.name ?? null;
+  }
+
+  return (
+    <main>
+      <h1>Test Route</h1>
+      <div>User: {session?.user?.name}</div>
+      <WhoAmIServerAction onGetUserAction={onGetUserAction}/>
+    </main>
+  )
+}
+```
+
 ### 参考资料
 
 [官方文档](https://next-auth.js.org/getting-started/typescript)
 
 [示例项目](https://github.com/nextauthjs/next-auth-example)
+
+[视频教程](https://www.youtube.com/watch?v=z2A9P1Zg1WM)
