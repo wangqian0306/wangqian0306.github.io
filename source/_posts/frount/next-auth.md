@@ -23,8 +23,10 @@ NextAuth.js 是 Next.js 应用程序的完整开源身份验证解决方案。
 首先需要安装依赖包：
 
 ```bash
-npm install next-auth
+npm install next-auth@beta
 ```
+
+> 注：此处由于 5.0 还没发布所以采用 beta 版本。在部署的时候有一些缓存 bug 可以降级 next.js 版本至 14.1.4 。
 
 然后使用如下命令生成 `AUTH_SECRET`
 
@@ -40,7 +42,7 @@ AUTH_<OAuth_Provider>_ID=<oauth_client_id>
 AUTH_<OAuth_Provider>_SECRET=<oauth_secret>
 ```
 
-> 注：测试服务使用 GitHub 作为服务提供端，服务创建请访问 [示例文档](https://next-auth.js.org/providers/github)。
+> 注：测试服务使用 GitHub 作为服务提供端，服务创建请访问 [示例文档](https://next-auth.js.org/providers/github) 并填写好 .env.local 文件。
 
 编写 `auth/index.ts` 文件：
 
@@ -53,10 +55,10 @@ export const BASE_PATH = "/api/auth"
 
 const authOptions:NextAuthConfig = {
   providers: [
-    customProvider,
+    GitHub,
   ],
   basePath: BASE_PATH,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
   debug: process.env.NODE_ENV !== "production"}
 
 export const {handlers, auth, signIn, signOut} = NextAuth(authOptions);
@@ -87,6 +89,8 @@ export default auth((req) => {
 });
 ```
 
+> 注：此处可以编写若未登录之后的重定向和路由保存逻辑。
+
 编写 `api/auth/[...nextauth]/route.ts` ：
 
 ```typescript
@@ -96,7 +100,6 @@ export const { GET, POST } = handlers;
 ```
 
 ### 常用方式
-
 
 #### 自定义 OAuth 服务器
 
@@ -113,7 +116,7 @@ const customProvider: OAuthConfig<any> = {
     url: "http://<host>/oauth2/authorize",
     params: { scope: "profile" },
   },
-  issuer: "http://<host><host>",
+  issuer: "http://<host>",
   token: 'http://<host>/oauth2/token',
   userinfo: 'http://<host>/oauth2/userinfo',
   clientId: process.env.CUSTOM_CLIENT_ID,
@@ -137,12 +140,12 @@ const customProvider: OIDCConfig<any> = {
   name: 'oidc-client',
   type: 'oidc',
   authorization: {
-    url: "http://<host>:<port>/oauth2/authorize",
+    url: "http://<host>/oauth2/authorize",
     params: { scope: "openid" },
   },
-  issuer: "http://<host>:<port>",
-  token: 'http://<host>:<port>/oauth2/token',
-  userinfo: 'http://<host>:<port>/oauth2/userinfo',
+  issuer: "http://<host>",
+  token: 'http://<host>/oauth2/token',
+  userinfo: 'http://<host>/oauth2/userinfo',
   clientId: process.env.CUSTOM_CLIENT_ID,
   clientSecret: process.env.CUSTOM_SECRET,
 }
@@ -199,6 +202,8 @@ export async function signOut() {
   await naSignOut();
 }
 ```
+
+> 注：此处可以传入提供方ID，实现快速登录，跳过登录页。之后如果是 oauth2 登录还需要在 oauth2 处登出。
 
 编写 `app/AuthButton.client.tsx` 文件：
 
