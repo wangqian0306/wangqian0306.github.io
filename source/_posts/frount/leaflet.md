@@ -86,6 +86,47 @@ export default function Home() {
 }
 ```
 
+### 自定义插件
+
+```typescript tsx
+import { useMap } from 'react-leaflet';
+import { useEffect } from 'react';
+import L from 'leaflet';
+
+// Define the custom layer by extending L.Layer
+const CustomLayer = L.Layer.extend({
+  onAdd(map: L.Map) {
+    console.log('CustomLayer added to map');
+    this._map = map;
+    // Add custom logic here
+  },
+
+  onRemove(map: L.Map) {
+    console.log('CustomLayer removed from map');
+    this._map = null;
+    // Add custom logic here
+  },
+});
+
+// Create a React component to integrate the custom layer
+const CustomLayerComponent: React.FC = () => {
+  const map = useMap();
+
+  useEffect(() => {
+    const layer = new CustomLayer();
+    map.addLayer(layer);
+
+    return () => {
+      map.removeLayer(layer);
+    };
+  }, [map]);
+
+  return null;
+};
+
+export default CustomLayerComponent;
+```
+
 ### 参考资料
 
 [Leaflet](https://leafletjs.com/)
