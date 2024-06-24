@@ -48,6 +48,8 @@ services:
 
 ### 基础使用
 
+#### 命令行
+
 使用如下命令可以进入交互式命令行：
 
 ```bash
@@ -65,6 +67,139 @@ IoTDB 采用了类似于 SQL 的语句，常见内容如下：
 |`SHOW TIMESERIES <user>.<group>`|查看用户组中所有的时间序列|
 |`insert into root.demo(timestamp,s0) values(1,1);`|插入数据点|
 |`SELECT * FROM root.demo`|检索数据|
+
+#### Python
+
+使用如下命令安裝依赖：
+
+```bash
+pip install thirft
+pip install apache-iotdb
+```
+
+使用如下代码即可链接到服务器：
+
+```python
+from iotdb.Session import Session
+
+ip = "127.0.0.1"
+port_ = "6667"
+username_ = "root"
+password_ = "root"
+session = Session(ip, port_, username_, password_)
+session.open(False)
+zone = session.get_time_zone()
+session.close()
+```
+
+#### Java
+
+引入如下依赖：
+
+```groovy
+dependencies {
+    implementation 'org.apache.iotdb:iotdb-session:1.3.1'
+}
+```
+
+编写配置类 `IoTDBSessionConfig`：
+
+```java
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.apache.iotdb.session.pool.SessionPool;
+import org.springframework.beans.factory.annotation.Value;
+
+@Component
+@Configuration
+public class IoTDBSessionConfig {
+
+    @Value("${spring.iotdb.username:root}")
+    private String username;
+
+    @Value("${spring.iotdb.password:root}")
+    private String password;
+
+    @Value("${spring.iotdb.ip:127.0.0.1}")
+    private String ip;
+
+    @Value("${spring.iotdb.port:6667}")
+    private int port;
+
+    @Value("${spring.iotdb.maxSize:10}")
+    private int maxSize;
+
+    private static SessionPool sessionPool;
+
+    public SessionPool getSessionPool() {
+        if (sessionPool == null) {
+            sessionPool = new SessionPool(ip, port, username, password, maxSize);
+        }
+        return sessionPool;
+    }
+}
+```
+
+编写测试类 `TestController` ：
+
+```java
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.iotdb.isession.SessionDataSet;
+import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.pool.SessionPool;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    @Resource
+    private IoTDBSessionConfig iotDBSessionConfig;
+
+    private static Object convertValueByType(SessionDataSet.DataIterator dataIterator, String columnName, String columnType) throws StatementExecutionException {
+        return switch (columnType) {
+            case "BOOLEAN" -> dataIterator.getBoolean(columnName);
+            case "TEXT" -> dataIterator.getString(columnName);
+            case "VECTOR" -> dataIterator.getObject(columnName);
+            case "INT32" -> dataIterator.getInt(columnName);
+            case "INT64" -> dataIterator.getLong(columnName);
+            case "FLOAT" -> dataIterator.getFloat(columnName);
+            case "DOUBLE" -> dataIterator.getDouble(columnName);
+            case "TIMESTAMP" -> dataIterator.getTimestamp(columnName);
+            default -> throw new IllegalArgumentException("Unsupported DataType: " + columnType);
+        };
+    }
+
+    @GetMapping
+    public String select() throws IoTDBConnectionException, StatementExecutionException {
+        SessionPool sessionPool = iotDBSessionConfig.getSessionPool();
+        SessionDataSet dataSet = sessionPool.executeQueryStatement("select * from root.sg.d1").getSessionDataSet();
+        List<String> columnNames = dataSet.getColumnNames();
+        List<String> columnTypes = dataSet.getColumnTypes();
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        SessionDataSet.DataIterator dataIterator = dataSet.iterator();
+        while (dataIterator.next()) {
+            Map<String, Object> row = new HashMap<>();
+            for (int i = 0; i < columnNames.size(); i++) {
+                row.put(columnNames.get(i), convertValueByType(dataIterator, columnNames.get(i), columnTypes.get(i)));
+            }
+            dataList.add(row);
+        }
+        log.error(dataList.toString());
+        return "success";
+    }
+}
+```
 
 ### 进阶配置
 
@@ -145,3 +280,5 @@ mvn package -pl server,hadoop -am
 [官网地址](https://iotdb.apache.org/zh/)
 
 [MQTT 插件](https://iotdb.apache.org/zh/UserGuide/latest/API/Programming-MQTT.html)
+
+[spring boot使用IoTDB的两种方式](https://juejin.cn/post/7102425552832692238)

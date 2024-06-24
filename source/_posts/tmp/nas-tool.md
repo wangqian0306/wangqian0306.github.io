@@ -1,5 +1,5 @@
 ---
-title: 
+title: NAS 媒体库管理工具
 date: 2024-04-17 22:26:13
 tags:
 - "HTPC"
@@ -8,7 +8,7 @@ no_word_count: true
 no_toc: false
 ---
 
-## NAS媒体库管理工具
+## NAS 媒体库管理工具
 
 ### 简介
 
