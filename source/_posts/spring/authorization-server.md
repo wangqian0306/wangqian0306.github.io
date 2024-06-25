@@ -185,19 +185,39 @@ spring:
                 - "refresh_token"
               redirect-uris:
                 - "http://localhost:3000/auth/callback/oidc-client"
+                - "http://localhost:8080/test"
               post-logout-redirect-uris:
-                - "http://localhost:8000/"
+                - "http://localhost:3000/"
+                - "http://localhost:8080/"
               scopes:
                 - "openid"
                 - "profile"
             require-authorization-consent: true
 ```
 
+编写测试接口用于接收 Token ：
+
+```java
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping
+public class WQController {
+
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+}
+```
+
 使用如下方式获取 Token：
 
 访问如下地址并输入账号密码，点击同意授权：
 
-[http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test](http://localhost:8080/oauth2/authorize?scope=openid+profile+email&response_type=code&client_id=local&redirect_uri=http://localhost:8080/test)
+[http://localhost:8080/oauth2/authorize?scope=openid&response_type=code&client_id=oidc-client&redirect_uri=http://localhost:8080/test](http://localhost:8080/oauth2/authorize?scope=openid&response_type=code&client_id=oidc-client&redirect_uri=http://localhost:8080/test)
 
 之后可以从 URL 中获取到 `code`, 将其填写至下面的请求中即可获取 `Token` 。
 
@@ -215,6 +235,10 @@ redirect_uri = http://localhost:8080/test
 ```
 
 又或者使用 [next-auth-example 项目](https://github.com/nextauthjs/next-auth-example) 进行试用。
+
+在接收到 Token 后还可以使用 id_token 进行登出，访问如下地址即可完成登出，并重定向回系统登录地址：
+
+[http://lcoalhost:8080/connect/logout?post_logout_redirect_uri=http://lcoalhost:3000/&id_token_hint=<token>](http://lcoalhost:8080/connect/logout?post_logout_redirect_uri=http://lcoalhost:3000/&id_token_hint=<token>)
 
 ##### 自定义 userinfo 
 
@@ -442,3 +466,5 @@ spring:
 [视频教程](https://www.youtube.com/watch?v=7zm3mxaAFWk)
 
 [样例源码](https://github.com/coffee-software-show/authorization-server-in-boot-31)
+
+[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-rpinitiated-1_0.html)
