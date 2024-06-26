@@ -62,52 +62,53 @@ dependencyManagement {
 之后编写如下接口即可：
 
 ```java
-import org.springframework.ai.chat.ChatResponse;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.parser.ListOutputParser;
-import org.springframework.ai.ollama.OllamaChatClient;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.embedding.EmbeddingResponse;
+import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import java.util.Map;
+import java.util.List;
 
 @RestController
-@RequestMapping("/chat")
-public class OllamaChatController {
+@RequestMapping("/ollama")
+public class ChatController {
 
-    private final OllamaChatClient chatClient;
+    private final ChatClient chatClient;
+    private final EmbeddingModel embeddingModel;
 
-    public OllamaChatController(OllamaChatClient chatClient) {
-        this.chatClient = chatClient;
+    public ChatController(ChatClient.Builder builder, EmbeddingModel embeddingModel) {
+        this.chatClient = builder.defaultOptions(OllamaOptions.create().withModel("llama3")).build();
+        this.embeddingModel = embeddingModel;
     }
 
-    @GetMapping("/ollama/generate")
-    public Map<String, String> generate(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
-        return Map.of("generation", chatClient.call(message));
+    @GetMapping("/chat")
+    public String simple(@RequestParam(required = false, defaultValue = "hello") String message) {
+        return chatClient.prompt().user(message).call().content();
     }
 
-    @GetMapping("/ollama/generateStream")
-    public Flux<ChatResponse> generateStream(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
-        Prompt prompt = new Prompt(new UserMessage(message));
-        return chatClient.stream(prompt);
+    @GetMapping("/embedding")
+    public EmbeddingResponse embedding(@RequestParam(required = false, defaultValue = "hello") String message) {
+        return this.embeddingModel.embedForResponse(List.of(message));
     }
 
-    @GetMapping("/ollama/outputParser")
-    public List<String> getWithOutputParser(@RequestParam(value = "artist", defaultValue = "Taylor Swift") String artist) {
-        String message = """
-                Please give me a list of top 10 songs for the artist {artist}.  If you don't know the answer , just say "I don't know".And Just give me the important part.
-                {format}
+    @GetMapping("/chat/stream")
+    public Flux<String> simpleFlux(@RequestParam(required = false, defaultValue = "hello") String message) {
+        return chatClient.prompt().user(message).stream().content();
+    }
+
+    @GetMapping("/chat/parser")
+    public List<Song> simpleParser(@RequestParam(required = false, defaultValue = "Taylor Swift") String artist) {
+        String question = """
+                Please give me a list of top 10 songs and it's release year for the artist {artist}.  If you don't know the answer , just say "I don't know".
                 """;
-        ListOutputParser outputParser = new ListOutputParser(new DefaultConversionService());
-        PromptTemplate promptTemplate = new PromptTemplate(message, Map.of("artist", artist, "format", outputParser.getFormat()));
-        Prompt prompt = promptTemplate.create();
-        ChatResponse response = chatClient.call(prompt);
-        return outputParser.parse(response.getResult().getOutput().getContent());
+        return chatClient.prompt().user(u -> u.text(question).param("artist", artist)).call().entity(new ParameterizedTypeReference<>() {
+        });
     }
 }
 ```
@@ -131,48 +132,24 @@ spring:
 
 > 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试。
 
-多种提示词则可以使用如下代码：
-
-```java
-@RestController
-public class DadJokeController {
-
-    private final ChatClient chatClient;
-
-    public DadJokeController(ChatClient chatClient) {
-        this.chatClient = chatClient;
-    }
-
-    @GetMapping("/api/jokes")
-    public String jokes() {
-        var system = new SystemMessage("You primary function is to tell Dad Jokes. If someone asks you for any other type of joke please tell them you only know Dad Jokes");
-        var user = new UserMessage("Tell me a joke");
-//        var user = new UserMessage("Tell me a very serious joke about the earth");
-        Prompt prompt = new Prompt(List.of(system, user));
-        return chatClient.call(prompt).getResult().getOutput().getContent();
-    }
-}
-```
-
 如果需要为不同的接口使用不同的模型则可以使用如下代码：
 
 ```java
-ChatResponse response = chatClient.call(
+ChatResponse response = chatClient.prompt(
     new Prompt(
         "Generate the names of 5 famous pirates.",
         OllamaOptions.create()
             .withModel("llama2")
             .withTemperature(0.4)
-    ));
+    )).call();
 ```
 
 如果想要使用自定义数据源则可以采用如下方式：
 
 ```java
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.ollama.OllamaEmbeddingClient;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.transformer.splitter.TextSplitter;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
@@ -185,10 +162,9 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.util.List;
 
+@Slf4j
 @Configuration
-public class RagConfiguration {
-
-    private static final Logger log = LoggerFactory.getLogger(RagConfiguration.class);
+public class RagConfig {
 
     @Value("./vectorstore.json")
     private String vectorStorePath;
@@ -197,8 +173,8 @@ public class RagConfiguration {
     private Resource faq;
 
     @Bean
-    SimpleVectorStore simpleVectorStore(OllamaEmbeddingClient embeddingClient) {
-        var simpleVectorStore = new SimpleVectorStore(embeddingClient);
+    SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel) {
+        var simpleVectorStore = new SimpleVectorStore(embeddingModel);
         var vectorStoreFile = new File(vectorStorePath);
         if (vectorStoreFile.exists()) {
             log.info("Vector Store File Exists,");
@@ -215,79 +191,39 @@ public class RagConfiguration {
         }
         return simpleVectorStore;
     }
-
 }
 ```
 
-然后修改 `OllamaChatController` : 
+然后编写 `RagController` : 
 
 ```java
-import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.embedding.EmbeddingClient;
-import org.springframework.ai.embedding.EmbeddingResponse;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.chat.ChatResponse;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatClient;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/chat")
-public class OllamaChatController {
+@RequestMapping("/ollama")
+public class RagController {
 
-    private final OllamaChatClient chatClient;
-    private final VectorStore vectorStore;
-    @Value("classpath:/prompts/rag-prompt-template.st")
-    private Resource ragPromptTemplate;
-    private final EmbeddingClient embeddingClient;
+    private final ChatClient chatClient;
 
-    public OllamaChatController(OllamaChatClient chatClient, VectorStore vectorStore, EmbeddingClient embeddingClient) {
-        this.chatClient = chatClient;
-        this.vectorStore = vectorStore;
-        this.embeddingClient = embeddingClient;
+    public RagController(ChatClient.Builder builder, VectorStore vectorStore) {
+        this.chatClient = builder.defaultAdvisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
+                .build();
     }
 
-    @GetMapping("/ollama/generate")
-    public Map<String, String> generate(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
-        return Map.of("generation", chatClient.call(message));
+    @GetMapping("/chat/rag")
+    public String rag(@RequestParam(value = "message", defaultValue = "How many athletes compete in the Olympic Games Paris 2024") String message) {
+        return chatClient.prompt()
+                .user(message)
+                .call()
+                .content();
     }
-
-    @GetMapping("/ollama/generateStream")
-    public Flux<ChatResponse> generateStream(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
-        Prompt prompt = new Prompt(new UserMessage(message));
-        return chatClient.stream(prompt);
-    }
-
-    @GetMapping("/ollama/rag")
-    public String faq(@RequestParam(value = "message", defaultValue = "How can I buy tickets for the Olympic Games Paris 2024") String message) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(SearchRequest.query(message).withTopK(2));
-        List<String> contentList = similarDocuments.stream().map(Document::getContent).toList();
-        PromptTemplate promptTemplate = new PromptTemplate(ragPromptTemplate);
-        Map<String, Object> promptParameters = new HashMap<>();
-        promptParameters.put("input", message);
-        promptParameters.put("documents", String.join("\n", contentList));
-        Prompt prompt = promptTemplate.create(promptParameters);
-        return chatClient.call(prompt).getResult().getOutput().getContent();
-    }
-
-    @GetMapping("/ollama/embedding")
-    public EmbeddingResponse embedding(@RequestParam(value = "message", defaultValue = "How can I buy tickets for the Olympic Games Paris 2024") String message) {
-        return this.embeddingClient.embedForResponse(List.of(message));
-    }
-
 }
 ```
 
@@ -438,3 +374,5 @@ A: The inaugural Games took place in 1896 in Athens, Greece.
 [官方文档](https://docs.spring.io/spring-ai/reference/index.html)
 
 [spring-into-ai](https://github.com/danvega/spring-into-ai)
+
+[Spring AI 1.0.0 M1 released](https://spring.io/blog/2024/05/30/spring-ai-1-0-0-m1-released)
