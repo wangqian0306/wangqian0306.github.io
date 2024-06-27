@@ -132,6 +132,9 @@ spring:
 
 > 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试。
 
+
+##### 设置不同模型
+
 如果需要为不同的接口使用不同的模型则可以使用如下代码：
 
 ```java
@@ -143,6 +146,8 @@ ChatResponse response = chatClient.prompt(
             .withTemperature(0.4)
     )).call();
 ```
+
+##### 自定义数据源
 
 如果想要使用自定义数据源则可以采用如下方式：
 
@@ -367,7 +372,94 @@ Q: What year did the Olympic Games start?
 A: The inaugural Games took place in 1896 in Athens, Greece.
 ```
 
-> 注：在初次启动时需要拉取 hugginface 和 github 当中的内容，启动时间较长且对网络环境要求很高。
+> 注：如果不配置 Ollama embedding options model 的话在初次启动时需要拉取 hugginface 和 github 当中的内容，启动时间较长且对网络环境要求很高。
+
+##### 对话记录
+
+编写如下代码即可：
+
+```java
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
+
+@RestController
+@RequestMapping("/ollama")
+public class MemoryController {
+
+    private final ChatClient chatClient;
+
+    public MemoryController(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+                .build();
+    }
+
+    @GetMapping("/chat/memory")
+    public String rag(
+            @RequestParam(defaultValue = "Here is chat room 1") String message,
+            @RequestParam(defaultValue = "1") String conversionId) {
+        return chatClient.prompt()
+                .user(message)
+                .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, conversionId))
+                .call()
+                .content();
+    }
+}
+```
+
+##### 对话日志
+
+编写如下代码：
+
+```java
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/ollama")
+public class LogController {
+
+    private final ChatClient chatClient;
+
+    public LogController(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultAdvisors((new SimpleLoggerAdvisor()).build();
+    }
+
+    @GetMapping("/chat/log")
+    public String rag(
+            @RequestParam(defaultValue = "Hi") String message) {
+        return chatClient.prompt()
+                .user(message)
+                .call()
+                .content();
+    }
+}
+```
+
+然后修改日志配置即可：
+
+```yaml
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
+```
+
+> 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
 
 ### 参考资料
 
