@@ -26,6 +26,8 @@ Spring Security 是一款安全框架。
     - Lombok
 - Web
     - Spring Web
+- Template Engines
+    - Thymeleaf
 - Security
     - Spring Security
     - OAuth2 Resource Server
@@ -708,6 +710,75 @@ public class OpenAPIConf {
 public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
 	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
 	Page<Message> findInbox(Pageable pageable);
+}
+```
+
+### 自定义登录页
+
+编写如下 `resources/templates/login.html` ：
+
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Please Log In</title>
+</head>
+<body>
+<h1>Here is Custom Login page. Please Log In: </h1>
+<div th:if="${param.error}">
+    Invalid username and password.</div>
+<div th:if="${param.logout}">
+    You have been logged out.</div>
+<form th:action="@{/login}" method="post">
+    <div>
+        <input type="text" name="username" placeholder="Username"/>
+    </div>
+    <div>
+        <input type="password" name="password" placeholder="Password"/>
+    </div>
+    <input type="submit" value="Log in" />
+</form>
+</body>
+</html>
+```
+
+编写 `SecurityConfig` 配置文件：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+                .formLogin(form -> form.loginPage("/login").permitAll());
+        return http.build();
+    }
+}
+```
+
+编写 `LoginController` ： 
+
+```java
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class LoginController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
 }
 ```
 

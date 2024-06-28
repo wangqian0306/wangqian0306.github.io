@@ -42,13 +42,6 @@ NetCDF(Network Common Data Form)是一种自描述、与机器无关、基于数
         <version>${netcdfJavaVersion}</version>
         <scope>compile</scope>
     </dependency>
-
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${slf4jVersion}</version>
-        <scope>runtime</scope>
-    </dependency>
 </dependencies>
 ```
 
@@ -59,8 +52,7 @@ repositories {
     }
 }
 dependencies {
-    implementation "edu.ucar:cdm-core:${netcdfJavaVersion}"
-    runtimeOnly "org.slf4j:slf4j-jdk14:${slf4jVersion}"
+    implementation 'edu.ucar:netcdfAll:5.4.1'
 }
 ```
 
