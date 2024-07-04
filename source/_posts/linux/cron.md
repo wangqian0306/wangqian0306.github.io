@@ -59,8 +59,39 @@ crontab -e
 crontab -r
 ```
 
+### 容器中使用
+
+编写 `hello-cron` 脚本：
+
+```text
+* * * * * echo "Hello world" >> /var/log/cron.log 2>&1
+
+```
+
+> 注：此处需要使用 Linux 换行符且最后一行要是空行。
+
+编写 `Dockerfile` 即可：
+
+```bash
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get -y install cron
+
+COPY hello-cron /etc/cron.d/hello-cron
+
+RUN chmod 0644 /etc/cron.d/hello-cron
+
+RUN crontab /etc/cron.d/hello-cron
+
+RUN touch /var/log/cron.log
+
+CMD cron && tail -f /var/log/cron.log
+```
+
 ### 参考资料
 
 [维基百科 cron](https://en.wikipedia.org/wiki/Cron)
 
 [在线Cron表达式生成器](https://www.matools.com/cron)
+
+[How to run a cron job inside a docker container](https://stackoverflow.com/questions/37458287/how-to-run-a-cron-job-inside-a-docker-container)
