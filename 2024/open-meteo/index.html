@@ -16,22 +16,22 @@
   <meta name="author" content="WangQian">
   <meta name="keywords" content="技术博客">
   
-    <meta name="description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576import java.util.HashMap;interface Shape &#123;    void d">
+    <meta name="description" content="Open-Meteo 简介 Open-Meteo 是一个开源天气 API，可供非商业用途免费使用。无需 API 密钥。其中包含很多预测模型的数据。 使用方式 可以编写如下 docker-compose.yaml 使用： 12345678services:  open-meteo:    image: ghcr.io&#x2F;open-meteo&#x2F;open-meteo    volumes:      -">
 <meta property="og:type" content="article">
-<meta property="og:title" content="享元模式">
-<meta property="og:url" content="https://wangqian0306.github.io/2021/design-flyweight-pattern/index.html">
+<meta property="og:title" content="Open-Meteo">
+<meta property="og:url" content="https://wangqian0306.github.io/2024/open-meteo/index.html">
 <meta property="og:site_name" content="乾">
-<meta property="og:description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576import java.util.HashMap;interface Shape &#123;    void d">
+<meta property="og:description" content="Open-Meteo 简介 Open-Meteo 是一个开源天气 API，可供非商业用途免费使用。无需 API 密钥。其中包含很多预测模型的数据。 使用方式 可以编写如下 docker-compose.yaml 使用： 12345678services:  open-meteo:    image: ghcr.io&#x2F;open-meteo&#x2F;open-meteo    volumes:      -">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-07-21T12:32:58.000Z">
-<meta property="article:modified_time" content="2024-04-26T05:58:54.000Z">
+<meta property="article:published_time" content="2024-07-04T15:09:32.000Z">
+<meta property="article:modified_time" content="2024-07-04T06:52:05.217Z">
 <meta property="article:author" content="WangQian">
-<meta property="article:tag" content="JAVA">
+<meta property="article:tag" content="Container">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>享元模式 - 乾</title>
+  <title>Open-Meteo - 乾</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -202,7 +202,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="享元模式"></span>
+            <span id="subtitle" data-typed-text="Open-Meteo"></span>
           
         </div>
 
@@ -213,8 +213,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2021-07-21 20:32" pubdate>
-          2021年7月21日 晚上
+        <time datetime="2024-07-04 23:09" pubdate>
+          2024年7月4日 晚上
         </time>
       </span>
     
@@ -257,12 +257,33 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">享元模式</h1>
+            <h1 id="seo-header">Open-Meteo</h1>
             
             
               <div class="markdown-body">
                 
-                <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.util.HashMap;<br><br><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Shape</span> &#123;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Circle</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Shape</span> &#123;<br>    String color;<br>    <span class="hljs-type">int</span> x;<br>    <span class="hljs-type">int</span> y;<br>    <span class="hljs-type">int</span> radius;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Circle</span><span class="hljs-params">(String color)</span> &#123;<br>        <span class="hljs-built_in">this</span>.color = color;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setX</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> &#123;<br>        <span class="hljs-built_in">this</span>.x = x;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setY</span><span class="hljs-params">(<span class="hljs-type">int</span> y)</span> &#123;<br>        <span class="hljs-built_in">this</span>.y = y;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setRadius</span><span class="hljs-params">(<span class="hljs-type">int</span> radius)</span> &#123;<br>        <span class="hljs-built_in">this</span>.radius = radius;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Circle: Draw() [Color : &quot;</span> + color<br>                + <span class="hljs-string">&quot;, x : &quot;</span> + x + <span class="hljs-string">&quot;, y :&quot;</span> + y + <span class="hljs-string">&quot;, radius :&quot;</span> + radius);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ShapeFactory</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> HashMap&lt;String, Shape&gt; circleMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Shape <span class="hljs-title function_">getCircle</span><span class="hljs-params">(String color)</span> &#123;<br>        <span class="hljs-type">Circle</span> <span class="hljs-variable">circle</span> <span class="hljs-operator">=</span> (Circle) circleMap.get(color);<br><br>        <span class="hljs-keyword">if</span> (circle == <span class="hljs-literal">null</span>) &#123;<br>            circle = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Circle</span>(color);<br>            circleMap.put(color, circle);<br>            System.out.println(<span class="hljs-string">&quot;Creating circle of color : &quot;</span> + color);<br>        &#125;<br>        <span class="hljs-keyword">return</span> circle;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FlyweightPatternDemo</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String[] colors = &#123;<span class="hljs-string">&quot;Red&quot;</span>, <span class="hljs-string">&quot;Green&quot;</span>, <span class="hljs-string">&quot;Blue&quot;</span>, <span class="hljs-string">&quot;White&quot;</span>, <span class="hljs-string">&quot;Black&quot;</span>&#125;;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">20</span>; ++i) &#123;<br>            <span class="hljs-type">Circle</span> <span class="hljs-variable">circle</span> <span class="hljs-operator">=</span><br>                    (Circle) ShapeFactory.getCircle(getRandomColor());<br>            circle.setX(getRandomX());<br>            circle.setY(getRandomY());<br>            circle.setRadius(<span class="hljs-number">100</span>);<br>            circle.draw();<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getRandomColor</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> colors[(<span class="hljs-type">int</span>) (Math.random() * colors.length)];<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getRandomX</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> (<span class="hljs-type">int</span>) (Math.random() * <span class="hljs-number">100</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getRandomY</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> (<span class="hljs-type">int</span>) (Math.random() * <span class="hljs-number">100</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+                <h2 id="Open-Meteo">Open-Meteo</h2>
+<h3 id="简介">简介</h3>
+<p>Open-Meteo 是一个开源天气 API，可供非商业用途免费使用。无需 API 密钥。其中包含很多预测模型的数据。</p>
+<h3 id="使用方式">使用方式</h3>
+<p>可以编写如下 <code>docker-compose.yaml</code> 使用：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">open-meteo:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">ghcr.io/open-meteo/open-meteo</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;./data:/app/data&quot;</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;8080:8080&#x27;</span><br>    <span class="hljs-attr">command:</span> [<span class="hljs-string">&quot;serve&quot;</span>, <span class="hljs-string">&quot;--env&quot;</span>, <span class="hljs-string">&quot;production&quot;</span>, <span class="hljs-string">&quot;--hostname&quot;</span>, <span class="hljs-string">&quot;0.0.0.0&quot;</span>, <span class="hljs-string">&quot;--port&quot;</span>, <span class="hljs-string">&quot;8080&quot;</span>]<br></code></pre></td></tr></table></figure>
+<h3 id="数据同步">数据同步</h3>
+<p>使用 <code>openmeteo-api sync</code> 命令可以从 AWS S3 上下载最新的数据集到本地，此处可以自己构建一个镜像利用 cron 命令实现定时拉取数据。</p>
+<p>编写 <code>sync-cron</code> ：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">* * * * * /usr/local/bin/openmeteo-api sync ecmwf_ifs04 temperature_2m &gt;&gt; /var/log/cron.log 2&gt;&amp;1<br><br></code></pre></td></tr></table></figure>
+<p>编写 <code>Dockerfile</code> ：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs text">FROM ubuntu:jammy<br><br>RUN apt-get update &amp;&amp; apt-get -y install cron gpg curl<br><br>RUN curl -L https://apt.open-meteo.com/public.key | gpg --dearmour -o /etc/apt/trusted.gpg.d/openmeteo.gpg<br><br>RUN echo &quot;deb [arch=amd64] https://apt.open-meteo.com jammy main&quot; | tee /etc/apt/sources.list.d/openmeteo-api.list<br><br>RUN apt-get update<br><br>RUN apt-get install openmeteo-api -y<br><br>COPY sync-cron /etc/cron.d/sync-cron<br><br>RUN chmod 0644 /etc/cron.d/sync-cron<br><br>RUN crontab /etc/cron.d/sync-cron<br><br>RUN touch /var/log/cron.log<br><br>CMD cron &amp;&amp; tail -f /var/log/cron.log<br></code></pre></td></tr></table></figure>
+<p>之后编写 <code>docker-compose.yaml</code> ：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">open-meteo:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">ghcr.io/open-meteo/open-meteo</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;./data:/app/data&quot;</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;8080:8080&#x27;</span><br>    <span class="hljs-attr">command:</span> [<span class="hljs-string">&quot;serve&quot;</span>, <span class="hljs-string">&quot;--env&quot;</span>, <span class="hljs-string">&quot;production&quot;</span>, <span class="hljs-string">&quot;--hostname&quot;</span>, <span class="hljs-string">&quot;0.0.0.0&quot;</span>, <span class="hljs-string">&quot;--port&quot;</span>, <span class="hljs-string">&quot;8080&quot;</span>]<br>  <span class="hljs-attr">sync:</span><br>    <span class="hljs-attr">build:</span> <span class="hljs-string">.</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">cron-meteo:latest</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;./data:/var/lib/openmeteo-api/data&quot;</span><br></code></pre></td></tr></table></figure>
+<p>使用如下命令构建容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose build --no-cache<br></code></pre></td></tr></table></figure>
+<p>使用如下命令运行容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose up -d<br></code></pre></td></tr></table></figure>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://open-meteo.com/">官网</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/open-meteo/open-meteo/blob/main/docs/getting-started.md">同步教程</a></p>
+
                 
               </div>
             
@@ -280,7 +301,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="category-chain-item">设计模式</a>
+  <a href="/categories/Ocean/" class="category-chain-item">Ocean</a>
   
   
 
@@ -295,7 +316,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/JAVA/" class="print-no-link">#JAVA</a>
+        <a href="/tags/Container/" class="print-no-link">#Container</a>
       
     </div>
   
@@ -307,8 +328,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>享元模式</div>
-      <div>https://wangqian0306.github.io/2021/design-flyweight-pattern/</div>
+      <div>Open-Meteo</div>
+      <div>https://wangqian0306.github.io/2024/open-meteo/</div>
     </div>
     <div class="license-meta">
       
@@ -320,7 +341,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2021年7月21日</div>
+          <div>2024年7月4日</div>
         </div>
       
       
@@ -352,18 +373,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021/design-filter-pattern/" title="过滤器模式">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">过滤器模式</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2021/topological_sorting/" title="拓扑排序">
-                        <span class="hidden-mobile">拓扑排序</span>
+                      <a href="/2024/mysql-innodb-cluster/" title="MySQL InnoDB Cluster">
+                        <span class="hidden-mobile">MySQL InnoDB Cluster</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
