@@ -76,36 +76,6 @@ sudo systemctl enable docker --now
 sudo chmod 666 /var/run/docker.sock
 ```
 
-## 配置中国官方源
-
-使用如下命令进行配置
-
-```bash
-sudo vim /etc/docker/daemon.json
-```
-
-填入如下配置项
-
-```json
-{
-  "registry-mirrors": [
-    "http://registry.docker-cn.com",
-    "http://docker.mirrors.ustc.edu.cn",
-    "http://hub-mirror.c.163.com"
-  ],
-  "insecure-registries": [
-    "registry.docker-cn.com",
-    "docker.mirrors.ustc.edu.cn"
-  ]
-}
-```
-
-使用中国官方源时(当且仅当拉取官方镜像时)使用
-
-```bash
-docker pull library/<镜像名>
-```
-
 ## Dockerfile
 
 可以参照[官方文档](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#dockerfile-instructions)

@@ -95,7 +95,7 @@ public class CustomOAuthConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient registeredClient = RegisteredClient.withId("local")
-                .clientId("oidc-client")
+                .clientId("local")
                 .clientSecret("$xxxxx")
                 .redirectUri("http://localhost:8080/test")
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
@@ -112,7 +112,7 @@ public class CustomOAuthConfig {
 }
 ```
 
-> 注：此处可以使用之前生成的密码替换 client-secret，不要带上 `{bcrypt}`。
+> 注：此处可以使用之前生成的密码替换 clientSecret，不要带上 `{bcrypt}`。
 
 启动程序然后使用如下命令即可获得 Token:
 
