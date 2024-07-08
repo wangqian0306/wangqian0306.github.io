@@ -49,18 +49,6 @@ acme.sh --install-cert -d <domain> \
 --reloadcmd     "service nginx force-reload"
 ```
 
-使用证书(standalone):
-
-```bash
-acme.sh --install-cert -d <domain> \
---key-file       /path/to/keyfile/in/nginx/key.pem  \
---fullchain-file /path/to/fullchain/nginx/cert.pem \
---pre-hook "cd <dir> && docker-compose stop" \
---reloadcmd "cd <dir> && docker-compose restart"
-```
-
-> 注：由于续签证书的时候需要 80 端口运行服务进行验证所以需要提前让容器终止运行，然后再进行续期。
-
 查看证书相关信息：
 
 ```bash
@@ -71,6 +59,18 @@ acme.sh --info -d <domain>
 
 ```bash
 crontab  -l
+```
+
+查看当前的域名清单：
+
+```bash
+acme.sh --list
+```
+
+手动强制刷新域名有效期：
+
+```bash
+acme.sh --renew -d <domain> --force
 ```
 
 ### 参考资料

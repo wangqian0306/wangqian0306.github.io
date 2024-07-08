@@ -38,8 +38,8 @@ Type=notify
 # the default is not to use systemd for cgroups because the delegate issues still
 # exists and systemd currently does not support the cgroup feature set required
 # for containers run by docker
-Environment="HTTP_PROXY=http://192.168.1.170:7890"
-Environment="HTTPS_PROXY=http://192.168.1.170:7890"
+Environment="HTTP_PROXY=http://xxx.xxx.xxx.xxx:xxxx"
+Environment="HTTPS_PROXY=http://xxx.xxx.xxx.xxx:xxxx"
 Environment="NO_PROXY=localhost,127.0.0.1"
 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 ```

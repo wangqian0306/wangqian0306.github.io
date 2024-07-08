@@ -17,36 +17,55 @@ categories: MySQL
 ```bash
 yum localinstall mysql80-community-release-el7-3.noarch.rpm
 yum install mysql-community-server
+```
+
+或者直接使用 yum 安装 Source distribution 版本 ：
+
+```bash
+yum install mysql mysql-server -y
+```
+
+启动服务：
+
+```bash
 systemctl enable mysqld --now
 ```
 
-检查临时密码
+检查临时密码(社区版)
 
 ```bash
 grep 'temporary password' /var/log/mysqld.log
 ```
 
-进行登录
+进行登录(社区版)
 
 ```bash
-mysql -uroot -p
+mysql -u root -p
 ```
 
-更新密码
+更新 ROOT 用户密码
 
 ```bash
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
 ```
 
-开放远程访问：
+创建用户并赋予用户指定库的访问权限：
 
-```sql
-use mysql;
-update user set host = '%' where user = '<user>';
-flush privileges;
+```bash
+CREATE USER 'rbfish'@'%' IDENTIFIED BY 'Rbfish123..';
+GRANT ALL PRIVILEGES ON *.* TO 'rbfish'@'%';
+FLUSH PRIVILEGES;
 ```
 
-> 注：本文以 CentOS 7 为例，详情参照 [官方文档](https://dev.mysql.com/doc/mysql-linuxunix-excerpt/5.7/en/linux-installation.html)
+开放用户远程访问：
+
+```sql
+USE mysql;
+UPDATE USER SET host = '%' WHERE user = '<user>';
+FLUSH PRIVILEGES;
+```
+
+> 注：本文以 RockyLinux 7 为例，详情参照 [官方文档](https://dev.mysql.com/doc/mysql-linuxunix-excerpt/8.4/en/linux-installation.html)，记得进入页面后切换至当前版本。
 
 ### 容器化安装
 
@@ -64,101 +83,6 @@ services:
 ```
 
 > 注：详细配置信息请参照 [DockerHub 文档](https://registry.hub.docker.com/_/mysql)或官方文档。
-
-### 容器化安装集群
-
-```yaml
-version: "3"
-services:
-  mysql-1:
-    image: mysql:8
-    environment:
-      - TZ=CST-8
-      - MYSQL_ROOT_PASSWORD=123456
-    ports:
-      - "13062:3306"
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci
-    volumes:
-      - ./mysql-volume/my-1.cnf:/etc/mysql/my.cnf
-      - ./mysql-volume/data/mysql-1:/var/lib/mysql
-  mysql-2:
-    image: mysql:8
-    environment:
-      - TZ=CST-8
-      - MYSQL_ROOT_PASSWORD=123456
-    ports:
-      - "13061:3306"
-    command: --character-set-server=utf8 --collation-server=utf8_general_ci
-    volumes:
-      - ./mysql-volume/mysql-2:/var/lib/mysql
-      - ./mysql-volume/data/my-2.cnf:/etc/mysql/my.cnf
-  mysql_nginx:
-    image: nginx:1.19.2
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./nginx-volume/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - mysql-1
-```
-
-my.cnf 样例
-
-```text
-[mysqld]
-pid-file        = /var/run/mysqld/mysqld.pid
-socket          = /var/run/mysqld/mysqld.sock
-datadir         = /var/lib/mysql
-secure-file-priv= NULL
-
-server_id=2
-log-bin= mysql-bin
-
-replicate-ignore-db=mysql
-replicate-ignore-db=sys
-replicate-ignore-db=information_schema
-replicate-ignore-db=performance_schema
-
-default_authentication_plugin=mysql_native_password
-
-read-only=0
-relay_log=mysql-relay-bin
-log-slave-updates=on
-
-max_connections=5000
-
-mysqlx_max_connections=5000
-
-# Custom config should go here
-!includedir /etc/mysql/conf.d/
-```
-
-nginx.conf 样例
-
-```text
-user www-data;
-worker_processes auto;
-pid /run/nginx.pid;
-
-events {
-    use   epoll;
-    worker_connections  1024;
-}
-
-stream {
-    upstream mysql {
-        server mysql-1:3306 max_fails=3 fail_timeout=30s;
-        server mysql-2:3306 backup;
-    }
- 
-    server {
-        listen    3306;
-        proxy_connect_timeout 3000s;
-        proxy_timeout 6000s;
-        proxy_pass mysql;
-    }
-}
-```
 
 ### 存储引擎
 
