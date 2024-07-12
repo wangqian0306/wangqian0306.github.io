@@ -249,6 +249,15 @@ services:
   - 输入 Jellyfin 用户名
   - 输入 Jellyfin 密码
 
+#### 爱盼-网盘资源搜索
+
+```bash
+git clone https://github.com/unilei/aipan-netdisk-search.git
+cd aipan-netdisk-search
+docker-compose build --no-cache
+docker-compose up -d
+```
+
 ### 参考资料
 
 [Sonarr 项目](https://github.com/Sonarr/Sonarr)
