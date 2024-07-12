@@ -218,14 +218,28 @@ public class TestController {
 更换支持库(可选)：
 
 ```java
-@Bean
-public RestClient restClient() {
-    JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory()
-	RestClient client = RestClient.builder()
+import org.springframework.boot.web.client.RestClientCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.JettyClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
+
+@Configuration
+public class CustomRestClientConf {
+
+    @Bean
+    public RestClient restClient(RestClient.Builder builder) {
+        return builder.build();
+    }
+
+    @Bean
+    public RestClientCustomizer restClientCustomizer() {
+        JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory();
+        return (restClientBuilder) -> restClientBuilder
                 .requestFactory(requestFactory)
-                .build();
-    HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();
-	return client; 
+                .baseUrl("http://localhost:8080/");
+    }
+
 }
 ```
 
