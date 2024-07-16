@@ -18,7 +18,9 @@ categories:
 
 ### 使用
 
+总体上来说国内的实现方式是遍历船只清单生成船只图层，然后在细节图层中再去检索船只位置。
 
+国外的实现方式则是根据不同的块去检索船只清单。
 
 ### 参考资料
 
@@ -29,3 +31,5 @@ categories:
 [导助航综合服务系统](https://ais.msa.gov.cn/)
 
 [船讯网](https://www.shipxy.com/)
+
+[MarineTraffic](https://www.marinetraffic.com/)
