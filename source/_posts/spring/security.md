@@ -715,7 +715,7 @@ public interface MessageRepository extends PagingAndSortingRepository<Message,Lo
 
 ### 自定义登录页
 
-编写如下 `resources/templates/login.html` ：
+编写如下 `resources/templates/login.html` ： 
 
 ```html
 <!DOCTYPE html>
@@ -786,6 +786,8 @@ public class LoginController {
 }
 ```
 
+> 注：此处如果单个页面样式上需要使用 Tailwind CSS 可以参照参考资料样例。
+
 ### 单元测试
 
 在测试中可以使用如下方式指定测试用户：
@@ -819,3 +821,5 @@ public class UserControllerTest {
 [RSA 密钥生成](http://www.metools.info/code/c80.html)
 
 [spring-boot-3-jwt-security](https://github.com/ali-bouali/spring-boot-3-jwt-security)
+
+[spring-boot-tailwind](https://github.com/danvega/spring-boot-tailwind)
