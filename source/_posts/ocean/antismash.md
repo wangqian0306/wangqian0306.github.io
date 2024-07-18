@@ -15,7 +15,44 @@ antiSMASH 框架允许检测基因组中共存的生物合成基因簇，称为�
 
 ### 安装方式
 
-系统基于 Ubuntu 22.04.4 LTS，且：
+#### Docker
+
+创建本地卷路径
+
+```bash
+mkdir input
+mkdir output
+wget -P output https://github.com/antismash/antismash/blob/master/antismash/test/integration/data/nisin.gbk
+```
+
+然后编写如下 `docker-compose.yaml` 文件即可
+
+```bash
+services:
+  anti:
+    image: antismash/standalone:latest
+    command: [nisin.gbk]
+    user: <uid>:<gid>
+    volumes: 
+      - "./input:/input"
+      - "./output:/output"
+```
+
+使用如下命令，等待命令完成后，即可在 /output 目录获取到处理结果。
+
+```bash
+docker-compose up
+```
+
+如果需要进入容器中试用其他工具可以使用如下命令：
+
+```bash
+docker run --rm -it --entrypoint="" antismash/standalone:latest /bin/bash
+```
+
+#### 系统安装(失败)
+
+系统基于 Ubuntu 22.04.4 LTS
 
 ```bash
 pyenv install anaconda3-2022.10
@@ -37,7 +74,7 @@ download-antismash-databases
 antismash --check-prereqs
 ```
 
-> 注：装起来是真费劲啊。。。。
+> 注：由于 meme 版本不对所以此处方案没能成功安装，如果后续 antiSMASH 版本更新可以再尝试。
 
 ### 参考资料
 
