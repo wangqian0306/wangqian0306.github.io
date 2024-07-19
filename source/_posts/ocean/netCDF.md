@@ -106,6 +106,43 @@ print(nc_obj.variables['<xxx>'].ncattrs())
 arr_xxx=(nc_obj.variables['<xxx>'][:])
 ```
 
+有的 nc 文件会采用不同的文件结构，例如 NOAA 的 RTOFS nc 文件可以通过如下方式进行读取：
+
+```bash
+pip install xarray
+```
+
+```python
+import xarray as xr
+import pandas as pd
+
+# 打开NetCDF文件
+dataset = xr.open_dataset('rtofs_glo_2ds_f000_prog.nc')
+
+# 获取sst、经度和纬度变量
+sst = dataset['sst']
+lon = dataset['Longitude']
+lat = dataset['Latitude']
+
+# 将数据转换为numpy数组
+sst_values = sst.values
+lon_values = lon.values
+lat_values = lat.values
+
+# 创建一个DataFrame，将经纬度和SST值对应起来
+# 这里假设sst只有一个时间点
+sst_df = pd.DataFrame({
+    'Latitude': lat_values.flatten(),
+    'Longitude': lon_values.flatten(),
+    'SST': sst_values[0, :, :].flatten()
+})
+
+# 打印前几行查看
+print(sst_df.head())
+```
+
+在这种情况下经纬度的变化是没有明显规律的，需要使用时多加关注。
+
 ### 参考资料
 
 [维基百科-NetCDF](https://zh.wikipedia.org/wiki/NetCDF)
