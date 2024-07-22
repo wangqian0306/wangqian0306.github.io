@@ -68,7 +68,7 @@ mongo -u root -p
 使用如下指令创建用户：
 
 ```text
-use admin
+use <db>
 db.createUser({user:"<username>",pwd:"<password>",roles:[{role:"readWrite",db:"<db>"}]}
 ```
 
