@@ -148,6 +148,93 @@ spring:
 
 详情请参阅[官方文档](https://docs.spring.io/spring/docs/5.2.7.RELEASE/spring-framework-reference/integration.html#cache)
 
+
+### 简单试用
+
+编写如下 application.yaml 配置文件：
+
+```yaml
+spring:
+  application:
+    name: cache-test
+  data:
+    redis:
+      host: 192.168.2.77
+      port: 6379
+  cache:
+    redis:
+      time-to-live: 23h
+```
+
+编写 `TestService.java` ：
+
+```java
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class TestService {
+
+    @Cacheable(cacheNames = {"echo"})
+    public String echo(Integer id) {
+        try {
+            Thread.sleep(4000);
+        } catch (Exception ignore) {
+        }
+        return LocalDateTime.now() + " " + id;
+    }
+
+    @CacheEvict(cacheNames = {"echo"})
+    public void evict(Integer id) {
+    }
+
+}
+```
+
+编写 `TestController.java` :
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    @Resource
+    private TestService testService;
+
+    @GetMapping("/cache/{id}")
+    public String cache(@PathVariable int id) {
+        return testService.echo(id);
+    }
+
+    @DeleteMapping("/cache/{id}")
+    public void delete(@PathVariable int id) {
+        testService.evict(id);
+    }
+
+}
+```
+
+编写测试文件 `test.http` ：
+
+```text
+### set and read cache
+GET http://localhost:8080/test/cache/1
+
+### delete cache
+DELETE http://localhost:8080/test/cache/1
+
+### test read with out cache
+GET http://localhost:8080/test/cache/2
+```
+
+之后运行服务，然后尝试调用测试文件即可。
+
 ### 缓存常见问题如何解决
 
 #### 缓存雪崩
