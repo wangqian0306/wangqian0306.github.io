@@ -1,11 +1,13 @@
 ---
 title: Linux 基础知识整理
 date: 2020-04-01 21:57:04
-tags: "Linux"
+tags: 
+- "Linux"
 id: linux_dir
 no_word_count: true
 no_toc: false
-categories: Linux
+categories: 
+- "Linux"
 ---
 
 ## 基础系统目录及说明
@@ -118,3 +120,11 @@ SELINUXTYPE=targeted
 - Name: `Terminal`
 - Command: `gnome-terminal`
 - Shortcut: `Ctrl + Alt + T`
+
+## MD5
+
+使用如下命令计算文件 MD5
+
+```bash
+md5sum filename
+```
