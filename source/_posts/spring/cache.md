@@ -8,7 +8,8 @@ tags:
 id: caching
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- "Spring"
 ---
 
 ### 简介
@@ -30,7 +31,7 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 - Cache2k
 - Simple
 
-详情请参阅[官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/io.html#io.caching.provider)
+详情请参阅[官方文档](https://docs.spring.io/spring-boot/reference/io/caching.html)
 
 > 注：后续将使用 Redis 作为缓存库进行说明。
 
@@ -58,7 +59,7 @@ Spring Boot 可以使用 Spring Framework 提供的功能组件来实现缓存�
 
 由于使用了 Redis 作为存储组件，所以需要配置 Redis 的链接。
 
-详细内容请参照[官方文档](https://docs.spring.io/spring-data/redis/docs/2.3.1.RELEASE/reference/html/#redis)
+详细内容请参照[官方文档](https://docs.spring.io/spring-data/redis/reference/redis.html)
 
 ##### 单机模式
 
@@ -137,17 +138,16 @@ spring:
 
 ### 相关注解及说明
 
-|注解|说明|
-|:---:|:---:|
-|@EnableCaching|启用缓存功能|
-|@Cacheable|缓存方法的标识|
-|@CachePut|强制更新缓存|
-|@CacheEvict|强制删除缓存|
-|@Caching|自定义缓存功能|
-|@CacheConfig|缓存配置项|
+|       注解       |      说明       |
+|:--------------:|:-------------:|
+| @EnableCaching |    启用缓存功能     |
+|   @Cacheable   |    缓存方法的标识    |
+|   @CachePut    |    强制更新缓存     |
+|  @CacheEvict   |    强制删除缓存     |
+|    @Caching    | 自定义缓存功能，做功能拼接 |
+|  @CacheConfig  |     缓存配置项     |
 
-详情请参阅[官方文档](https://docs.spring.io/spring/docs/5.2.7.RELEASE/spring-framework-reference/integration.html#cache)
-
+详情请参阅[官方文档](https://docs.spring.io/spring-framework/reference/integration/cache.html)
 
 ### 简单试用
 
