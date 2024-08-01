@@ -7,7 +7,8 @@ tags:
 id: webclient-restclient
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- "Spring"
 ---
 
 ## WebClient 和 RestClient
@@ -367,5 +368,7 @@ public class JokeClient {
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
+
+[WebClient 单元测试样例项目](https://github.com/danvega/async-client/blob/main/src/test/java/dev/danvega/post/PostClientTest.java)
 
 [RestClient 文档](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
