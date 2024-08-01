@@ -235,6 +235,77 @@ GET http://localhost:8080/test/cache/2
 
 之后运行服务，然后尝试调用测试文件即可。
 
+### 缓存的常见配置
+
+#### FastJson 序列化 
+
+在使用 Redis 的时候需要将缓存数据进行传输和下载，所以需要将对象进行序列化，可以通过如下代码实现：
+
+```java
+import com.alibaba.fastjson2.support.spring6.data.redis.GenericFastJsonRedisSerializer;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        GenericFastJsonRedisSerializer fastJsonRedisSerializer = new GenericFastJsonRedisSerializer();
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeKeysWith(SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(SerializationPair.fromSerializer(fastJsonRedisSerializer));
+
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .cacheDefaults(defaultCacheConfig)
+                .build();
+    }
+}
+```
+
+#### 定义不同的过期时间
+
+```java
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("ocean", defaultCacheConfig.entryTtl(Duration.ofDays(1)));
+        cacheConfigurations.put("weather", defaultCacheConfig.entryTtl(Duration.ofHours(2)));
+        
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .cacheDefaults(defaultCacheConfig)
+                .withInitialCacheConfigurations(cacheConfigurations)
+                .build();
+    }
+}
+```
+
 ### 缓存常见问题如何解决
 
 #### 缓存雪崩

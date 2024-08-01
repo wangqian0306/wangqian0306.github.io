@@ -28,16 +28,17 @@ categories:
 - Spring Web
 - Spring Reactive Web
 
-可以得到如下样例：
+之后为了使用更新版本的 Ollama 需要进行如下修改：
 
 ```groovy
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 ext {
-    set('springAiVersion', "0.8.1")
+    set('springAiVersion', "1.0.0-SNAPSHOT")
 }
 
 dependencies {
@@ -124,7 +125,7 @@ spring:
       base-url: http://xxx.xxx.xxx.xxx:11434
       chat:
         options:
-          model: llama3
+          model: llama3.1
       embedding:
         options:
           model: nomic-embed-text
@@ -415,6 +416,8 @@ public class MemoryController {
 
 ##### 对话日志
 
+> 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
+
 编写如下代码：
 
 ```java
@@ -459,7 +462,85 @@ logging:
               advisor: DEBUG
 ```
 
+##### 函数调用
+
 > 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
+
+编写需要被调用的函数 `MockWeatherService.java` ：
+
+```java
+import java.util.function.Function;
+
+public class MockWeatherService implements Function<MockWeatherService.Request, MockWeatherService.Response> {
+
+    public enum Unit { C, F }
+    public record Request(String location, Unit unit) {}
+    public record Response(double temp, Unit unit) {}
+
+    public Response apply(Request request) {
+        System.out.println("call mock service");
+        return new Response(30.0, Unit.C);
+    }
+}
+```
+
+编写配置类 `Config.java`：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Description;
+
+import java.util.function.Function;
+
+@Configuration
+public class Config {
+
+    @Bean
+    @Description("Get the weather in location")
+    public Function<MockWeatherService.Request, MockWeatherService.Response> currentWeatherFunction() {
+        return new MockWeatherService();
+    }
+
+}
+```
+
+编写请求类：
+
+```java
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class TestController {
+
+    private final ChatClient client;
+
+    public TestController(ChatClient.Builder builder) {
+        this.client = builder
+                .defaultSystem("You are a helpful AI Assistant answering questions about cities around the world.")
+                .defaultFunctions("currentWeatherFunction")
+                .build();
+    }
+
+    @GetMapping("/weather")
+    public String weather(@RequestParam String message) {
+        return client.prompt()
+                .user(message)
+                .call()
+                .content();
+    }
+
+}
+```
+
+之后启动服务然后编写如下请求即可：
+
+```text
+GET http://localhost:8080/weather?message=What's the weather like in Beijing
+```
 
 ### 参考资料
 
@@ -468,3 +549,5 @@ logging:
 [spring-into-ai](https://github.com/danvega/spring-into-ai)
 
 [Spring AI 1.0.0 M1 released](https://spring.io/blog/2024/05/30/spring-ai-1-0-0-m1-released)
+
+[Spring AI with Ollama Tool Support](https://spring.io/blog/2024/07/26/spring-ai-with-ollama-tool-support)
