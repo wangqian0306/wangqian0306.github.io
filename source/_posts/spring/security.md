@@ -9,7 +9,8 @@ tags:
 id: spring-security
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- "Spring"
 ---
 
 ## Spring Security
@@ -812,6 +813,20 @@ public class UserControllerTest {
 }
 ```
 
+### 方法鉴权
+
+除了在接口层面上做安全之外，还可以在方法层面上进行补充和完善，确保数据安全。
+
+开启下面的注解后即可使用方法鉴权：
+
+```java
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
+@EnableMethodSecurity
+```
+
+在通过 Spring 调用相应需要鉴权的方法时就会触发安全检查，抛出相应异常。
+
 ### 参考资料
 
 [Spring Security 例程](https://github.com/spring-projects/spring-security-samples)
@@ -823,3 +838,7 @@ public class UserControllerTest {
 [spring-boot-3-jwt-security](https://github.com/ali-bouali/spring-boot-3-jwt-security)
 
 [spring-boot-tailwind](https://github.com/danvega/spring-boot-tailwind)
+
+[Spring Tips: Spring Security method security with special guest Rob Winch](https://www.youtube.com/watch?v=JYZHp5eqS2I)
+
+[method-security 样例项目](https://github.com/rwinch/method-security)
