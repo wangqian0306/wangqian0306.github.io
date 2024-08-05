@@ -47,6 +47,18 @@ pid-file=/var/run/mysqld/mysqld.pid
 
 > 注: 此处的 server-id 需要配置成不一样的值。
 
+- 配置 [Open Files Limit](https://mariadb.com/kb/en/systemd/#configuring-the-open-files-limit)
+
+```bash
+systemctl edit mariadb.service
+```
+
+```text
+[Service]
+
+LimitNOFILE=infinity
+```
+
 - 启动服务
 
 ```bash
