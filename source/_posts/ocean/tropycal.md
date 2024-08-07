@@ -7,7 +7,8 @@ tags:
 id: tropycal
 no_word_count: true
 no_toc: false
-categories: "Ocean"
+categories: 
+- "Ocean"
 ---
 
 ## Tropycal 
@@ -16,7 +17,7 @@ categories: "Ocean"
 
 Tropycal 是一个 Python 包，用于检索和分析过去和实时的热带气旋数据。
 
-Tropycal 可以读取 HURDAT2 和 IBTrACS 再分析数据以及美国国家飓风中心的最佳追踪数据，并使它们符合相同的格式，可用于执行气候、季节和个别风暴分析。
+Tropycal 可以读取 HURDAT2 和 IBTrACS 再分析数据以及美国国家飓风中心(NCAR)的追踪数据，并使它们符合相同的格式，可用于执行气候、季节和个别风暴分析。
 
 ### 使用方式
 
@@ -39,6 +40,16 @@ for storm in realtime_obj.list_active_storms():
     print(realtime_obj.get_storm(storm).to_dict())
 ```
 
+可以编写如下代码获取到预测内容：
+
+```python
+from tropycal import realtime
+
+realtime_obj = realtime.Realtime()
+
+for storm in realtime_obj.list_active_storms():
+    print(storm.get_forecast_realtime())
+```
 
 ### 参考资料
 
