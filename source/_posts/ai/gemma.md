@@ -21,3 +21,7 @@ no_toc: false
 [Gemma Cookbook](https://github.com/google-gemini/gemma-cookbook)
 
 [官方文档](https://ai.google.dev/gemma/docs)
+
+> 注：LoRA 微调文档一直无法访问，去找了其他文档。
+
+[Fine-tuning Gemma 2 with Keras - and an update from Hugging Face](https://developers.googleblog.com/en/fine-tuning-gemma-2-with-keras-hugging-face-update/)
