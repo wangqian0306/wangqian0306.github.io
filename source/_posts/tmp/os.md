@@ -66,7 +66,7 @@ make clean
 
 [MIT6.S081 教案](https://pdos.csail.mit.edu/6.828/2020/xv6/book-riscv-rev1.pdf)
 
-[MIT6.S081 教案中文翻译](https://th0ar.gitbooks.io/xv6-chinese/content/)
+[MIT6.S081 教案中文翻译](https://github.com/zhenyu-zang/xv6-riscv-book-Chinese)
 
 [Memory Layout of Kernel and UserSpace in Linux.](https://learnlinuxconcepts.blogspot.com/2014/03/memory-layout-of-userspace-c-program.html)
 

@@ -20,6 +20,12 @@ categories: "Ocean"
 
 #### 在地图上叠加热力图
 
+安装依赖库：
+
+```bash
+pip install cartopy pillow matplotlib
+```
+
 首先可以用如下函数进行坐标和瓦片的互相转化：
 
 ```python
@@ -148,4 +154,23 @@ if __name__ == "__main__":
     rgba_list = get_rgba_list(data, config)
     img = draw_image(rgba_list, y, x).resize((256, 256))
     img.save("tile.webp", "WEBP")
+```
+
+> 注：但是此处因为投影系产生了图像偏移的问题。
+
+绘制大陆架，海岸线
+
+```python
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import matplotlib.pyplot as plt
+
+# 创建一个绘图对象
+fig = plt.figure(figsize=(256, 256))
+ax = plt.axes(projection=ccrs.Mercator())
+
+# 添加地理特征
+ax.add_feature(cfeature.COASTLINE, edgecolor='red')
+# 显示图形
+plt.savefig('map_with_cartopy.png', bbox_inches='tight')
 ```
