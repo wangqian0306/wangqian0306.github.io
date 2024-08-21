@@ -18,7 +18,7 @@ categories: "Ocean"
 
 ### 使用场景
 
-#### 在地图上叠加热力图
+#### 坐标转化
 
 安装依赖库：
 
@@ -70,95 +70,7 @@ if __name__ == "__main__":
     print(lat_lon_to_tile(135, 40.97, 4))
 ```
 
-然后还可以使用如下代码的生成瓦片：
-
-```python
-from PIL import Image
-
-
-def interpolate_color(config: list, value: int) -> tuple:
-    if value is None:
-        return 0, 0, 0, 0
-    lower_entry = None
-    higher_entry = None
-    for entry in config:
-        if entry[0] <= value:
-            lower_entry = entry
-        if entry[0] >= value:
-            higher_entry = entry
-            break
-
-    if lower_entry is None:
-        return tuple(higher_entry[1])
-    elif higher_entry is None:
-        return tuple(lower_entry[1])
-
-    check = (higher_entry[0] - lower_entry[0])
-    if check == 0:
-        return lower_entry[1][0], lower_entry[1][1], lower_entry[1][2], 255
-    else:
-        ratio = (value - lower_entry[0]) / (higher_entry[0] - lower_entry[0])
-    result = interpolate_color_between(lower_entry[1], higher_entry[1], ratio)
-    return result
-
-
-def interpolate_color_between(color1: tuple, color2: tuple, ratio: int) -> tuple:
-    r1, g1, b1 = color1
-    r2, g2, b2 = color2
-
-    r = int(r1 + (r2 - r1) * ratio)
-    g = int(g1 + (g2 - g1) * ratio)
-    b = int(b1 + (b2 - b1) * ratio)
-    a = 255
-    return r, g, b, a
-
-
-def draw_image(rgba_array: list, width: int, height: int) -> Image:
-    image = Image.new("RGBA", (width, height))
-    image.putdata(rgba_array)
-    return image
-
-
-def get_rgba_list(data: list, config: dict) -> list:
-    cache = []
-    for d in data:
-        cache.append(interpolate_color(config, d))
-    return cache
-
-
-def fake_data_generator(x: int, y: int, value: int) -> list:
-    cache = []
-    for i in range(x * y):
-        cache.append(value)
-    return cache;
-
-
-if __name__ == "__main__":
-    x = 45
-    y = 45
-    data = fake_data_generator(45, 45, 305)
-
-    config = [
-        [193, [255, 255, 255]],
-        [215, [237, 220, 237]],
-        [230, [227, 204, 229]],
-        [245, [206, 169, 212]],
-        [260, [139, 97, 184]],
-        [275, [51, 76, 160]],
-        [290, [76, 159, 199]],
-        [305, [211, 243, 149]],
-        [320, [248, 144, 43]],
-        [335, [148, 21, 50]],
-        [350, [44, 0, 15]],
-    ]
-    rgba_list = get_rgba_list(data, config)
-    img = draw_image(rgba_list, y, x).resize((256, 256))
-    img.save("tile.webp", "WEBP")
-```
-
-> 注：但是此处因为投影系产生了图像偏移的问题。
-
-绘制大陆架，海岸线
+#### 绘制大陆架，海岸线
 
 ```python
 import cartopy.crs as ccrs
@@ -174,3 +86,13 @@ ax.add_feature(cfeature.COASTLINE, edgecolor='red')
 # 显示图形
 plt.savefig('map_with_cartopy.png', bbox_inches='tight')
 ```
+
+#### 将相关数据绘制成瓦片
+
+此处记录下实现方式：
+
+1. 获取到数据和其 GPS 坐标点位
+2. 将坐标点转化为 EPSG:3857 (Web Mercator)投影系坐标
+3. 明确投影坐标到实际图上的坐标(x,y)
+4. 使用线性插值法补充数据(此处结合实际的层级进行数据插入，例如z=3时总的像素数是 2048*2048)
+4. 将点位数组绘制成图
