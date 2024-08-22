@@ -148,9 +148,9 @@ ChatResponse response = chatClient.prompt(
     )).call();
 ```
 
-##### 自定义数据源
+##### RAG
 
-如果想要使用自定义数据源则可以采用如下方式：
+如果想要使用 RAG 则可以采用如下方式：
 
 ```java
 import lombok.extern.slf4j.Slf4j;
@@ -375,6 +375,8 @@ A: The inaugural Games took place in 1896 in Athens, Greece.
 
 > 注：如果不配置 Ollama embedding options model 的话在初次启动时需要拉取 hugginface 和 github 当中的内容，启动时间较长且对网络环境要求很高。
 
+> 注： 读取 RAG 部分的官方文档在 [ETL Pipeline文档中](https://docs.spring.io/spring-ai/reference/api/etl-pipeline.html)
+
 ##### 对话记录
 
 编写如下代码即可：
@@ -542,6 +544,14 @@ public class TestController {
 GET http://localhost:8080/weather?message=What's the weather like in Beijing
 ```
 
+##### 指标监控
+
+> 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
+
+可以搭配 Spring Boot Actuator 访问官方提供的 [监控端点](https://docs.spring.io/spring-ai/reference/api/generic-model.html)
+
+如果想检查请求的执行逻辑还可以引入 Zipkin 检查用户输入查询后，Spring 请求 LLM 接口花费的时间等细节内容。
+
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-ai/reference/index.html)
@@ -551,3 +561,5 @@ GET http://localhost:8080/weather?message=What's the weather like in Beijing
 [Spring AI 1.0.0 M1 released](https://spring.io/blog/2024/05/30/spring-ai-1-0-0-m1-released)
 
 [Spring AI with Ollama Tool Support](https://spring.io/blog/2024/07/26/spring-ai-with-ollama-tool-support)
+
+[Spring Tips: Spring AI Observability](https://www.youtube.com/watch?v=afU8cK0pnpY)
