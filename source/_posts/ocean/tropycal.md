@@ -54,21 +54,22 @@ for storm in realtime_obj.list_active_storms():
 由于项目原始的设计问题，导致在转 json 时会出现很多的异常值，可以利用如下思路处理：
 
 ```python
+import json
 import math
 
-import json
 from tropycal import realtime
 
-def set_value(value_list:list):
+
+def set_value(value_list: list):
     cache = []
     for i in value_list:
-        if isinstance(i,float):
-            print(i)
-            if i== float('nan'):
-                cache.append(null)
+        if isinstance(i, float):
+            if math.isnan(i):
+                cache.append(None)
             else:
                 cache.append(i)
     return cache
+
 
 realtime_cache = realtime.Realtime()
 storm_list = realtime_cache.list_active_storms()
@@ -76,7 +77,7 @@ result = []
 for storm in storm_list:
     ele = realtime_cache.get_storm(storm).to_dict()
     for key in ele.keys():
-        if isinstance(ele[key],list):
+        if isinstance(ele[key], list):
             ele[key] = set_value(ele[key])
         result.append(ele)
 print(json.dumps(result))
