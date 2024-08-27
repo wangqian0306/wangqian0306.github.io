@@ -7,7 +7,8 @@ tags:
 id: logstash
 no_word_count: true
 no_toc: false
-categories: "Elastic Stack"
+categories: 
+- "Elastic Stack"
 ---
 
 ## 简介
@@ -90,6 +91,30 @@ systemctl disable logstash
 
 ## 配置样例及说明
 
+### 开启服务接收日志
+
+```text
+input {
+  tcp {
+    port => 5044
+    codec => json_lines
+  }
+}
+
+filter {
+  json {
+    source => "message"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "springboot-logs-%{+YYYY.MM.dd}"
+  }
+}
+```
+
 ### 读取 Kafka 将数据写入 Elasticsearch
 
 例如：`kafka-to-es.conf` 建议先去 ES 里创建 IndexTemplate 和 KafkaTopic 然后再来编写如下样例程序：
@@ -153,3 +178,7 @@ output {
 [官方文档](https://www.elastic.co/guide/en/logstash/current/introduction.html)
 
 [安装手册](https://www.elastic.co/guide/en/logstash/current/installing-logstash.html)
+
+[Elastic Spring Boot Integration](https://www.elastic.co/docs/current/integrations/spring_boot#)
+
+[spring-boot-elk-sample](https://github.com/rfding/spring-boot-elk-sample/blob/master/src/main/resources/logback-spring.xml)
