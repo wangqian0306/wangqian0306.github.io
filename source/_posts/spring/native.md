@@ -79,32 +79,41 @@ dnf install freetype freetype-devel -y
 #### ImportRuntimeHints
 
 ```java
-public class MyRuntimeHints implements RuntimeHintsRegistrar {
+import org.springframework.aot.hint.ExecutableMode;
+import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.util.ReflectionUtils;
 
-    @Override
-    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-        // Register method for reflection
-        Method method = ReflectionUtils.findMethod(MyClass.class, "sayHello", String.class);
-        hints.reflection().registerMethod(method, ExecutableMode.INVOKE);
+import java.lang.reflect.Method;
 
-        // Register resources
-        hints.resources().registerPattern("my-resource.txt");
+@Configuration
+@ImportRuntimeHints(MyRuntimeHints.MyRuntimeRegistrar.class)
+public class MyRuntimeHints {
 
-        // Register serialization
-        hints.serialization().registerType(MySerializableClass.class);
+    static class MyRuntimeRegistrar implements RuntimeHintsRegistrar {
 
-        // Register proxy
-        hints.proxies().registerJdkProxy(MyInterface.class);
+        @Override
+        public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+            Method method = ReflectionUtils.findMethod(MyClass.class, "sayHello", String.class);
+            hints.reflection().registerMethod(method, ExecutableMode.INVOKE);
+
+            // Register resources
+            hints.resources().registerPattern("my-resource.txt");
+
+            // Register serialization
+            hints.serialization().registerType(MySerializableClass.class);
+
+            // Register proxy
+            hints.proxies().registerJdkProxy(MyInterface.class);
+        }
     }
 
 }
 ```
 
-然后在主类中写入注解：
-
-```java
-@ImportRuntimeHints(MyRuntimeHints.class)
-```
+> 注：生成的 hint 文件可以在 Maven 项目的 target/spring-aot/main/resources Gradle 项目的 build/generated/aotResources 目录中。
 
 #### RegisterReflectionForBinding
 
