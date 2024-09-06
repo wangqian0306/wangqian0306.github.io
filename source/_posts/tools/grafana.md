@@ -1,21 +1,23 @@
 ---
-title: Grafana 安装
+title: Grafana
 date: 2021-10-11 23:09:32
 tags:
 - "Grafana"
-id: grafana-install
+id: grafana
 no_word_count: true
 no_toc: false
 categories: "工具"
 ---
 
-## Grafana 安装
+## Grafana
 
 ### 简介
 
-Grafana 开源是开源可视化和分析软件。它提供了将时间序列数据库 (TSDB) 并且可以将数据转换为富有洞察力的图表来构造可视化仪表盘。
+Grafana 开源是开源可视化和分析软件。可以接入多种数据源，并对数据进行展示和检索。
 
-### 容器化部署
+### 部署
+
+#### Docker
 
 ```yaml
 version: '3'
@@ -27,9 +29,17 @@ services:
       - 3000:3000
 ```
 
+> 注：在安装时可以指定环境变量的方式附带插件 `GF_INSTALL_PLUGINS=grafana-clock-panel, grafana-simple-json-datasource`
+
 [官方 Docker 部署说明](https://grafana.com/docs/grafana/latest/installation/docker/)
 
-### 监控 CDH
+#### Kubernetes
+
+在 Kubernetes 上可以使用 [Helm](https://grafana.com/docs/grafana/latest/setup-grafana/installation/helm/) 部署服务。
+
+### 插件
+
+#### 监控 CDH
 
 - 安装 CDH 插件
 
