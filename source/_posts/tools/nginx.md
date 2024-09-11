@@ -20,7 +20,6 @@ Nginx 是一个高性能的 HTTP 和反向代理 web 服务器。
 #### 容器部署
 
 ```yaml
-version: "3"
 services:
   nginx:
     image: nginx:latest
@@ -208,7 +207,29 @@ http {
         }
     }
 }
+```
 
+#### 代理具有密码的网页
+
+浏览器访问带有密码的网页会使用 base64 运算过的头。使用如下命令即可获得令牌：
+
+```bash
+echo -n '<user>:<password>' | base64
+```
+
+然后编写如下配置即可：
+
+```text
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  _;
+
+    location / {
+        proxy_pass http://xxxx;
+        proxy_set_header Authorization "Basic <token>";
+    }
+}
 ```
 
 ### 参考资料
