@@ -50,6 +50,10 @@ docker-compose up -d
 
 [视频教程](https://www.youtube.com/watch?v=TLnH7efQNd0&list=PLDGkOdUX1Ujr9QOsM--ogwJAYu6JD48W7)
 
+[样例代码和配置](https://github.com/jonatan-ivanov/teahouse)
+
+[Is Your JVM App Flying Blind? Unmask Issues With Observability Superpowers! (SpringOne 2024)](https://www.youtube.com/watch?v=IB89ZmBslY4)
+
 [Micrometer Mastery: Unleash Advanced Observability In Your JVM Apps (SpringOne 2024)](https://www.youtube.com/watch?v=X7rODR2m63c&t=1941s)
 
 [Dapper, a Large-Scale Distributed Systems Tracing Infrastructure](http://research.google.com/archive/papers/dapper-2010-1.pdf)
