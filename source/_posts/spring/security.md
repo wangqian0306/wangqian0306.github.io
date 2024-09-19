@@ -842,3 +842,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 [Spring Tips: Spring Security method security with special guest Rob Winch](https://www.youtube.com/watch?v=JYZHp5eqS2I)
 
 [method-security 样例项目](https://github.com/rwinch/method-security)
+
+[Let’s Explore Spring Security 6.4 (SpringOne 2024)](https://www.youtube.com/watch?v=9eoi1TViceM)
+
+[spring-security-64](https://github.com/rwinch/spring-security-64)
