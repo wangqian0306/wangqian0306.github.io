@@ -878,6 +878,10 @@ public class TestController {
 
 ### 参考资料
 
+[Does Your API Need A REST? Check Out GraphQL](https://www.youtube.com/watch?v=tMPC-u891XA)
+
+[GraphQL 样例程序](https://github.com/danvega/graphql-store)
+
 [Introduction to Spring GraphQL with Spring Boot](https://www.youtube.com/watch?v=atA2OovQBic)
 
 [Spring Fro GraphQL 官方文档](https://docs.spring.io/spring-graphql/docs/current/reference/html/)
@@ -885,3 +889,7 @@ public class TestController {
 [GraphQL 官方文档](https://graphql.org/learn/)
 
 [官方 WebSocket 例程](https://github.com/spring-projects/spring-graphql/tree/1.0.x/samples/webflux-websocket)
+
+[GrpahQL 的网关- Fedration](https://docs.spring.io/spring-graphql/reference/federation.html)
+
+[Apollo Federation 文档](https://www.apollographql.com/docs/federation/)
