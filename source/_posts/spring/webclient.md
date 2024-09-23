@@ -132,6 +132,34 @@ public WebClient webClient() {
 
 > 注：每种库的日志需要单独调节，支持库的清单参阅官方文档。
 
+配置代理(可选)：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
+
+@Bean
+JokeClient jokeClient(WebClient.Builder builder) {
+    HttpClient httpClient = HttpClient.create()
+            .proxy(proxy -> proxy
+                    .type(ProxyProvider.Proxy.HTTP)
+                    .host("localhost")
+                    .port(7890));
+    WebClient client = builder
+            .clientConnector(new ReactorClientHttpConnector(httpClient))
+            .baseUrl("https://icanhazdadjoke.com/")
+            .defaultHeader("Accept", "application/json")
+            .build();
+    HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();
+    return factory.createClient(JokeClient.class);
+}
+```
+
 ### RestClient 实现
 
 引入 Web 包：
@@ -245,6 +273,33 @@ public class CustomRestClientConf {
 ```
 
 > 注：每种库的日志需要单独调节，支持库的清单参阅官方文档。
+
+设置代理(可选)：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
+@Bean
+JokeClient jokeClient(RestClient.Builder builder) {
+    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 7890));
+    SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+    simpleClientHttpRequestFactory.setProxy(proxy);
+    RestClient client = builder
+            .requestFactory(simpleClientHttpRequestFactory)
+            .baseUrl("https://icanhazdadjoke.com/")
+            .defaultHeader("Accept", "application/json")
+            .build();
+    HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();
+    return factory.createClient(JokeClient.class);
+}
+```
 
 ### 常见问题
 
