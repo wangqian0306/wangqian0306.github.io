@@ -50,6 +50,12 @@ LangChain 是一个用于开发由语言模型驱动的应用程序的框架。�
 
 > 注：具体配置参见 [An entirely open-source AI code assistant inside your editor](https://ollama.com/blog/continue-code-assistant) 博客。
 
+#### Void
+
+项目地址：[Void](https://github.com/voideditor/void)
+
+Void 项目是个开源版本的 Cursor 编辑器。
+
 ### 环境准备
 
 #### PyTorch
