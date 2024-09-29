@@ -24,12 +24,62 @@ SequenceServer 是基于 BLAST 的一款基因检索服务。
 docker pull wurmlab/sequenceserver:latest
 ```
 
-然后需要准备查询目标基因库文件，将其放入 `db` 目录中，然后根据基因库文件生成索引：
+然后下载样例基因文件：
 
 ```bash
-mdkir db
-cp /xxx/demo.fna /xxx/db
+mkdir db
+wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
+gunzip GCF_000005845.2_ASM584v2_genomic.fna.gz
+mv GCF_000005845.2_ASM584v2_genomic.fna ./db/demo.fna
+```
+
+然后根据基因库文件生成索引：
+
+```bash
 docker run --rm -v /xxx/db:/db -it wurmlab/sequenceserver:latest /sequenceserver/bin/sequenceserver -m
+```
+
+默认的配置只支持同时运行一个查询任务，需要修改配置文件 `sequenceserver.conf`。
+
+```text
+---
+:host: 0.0.0.0
+:port: 4567
+:databases_widget: classic
+:options:
+  :blastn:
+    :default:
+      :description:
+      :attributes:
+      - "-task blastn"
+      - "-evalue 1e-5"
+  :blastp:
+    :default:
+      :description:
+      :attributes:
+      - "-evalue 1e-5"
+  :blastx:
+    :default:
+      :description:
+      :attributes:
+      - "-evalue 1e-5"
+  :tblastx:
+    :default:
+      :description:
+      :attributes:
+      - "-evalue 1e-5"
+  :tblastn:
+    :default:
+      :description:
+      :attributes:
+      - "-evalue 1e-5"
+:num_threads: 5
+:num_jobs: 5
+:job_lifetime: 43200
+:cloud_share_url: https://share.sequenceserver.com/api/v1/shared-job
+:large_result_warning_threshold: 262144000
+:optimistic: false
+:database_dir: "/db"
 ```
 
 之后可以编写 `docker-compose.yaml` 文件管理服务：
@@ -37,11 +87,12 @@ docker run --rm -v /xxx/db:/db -it wurmlab/sequenceserver:latest /sequenceserver
 ```yaml
 services:
   sequenceserver:
-    image: wurmlab/sequenceserver
+    image: wurmlab/sequenceserver:latest
     ports:
       - "4567:4567"
     volumes:
       - "./db:/db"
+      - "./sequenceserver.conf:/root/.sequenceserver.conf"
 ```
 
 使用如下命令运行文件即可：
@@ -57,8 +108,18 @@ docker-compose up -d
 CTCCTAAAGGGCCCAGCAAGACCAGCTGGTTGATAGGTCGGATGTGGACGCGCTGCAAGGCGTTGAGCTAACCGATACTA
 ```
 
+如果有需要也可以使用接口调用数据请参照 [接口文档](https://sequenceserver.com/doc/api/)，例如使用 `curl` ：
+
+```bash
+jobUrl=$(curl -v -X POST -Fsequence=ATGTTACCACCAACTATTAGAATTTCAG -Fmethod=blastn -Fdatabases[]=3c0a5bc06f2596698f62c7ce87aeb62a --write-out '%{redirect_url}' $BASEURL)
+```
+
+需要注意的是所有的检索会被存储在 ` ~/.sequenceserver` 文件夹中，需要定时删除。
+
 ### 参考资料
 
 [官方网站](https://sequenceserver.com/)
 
 [项目源码](https://github.com/wurmlab/sequenceserver)
+
+[接口文档](https://sequenceserver.com/doc/api/)
