@@ -82,6 +82,8 @@ docker run --rm -v /xxx/db:/db -it wurmlab/sequenceserver:latest /sequenceserver
 :database_dir: "/db"
 ```
 
+> 注：job_lifetime 代表查询的保存时间，单位是分钟，默认是 30 天。
+
 之后可以编写 `docker-compose.yaml` 文件管理服务：
 
 ```yaml
@@ -113,8 +115,6 @@ CTCCTAAAGGGCCCAGCAAGACCAGCTGGTTGATAGGTCGGATGTGGACGCGCTGCAAGGCGTTGAGCTAACCGATACTA
 ```bash
 jobUrl=$(curl -v -X POST -Fsequence=ATGTTACCACCAACTATTAGAATTTCAG -Fmethod=blastn -Fdatabases[]=3c0a5bc06f2596698f62c7ce87aeb62a --write-out '%{redirect_url}' $BASEURL)
 ```
-
-需要注意的是所有的检索会被存储在 ` ~/.sequenceserver` 文件夹中，需要定时删除。
 
 ### 参考资料
 
