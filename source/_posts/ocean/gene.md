@@ -116,6 +116,8 @@ CTCCTAAAGGGCCCAGCAAGACCAGCTGGTTGATAGGTCGGATGTGGACGCGCTGCAAGGCGTTGAGCTAACCGATACTA
 jobUrl=$(curl -v -X POST -Fsequence=ATGTTACCACCAACTATTAGAATTTCAG -Fmethod=blastn -Fdatabases[]=3c0a5bc06f2596698f62c7ce87aeb62a --write-out '%{redirect_url}' $BASEURL)
 ```
 
+> 注：CSRF 如果异常可以注释掉 `lib/sequenceserver/routes.rb` 中的 `use Rack::Csrf, raise: true, skip: ['POST:/cloud_share']` 
+
 ### 参考资料
 
 [官方网站](https://sequenceserver.com/)
