@@ -233,6 +233,8 @@ public class RagController {
 }
 ```
 
+> 注：此处的 Advisors 是 Spring 在调用大模型时拦截并处理请求的组件。默认提供的 Advisor 有以下三项：历史记录管理(xxChatMemoryAdvistor)，RAG 增强(QuestionAnswerAdvisor)，敏感词过滤(SafeGuardAdvisor)。具体内容参见 [官方博客](https://spring.io/blog/2024/10/02/supercharging-your-ai-applications-with-spring-ai-advisors)
+
 最后需要补充 `resources/prompts/rag-prompt-template.st` 提示词模板：
 
 ```text
