@@ -420,6 +420,71 @@ public class JokeClient {
 }
 ```
 
+#### 处理不同的返回状态码和对象
+
+```java
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+public class AsyncRequestService {
+
+    private final WebClient webClient;
+
+    public AsyncRequestService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://xxx.xxx.xxx").build();
+    }
+
+    public Mono<ClientResponse> asyncFetchDataWithStatus() {
+        return webClient.get()
+                .uri("/xxx")
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.ACCEPTED)) {
+                        return Mono.just(response);
+                    }
+                    return Mono.error(new RuntimeException("Failed to fetch data"));
+                });
+    }
+}
+```
+
+```java
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+@RestController
+public class AsyncRequestController {
+
+    private final AsyncRequestService asyncRequestService;
+
+    public AsyncRequestController(AsyncRequestService asyncRequestService) {
+        this.asyncRequestService = asyncRequestService;
+    }
+
+    @GetMapping("/fetch-data")
+    public Mono<ResponseEntity<String>> fetchData() {
+        return asyncRequestService.asyncFetchDataWithStatus()
+                .flatMap(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(String.class)
+                                .map(body -> ResponseEntity.ok(body));
+                    } else if (response.statusCode().equals(HttpStatus.ACCEPTED)) {
+                        return Mono.just(ResponseEntity.status(HttpStatus.ACCEPTED).body("Processing..."));
+                    } else {
+                        return Mono.just(ResponseEntity.status(response.statusCode()).body("Unhandled status code"));
+                    }
+                })
+                .onErrorResume(e -> {
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred"));
+                });
+    }
+}
+```
+
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
