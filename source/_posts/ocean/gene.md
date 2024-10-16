@@ -112,6 +112,14 @@ CTCCTAAAGGGCCCAGCAAGACCAGCTGGTTGATAGGTCGGATGTGGACGCGCTGCAAGGCGTTGAGCTAACCGATACTA
 
 如果有需要也可以使用接口调用数据请参照 [接口文档](https://sequenceserver.com/doc/api/)，例如使用 `curl` ：
 
+获取数据库 ID 用于检索：
+
+```bash
+curl $BASEURL/searchdata.json
+```
+
+发起搜索请求：
+
 ```bash
 jobUrl=$(curl -v -X POST -Fsequence=ATGTTACCACCAACTATTAGAATTTCAG -Fmethod=blastn -Fdatabases[]=3c0a5bc06f2596698f62c7ce87aeb62a --write-out '%{redirect_url}' $BASEURL)
 ```
