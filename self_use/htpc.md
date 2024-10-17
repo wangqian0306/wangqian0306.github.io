@@ -258,6 +258,22 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
+#### 中文字幕
+
+[群晖开启“Jellyfin”中文字幕全自动下载教程](https://post.smzdm.com/p/apvlz7q7/)
+
+首先需要运行容器，然后生成 Jellyfin ApiKey 然后修改配置文件。
+
+配置如下：
+
+```yaml
+JELLYFINConfig:
+  Url: http://xxx.xxx.xxx.xxx:xxxx
+  ApiKey: xxxx
+  LimitCount: 3000
+  SkipWatched: false
+```
+
 ### 参考资料
 
 [Sonarr 项目](https://github.com/Sonarr/Sonarr)
@@ -291,3 +307,5 @@ docker-compose up -d
 [Jellyseerr 项目](https://github.com/Fallenbagel/jellyseerr)
 
 [Jellyseerr 容器页](https://hub.docker.com/r/fallenbagel/jellyseerr)
+
+[ChineseSubFinder](https://github.com/ChineseSubFinder/ChineseSubFinder)
