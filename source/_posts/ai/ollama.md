@@ -50,6 +50,16 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
+##### 微调后的模型
+
+除了官方模型清单内的模型之外，还可以使用 [huggingface](https://huggingface.co/models?library=gguf) 上的其他模型。
+
+```bash
+ollama run hf.co/arcee-ai/SuperNova-Medius-GGUF
+```
+
+自然也可以通过修改模型文件的方式，添加自定义的提示词等内容。
+
 #### Embedding
 
 使用如下命令可以拉取嵌入模型：
