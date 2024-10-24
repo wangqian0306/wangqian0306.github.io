@@ -177,3 +177,7 @@ function calculateWinner(squares) {
 [官方网站](https://react.dev/)
 
 [井字棋教程](https://react.dev/learn/tutorial-tic-tac-toe)
+
+[Awesome React](https://github.com/enaqx/awesome-react)
+
+[HTML to JSX](https://transform.tools/html-to-jsx)
