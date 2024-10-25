@@ -411,6 +411,18 @@ chroma-js 是一个用于操作颜色的库。其在 typescript 中的安装方�
 npm install @types/chroma-js chroma-js
 ```
 
+### 部署
+
+大致的本地部署方式可以划分如下：
+
+- 作为 Node.js 服务部署
+- 使用 Docker 部署
+- 编译之后使用 Nginx 部署
+
+上面两项差异只在 Docker 上，编译方案则有很多组件是不支持的，所以还是建议使用 Docker 部署。
+
+在 Github 中有 [样例部署项目](https://github.com/vercel/next.js/tree/canary/examples/with-docker) 可以参考。
+
 ### 参考资料
 
 [Next.js 官方文档](https://nextjs.org/docs/getting-started)
