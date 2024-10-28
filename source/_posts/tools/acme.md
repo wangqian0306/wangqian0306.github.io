@@ -15,15 +15,15 @@ categories: "工具"
 
 Automatic Certificate Management Environment (ACME) 协议是一种通信协议，用于自动化生成和续期 SSL 证书。
 
-### 使用方式
-
-#### acme.sh
+### 安装
 
 使用如下命令即可完成安装：
 
 ```bash
 curl https://get.acme.sh | sh -s email=<email>
 ```
+
+#### 签发证书(独立签发)
 
 如果没有 nginx 服务器则使用如下命令：
 
@@ -32,33 +32,84 @@ yum install -y socat
 acme.sh --issue -d <domain> --standalone
 ```
 
-如有 Nginx 服务器则使用如下命令：
+#### 签发证书(Nginx)
 
-```bash
-acme.sh --issue -d <domain> --nginx /etc/nginx/conf.d/<domain>.conf
+先编写基础的服务配置文件：
+
+```text
+server {
+    listen 80;
+    server_name xxx.xxx.xxx.xxx;
+
+    location /.well-known/acme-challenge/ {
+        root /usr/share/nginx/xxx;
+    }
+}
 ```
 
-> 注：配置需手动修改，默认签发的证书会在 `~/.acme.sh/` 目录下
-
-使用证书(nginx):
+然后测试配置文件并启动 Nginx:
 
 ```bash
-acme.sh --install-cert -d <domain> \
+nginx -t
+systemctl enable nginx --now
+```
+
+然后再使用如下语句即可签发证书：
+
+```bash
+acme.sh --issue -d <domain> --nginx
+```
+
+#### 安装证书
+
+签发完成后可以修改 Nginx 配置文件如下：
+
+```text
+server {
+    listen 80;
+    server_name xxx.xxx.xxx;
+
+    location /.well-known/acme-challenge/ {
+        root /usr/share/nginx/xxx;
+    }
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name xxx.xxx.xxx;
+    client_max_body_size 5M;
+    ssl_certificate     /etc/nginx/ssl/xxx-cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/xxx-key.pem;
+
+    location / {
+        proxy_pass http://xxx.xxx.xxx.xxx;
+    }
+
+    location /static {
+        alias /usr/share/nginx/xxx-static;
+    }
+}
+```
+
+然后使用如下命令，将签发完成的证书转存至 Nginx 配置目录中去：
+
+> 注：此外 acme 还会启动定时任务，自动刷新续期。
+
+```bash
+acme.sh --install-cert -d xxx.xxx.xxx \
 --key-file       /path/to/keyfile/in/nginx/key.pem  \
 --fullchain-file /path/to/fullchain/nginx/cert.pem \
 --reloadcmd     "service nginx force-reload"
 ```
 
+#### 其他指令
+
 查看证书相关信息：
 
 ```bash
 acme.sh --info -d <domain>
-```
-
-在安装完成后会自动添加 `cronjob` ，检查 cronjob 可以使用如下命令：
-
-```bash
-crontab  -l
 ```
 
 查看当前的域名清单：
