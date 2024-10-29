@@ -492,3 +492,5 @@ public class AsyncRequestController {
 [WebClient 单元测试样例项目](https://github.com/danvega/async-client/blob/main/src/test/java/dev/danvega/post/PostClientTest.java)
 
 [RestClient 文档](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
+
+[Spring Security 6.4 中 OAuth2 的 RestClient 支持](https://spring.io/blog/2024/10/28/restclient-support-for-oauth2-in-spring-security-6-4)

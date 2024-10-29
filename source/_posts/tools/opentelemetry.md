@@ -85,3 +85,5 @@ Service_C -down->> "Otel collector"
 ### 参考资料
 
 [官方文档](https://opentelemetry.io/docs/)
+
+[Let’s use OpenTelemetry with Spring](https://spring.io/blog/2024/10/28/lets-use-opentelemetry-with-spring)
