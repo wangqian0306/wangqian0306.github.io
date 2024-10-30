@@ -411,6 +411,10 @@ chroma-js 是一个用于操作颜色的库。其在 typescript 中的安装方�
 npm install @types/chroma-js chroma-js
 ```
 
+### 和后台项目集成
+
+可以参考 Spring boot + nextjs starter kit 视频。
+
 ### 部署
 
 大致的本地部署方式可以划分如下：
@@ -428,3 +432,7 @@ npm install @types/chroma-js chroma-js
 [Next.js 官方文档](https://nextjs.org/docs/getting-started)
 
 [Next.js 官方示例教程](https://nextjs.org/learn/dashboard-app)
+
+[Spring boot + nextjs starter kit](https://youtu.be/EbIps-suESk?si=C2bfbMCoAJjAMDlt)
+
+[spring-boot-nextjs-starter-kit 源码](https://github.com/NerminKarapandzic/spring-boot-nextjs-starter-kit)
