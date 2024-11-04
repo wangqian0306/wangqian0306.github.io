@@ -127,6 +127,57 @@ public class MyRuntimeHints {
 
 在项目中需要额外的软件或命令的时候，使用此方式就很烦了。spring 官方使用了 Paketo Buildpacks 作为 builder 但是它采用了 buildpack 弃用的 stack 方式来构建项目。自定义构建包难度好大，但是可以通过挂载卷的方式将命令挂载到容器中进行执行。
 
+
+
+### 构建失败解决方案
+
+由于 GraalVM Native Support 插件目前还没有正式完成，所以在容器构建时容易遇到很多小错误。此时就可以通过这些办法来得到类似的效果。
+
+#### 自定义 jre
+
+在本地构建项目，生成 jar 文件之后就可以通过此种方式来得到小型镜像了。
+
+> 注：此处以 Java 23 和 gradle 作为构建工具。如果需要使用 maven 建议寻找参考资料中优化镜像的文档。
+
+```bash
+FROM eclipse-temurin:23-jdk-alpine AS jre-builder
+
+WORKDIR /app
+COPY build/libs/*.jar /app/app.jar
+RUN apk update && \
+    apk add --no-cache tar binutils
+RUN jar xvf app.jar
+RUN jdeps --ignore-missing-deps -q  \
+    --recursive  \
+    --multi-release 23  \
+    --print-module-deps  \
+    --class-path 'BOOT-INF/lib/*'  \
+    app.jar > modules.txt
+RUN $JAVA_HOME/bin/jlink \
+         --verbose \
+         --add-modules $(cat modules.txt) \
+         --strip-debug \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --output /optimized-jdk-23
+
+FROM alpine:latest
+
+WORKDIR /app
+ENV JAVA_HOME=/opt/jdk/jdk-23
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+COPY --from=jre-builder /optimized-jdk-23 $JAVA_HOME
+ARG APPLICATION_USER=spring
+RUN addgroup --system $APPLICATION_USER &&  adduser --system $APPLICATION_USER --ingroup $APPLICATION_USER
+RUN mkdir /app && chown -R $APPLICATION_USER /app
+COPY build/libs/*.jar /app/app.jar
+RUN chown $APPLICATION_USER:$APPLICATION_USER /app/app.jar
+USER $APPLICATION_USER
+EXPOSE 8080
+ENTRYPOINT [ "java", "-jar", "/app/app.jar" ]
+```
+
 ### 参考资料
 
 [Spring Boot Gradle Plugin 官方文档](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/)
@@ -134,3 +185,5 @@ public class MyRuntimeHints {
 [官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html)
 
 [Gradle 插件官方文档](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
+
+[成功优化！Java 基础 Docker 镜像从 674MB 缩减到 58MB 的经验分享](https://mp.weixin.qq.com/s/3Tzc4QyC8_5wiWqA73htQw)

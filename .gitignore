@@ -7,6 +7,7 @@
 yarn.lock
 .cache
 .gradle
+.vscode
 
 # Hexo
 .deploy_git
