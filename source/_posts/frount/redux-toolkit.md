@@ -32,8 +32,6 @@ npx create-next-app --example with-redux my-app
 
 #### 手动配置
 
-> 注：使用 Next.js 自带的命令生成项目即可。!!! 不要勾选 APP Router !!!
-
 首先需要安装依赖包：
 
 ```bash
@@ -501,3 +499,5 @@ const api = createApi({
 [Redux 官方文档](https://redux.js.org/tutorials/fundamentals/part-1-overview)
 
 [使用 OpenAPI 接口生成代码](https://redux-toolkit.js.org/rtk-query/usage/code-generation#openapi)
+
+[App Router 配置说明](https://redux-toolkit.js.org/usage/nextjs#the-app-router-architecture-and-redux)
