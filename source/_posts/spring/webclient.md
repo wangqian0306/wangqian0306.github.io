@@ -485,6 +485,14 @@ public class AsyncRequestController {
 }
 ```
 
+#### 日志记录
+
+> 注：使用 SpringBoot Actuator 就可以拿到请求日志，但是问题在于不是很方便读取。之后可以测下 Micrometer 会不会集成。
+
+[参考代码](https://github.com/danvega/rc-logging/blob/main/src/main/java/dev/danvega/ClientLoggerRequestInterceptor.java)
+
+之后在 RestClient 构建的时候配置拦截器就即可。
+
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
@@ -494,3 +502,5 @@ public class AsyncRequestController {
 [RestClient 文档](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 
 [Spring Security 6.4 中 OAuth2 的 RestClient 支持](https://spring.io/blog/2024/10/28/restclient-support-for-oauth2-in-spring-security-6-4)
+
+["Spring Boot REST Client Logging Made Easy](https://www.youtube.com/watch?v=l35P5GylXN8)
