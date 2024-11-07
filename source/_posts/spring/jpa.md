@@ -633,3 +633,21 @@ public class DataTest {
     
 }
 ```
+
+#### 使用样例数据查询(Query By Example,QBE)
+
+QBE 适合以下场景：
+
+- 过滤多个条件
+- 加速原型(初版)开发
+- 简单的基本内容检索
+- 编译时搜索条件未知
+
+不适合以下场景：
+
+- 复杂比较(<,>,BETWEEN)
+- OR 查询条件
+- JOIN 查询条件
+- 自定义 SQL
+
+[样例项目](https://github.com/danvega/qbe)

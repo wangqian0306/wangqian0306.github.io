@@ -56,6 +56,14 @@ LangChain 是一个用于开发由语言模型驱动的应用程序的框架。�
 
 Void 项目是个开源版本的 Cursor 编辑器。
 
+#### Docling
+
+项目地址：[Docling](https://github.com/DS4SD/docling)
+
+Docling 可以轻松快速地解析文档并将其导出为所需的格式。
+
+> 注：此项目可以接受不同格式的文件，并使用 OCR 的方案将其进行格式转化，供 AI 读取。
+
 ### 环境准备
 
 #### PyTorch
