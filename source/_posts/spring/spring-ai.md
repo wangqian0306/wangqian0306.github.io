@@ -126,13 +126,13 @@ spring:
       chat:
         options:
           model: llama3.1
+          num-ctx: 131072
       embedding:
         options:
           model: nomic-embed-text
 ```
 
-> 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试。
-
+> 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试，其他参数详见 [配置参考](https://docs.spring.io/spring-ai/reference/api/chat/ollama-chat.html)
 
 ##### 设置不同模型
 
