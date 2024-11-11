@@ -126,13 +126,15 @@ spring:
       chat:
         options:
           model: llama3.1
-          num-ctx: 131072
+          num-ctx: 2048
       embedding:
         options:
           model: nomic-embed-text
 ```
 
-> 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试，其他参数详见 [配置参考](https://docs.spring.io/spring-ai/reference/api/chat/ollama-chat.html)
+num-ctx 参数是程序上下文的大小配置，如果有需求可以从 2k 提升到 8k, 16k, 32k 最大值为 128k。需要注意的是越大的上下文会影响硬件的内存部分。
+
+> 注：此处返回的结果与格式和模型有较大的关系，建议使用 `ollama run llama3` 先进行测试，其他参数详见 [配置参考](https://docs.spring.io/spring-ai/reference/api/chat/ollama-chat.html) 
 
 ##### 设置不同模型
 
@@ -565,3 +567,5 @@ GET http://localhost:8080/weather?message=What's the weather like in Beijing
 [Spring AI with Ollama Tool Support](https://spring.io/blog/2024/07/26/spring-ai-with-ollama-tool-support)
 
 [Spring Tips: Spring AI Observability](https://www.youtube.com/watch?v=afU8cK0pnpY)
+
+[AI Model Context Decoded](https://www.youtube.com/watch?v=-Lyk7ygQw2E)
