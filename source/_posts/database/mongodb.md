@@ -23,19 +23,25 @@ MongoDB 是一个通用的文档数据库，可以使用社区版的 MongoDB 进
 services:
   mongo:
     image: mongodb/mongodb-community-server:latest
+    user: "1000:1000"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=123456
       - MONGO_INITDB_DATABASE=demo
-    volumes:
-      - ./local/data:/data/db
     ports:
       - "27017:27017"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
 ```
+
+> 注：运行用户不要是 root 会有权限问题。
 
 使用如下命令即可运行服务：
 
 ```bash
+mkdir -p data
 docker-compose up -d
 ```
 
