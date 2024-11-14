@@ -164,6 +164,18 @@ volumes:
   redis-data:
 ```
 
-### 参考资料
+> 注：此种实现方式是通过使用总线和屏幕推流的方式实现的。
+
+#### 参考资料
 
 [anthias](https://anthias.screenly.io/)
+
+### Xibo
+
+#### 部署样例
+
+[参考项目](https://github.com/xibosignage/xibo-docker)
+
+#### 参考资料
+
+[官方网站](https://xibosignage.com/open-source)
