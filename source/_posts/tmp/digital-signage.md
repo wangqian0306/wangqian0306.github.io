@@ -18,163 +18,23 @@ no_toc: false
 
 #### 部署样例
 
-```yaml
-services:
-  anthias-wifi-connect:
-    image: screenly/anthias-wifi-connect:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.wifi-connect
-    depends_on:
-      - anthias-viewer
-    environment:
-      PORTAL_LISTENING_PORT: 8000
-      CHECK_CONN_FREQ: 10
-      PORTAL_SSID: 'Anthias WiFi Connect'
-      DBUS_SYSTEM_BUS_ADDRESS: 'unix:path=/run/dbus/system_bus_socket'
-    network_mode: host
-    privileged: true
-    volumes:
-      - type: bind
-        source: /run/dbus/system_bus_socket
-        target: /run/dbus/system_bus_socket
+[参考文件](https://github.com/Screenly/Anthias/blob/master/docker-compose.yml.tmpl)
 
-  anthias-server:
-    image: screenly/anthias-server:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.server
-    environment:
-      - MY_IP=localhost
-      - HOST_USER=gitpod
-      - HOME=/data
-      - LISTEN=0.0.0.0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    restart: always
-    volumes:
-      - resin-data:/data
-      - ./docker-volume/.screenly:/data/.screenly
-      - ./docker-volume/screenly_assets:/data/screenly_assets
-      - ./docker-volume/screenly/staticfiles:/data/screenly/staticfiles
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  anthias-viewer:
-    image: screenly/anthias-viewer:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.viewer
-    depends_on:
-      - anthias-server
-    environment:
-      - HOME=/data
-      - PORT=80
-      - NOREFRESH=1
-      - LISTEN=anthias-nginx
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    privileged: true
-    restart: always
-    volumes:
-      - resin-data:/data
-      - ./docker-volume/.screenly:/data/.screenly
-      - ./docker-volume/screenly_assets:/data/screenly_assets
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  anthias-websocket:
-    image: screenly/anthias-websocket:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.websocket
-    depends_on:
-      - anthias-server
-    environment:
-      - HOME=/data
-      - LISTEN=0.0.0.0
-    restart: always
-    volumes:
-      - resin-data:/data
-      - ./docker-volume/.screenly:/data/.screenly
-      - ./docker-volume/screenly_assets:/data/screenly_assets
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-
-  anthias-celery:
-    image: screenly/anthias-celery:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.celery
-    depends_on:
-      - anthias-server
-      - redis
-    environment:
-      - HOME=/data
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    restart: always
-    volumes:
-      - resin-data:/data
-      - ./docker-volume/.screenly:/data/.screenly
-      - ./docker-volume/screenly_assets:/data/screenly_assets
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    labels:
-      io.balena.features.supervisor-api: '1'
-
-  redis:
-    image: screenly/anthias-redis:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.redis
-    ports:
-      - 127.0.0.1:6379:6379
-    restart: always
-    volumes:
-      - redis-data:/var/lib/redis
-
-  anthias-nginx:
-    image: screenly/anthias-nginx:latest-x86
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.nginx
-    ports:
-      - 80:80
-    environment:
-      - HOME=/data
-    depends_on:
-      - anthias-server
-      - anthias-websocket
-    restart: always
-    volumes:
-      - resin-data:/data:ro
-      - ./docker-volume/.screenly:/data/.screenly:ro
-      - ./docker-volume/screenly_assets:/data/screenly_assets:ro
-      - ./docker-volume/screenly/staticfiles:/data/screenly/staticfiles:ro
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-
-volumes:
-  resin-data:
-  redis-data:
-```
-
-> 注：此种实现方式是通过使用总线和屏幕推流的方式实现的。
+> 注：在 x86 系统中部署时遇到了 viewer 卡住没能正常启动的问题，暂时没有使用树莓派测试。
 
 #### 参考资料
 
-[anthias](https://anthias.screenly.io/)
+[Anthias](https://anthias.screenly.io/)
 
 ### Xibo
 
 #### 部署样例
 
 [参考项目](https://github.com/xibosignage/xibo-docker)
+
+[客户端](https://github.com/xibosignage/xibo-dotnetclient)
+
+> 注：在新增显示屏的时候遇到了链接问题，在链接完成后按 i 即可得到相关日志。
 
 #### 参考资料
 
