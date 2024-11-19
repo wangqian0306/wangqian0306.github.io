@@ -34,7 +34,7 @@ no_toc: false
 
 [客户端](https://github.com/xibosignage/xibo-dotnetclient)
 
-> 注：在新增显示屏的时候遇到了链接问题，在链接完成后按 i 即可得到相关日志。
+> 注：在链接时不要使用代码方式，输入在配置中看到的 CMS Secret Key 点击链接后在 Display 页面选择 Authorize 即可，进入界面后按 i 即可得到相关日志。之后的使用可以参考使用文档。
 
 #### 参考资料
 
