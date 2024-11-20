@@ -19,7 +19,7 @@ categories:
 
 Spring Security 是一款安全框架。
 
-### 初步使用
+### JWT
 
 引入依赖包：
 
@@ -596,7 +596,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 }
 ```
 
-### 使用方式
+#### 使用方式
 
 ```bash
 curl --location --request POST 'localhost:8080/api/v1/user/login' \
@@ -611,7 +611,7 @@ curl --location --request POST 'localhost:8080/api/v1/user/login' \
 curl --request GET 'http://localhost:8080/api/v1/user' --header 'Authorization: Bearer <token>'
 ```
 
-### 在 Get 参数或 Form 中携带 token
+#### 在 Get 参数或 Form 中携带 token
 
 首先需要参照如下样例修改配置类：
 
@@ -656,6 +656,65 @@ curl --request GET 'http://localhost:8080/api/v1/user?access_token=<token>'
 ```
 
 > 注：无需添加 `Bearer` 字段
+
+### Session
+
+可以使用 Session 作为认证和鉴权的资源。
+
+```java
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+
+    @Resource
+    private AuthenticationManager authenticationManager;
+
+    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+
+    public void login(HttpServletRequest request,
+                      HttpServletResponse response,
+                      LoginRequest body
+    ) throws AuthenticationException {
+        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(body.getUsername(), body.getPassword());
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+        SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+        context.setAuthentication(authentication);
+        securityContextHolderStrategy.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
+    }
+
+    public User getSession() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof User user) {
+            return user;
+        } else {
+            throw new ReportBadException(ErrorEnum.PARAM_EXCEPTION);
+        }
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        this.logoutHandler.logout(request, response, authentication);
+    }
+
+}
+```
 
 ### 获取用户相关信息的基本方式
 ```java
