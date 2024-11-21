@@ -659,7 +659,7 @@ curl --request GET 'http://localhost:8080/api/v1/user?access_token=<token>'
 
 ### Session
 
-可以使用 Session 作为认证和鉴权的资源。
+可以使用 Session 作为认证和鉴权的资源，样例 Sevice 如下：
 
 ```java
 import jakarta.annotation.Resource;
@@ -714,6 +714,24 @@ public class AuthService {
     }
 
 }
+```
+
+> 注：此处需要注意下 SecurityFilterChain 记得把 Session 部分回归默认配置。 
+
+在 IDEA 中则可以使用如下方式进行请求：
+
+```text
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+### Get User
+GET http://localhost:8080/api/auth/user
 ```
 
 ### 获取用户相关信息的基本方式
