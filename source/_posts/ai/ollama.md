@@ -41,6 +41,12 @@ ollama pull llama2:latest
 ollama run llama2
 ```
 
+然后可以用如下命令进入调试模式：
+
+```bash
+ollama run llama2 --verbose
+```
+
 若可以正常使用则可以尝试调用 API：
 
 ```bash
@@ -190,3 +196,5 @@ export default function Dashboard() {
 [大模型清单](https://ollama.com/library)
 
 [Embedding models](https://ollama.com/blog/embedding-models)
+
+[The Ollama Course](https://www.youtube.com/watch?v=luH9j_eOEi4&list=PLvsHpqLkpw0fIT-WbjY-xBRxTftjwiTLB&index=5)

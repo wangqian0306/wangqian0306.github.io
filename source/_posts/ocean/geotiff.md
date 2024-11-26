@@ -107,6 +107,60 @@ with rasterio.open(output_path, 'w', **metadata) as dst:
 print(f"GeoTIFF file created: {output_path}")
 ```
 
+除了把原始数据直接写入 tiff 中之外还可以针对数据进行分级规划。比方说可以按照如下方式进行处理：
+
+```python
+import json
+
+
+def process_2d_array(input_array, func):
+    """
+    对二维数组中的每个元素应用函数处理，返回一个新的二维数组。
+
+    :param input_array: 输入的二维数组
+    :param func: 用于处理每个元素的函数
+    :return: 处理后的二维数组
+    """
+    return [[func(value) for value in row] for row in input_array]
+
+
+def data_to_int(data, max_value=32):
+    """
+    将数据转换为 -300 到 300 的整型数据。
+
+    :param data: 原始数据值，可以为负值
+    :param max_value: 最大速度的绝对值 (默认 32)
+    :return: 映射到 -300 到 300 的整型值
+    """
+    if abs(data) > max_value:
+        data = max_value if data > 0 else -max_value  # 限制在 [-max_value, max_value]
+
+    # 映射公式：将 [-max_value, max_value] 映射到 [-300, 300]
+    mapped_value = (data / max_value) * 300
+    return round(mapped_value)
+
+
+def process(filename, result_name):
+    with open(filename, "r") as f:
+        text = f.read()
+        input_array = json.loads(text)
+        output_array = process_2d_array(input_array, data_to_int)
+        output_json = json.dumps(output_array, indent=4)
+        with open(result_name, "w") as file:
+            file.write(output_json)
+
+
+if __name__ == "__main__":
+    process("u_wind_filtered.json", "u_wind_modified.json")
+    process("v_wind_filtered.json", "v_wind_modified.json")
+```
+
+> 注：此处数据采用 180 个长度为 360 的数组(二维数组，数据分辨率为 1 度)。
+
 ### 参考资料
 
 [参考代码](https://github.com/shianqi/3d-wind/blob/master/src/group/wind.js#L5C1-L5C40)
+
+[官方项目](https://github.com/rasterio/rasterio)
+
+[官方文档](https://rasterio.readthedocs.io/en/stable/)
