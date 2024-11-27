@@ -157,6 +157,38 @@ if __name__ == "__main__":
 
 > 注：此处数据采用 180 个长度为 360 的数组(二维数组，数据分辨率为 1 度)。
 
+
+#### 数据偏移
+
+如果说由于数据源对应的分辨率和当前地图不一致则可以使用如下代码针对数组进行偏移处理：
+
+```python
+def shift_to_right(matrix, n):
+    if not matrix or n <= 0:
+        return matrix
+
+    result = []
+    for row in matrix:
+        if len(row) <= n:
+            result.append(row)
+        else:
+            result.append(row[-n:] + row[:len(row) - n])
+    return result
+
+
+def shift_to_left(matrix, n):
+    if not matrix or n <= 0:
+        return matrix
+
+    result = []
+    for row in matrix:
+        if len(row) <= n:
+            result.append(row)
+        else:
+            result.append(row[n:] + row[:n])
+    return result
+```
+
 ### 参考资料
 
 [参考代码](https://github.com/shianqi/3d-wind/blob/master/src/group/wind.js#L5C1-L5C40)
