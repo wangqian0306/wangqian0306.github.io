@@ -189,9 +189,41 @@ export default function Dashboard() {
 }
 ```
 
+### 软件清理与卸载
+
+如果需要删除服务可以使用如下命令：
+
+```bash
+sudo rm /etc/systemd/system/ollama.service
+sudo rm /etc/systemd/system/ollama.service.d
+```
+
+删除软件则可以使用：
+
+```bash
+sudo rm $(which ollama)
+```
+
+模型文件位于：
+
+```bash
+sudo rm -r /usr/share/ollama
+```
+
+> 注：需要检查下 OLLAMA_MODELS 环境变量，它可以进行额外配置。
+
+删除用户和组：
+
+```bash
+sudo userdel ollama
+sudo groupdel ollama
+```
+
 ### 参考资料
 
 [官方项目](https://github.com/ollama/ollama)
+
+[官方文档](https://github.com/ollama/ollama/blob/main/docs/)
 
 [大模型清单](https://ollama.com/library)
 
