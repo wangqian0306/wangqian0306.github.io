@@ -27,6 +27,12 @@ sudo systemctl daemon-reload
 sudo systemctl restart ollama
 ```
 
+想要更新 ollama 可以使用如下命令：
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
 #### Chat
 
 使用如下命令可以拉取大模型：
@@ -219,6 +225,21 @@ sudo userdel ollama
 sudo groupdel ollama
 ```
 
+### Gollama 模型管理工具
+
+Gollama 是一款支持 macOS / Linux 的模型管理工具。可以使用如下代码安装软件：
+
+```bash
+go install github.com/sammcj/gollama@HEAD
+export PATH=$PATH:$(go env GOPATH)/bin
+```
+
+然后即可使用命令查看模型了：
+
+```bash
+gollama
+```
+
 ### 参考资料
 
 [官方项目](https://github.com/ollama/ollama)
@@ -230,3 +251,5 @@ sudo groupdel ollama
 [Embedding models](https://ollama.com/blog/embedding-models)
 
 [The Ollama Course](https://www.youtube.com/watch?v=luH9j_eOEi4&list=PLvsHpqLkpw0fIT-WbjY-xBRxTftjwiTLB&index=5)
+
+[Gollama 项目](https://github.com/sammcj/gollama)

@@ -14,6 +14,16 @@ no_toc: false
 
 大语言模型(large language model，LLM) 是一种语言模型，由具有许多参数(通常数十亿个权重或更多)的人工神经网络组成，使用自监督学习或半监督学习对大量未标记文本进行训练。
 
+### 基础知识
+
+#### 量化(Quantization)
+
+LLM 越大效果越好，但是同时也会造成需要更多的内存，量化是目前最突出的解决方案。目前的模型通常会用 32 位的浮点数来表示权重(weights) 和激活函数 (activations) ，但是实际在使用中会将其转化至 `float32 -> float16` 和 `float32 -> int8` 。
+
+[A Guide to Quantization in LLMs](https://symbl.ai/developers/blog/a-guide-to-quantization-in-llms/)
+
+[Optimum Document Quantization](https://huggingface.co/docs/optimum/en/concept_guides/quantization)
+
 ### 相关项目
 
 #### LongChain
