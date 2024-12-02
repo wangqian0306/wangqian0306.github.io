@@ -16,6 +16,12 @@ no_toc: false
 
 ### 基础知识
 
+#### 课程和基础概念
+
+[LLM/AI 大模型入门指南](https://zhuanlan.zhihu.com/p/722000336)
+
+[李宏毅2024春《生成式人工智能导论》](https://www.bilibili.com/video/BV1BJ4m1e7g8)
+
 #### 量化(Quantization)
 
 LLM 越大效果越好，但是同时也会造成需要更多的内存，量化是目前最突出的解决方案。目前的模型通常会用 32 位的浮点数来表示权重(weights) 和激活函数 (activations) ，但是实际在使用中会将其转化至 `float32 -> float16` 和 `float32 -> int8` 。
