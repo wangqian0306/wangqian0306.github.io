@@ -104,7 +104,6 @@ public class DemoEndpoint {
 management:
   endpoint:
     health:
-      show-details: "always"
       group:
         liveness:
           include: "ping"
@@ -123,6 +122,10 @@ spring:
     host: "<your-redis-host>" # Redis 配置
     port: 6379
 ```
+
+之后即可访问如下地址获取到 liveness 状态：
+
+[http://localhost:8080/actuator/health/liveness](http://localhost:8080/actuator/health/liveness)
 
 ### 参考资料
 

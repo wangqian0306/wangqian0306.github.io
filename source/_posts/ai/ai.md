@@ -30,6 +30,12 @@ LLM 越大效果越好，但是同时也会造成需要更多的内存，量化�
 
 [Optimum Document Quantization](https://huggingface.co/docs/optimum/en/concept_guides/quantization)
 
+#### RAG
+
+RAG(Retrieval-Augmented Generation)，检索增强生成，即从外部获取额外信息辅助模型生成内容。
+
+[学习检索增强生成(RAG)技术，看这篇就够了——热门RAG文章摘译](https://zhuanlan.zhihu.com/p/673392898)
+
 ### 相关项目
 
 #### LongChain
