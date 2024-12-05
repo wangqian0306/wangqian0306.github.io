@@ -154,7 +154,16 @@ cat /proc/vmstat | grep "dirty|writeback"
 |Producer 端|设置 `acks=1`|
 |Consumer 端|设置 `fetch.min.bytes=1`|
 
+#### 批处理指标监控
+
+- `batch-size-avg` ：此指标是批处理的实际大小。如果一切顺利，这将非常接近 batch.size。如果 batch-size-avg 始终低于设置的批量大小，则 linger.ms 可能不够高。同时，如果 linger.ms 很高，而批次仍然很小，则可能是记录生成速度不够快。如果已经很高了可以再调整回原来的值。
+- `records-per-request-avg` ：每个请求跨批次的平均记录数。
+- `record-size-avg` ：注意不要接近或超过 `batch.size`
+- `buffer-available-bytes` ：内存余量。
+- `record-queue-time-avg` ：在发送记录之前等待填充的时间。
+
 ### 参考资料
 
 - [Kafka 官方文档](http://kafka.apache.org/documentation/)
 - [Kafka 核心技术与实战](https://time.geekbang.org/column/intro/100029201)
+- [Kafka Producer and Consumer Internals](https://www.confluent.io/blog/kafka-producer-and-consumer-internals-4-consumer-fetch-requests/)
