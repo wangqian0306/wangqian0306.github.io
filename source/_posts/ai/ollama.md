@@ -89,6 +89,36 @@ curl http://localhost:11434/api/embeddings -d '{
 }'
 ```
 
+### 模型
+
+对于 Ollama 来说，除了基本的权重文件之外还需要一个 Modelfile 。这个 Modelfile 包含如下元素：
+
+- 系统提示词(system prompt)
+- 回答问题的模板(template)
+- 参数(parameters，可选)
+- 适配器(adapter，可选)
+
+样例如下：
+
+编写 `modelfile`
+
+```text
+FROM llama3.2
+PARAMETER temperature 1
+```
+
+通过如下命令即可创建一个模型：
+
+```bash
+ollama create <name> -f ./modelfile
+```
+
+检查一个 model 的模型文件也可以通过如下命令完成：
+
+```bash
+ollama show --modelfile <name>
+```
+
 ### 图形化界面
 
 #### Open WebUI
@@ -251,5 +281,7 @@ gollama
 [Embedding models](https://ollama.com/blog/embedding-models)
 
 [The Ollama Course](https://www.youtube.com/watch?v=luH9j_eOEi4&list=PLvsHpqLkpw0fIT-WbjY-xBRxTftjwiTLB&index=5)
+
+[The Ollama Course: Advanced](https://www.youtube.com/watch?v=aMe1mCD6AEI&list=PLvsHpqLkpw0f8YFdnxVCId7FwIOoqkne5)
 
 [Gollama 项目](https://github.com/sammcj/gollama)
