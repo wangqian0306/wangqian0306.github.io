@@ -86,6 +86,39 @@ Docling 可以轻松快速地解析文档并将其导出为所需的格式。
 
 > 注：此项目可以接受不同格式的文件，并使用 OCR 的方案将其进行格式转化，供 AI 读取。
 
+#### OpenHands
+
+项目地址：[OpenHands](https://github.com/All-Hands-AI/OpenHands)
+
+OpenHands 是一款网页端的 WebIDE 支持很多的大模型，可以独立分解问题并读取项目文件并进行在线调试和修改。
+
+可以使用如下 `docker-compose.yaml` 文件运行：
+
+```yaml
+services:
+  openhands:
+    image: ghcr.io/all-hands-ai/openhands:0.11
+    pull_policy: always
+    environment:
+      - SANDBOX_RUNTIME_CONTAINER_IMAGE=ghcr.io/all-hands-ai/runtime:0.11-nikolaik
+      - SANDBOX_USER_ID=${UID}
+      - WORKSPACE_MOUNT_PATH=${WORKSPACE_BASE}
+    volumes:
+      - ${WORKSPACE_BASE}:/opt/workspace_base
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+```
+
+环境配置项如下 `.env`：
+
+```env
+WORKSPACE_BASE=./workspace
+UID=$(id -u)
+```
+
 ### 环境准备
 
 #### PyTorch
