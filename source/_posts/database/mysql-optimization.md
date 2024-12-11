@@ -50,7 +50,16 @@ categories: MySQL
 
 #### 优化索引
 
+大多数 MySQL 索引(PRIMARY KEY ,UNIQUE ,INDEX, FULLTEXT)存储在 B 树(B-Trees,统称，一般应该是 B+ 树)。例外： SPECIAL 类型的索引使用 R 树; MEMORY table 还支持哈希索引; InnoDB 对 FULLTEXT 索引使用倒排索引。
 
+在索引使用上遵循如下规则：
+
+- 如果有多列索引，检索时要从左往右进行索引拼接。
+- 如果需要跨表，最好让链接列具有相同的数据类型和大小且如果是字符串需要相同的字符集。
+- 如果是SPATIAL 索引需要指定 SRID(Spatial Reference System Identifier, 例如：EPSG:4326)。
+- 在遇到非二进制数据时需要确保字段编码后长度小于 767 字节。
+
+在检索时可以使用 Explain 语句查看检索方式，进行优化。
 
 ### 在硬件级别进行优化
 
