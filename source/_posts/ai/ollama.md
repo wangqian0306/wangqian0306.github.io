@@ -119,6 +119,40 @@ ollama create <name> -f ./modelfile
 ollama show --modelfile <name>
 ```
 
+### 结构化输出
+
+Ollama 提供了官方的结构化输出 API，可以将数据统一转化为对象进行响应。相较于之前的 JSON 模式来说对于枚举的处理更好，但是在转化失败时可能会返回空对象，需按情况使用。
+
+```bash
+curl -X POST http://localhost:11434/api/chat -H "Content-Type: application/json" -d '{
+  "model": "llama3.1",
+  "messages": [{"role": "user", "content": "Tell me about Canada."}],
+  "stream": false,
+  "format": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "capital": {
+        "type": "string"
+      },
+      "languages": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "name",
+      "capital", 
+      "languages"
+    ]
+  }
+}'
+```
+
 ### 图形化界面
 
 #### Open WebUI
@@ -285,3 +319,5 @@ gollama
 [The Ollama Course: Advanced](https://www.youtube.com/watch?v=aMe1mCD6AEI&list=PLvsHpqLkpw0f8YFdnxVCId7FwIOoqkne5)
 
 [Gollama 项目](https://github.com/sammcj/gollama)
+
+[Structured outputs](https://ollama.com/blog/structured-outputs)
