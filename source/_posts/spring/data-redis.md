@@ -71,8 +71,13 @@ public class TestController {
     }
 
 }
-
 ```
+
+### Redssion
+
+在遇到分布式锁等情况下的时候可以使用 Redission 客户端。
+
+[与 Spring 集成](https://redisson.org/docs/integration-with-spring/)
 
 ### 客户端缓存
 
@@ -87,3 +92,9 @@ public class TestController {
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)
+
+[Jedis](https://redis.github.io/jedis/)
+
+[Lettuce](https://redis.github.io/lettuce/)
+
+[Redssion](https://redisson.org/docs/)
