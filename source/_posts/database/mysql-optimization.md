@@ -150,10 +150,68 @@ MySQL 支持许多不同的存储引擎(表类型)和 行格式。对于每个�
     - innodb_log_wait_for_flush_spin_hwm 当平均日志刷新时间超过该值时，用户线程将不再进行自旋等待，而是进入睡眠状态。高并发时减少，低时增加。
     - innodb_log_spin_cpu_abs_lwm CPU 使用率低于该阈值时，用户线程将不再进行自旋等待。这个值是基于绝对 CPU 核心使用量的总和。如果系统 CPU 使用率较低，可以通过提高这个阈值。
     - innodb_log_spin_cpu_pct_hwm 当总的 CPU 使用率超过该百分比时，用户线程将不再进行自旋等待。这个值是基于绝对 CPU 核心使用量的总和。在高并发情况下，降低这个值。
+- 批量插入优化。
+  - 在插入大量数据时先关闭 `SET autocommit=0` 然后结束后再 `COMMIT;` 。
+  - 对于包含唯一约束（UNIQUE 约束）的二级索引，在导入大量数据时临时关闭唯一性检查可以显著提高导入速度。这是因为 InnoDB 可以利用其更改缓冲区(change buffer)来批量写入二级索引记录，从而减少大量的磁盘 I/O 操作。
+  - 关闭外键检查可以节省磁盘 I/O ，增加插入性能。
+  - 使用多行 INSERT 语法来减少客户端和服务器之间的通信开销。
+  - 设置 innodb_autoinc_lock_mode 为 2（交错模式，interleaved）可以在执行批量插入到带有自增列（AUTO_INCREMENT）的表时显著提升性能，特别是在高并发环境下。
+  - 在执行批量插入时，按照主键(PRIMARY KEY)顺序插入行可以显著提高性能，尤其是在 InnoDB 表中。这是因为 InnoDB 使用聚簇索引，数据物理上是按照主键顺序存储的。因此，按主键顺序插入数据可以减少页面分裂和随机 I/O 操作，从而提升插入速度。对于那些不能完全放入缓冲池(buffer pool)的大表来说，这一点尤为重要。
+  - 为了在将数据加载到InnoDB FULLTEXT索引时获得最佳性能，请执行以下步骤：
+    - 在表创建时定义一个类型为 BIGINT UNSIGNED NOT NULL 的列 FTS_DOC_ID，该列具有一个名为 FTS_DOC_ID_index 的唯一索引。
+    - 将数据加载到表中。
+    - 创建 FULLTEXT 索引。
+  - 在向新的 MySQL 实例加载大量数据时，考虑临时禁用重做日志（redo log）可以显著提高数据加载速度。
+  - 使用 MySQL Shell 的 util.importTable() 和 util.loadDump() 指令可以显著提高大规模数据文件的导入速度，特别是当处理大容量数据时。这些工具提供了并行加载功能，能够充分利用多核处理器的优势，从而加快数据导入过程。
+- 优化 InnoDB 查询。
+  - 选择最重要的列作为主键。
+  - 不要在主键中指定太多或太长的列，因为这些列值在每个辅助索引中都是重复的。当索引包含不必要的数据时，读取这些数据的 I/O 和缓存这些数据的内存会降低服务器的性能和可扩展性。
+  - 不要为每列创建单独的索引，而是根据查询情况设置联合索引。
+  - 如果索引列不能包含任何 NULL 值，请在创建表时将其声明为 NOT NULL。优化器当知道每列是否包含 NULL 值可以更好地确定哪个索引最有效地用于查询。
+  - 优化只读事务
+- 优化 InnoDB DDL。
+  - 对表和索引的 DDL 操作可以不影响之前的环境。
+  - 加载数据之后再建立索引会快一些。
+  - 在没有外键时可以使用 `TRUNCATE TABLE` 清空表，如果有外键的话使用 `DROP TABLE` 和 `CREATE TABLE` 的命令可能是最快的方法。
+- 优化 InnoDB 磁盘 I/O。
+  - 增加缓冲池大小到系统内存的 50%-75%。
+  - 如果数据写入磁盘的速度很慢，可以将 innodb_flush_method 设置为 O_DSYNC。
+  - 在多实例多租户情况下考虑调整 innodb_fsync_threshold 的值，批量将数据写入磁盘。
+  - 打开 innodb_use_fdatasync 配置。
+  - 在 Linux 系统中可以使用 noop 和 deadline 调度器，使用如下命令检查 `cat /sys/block/sd<device>/queue/scheduler` 输出结果是支持的调度器，用方括号选中的是现在正在使用的。
+  - 将数据文件和日志文件分离放置。
+  - 使用 SSD 存储数据，并检查如下配置：
+    - innodb_checksum_algorithm 应当设置为 crc32。
+    - innodb_flush_neighbors 设置为 0。
+    - 调整 innodb_idle_flush_pct 参数，调大会增加硬盘读写次数损耗寿命调小会让内存压力增大。
+    - 调整 innodb_io_capacity 参数，例如 1000。
+    - 调整 innodb_io_capacity_max 参数，例如 2500。
+    - 如果 redo log 在 SSD 上，需要禁用 innodb_log_compressed_pages。
+    - 如果 redo log 在 SSD 上，增加 innodb_redo_log_capacity。
+    - 查看硬件的扇区大小与 innodb_page_size 进行匹配。
+    - 如果日志在 SSD 上，并且所有表都有主键可以将 binlog_row_image 设置为 minimal。
+    - 增加 innodb_doublewrite_pages 参数。
+    - 调整 innodb_read_io_threads 和 innodb_write_io_threads 线程数，默认配置跑不满磁盘。
+  - 调整 innodb_io_capacity 参数。
+  - 禁用压缩页面的日志记录 innodb_log_compressed_pages。
+- 优化 InnoDB 配置变量。
+  - 配置 InnoDB 缓存的数据操作类型 innodb_change_buffering。
+  - 在写入多时可以尝试关闭 innodb_adaptive_hash_index。
+  - 配置并发线程数 innodb_thread_concurrency。
+  - 合理配置预读缓存 innodb_read_ahead_threshold。
+  - 合理配置 InnoDB 的缓冲池刷新算法 (Buffer Pool Flushing Algorithm)。
+  - 利用多核处理器及其缓存内存配置优化自旋锁，以最小化上下文切换延迟。
+  - 防止 table scans 等一次性操作，干扰 InnoDB 缓冲区缓存。
+  - 将日志文件调整为对可靠性和崩溃恢复有意义的大小。
+  - 配置多个缓冲池实例。
+  - 增加并发事务的最大数量。
+  - 将垃圾回收策略配置为后台线程。
+  - 调整 innodb_thread_concurrency 和 innodb_concurrency_tickets 参数，限制同时处理的线程数量，并允许每个线程在被换出之前完成更多的工作，从而保持等待线程的数量较低，并使操作能够在不过度进行上下文切换的情况下完成。
+- 如果使用了非持久化优化器统计信息，需要在打开数据库后进行一次读取预热数据。
 
 ### 在硬件级别进行优化
 
-任何数据库应用程序最终都会达到硬件限制，因为 数据库变得越来越繁忙。DBA 必须评估 可以调整应用程序或重新配置服务器 要避免这些 瓶颈，或者是否需要更多硬件资源。系统瓶颈通常来自以下来源：
+任何数据库应用程序最终都会达到硬件限制，因为数据库变得越来越繁忙。DBA 必须进行评估，然后调整应用程序或重新配置服务器。要避免性能瓶颈，可以使用纵向扩展的思路，增加或优化硬件资源。系统瓶颈通常来自以下来源：
 
 - 磁盘查找(Disk seeks)
 - 磁盘读取和写入(Disk reading and writing)
