@@ -48,7 +48,7 @@ spring:
 
 > 注: 此处为单节点模式，其他模式请参照官方文档进行配置。
 
-之后参照 SpringData 其他组件的使用方式进行使用即可，例如：
+之后参照 Spring Data 其他组件的使用方式进行使用即可，例如：
 
 ```java
 import jakarta.annotation.Resource;
@@ -73,9 +73,134 @@ public class TestController {
 }
 ```
 
-### Redssion
+### 分布式锁
 
-在遇到分布式锁等情况下的时候可以使用 Redission 客户端。
+实现分布式锁有两种方案：
+
+- 使用 Spring Integration 实现
+- 使用 Redission 的 Redlock 实现
+
+#### Spring Integration
+
+引入如下依赖：
+
+```groovy
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-integration'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.integration:spring-integration-redis'
+    implementation 'org.springframework.integration:spring-integration-http'
+    testImplementation 'org.springframework.integration:spring-integration-test'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+```
+
+编写如下配置 `application.yaml` ：
+
+```yaml
+spring:
+  data:
+    redis:
+      host: <redis_host>
+```
+
+编写 `RedisLockConfig.java` ：
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.integration.redis.util.RedisLockRegistry;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RedisLockConfig {
+
+    @Bean
+    public RedisLockRegistry redisLockRegistry(RedisConnectionFactory redisConnectionFactory) {
+        return new RedisLockRegistry(redisConnectionFactory, "distributedLock");
+    }
+
+}
+```
+
+编写 `TestService.java` :
+
+```java
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.integration.redis.util.RedisLockRegistry;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+
+@Slf4j
+@Service
+public class TestService {
+
+    @Resource
+    private RedisLockRegistry redisLockRegistry;
+
+    public String test(String id, Long time) throws InterruptedException {
+        log.info("Attempting to acquire lock with id: {}", id);
+
+        Lock lock = redisLockRegistry.obtain(id);
+
+        boolean lockAcquired = lock.tryLock(2, TimeUnit.SECONDS);
+        if (lockAcquired) {
+            try {
+                log.info("Lock acquired for id: {}, performing critical operation...", id);
+                Thread.sleep(time);
+            } finally {
+                lock.unlock();
+                log.info("Lock released for id: {}", id);
+            }
+            return "Operation completed successfully";
+        } else {
+            log.warn("Unable to acquire lock for id: {}", id);
+            return "Unable to acquire lock, please try again later.";
+        }
+    }
+
+}
+```
+
+编写 `TestController.java` :
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    @Resource
+    TestService testService;
+
+    @GetMapping("/{id}/{time}")
+    public String test(@PathVariable String id, @PathVariable Long time) throws InterruptedException {
+        return testService.test(id, time);
+    }
+
+}
+```
+
+之后启动服务，然后使用如下地址进行测试即可：
+
+[http://localhost:8080/test/1/20000](http://localhost:8080/test/1/20000)
+
+[http://localhost:8080/test/1/1000](http://localhost:8080/test/1/1000)
+
+#### Redission
 
 [与 Spring 集成](https://redisson.org/docs/integration-with-spring/)
 
