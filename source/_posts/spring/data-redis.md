@@ -204,6 +204,102 @@ public class TestController {
 
 [与 Spring 集成](https://redisson.org/docs/integration-with-spring/)
 
+引入如下依赖：
+
+```groovy
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    compileOnly 'org.redisson:redisson-spring-boot-starter:3.40.2'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+```
+
+编写如下配置 `application.yaml` ：
+
+```yaml
+spring:
+  data:
+    redis:
+      host: <redis_host>
+```
+
+编写 `TestService.java` :
+
+```java
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
+@Service
+public class TestService {
+
+    @Resource
+    RedissonClient redissonClient;
+
+    public String test(String id, Long time) throws InterruptedException {
+        log.info("Attempting to acquire lock with id: {}", id);
+
+        RLock lock = redissonClient.getLock(id);
+
+        boolean lockAcquired = lock.tryLock(2, TimeUnit.SECONDS);
+        if (lockAcquired) {
+            try {
+                log.info("Lock acquired for id: {}, performing critical operation...", id);
+                Thread.sleep(time);
+            } finally {
+                lock.unlock();
+                log.info("Lock released for id: {}", id);
+            }
+            return "Operation completed successfully";
+        } else {
+            log.warn("Unable to acquire lock for id: {}", id);
+            return "Unable to acquire lock, please try again later.";
+        }
+    }
+
+}
+```
+
+编写 `TestController.java` :
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    @Resource
+    TestService testService;
+
+    @GetMapping("/{id}/{time}")
+    public String test(@PathVariable String id, @PathVariable Long time) throws InterruptedException {
+        return testService.test(id, time);
+    }
+
+}
+```
+
+之后启动服务，然后使用如下地址进行测试即可：
+
+[http://localhost:8080/test/1/20000](http://localhost:8080/test/1/20000)
+
+[http://localhost:8080/test/1/1000](http://localhost:8080/test/1/1000)
+
 ### 客户端缓存
 
 经过查找发现 Spring Data Redis 并不打算支持此功能。如需使用需要自行根据 [Lettuce](https://github.com/lettuce-io/lettuce-core/issues/1281) 实现。
