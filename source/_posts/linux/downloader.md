@@ -75,7 +75,6 @@ rm -rf AriaNg-DailyBuild-master
 可以使用编写 `docker-compose.yaml` 来快速部署服务
 
 ```yaml
-version: "3.8"
 services:
   Aria2-Pro:
     container_name: aria2-pro
@@ -131,7 +130,6 @@ services:
 一体化容器部署
 
 ```yaml
-version: "2.1"
 services:
   deluge:
     image: lscr.io/linuxserver/deluge:latest
@@ -155,7 +153,6 @@ services:
 一体化容器部署
 
 ```yaml
-version: "2.1"
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest

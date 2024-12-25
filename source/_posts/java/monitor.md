@@ -38,7 +38,6 @@ Elastic Stack 在 8 版本之前提供了 APM Server 和 Beats 作为性能监�
 可以使用如下新版的 Elastic Agent 收集数据：
 
 ```yaml
-version: "3"
 services:
   agent:
     image: docker.elastic.co/beats/elastic-agent:8.4.1

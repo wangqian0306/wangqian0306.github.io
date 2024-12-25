@@ -19,7 +19,6 @@ AList 是一个支持多种存储的网盘管理工具。
 编写如下 `docker-compose.yaml` :
 
 ```yaml
-version: '3.3'
 services:
   alist:
     image: 'xhofe/alist:latest'

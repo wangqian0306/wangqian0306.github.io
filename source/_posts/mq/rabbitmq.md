@@ -15,7 +15,6 @@ categories: MQ
 ### 容器化安装
 
 ```yaml
-version: "3"
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -114,7 +113,6 @@ RUN rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 创建 `docker-compose `
 
 ```yaml
-version: "3"
 services:
   rabbitmq:
     build: .

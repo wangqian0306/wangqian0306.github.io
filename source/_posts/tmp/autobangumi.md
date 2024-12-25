@@ -16,8 +16,7 @@ AutoBangumi 一个是基于 Mikan Project、qBittorrent 的全自动追番整理
 
 ### 使用
 
-```bash
-version: "3.9"
+```yaml
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest

@@ -55,7 +55,6 @@ ksqlDB 是专门为流处理应用程序构建的数据库。使用它的好处�
 # 2. Update .env file to use your local images by setting KSQL_IMAGE_BASE=placeholder/ and KSQL_VERSION=local.build.
 
 ---
-version: '2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest

@@ -66,8 +66,6 @@ CMD ["/opt/mapproxy/mapproxy.yaml"]
 Docker-compose file
 
 ```yaml
-version: "3.8"
-
 services:
   mapproxy:
     build: .

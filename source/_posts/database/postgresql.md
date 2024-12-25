@@ -22,8 +22,6 @@ PostgreSQL 是一个对象关系数据库管理系统（ORDBMS）
 - 编写如下 Docker Compose 文件
 
 ```yaml
-version: '3.1'
-
 services:
   db:
     image: postgres

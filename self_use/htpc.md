@@ -35,7 +35,6 @@ HTPC(Home Theater Personal Computer) 即家庭影院电脑。
 编写 `docker-compose.yaml` 文件，内容如下：
 
 ```bash
-version: "2.1"
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest

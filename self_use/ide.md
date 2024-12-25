@@ -3,7 +3,6 @@
 [server](https://github.com/NotoChen/Jetbrains-Help)
 
 ```bash
-version: "3"
 services:
   jetbrains-help:
     build: .

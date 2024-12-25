@@ -19,7 +19,6 @@ Jellyfin 是一个开源的媒体解决方案。
 ### 容器安装
 
 ```yaml
-version: '3.5'
 services:
   jellyfin:
     image: nyanmisaka/jellyfin:latest

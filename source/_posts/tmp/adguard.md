@@ -21,7 +21,6 @@ AdGuard Home是一款用于拦截广告和跟踪的全网络软件，通过作�
 创建 `work`, `conf` 文件夹，编写如下 `docker-compose.yaml` 文件：
 
 ```yaml
-version: "3.8"
 services:
   adguardhome:
     image: adguard/adguardhome

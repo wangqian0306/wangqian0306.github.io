@@ -25,7 +25,6 @@
 ### 容器部署
 
 ```yaml
-version: '3'
 services:
   v2ray:
     image: v2fly/v2fly-core

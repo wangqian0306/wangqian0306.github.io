@@ -75,7 +75,6 @@ sudo systemctl stop elasticsearch.service
 - 编写如下 Docker Compose 文件
 
 ```yaml
-version: '3'
 services:
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1

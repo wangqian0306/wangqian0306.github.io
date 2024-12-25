@@ -49,7 +49,6 @@ docker-compose up -d
 编写 `docker-compose.yaml` 文件，然后输入如下内容
 
 ```yaml
-version: '2'
 services:
   broker:
     image: apache/kafka:latest

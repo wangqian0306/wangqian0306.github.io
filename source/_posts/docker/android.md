@@ -37,8 +37,6 @@ KVM acceleration can be used
 编写如下 `docker-compose.yaml` :
 
 ```yaml
-version: '3.8'
-
 services:
   android-container:
     image: budtmo/docker-android:emulator_14.0

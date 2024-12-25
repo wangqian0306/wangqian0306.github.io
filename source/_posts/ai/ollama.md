@@ -160,8 +160,6 @@ curl -X POST http://localhost:11434/api/chat -H "Content-Type: application/json"
 编写如下 `docker-compose.yaml` 文件：
 
 ```yaml
-version: '3.8'
-
 services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -190,8 +188,6 @@ docker-compose up -d
 编写如下 `docker-compose.yaml` 文件：
 
 ```bash
-version: '3.8'
-
 services:
   lobe-chat:
     image: lobehub/lobe-chat

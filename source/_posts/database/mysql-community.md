@@ -70,16 +70,16 @@ FLUSH PRIVILEGES;
 ### 容器化安装
 
 ```bash
-version: '3'
 services:
   db:
     image: mysql:latest
-    command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
     volumes:
       - <dir>:/var/lib/mysql
+    ports:
+      - "3306:3306"
 ```
 
 > 注：详细配置信息请参照 [DockerHub 文档](https://registry.hub.docker.com/_/mysql)或官方文档。

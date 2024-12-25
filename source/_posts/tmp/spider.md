@@ -22,7 +22,6 @@ no_toc: false
 可以通过如下 `docker-compose` 快速启动社区单节点版本：
 
 ```yaml
-version: '3.3'
 services:
   master:
     image: crawlabteam/crawlab:0.6.0

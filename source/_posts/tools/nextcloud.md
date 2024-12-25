@@ -25,8 +25,6 @@ Nextcloud 是一款开源网盘服务。提供了 Windows Linux 和 mac 平台�
 编写 `docker-compose.yaml` 文件：
 
 ```yaml
-version: '2'
-
 volumes:
   nextcloud:
   db:
@@ -88,8 +86,6 @@ MYSQL_USER=nextcloud
 样例 `docker-compoes.yaml`：
 
 ```yaml
-version: '3.9'
-
 services:
   db:
     image: mariadb:10.6

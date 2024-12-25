@@ -21,7 +21,6 @@ pip3 install docker-compose
 ## Docker Compose 样例文件
 
 ```yaml
-version: '3'
 services:
   demo: # 服务名
     build: ../../.. # Dockerfile 的相对路 build: . # Dockerfile 的相对路径

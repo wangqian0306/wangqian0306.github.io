@@ -19,8 +19,6 @@ SRS 是一个开源的(MIT协议)简单高效的实时视频服务器，支持RT
 #### 使用容器部署
 
 ```yaml
-version: '3'
-
 services:
   srs-stack:
     image: registry.cn-hangzhou.aliyuncs.com/ossrs/srs-stack:5

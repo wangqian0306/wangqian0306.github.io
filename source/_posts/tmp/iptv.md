@@ -33,7 +33,6 @@ no_toc: false
 使用方式，编写如下 `docker-compose.yaml` 文件:
 
 ```yaml
-version: "3"
 services:
   website:
     image: zmisgod/iptvchecker:latest

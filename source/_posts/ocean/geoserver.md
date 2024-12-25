@@ -21,7 +21,6 @@ GeoServer 是一款支持多种 GIS 协议类型的自建服务器。
 可以使用 docker 部署
 
 ```yaml
-version: '3'
 services:
   geoserver:
     image: docker.osgeo.org/geoserver:2.24.x

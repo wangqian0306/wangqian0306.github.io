@@ -24,8 +24,6 @@ DolphinScheduler 以有向无环图(DAG)流模式组装任务，可以及时监�
 #### 单机容器试用
 
 ```yaml
-version: "3.8"
-
 services:
   dolphin-scheduler-standalone-server:
     image: apache/dolphinscheduler-standalone-server:latest

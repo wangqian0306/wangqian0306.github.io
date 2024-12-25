@@ -28,7 +28,6 @@ vim docker-compose.yaml
 填入如下内容：
 
 ```bash
-version: "3"
 services:
   nacos:
     image: nacos/nacos-server:latest

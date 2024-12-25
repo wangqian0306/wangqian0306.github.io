@@ -105,8 +105,6 @@ vim /opt/nexus/docker-compose.yaml
 ```
 
 ```yaml
-version: "2"
-
 services:
   nexus:
     image: sonatype/nexus3

@@ -30,7 +30,6 @@ allow_anonymous true
 - 编辑 `docker-compose.yaml`
 
 ```yaml
-version: '3.7'
 services:
   app-mosquitto:
     container_name: mosquitto

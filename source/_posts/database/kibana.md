@@ -21,7 +21,6 @@ Kibana 是一款检索分析和展示 Elastic Stack 的仪表板工具。
 可以通过如下 `docker-compose` 部署 Kibana
 
 ```yaml
-version: '3'
 services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.4.1
@@ -41,7 +40,6 @@ CLUSTER_NAME=<CLUSTER_NAME>
 ```
 
 ```yaml
-version: '3.8'
 services:
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1

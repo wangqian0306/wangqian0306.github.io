@@ -76,8 +76,6 @@ receivers:
 编写 `docker-compose.yaml` 文件：
 
 ```yaml
-version: '3.8'
-
 services:
   mysql:
     image: mysql:latest

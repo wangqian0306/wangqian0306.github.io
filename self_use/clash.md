@@ -9,8 +9,6 @@
 官方提供了容器，可以编写如下 `docker-compose.yaml`:
 
 ```yaml
-version: '3'
-
 services:
   metacubexd:
     container_name: metacubexd

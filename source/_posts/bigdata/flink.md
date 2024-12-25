@@ -69,7 +69,6 @@ rest.bind-address: 0.0.0.0
 - 编写 `docker-compose.yaml` 配置文件
 
 ```yaml
-version: "2.2"
 services:
   jobmanager:
     image: flink:1.14.0-scala_2.12-java11

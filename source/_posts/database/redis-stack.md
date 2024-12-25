@@ -19,7 +19,6 @@ Redis Stack 是 Redis 关于数据模型和处理引擎的扩展。包括了一�
 #### 服务器版
 
 ```yaml
-version: "3"
 services:
   redis-stack-server:
     image: redis/redis-stack-server:latest
@@ -31,7 +30,6 @@ services:
 #### 本地测试
 
 ```yaml
-version: "3"
 services:
   redis-stack:
     image: redis/redis-stack:latest

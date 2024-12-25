@@ -22,8 +22,6 @@ Tabby 是一个自托管的人工智能编码助手 (GitHub Copilot 的开源和
 首先需要编写 `docker-compose.yaml` 文件：
 
 ```yaml
-version: '3.5'
-
 services:
   tabby:
     restart: always

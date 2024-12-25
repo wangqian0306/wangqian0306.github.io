@@ -39,7 +39,6 @@ categories: 大数据
 新建 `docker-compose.yaml` 文件然后填入如下内容：
 
 ```yaml
-version: "3"
 services:
   pulsar:
     image: apachepulsar/pulsar:latest

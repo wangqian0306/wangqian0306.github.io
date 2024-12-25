@@ -13,7 +13,6 @@ categories: Redis
 ### 容器化安装
 
 ```yaml
-version: "3"
 services:
   redis:
     image: redis:latest

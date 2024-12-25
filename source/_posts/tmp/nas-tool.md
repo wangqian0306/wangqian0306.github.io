@@ -19,7 +19,6 @@ nas-tool 是一款 NAS 媒体库管理工具，需要结合 qbittorrent 和 Jell
 编写如下 `docker-compose.yaml` 文件：
 
 ```yaml
-version: '3'
 services:
   nas-tools:
     image: hsuyelin/nas-tools:latest

@@ -20,8 +20,6 @@ Grafana 开源是开源可视化和分析软件。可以接入多种数据源，
 #### Docker
 
 ```yaml
-version: '3'
-
 services:
   grafana:
     image: grafana/grafana:latest

@@ -18,8 +18,6 @@ Prometheus 是一个开源系统监控和警报工具包。Prometheus 将其指�
 ### 本地容器化部署
 
 ```yaml
-version: '3'
-
 services:
   prometheus:
     image: prom/prometheus:latest
@@ -111,8 +109,6 @@ scrape_configs:
 新建 `docker-compose.yaml` ：
 
 ```yaml
-version: '3.8'
-
 services:
   mysql:
     image: mysql:latest
