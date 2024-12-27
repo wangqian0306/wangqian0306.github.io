@@ -238,7 +238,7 @@ vim /etc/systemd/system/docker.service.d/proxy.conf
 [Service]
 Environment="HTTP_PROXY=http://127.0.0.1:8888/"
 Environment="HTTPS_PROXY=http://127.0.0.1:8888/"
-Environment="NO_PROXY=localhost,127.0.0.1,.example.com
+Environment="NO_PROXY=localhost,127.0.0.1,.example.com"
 ```
 
 重启服务
