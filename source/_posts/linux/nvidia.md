@@ -54,6 +54,20 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
+### 性能检查
+
+可以通过如下命令安装性能检测工具：
+
+```bash
+sudo apt install nvtop -y
+```
+
+然后使用如下命令即可看到性能图表：
+
+```bash
+nvtop
+```
+
 ### 参考资料
 
 [如何在 Ubuntu 20.04 安装 Nvidia 驱动程序](https://www.myfreax.com/how-to-nvidia-drivers-on-ubuntu-20-04/)

@@ -70,7 +70,17 @@ curl http://localhost:11434/api/generate -d '{
 ollama run hf.co/arcee-ai/SuperNova-Medius-GGUF
 ```
 
-自然也可以通过修改模型文件的方式，添加自定义的提示词等内容。
+自然也可以通过修改模型文件的方式，添加自定义的提示词等内容。在对话中也可以使用命令修改参数，例如：
+
+```text
+\set parameter 'num_ctx' 32768
+```
+
+之后也可以将其存储为新的模型：
+
+```text
+\save <name>
+```
 
 #### Embedding
 
@@ -299,6 +309,17 @@ export PATH=$PATH:$(go env GOPATH)/bin
 ```bash
 gollama
 ```
+
+### 内存优化
+
+在上下文过多的情况下也可以通过量化的方式去减少内存占用量，修改如下配置：
+
+```text
+OLLAMA_FLASH_ATTENTION=true
+OLLAMA_KV_CACHE_TYPE=f16
+```
+
+> 注：需要重启服务才能生效，且不同模型效果可能不同，建议先用 Qwen2.5 看下显存占用，修改配置后启动服务再看下。
 
 ### 参考资料
 

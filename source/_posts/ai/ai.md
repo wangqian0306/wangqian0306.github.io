@@ -26,9 +26,13 @@ no_toc: false
 
 LLM 越大效果越好，但是同时也会造成需要更多的内存，量化是目前最突出的解决方案。目前的模型通常会用 32 位的浮点数来表示权重(weights) 和激活函数 (activations) ，但是实际在使用中会将其转化至 `float32 -> float16` 和 `float32 -> int8` 。
 
+其中 Q2 Q4 Q8 代表位数，K 代表将数值按照分组然后进行按位优化，K 有 S M L (小中大)三种记录方式携带内容越多模型越大。
+
 [A Guide to Quantization in LLMs](https://symbl.ai/developers/blog/a-guide-to-quantization-in-llms/)
 
 [Optimum Document Quantization](https://huggingface.co/docs/optimum/en/concept_guides/quantization)
+
+[Optimize Your AI - Quantization Explained](https://www.youtube.com/watch?v=K75j8MkwgJ0)
 
 #### RAG
 
