@@ -4,7 +4,7 @@ date: 2021-08-04 20:26:13
 tags:
 - "RabbitMQ"
 - "Python"
-id: zeromq
+id: rabbitmq
 no_word_count: true
 no_toc: false
 categories: MQ
@@ -22,6 +22,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_VHOST: my_host
 ```
 
 > 注：management 代表自带的管理工具，可以使用网页的方式进行管理，默认用户名和密码都为 guest，容器的详细配置请参照 [Dockerhub 文档](https://registry.hub.docker.com/_/rabbitmq/)。
