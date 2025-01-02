@@ -225,3 +225,5 @@ POST http://localhost:8080/order
 [Bootiful Spring Boot (SpringOne 2024)](https://www.youtube.com/watch?v=ex7rnzIMmlk)
 
 [官方样例](https://github.com/spring-projects/spring-modulith/tree/main/spring-modulith-examples)
+
+[mplementing Domain Driven Design with Spring by Maciej Walkowiak @ Spring I/O 2024](https://www.youtube.com/watch?v=VGhg6Tfxb60)
