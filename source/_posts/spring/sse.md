@@ -113,6 +113,25 @@ public class SSEController {
 }
 ```
 
+#### 使用 IDEA Httpclient 检测
+
+```text
+### SSE
+GET http://localhost:8080/connect
+Accept: text/event-stream
+
+### Message
+POST http://localhost:8080/message
+Content-Type: application/json
+
+{
+    "userId": "admin",
+    "message": "Hello"
+}
+```
+
+#### 使用前端代码检测
+
 编写 `src/main/resources/static/chat.js` 前端业务逻辑：
 
 ```javascript

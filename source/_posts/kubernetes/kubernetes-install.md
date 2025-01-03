@@ -226,7 +226,13 @@ kubectl get pods --all-namespaces
 
 ### 证书续期
 
-集群的默认证书只有一年，可以使用如下命令检测过期时长：
+集群的默认证书只有一年，可以通过如下命令配置延长：
+
+```bash
+kubeadm init --cert-dir /etc/kubernetes/pki --cert-expiration 8760h
+```
+
+使用如下命令检测过期时长：
 
 ```bash
 kubeadm certs check-expiration
@@ -236,6 +242,21 @@ kubeadm certs check-expiration
 
 ```bash
 kubeadm certs renew <CERTIFICATE>
+```
+
+或者使用如下命令批量更新：
+
+```bash
+kubeadm certs renew all
+```
+
+在更新完成后需要重启服务，通过重启设备或者使用如下命令：
+
+```bash
+kubectl -n kube-system delete pod -l 'component=kube-apiserver'
+kubectl -n kube-system delete pod -l 'component=kube-controller-manager'
+kubectl -n kube-system delete pod -l 'component=kube-scheduler'
+kubectl -n kube-system delete pod -l 'component=kube-etcd'
 ```
 
 ### 参考资料
