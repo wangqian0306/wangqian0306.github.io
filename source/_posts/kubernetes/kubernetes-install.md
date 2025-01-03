@@ -256,7 +256,7 @@ kubeadm certs renew all
 kubectl -n kube-system delete pod -l 'component=kube-apiserver'
 kubectl -n kube-system delete pod -l 'component=kube-controller-manager'
 kubectl -n kube-system delete pod -l 'component=kube-scheduler'
-kubectl -n kube-system delete pod -l 'component=kube-etcd'
+kubectl -n kube-system delete pod -l 'component=etcd'
 ```
 
 ### 参考资料
