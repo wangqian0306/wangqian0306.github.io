@@ -226,6 +226,63 @@ function connect() {
 
 由于是长连接所以可能出现链接超时的情况，例如在 k8s 上使用 nginx-ingress-controller 就可能遇到，建议参照 ingress 文档进行配置。
 
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: <name>
+  name: <name>
+  namespace: <namespace>
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: <host>
+      http:
+        paths:
+          - backend:
+              service:
+                name: <service_name>
+                port:
+                  number: <service_port>
+            path: <path>
+            pathType: Prefix
+```
+
+#### Nginx 代理配置
+
+如果需要 Nginx 代理则可以进行如下配置：
+
+```text
+server {
+    listen 80;
+    server_name rehab.rainbowfish.com.cn;
+    client_max_body_size 5M;
+
+    location <path> {
+        # 代理到你的后端服务器
+        proxy_pass http://<domain><path>;
+
+        # 保持连接
+        proxy_http_version 1.1;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+
+        # 添加适当的超时设置
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 3600s;
+        proxy_read_timeout 3600s;
+
+        gzip off;
+    }
+
+}
+```
+
 ### 参考资料
 
 [Server-Sent Events in Spring](https://www.baeldung.com/spring-server-sent-events)
