@@ -2,15 +2,15 @@
 title: Spring Security
 date: 2021-10-27 21:32:58
 tags:
-- "Java"
-- "Spring Boot"
-- "Spring Security"
-- "JWT"
+  - "Java"
+  - "Spring Boot"
+  - "Spring Security"
+  - "JWT"
 id: spring-security
 no_word_count: true
 no_toc: false
-categories: 
-- "Spring"
+categories:
+  - "Spring"
 ---
 
 ## Spring Security
@@ -19,7 +19,7 @@ categories:
 
 Spring Security 是一款安全框架。
 
-### JWT
+### 基本使用
 
 引入依赖包：
 
@@ -49,111 +49,59 @@ jwt.private.key=classpath:pri.key
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-新建用户/权限相关模型：
+新建用户模型 `user/User.java` ：
 
 ```java
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.hibernate.Hibernate;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Collection;
 import java.util.Objects;
 
 @Getter
 @Setter
+@ToString
 @RequiredArgsConstructor
-@NamedEntityGraph(
-        name = "user.roles",
-        attributeNodes = @NamedAttributeNode("roles")
-)
 @Entity
-@Table(name = "T_USER")
+@Table(name="T_USER")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique=true)
     private String username;
-
-    private String email;
-
-    private String phone;
-
-    @JsonIgnore
     private String password;
+    private String roles;
 
-    @Transient
-    private String rawPass;
-
-    private Boolean enabled;
-
-    @JsonIgnore
-    private Boolean tokenExpired;
-
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "T_USER_ROLE_REL",
-            joinColumns = @JoinColumn(
-                    name = "USER_ID", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "ROLE_ID", referencedColumnName = "id"))
-    private Collection<Role> roles;
+    public User(String username, String password, String roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        User that = (User) o;
-        return id != null && Objects.equals(id, that.id);
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        User user = (User) o;
+        return getId() != null && Objects.equals(getId(), user.getId());
     }
 
     @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
 }
 ```
 
-```java
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.Collection;
-
-@Slf4j
-@Setter
-@Getter
-@Entity
-@Table(name = "T_ROLE")
-public class Role {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    private String name;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "roles")
-    private Collection<User> users;
-
-}
-```
-
-新建用户/权限相关存储库：
+新建用户存储库 `user/UserRepository.java`：
 
 ```java
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -163,25 +111,370 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    @EntityGraph(value = "user.roles", type = EntityGraph.EntityGraphType.FETCH)
     Optional<User> findByUsername(String username);
 
 }
 ```
 
+新建用户初始化类：
+
 ```java
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.lang.Nullable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-@Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
+import java.util.Optional;
 
-    Role findByName(String name);
+@Component
+public class SetupUserLoader implements ApplicationListener<ContextRefreshedEvent> {
+
+    boolean alreadySetup = false;
+
+    private final UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public SetupUserLoader(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    @Transactional
+    public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
+        if (alreadySetup)
+            return;
+        createUserIfNotFound("admin", "admin", "ROLE_ADMIN,ROLE_USER");
+        alreadySetup = true;
+    }
+
+    @Transactional
+    public void createUserIfNotFound(String username, String password, String role) {
+        Optional<User> optional = userRepository.findByUsername(username);
+        if (optional.isEmpty()) {
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setRoles(role);
+            userRepository.save(user);
+        }
+    }
 
 }
 ```
 
-新建权限配置程序：
+新建登录请求类 `auth/LoginRequest.java`：
+
+```java
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+
+    public String username;
+
+    public String password;
+
+}
+```
+
+新建用户细节类 `security/CustomUserDetail.java`
+
+```java
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+public class CustomUserDetail implements UserDetails {
+
+    private final User user;
+
+    public CustomUserDetail(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.stream(user
+                        .getRoles()
+                        .split(","))
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+}
+```
+
+新建登录验证程序 `security/CustomUserDetailsService`：
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Resource
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> optional = userRepository.findByUsername(username);
+        if (optional.isEmpty()) {
+            throw new UsernameNotFoundException(username);
+        }
+        return new CustomUserDetail(optional.get());
+    }
+
+}
+```
+
+### Session
+
+新建权限配置程序 `security/SecurityConfig.java` ：
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+
+import static jakarta.servlet.DispatcherType.ERROR;
+import static jakarta.servlet.DispatcherType.FORWARD;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.ALL;
+
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@EnableRSocketSecurity
+public class SecurityConfig {
+
+    @Resource
+    private CustomUserDetailsService customUserDetailsService;
+
+    private static final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
+
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            // other
+            "/api/auth/login"
+    };
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/api/admin/**").hasAuthority(ADMIN_ROLE_NAME)
+                        .anyRequest().authenticated()
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(Customizer.withDefaults())
+                .cors(AbstractHttpConfigurer::disable)
+                .formLogin(Customizer.withDefaults())
+                .logout((logout) -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ALL)))
+                        .deleteCookies("JSESSIONID")
+                );
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(customUserDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+
+}
+```
+
+新建用户验证服务 `auth/AuthService.java`：
+
+```java
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+
+    @Resource
+    private AuthenticationManager authenticationManager;
+
+    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+
+    public void login(HttpServletRequest request,
+                      HttpServletResponse response,
+                      LoginRequest body
+    ) throws AuthenticationException {
+        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(body.getUsername(), body.getPassword());
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+        SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+        context.setAuthentication(authentication);
+        securityContextHolderStrategy.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
+    }
+
+    public String getUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof User user) {
+            return user.getUsername();
+        } else if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        } else {
+            throw new ReportBadException(ErrorEnum.PARAM_EXCEPTION);
+        }
+    }
+
+}
+```
+
+新建登录控制器 `auth/AuthController.java`：
+
+```java
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Resource
+    private AuthService authService;
+
+    @PostMapping("/login")
+    public void login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        authService.login(request,response,loginRequest);
+    }
+
+    @GetMapping("/user")
+    public String getUser() {
+        return authService.getUsername();
+    }
+
+}
+```
+
+#### 使用方式
+
+在 IDEA 中则可以使用如下方式进行请求：
+
+```text
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+### Get User
+GET http://localhost:8080/api/auth/user
+Content-Type: application/json
+
+### Logout
+GET http://localhost:8080/api/auth/logout
+Content-Type: application/json
+```
+
+#### 获取用户相关信息的基本方式
+```java
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "当前登录用户：" + SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+}
+```
+
+### JWT
+
+新建权限配置程序 `security/SecurityConfig.java`：
 
 ```java
 import com.nimbusds.jose.jwk.JWK;
@@ -278,48 +571,7 @@ public class SecurityConfig {
 }
 ```
 
-新建登录验证程序：
-
-```java
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
-@Slf4j
-@Service
-public class CustomUserDetailService implements UserDetailsService {
-
-    @Resource
-    private UserRepository userRepository;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optional = userRepository.findByUsername(username);
-        if (optional.isEmpty()) {
-            throw new UsernameNotFoundException(username);
-        }
-        return new CustomUserPrincipal(optional.get());
-    }
-
-}
-```
-
-新建登录请求和返回类：
-
-```java
-import lombok.Data;
-
-@Data
-public class LoginRequest {
-    private String username;
-    private String password;
-}
-```
+新建登录返回类 `auth/LoginResponse.java`：
 
 ```java
 import lombok.Data;
@@ -330,17 +582,7 @@ public class LoginResponse {
 }
 ```
 
-新建用户验证服务：
-
-```java
-public interface UserService {
-
-    LoginResponse login(LoginRequest loginRequest);
-
-    User getUserByUsername(String username);
-
-}
-```
+新建用户验证服务 `auth/AuthService.java`：
 
 ```java
 import jakarta.annotation.Resource;
@@ -361,7 +603,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserServiceImpl implements UserService {
+public class UserService {
 
     @Value("${jwt.expiry:36000}")
     Long expiry;
@@ -378,7 +620,6 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserRepository userRepository;
 
-    @Override
     public LoginResponse login(LoginRequest loginRequest) {
         LoginResponse loginResponse = new LoginResponse();
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
@@ -390,7 +631,6 @@ public class UserServiceImpl implements UserService {
         return loginResponse;
     }
 
-    @Override
     public User getUserByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()){
@@ -417,70 +657,7 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
-```java
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-@Getter
-@Setter
-public class CustomUserPrincipal implements UserDetails {
-
-    private CustomUser user;
-
-    public CustomUserPrincipal(CustomUser user) {
-        this.user = user;
-    }
-
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
-
-    @Override
-    public String getUsername() {
-        return user.getUsername();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return user.getEnabled();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (Role role : user.getRoles()) {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-        }
-        return authorities;
-    }
-
-}
-```
-
-新建登录控制器：
+新建登录控制器 `auth/AuthController.java`：
 
 ```java
 import io.swagger.v3.oas.annotations.Operation;
@@ -493,8 +670,8 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/user")
-public class UserController {
+@RequestMapping("/api/auth")
+public class AuthController {
 
     @Resource
     private UserService userService;
@@ -530,76 +707,10 @@ public class UserController {
 }
 ```
 
-新建用户和权限初始化程序：
-
-```java
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.lang.Nullable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-
-@Component
-public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
-
-    boolean alreadySetup = false;
-
-    private final UserRepository userRepository;
-
-    private final RoleRepository roleRepository;
-
-    private final PasswordEncoder passwordEncoder;
-
-    public SetupDataLoader(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    @Override
-    @Transactional
-    public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
-        if (alreadySetup)
-            return;
-        Role adminRole = createRoleIfNotFound("ROLE_ADMIN");
-        createUserIfNotFound(adminRole);
-        alreadySetup = true;
-    }
-
-    @Transactional
-    public Role createRoleIfNotFound(String name) {
-        Role role = roleRepository.findByName(name);
-        if (role == null) {
-            role = new Role();
-            role.setName(name);
-            roleRepository.save(role);
-        }
-        return role;
-    }
-
-    @Transactional
-    public void createUserIfNotFound(Role adminRole) {
-        Optional<User> optional = userRepository.findByUsername("admin");
-        if (optional.isEmpty()) {
-            User user = new User();
-            user.setUsername("admin");
-            user.setPassword(passwordEncoder.encode("admin"));
-            user.setRoles(List.of(adminRole));
-            user.setEnabled(true);
-            userRepository.save(user);
-        }
-    }
-}
-```
-
 #### 使用方式
 
 ```bash
-curl --location --request POST 'localhost:8080/api/v1/user/login' \
+curl --location --request POST 'localhost:8080/api/auth/login' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "username":"admin",
@@ -608,7 +719,7 @@ curl --location --request POST 'localhost:8080/api/v1/user/login' \
 ```
 
 ```bash
-curl --request GET 'http://localhost:8080/api/v1/user' --header 'Authorization: Bearer <token>'
+curl --request GET 'http://localhost:8080/api/auth' --header 'Authorization: Bearer <token>'
 ```
 
 #### 在 Get 参数或 Form 中携带 token
@@ -630,7 +741,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-                        .requestMatchers(antMatcher("/api/v1/user/login")).permitAll()
+                        .requestMatchers(antMatcher("/api/auth/login")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
@@ -652,101 +763,12 @@ public class SecurityConfig {
 然后即可在请求中添加 `access_token` 参数即可，GET 请求样例如下：
 
 ```bash
-curl --request GET 'http://localhost:8080/api/v1/user?access_token=<token>'
+curl --request GET 'http://localhost:8080/api/user?access_token=<token>'
 ```
 
 > 注：无需添加 `Bearer` 字段
 
-### Session
-
-可以使用 Session 作为认证和鉴权的资源，样例 Sevice 如下：
-
-```java
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.stereotype.Service;
-
-@Service
-public class AuthService {
-
-    @Resource
-    private AuthenticationManager authenticationManager;
-
-    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-
-    public void login(HttpServletRequest request,
-                      HttpServletResponse response,
-                      LoginRequest body
-    ) throws AuthenticationException {
-        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(body.getUsername(), body.getPassword());
-        Authentication authentication = authenticationManager.authenticate(token);
-        SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
-        SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-        context.setAuthentication(authentication);
-        securityContextHolderStrategy.setContext(context);
-        securityContextRepository.saveContext(context, request, response);
-    }
-
-    public User getSession() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof User user) {
-            return user;
-        } else {
-            throw new ReportBadException(ErrorEnum.PARAM_EXCEPTION);
-        }
-    }
-
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        this.logoutHandler.logout(request, response, authentication);
-    }
-
-}
-```
-
-> 注：此处需要注意下 SecurityFilterChain 记得把 Session 部分回归默认配置。 
-
-在 IDEA 中则可以使用如下方式进行请求：
-
-```text
-### Login
-POST http://localhost:8080/api/auth/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "admin"
-}
-
-### Get User
-GET http://localhost:8080/api/auth/user
-```
-
-### 获取用户相关信息的基本方式
-```java
-@RestController
-public class HelloController {
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "当前登录用户：" + SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-}
-```
-
-### OpenAPI 相关配置
+#### OpenAPI 相关配置
 
 可以加入如下配置，可以在 OpenAPI 中自动携带 JWT Token。
 
@@ -786,45 +808,45 @@ public class OpenAPIConf {
 ```java
 @Repository
 public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
-	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
-	Page<Message> findInbox(Pageable pageable);
+    @Query("select m from Message m where m.to.id = ?#{ principal?.id }")
+    Page<Message> findInbox(Pageable pageable);
 }
 ```
 
 ### 自定义登录页
 
-编写如下 `resources/templates/login.html` ： 
+编写如下 `resources/templates/login.html` ：
 
 ```html
 <!DOCTYPE html>
 <html lang="zh" xmlns:th="https://www.thymeleaf.org">
 <head>
-  <title>Please Log In</title>
+    <title>Please Log In</title>
 </head>
 <body>
 <h1>Here is Custom Login page. Please Log In: </h1>
 <div th:if="${param.error}">
-  Invalid username and password.</div>
+    Invalid username and password.</div>
 <div th:if="${param.logout}">
-  You have been logged out.</div>
+    You have been logged out.</div>
 <form th:action="@{/login}" method="post">
-  <div>
-    <label>
-      <input type="text" name="username" placeholder="Username"/>
-    </label>
-  </div>
-  <div>
-    <label>
-      <input type="password" name="password" placeholder="Password"/>
-    </label>
-  </div>
-  <input type="submit" value="Log in" />
+    <div>
+        <label>
+            <input type="text" name="username" placeholder="Username"/>
+        </label>
+    </div>
+    <div>
+        <label>
+            <input type="password" name="password" placeholder="Password"/>
+        </label>
+    </div>
+    <input type="submit" value="Log in" />
 </form>
 </body>
 </html>
 ```
 
-编写 `SecurityConfig` 配置文件：
+编写 `security/SecurityConfig.java` 配置文件：
 
 ```java
 import org.springframework.context.annotation.Bean;
@@ -847,7 +869,7 @@ public class SecurityConfig {
 }
 ```
 
-编写 `LoginController` ： 
+编写 `auth/LoginController.java` ：
 
 ```java
 import org.springframework.stereotype.Controller;
@@ -883,9 +905,9 @@ public class UserControllerTest {
     @WithMockUser(username = "user", roles = "USER")
     public void testGetUser() throws Exception {
         mockMvc.perform(get("/api/users/1"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.username").value("user"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("user"));
     }
 }
 ```
