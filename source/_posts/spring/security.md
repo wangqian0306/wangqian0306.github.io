@@ -2,15 +2,15 @@
 title: Spring Security
 date: 2021-10-27 21:32:58
 tags:
-  - "Java"
-  - "Spring Boot"
-  - "Spring Security"
-  - "JWT"
+- "Java"
+- "Spring Boot"
+- "Spring Security"
+- "JWT"
 id: spring-security
 no_word_count: true
 no_toc: false
 categories:
-  - "Spring"
+- "Spring"
 ---
 
 ## Spring Security
@@ -44,8 +44,6 @@ spring.datasource.username=${JDBC_USERNAME:xxx}
 spring.datasource.password=${JDBC_PASSWORD:xxx}
 spring.datasource.driver-class-name=${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
 spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-jwt.public.key=classpath:pub.key
-jwt.private.key=classpath:pri.key
 spring.jpa.hibernate.ddl-auto=update
 ```
 
@@ -473,6 +471,13 @@ public class HelloController {
 ```
 
 ### JWT
+
+新增如下配置：
+
+```text
+jwt.public.key=classpath:pub.key
+jwt.private.key=classpath:pri.key
+```
 
 新建权限配置程序 `security/SecurityConfig.java`：
 

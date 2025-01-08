@@ -12,9 +12,9 @@ categories: Container
 
 使用如下命令进行安装
 
-CentOS 7:
+Rocky Linux:
 ```bash
-yum install podman -y
+yum install docker -y
 ```
 
 ## 关闭 SELinux
@@ -60,27 +60,3 @@ podman play kube demo.yml
 ```bash
 podman pod <command>
 ```
-
-## podman-compose
-
-在 podman 中也有像 docker-compose 的相关命令，即 `podman-compose`。
-
-可以使用如下命令进行安装：
-
-```bash
-pip3 install podman-compose
-```
-
-但是在使用中需要注意 `podman-compose` 目前的命令非常不完善有且仅有以下几项：
-
-- pull
-- push
-- build
-- up
-- down
-- run
-- start
-- stop
-- restart 
-
-而且整个软件需要使用镜像 `k8s.gcr.io/pause:3.1` 才能正常运行。故不推荐使用此工具。

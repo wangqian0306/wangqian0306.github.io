@@ -65,6 +65,12 @@ UPDATE USER SET host = '%' WHERE user = '<user>';
 FLUSH PRIVILEGES;
 ```
 
+创建数据库：
+
+```sql
+CREATE DATABASE `<name>` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
+
 > 注：本文以 RockyLinux 7 为例，详情参照 [官方文档](https://dev.mysql.com/doc/mysql-linuxunix-excerpt/8.4/en/linux-installation.html)，记得进入页面后切换至当前版本。
 
 ### 容器化安装

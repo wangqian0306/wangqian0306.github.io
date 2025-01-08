@@ -16,11 +16,13 @@ categories: Container
 
 使用如下命令进行安装
 
-CentOS 7:
+Rocky Linux:
 
 ```bash
 yum install docker -y
 ```
+
+> 注：由于版权问题此处替换为了 Podman 但是基本使用逻辑是类似的，配置和管理等运维上则完全不同。
 
 ### Docker CE
 
@@ -176,7 +178,9 @@ docker run -it --entrypoint /bin/bash --name <name> <image>
 
 ## 配置远程链接
 
-Docker 采用了C/S架构，所以能在客户机上仅仅安装一个 docker-cli 就可以方便的链接服务器使用Docker了。
+Docker 采用了 C/S 架构，所以能在客户机上仅仅安装一个 docker-cli 就可以方便的链接服务器使用 Docker 了。
+
+> 注：Podman 无法这样使用
 
 ### 开启服务端远程链接
 
