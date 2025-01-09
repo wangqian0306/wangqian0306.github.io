@@ -270,6 +270,27 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 ### Session
 
+新建登出处理类 `security/NoRedirectLogoutSuccessHandler.java` :
+
+```java
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import java.io.IOException;
+
+public class NoRedirectLogoutSuccessHandler implements LogoutSuccessHandler {
+
+    @Override
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        response.setStatus(200);
+    }
+
+}
+```
+
 新建权限配置程序 `security/SecurityConfig.java` ：
 
 ```java
@@ -332,6 +353,7 @@ public class SecurityConfig {
                         .logoutUrl("/api/auth/logout")
                         .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ALL)))
                         .deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler(new NoRedirectLogoutSuccessHandler())
                 );
         return http.build();
     }
