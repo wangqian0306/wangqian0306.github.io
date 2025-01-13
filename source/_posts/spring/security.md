@@ -971,6 +971,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 [Let’s Explore Spring Security 6.4 (SpringOne 2024)](https://www.youtube.com/watch?v=9eoi1TViceM)
 
+[Bootiful Spring Boot 3.4: Spring Security](https://spring.io/blog/2024/11/24/bootiful-34-security)
+
 [spring-security-64](https://github.com/rwinch/spring-security-64)
 
 [Testing with CSRF Protection](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/csrf.html)

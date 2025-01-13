@@ -29,15 +29,11 @@ Hugging Face 是一个专注于机器学习，数据集和 AI 应用的社区。
 
 可以访问上面的网站来调用一些开源的大语言模型。
 
-#### StarCoder Plus & Chat
+#### BigCode
 
-类似于 Copilot 但是开源：
+BigCode 是一个专注于 编码类 LLM 的开源项目，模型清单如下：
 
-[starcoderplus](https://huggingface.co/bigcode/starcoderplus)
-
-类似于 Copilot Chat 但是开源：
-
-[starchat-beta](https://huggingface.co/HuggingFaceH4/starchat-beta)
+[BigCode](https://huggingface.co/bigcode)
 
 ### Transformers.js
 
