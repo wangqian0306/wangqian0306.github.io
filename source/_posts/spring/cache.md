@@ -292,7 +292,7 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         cacheConfigurations.put("ocean", defaultCacheConfig.entryTtl(Duration.ofDays(1)));
@@ -303,6 +303,36 @@ public class CacheConfig {
                 .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
+}
+```
+
+#### 利用浏览器的缓存机制
+
+在响应结果中加入 LastModified 头可以让浏览器缓存响应结果，节省开销：
+
+```java
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.Calendar;
+
+@Service
+public class TestService {
+
+    @Cacheable(cacheNames = {"test"})
+    public ResponseEntity<String> test() {
+        HttpHeaders headers = new HttpHeaders();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        headers.setLastModified(calendar.getTime().toInstant());
+        return new ResponseEntity<>("test", headers, HttpStatusCode.valueOf(200));
+    }
+
 }
 ```
 
