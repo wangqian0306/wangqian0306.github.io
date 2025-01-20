@@ -6,7 +6,8 @@ tags:
 id: nginx
 no_word_count: true
 no_toc: false
-categories: "工具"
+categories:
+- "工具"
 ---
 
 ## Nginx
@@ -229,6 +230,79 @@ server {
         proxy_pass http://xxxx;
         proxy_set_header Authorization "Basic <token>";
     }
+}
+```
+
+#### 缓存配置
+
+```text
+user nginx;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+        # 缓存路径和key以及清除时间
+        proxy_cache_path /data/nginx/cache
+                levels=1:2
+                keys_zone=my_api_cache:10m
+                inactive=60m
+                max_size=1g;
+        proxy_temp_path /data/nginx/cache/tmp;
+
+        server {
+                listen 80;
+                server_name localhost;
+
+                location / {
+                        proxy_cache my_api_cache;
+                        # 缓存的方法和时间长度
+                        proxy_cache_valid 200 301 302 10m;
+                        proxy_cache_valid 404 1m;
+                        proxy_cache_key "$scheme$request_method$host$request_uri";
+                        proxy_cache_revalidate on;
+
+                        add_header X-Proxy-Cache $upstream_cache_status;
+                        add_header ETag $upstream_http_etag;
+
+                        proxy_pass http://xxx.xxx.xxx.xxx/;
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto $scheme;
+                }
+        }
+}
+```
+
+#### SSE 配置
+
+```text
+server {
+    listen 443 ssl;
+    server_name xxx.xxx.xxx;
+    client_max_body_size 5M;
+
+    location /xxx {
+        # 代理到你的后端服务器
+        proxy_pass http://xxx.xxx.xxx.xxx/xxx;
+
+        # 保持连接
+        proxy_http_version 1.1;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+
+        # 添加适当的超时设置
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 3600s;
+        proxy_read_timeout 3600s;
+
+        gzip off;
+    }
+
 }
 ```
 
