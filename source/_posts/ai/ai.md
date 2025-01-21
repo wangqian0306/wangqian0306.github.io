@@ -45,6 +45,8 @@ no_toc: false
 
 且最好要在训练数据中包含边缘情况和失败场景的处理方法。
 
+[Is MLX the best Fine Tuning Framework?](https://www.youtube.com/watch?v=BCfCdTp-fdM)
+
 #### 量化(Quantization)
 
 LLM 越大效果越好，但是同时也会造成需要更多的内存，量化是目前最突出的解决方案。目前的模型通常会用 32 位的浮点数来表示权重(weights) 和激活函数 (activations) ，但是实际在使用中会将其转化至 `float32 -> float16` 和 `float32 -> int8` 。
@@ -82,6 +84,14 @@ LangChain 是一个用于开发由语言模型驱动的应用程序的框架。�
 项目地址：[Text generation web UI](https://github.com/oobabooga/text-generation-webui)
 
 此项目可以在本地搭建一个聊天服务器，并且可以替换各种模型
+
+#### AutoGen
+
+AutoGen 是一个用于创建多代理 AI 应用程序的框架，这些应用程序可以自主运行或与人类一起工作。
+
+利用不同的 Agent 可以实现循环调用，使用工具，分角色处理问题等内容。
+
+[微软最强AI智能体AutoGen史诗级更新！](https://www.youtube.com/watch?v=IrTEDPnEVvU)
 
 #### Tabby
 
