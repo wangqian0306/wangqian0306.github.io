@@ -1,0 +1,910 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Paxos Made Simple 中文翻译 作者：Leslie Lamport 英文原文 摘要 我们可以用简单的语言来描述 Paxos 算法。  注：本文是关于 The Part-Time Parliament 的补充说明，这篇文章实在是太难看懂了。  1 引言 用于实现容错分布式系统的 Paxos 算法一直被认为难以理解，可能是因为最初的介绍对许多读者来说是希腊语 [5]。 事实上，它是最简单">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paxos Made Simple 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/paxos_made_simple/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Paxos Made Simple 中文翻译 作者：Leslie Lamport 英文原文 摘要 我们可以用简单的语言来描述 Paxos 算法。  注：本文是关于 The Part-Time Parliament 的补充说明，这篇文章实在是太难看懂了。  1 引言 用于实现容错分布式系统的 Paxos 算法一直被认为难以理解，可能是因为最初的介绍对许多读者来说是希腊语 [5]。 事实上，它是最简单">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-13T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.490Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Paxos">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Paxos Made Simple 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Paxos Made Simple 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-07-13 22:26" pubdate>
+          2021年7月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Paxos Made Simple 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Paxos-Made-Simple-中文翻译">Paxos Made Simple 中文翻译</h2>
+<p>作者：Leslie Lamport</p>
+<p><a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/research/uploads/prod/2016/12/paxos-simple-Copy.pdf">英文原文</a></p>
+<h3 id="摘要">摘要</h3>
+<p>我们可以用简单的语言来描述 Paxos 算法。</p>
+<blockquote>
+<p>注：本文是关于 The Part-Time Parliament 的补充说明，这篇文章实在是太难看懂了。</p>
+</blockquote>
+<h3 id="1-引言">1 引言</h3>
+<p>用于实现容错分布式系统的 Paxos 算法一直被认为难以理解，可能是因为最初的介绍对许多读者来说是希腊语 <code>[5]</code>。
+事实上，它是最简单和最明显的分布式算法之一。
+它的核心是一个共识算法——“synod”算法 <code>[5]</code>。
+下一节表明，这种共识算法几乎不可避免地遵循我们希望它满足的属性。
+最后一节解释了完整的 Paxos 算法，它是通过直接将共识应用于状态机方法来构建分布式系统而获得的。
+这种方法应该是众所周知的，因为它可能是最常见的主题-引用关于分布式系统理论的文章 <code>[4]</code>。</p>
+<h3 id="2-共识算法">2 共识算法</h3>
+<h4 id="2-1-问题">2.1 问题</h4>
+<p>假设有一组可以提出(propose)值的流程(processes)。
+共识算法会确保在提议的值中选择其中的一个。
+如果未提出任何值，则不应选择任何值。
+如果已经选择了一个值，那么流程应该能够知道(learn)到所选的值。
+共识的安全要求是：</p>
+<ol>
+<li>只能选择(chosen)已提议的值</li>
+<li>仅选择一个值</li>
+<li>一个过程永远不会知道一个值已经被选择，除非它实际上已经被选择</li>
+</ol>
+<p>我们不会尝试指定精确的生命状态(liveness)要求。
+但是，目标是确保最终选择某个提议的值，如果已选择某个值，则流程最终可以知道该值。</p>
+<blockquote>
+<p>注：此处的 liveness 指的是保证集群中某些节点一直可用。</p>
+</blockquote>
+<p>我们让共识算法中的三个角色由三类客户端执行：提议者(proposers)、接受者(acceptors)和学习者(learners)。
+在一个实现中，单个进程可能充当多个客户端，但是我们在这里不涉及从客户端到进程的映射。</p>
+<p>假设客户端可以通过发送消息相互通信。
+我们使用惯用的异步非拜占庭(non-Byzantine)模型，其中：</p>
+<ul>
+<li>客户端以任意速度运行，可能会因停止而失败，也可能会重新启动。
+由于所有客户端在选择一个值后可能会失败然后重新启动，因此除非某些信息可以被失败并重新启动的客户端记住，否则解决方案是不可能的。</li>
+<li>消息的传递时间可以任意长，可以复制，也可以丢失，但它们不会损坏。</li>
+</ul>
+<h4 id="2-2-选择一个值">2.2 选择一个值</h4>
+<p>选择值的最简单方法是拥有一个单一的接受者客户端。
+提议者向接受者发送提议，接受者选择它收到的第一个提议值。
+虽然简单，但这个解决方案并不令人满意，因为接受者的失败使得任何进一步的进展都变得不可能。</p>
+<p>因此，让我们尝试另一种选择值的方法。
+代替单个接受者，让我们使用多个接受者客户端。
+提议者将提议的值发送给一组接受者。
+接受者可以接受提议的值。
+当足够多的接受者集接受它时，就会选择该值。
+那么多少节点才算足够多？
+为了确保只选择一个值，我们可以让一个足够多的集合由大多数客户端组成这些客户端可以是系统中的任意客户端。
+因为任何两个提议发送至大多数的客户端都有至少一个共同的接受者，如果一个接受者最多可以接受一个值，那算法就可以使用了。
+(在许多论文中已经观察到大多数人的明显概括，显然是从 <code>[3]</code> 开始的。)</p>
+<p>在没有失败或消息丢失的情况下，即使单个提议者仅提出一个值，我们也希望选择一个值。
+这表明了如下要求：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P1. An acceptor must accept the first proposal that it receives.<br></code></pre></td></tr></table></figure>
+<p>条件 1：接受者必须接受它收到的第一个提案</p>
+<p>但是这个条件提出了一个问题。
+不同的提议者可能同时提出多个值，导致每个接受者都接受了一个值，但大多数接受者都没有接受单个值的情况。
+即使只有两个提议的值，如果每个值都被大约一半的接受者接受，单个接受者的失败可能会导致无法了解到具体选择了哪个值。</p>
+<p>在条件 1 以及只有在大多数接受者接受时才选择一个值的要求意味着必须允许接受者接受多个提案。
+我们通过为每个提案分配一个(自然)编号来跟踪接受者可能接受的不同提案，因此提案由提案编号和值组成。
+为了防止混淆，我们要求不同的提案有不同的编号。
+实现是另外的问题，所以现在我们只是假设它。
+当具有该值的单个提案被大多数接受者接受时，就会选择一个值。
+在这种情况下，我们说提案(及其值)已被选择。</p>
+<p>我们可以允许选择多个提案，但我们必须保证所有被选择的提案都具有相同的值。
+通过对提案编号的归纳，足以保证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P2. If a proposal with value v is chosen, then every higher-numbered proposal that is chosen has value v.<br></code></pre></td></tr></table></figure>
+<p>条件 2：如果选择了值为 v 的提案，则选择的每个编号较高的提案都具有值 v。
+由于数字是完全有序的，条件 2 保证了仅选择单个值的关键安全属性。</p>
+<p>要被选择，提案必须被至少一个接受者接受。
+因此，我们可以通过满足以下条件来满足条件 2：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P2a. If a proposal with value v is chosen, then every higher-numbered proposal accepted by any acceptor has value v.<br></code></pre></td></tr></table></figure>
+<p>条件 2 <sup>a</sup> ：如果选择了值为 v 的提案，则任何接受者接受的每个编号较高的提案都具有值为 v。</p>
+<p>我们仍然保持条件 1 以确保选择某些提案。
+因为通信是异步的，所以可以选择一个从未收到任何提案的特定接受者 c 的提案。
+假设一个新的提议者“醒来”并发出一个具有不同值的更高编号的提议。
+条件 1 要求 c 接受这个提议，违反了条件 2 <sup>a</sup>。
+为了维持条件 1 和条件 2 <sup>a</sup> 我们需要对条件 2 <sup>a</sup> 进行一些补充。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P2b. If a proposal with value v is chosen, then every higher-numbered proposal issued by any proposer has value v.<br></code></pre></td></tr></table></figure>
+<p>条件 2 <sup>b</sup> ：如果选择了值为 v 的提案，则任何提议者发布的每个编号较高的提案都具有值为 v。</p>
+<p>由于提议必须由提议者发出才能被接受者接受，因此条件 2 <sup>b</sup> 隐含条件 2 <sup>a</sup> ，而条件 2 <sup>a</sup>又隐含 条件 2。</p>
+<p>为了发现如何满足条件 2 <sup>b</sup>，让我们考虑如何证明它成立。
+我们假设某个编号为 m 且值为 v 的提案被选择，并表明任何编号为 n &gt; m 的提案也具有值 v。
+我们可以通过对 n 使用归纳让证明更容易，因此我们可以证明提案编号 n 的值是 v，
+前提是每个提案都在 m…(n − 1)  中发布了值为 v 的数字，其中 i…j 表示从 i 到 j 的数字集合。
+对于要选择的编号为 m 的提案，必须有一个由大多数接受者组成的集合 C，使得 C 中的每个接受者都接受它。
+将此与归纳假设相结合，选择 m 的假设意味着：</p>
+<p>C 中的每个接受者都接受了一个编号为 m…(n − 1) 的提案。
+以及每一个在 m…(n − 1) 的提案被任何接受者接受的值为 v。</p>
+<p>由于由大多数接受者组成的任何集合 S 至少包含 C 的一个成员，我们可以通过确保以下不变式被维护来得出编号为 n 的提案具有值 v 的结论。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">P2c. For any v and n, if a proposal with value v and number n is issued,<br>then there is a set S consisting of a majority of acceptors such that either (a) no acceptor in S has accepted any<br>proposal numbered less than n, or (b) v is the value of the highest-numbered proposal among all proposals numbered less<br>than n accepted by the acceptors in S.<br></code></pre></td></tr></table></figure>
+<p>条件 2 <sup>c</sup> ：对于任何 v 和 n，如果发布了一个值为 v 和编号为 n 的提案，则存在一个由大多数接受者组成的集合 S，
+使得 (a) S 中没有接受者接受任何编号小于 n 的提案，或者 (b) v 是 S 中接受者接受的所有编号小于 n 的提案中编号最高的提案的值。</p>
+<p>因此，我们可以通过保持条件 2 <sup>c</sup> 的不变性来满足条件 2 <sup>b</sup> 。</p>
+<p>为了保持条件 2 <sup>c</sup> 的不变性，想要发布编号为 n 的提案的提案者必须知道编号小于 n 的最高编号提案(如果有)，
+该提案已经或将被某些多数接受者中的每个接受者接受。
+了解已经接受的提案很容易但很难预测未来的接受度。
+提议者不是试图预测未来，而是通过提取不会有任何此类接受的承诺来控制它。
+换句话说，提议者要求接受者不再接受任何编号小于 n 的提议。
+这导致了以下用于发布提案的算法。</p>
+<ol>
+<li>提议者选择一个新的提议编号 n 并向一组接受者的每个成员发送请求，要求其响应：
+<ol>
+<li>承诺不再接受编号小于 n 的提案</li>
+<li>其已接受的最大数目小于 n 的提案(如果有)</li>
+</ol>
+</li>
+</ol>
+<p>我将这样的请求称为编号为 n 的准备请求。</p>
+<ol start="2">
+<li>如果提议者收到来自大多数接受者的请求响应，那么它可以发出编号为 n 且值为 v 的提议，其中 v 是响应中编号最高的提议的值，
+或者是提议者选择的任何值 如果响应者报告没有提案。</li>
+</ol>
+<p>提议者通过向某组接受者发送提议被接受的请求来发布提议。
+(这不必是响应初始请求的同一组接受者。)
+我们称之为接受请求。</p>
+<p>这描述了提议者的算法。
+那接受者呢？
+它可以接收来自提议者的两种请求：准备请求和接受请求。
+接受者可以忽略任何请求而不会影响安全性。
+所以，我们只需要说明什么时候允许响应请求。
+它总是可以响应准备请求。
+它可以响应接受请求，接受提议，如果它没有承诺不接受。
+换句话说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">P1a. An acceptor can accept a proposal numbered n iff it has not responded to a prepare request having a number greater than n.<br></code></pre></td></tr></table></figure>
+<p>条件 1 <sup>a</sup> ：接受者可以接受编号为 n 的提议，如果它没有响应编号大于 n 的准备请求。
+我们可以发现条件 1 包含条件 1 <sup>a</sup> 。</p>
+<p>假设一个接受者收到一个编号为 n 的准备请求，但它已经响应了一个编号大于 n 的准备请求，从而承诺不接受任何编号为 n 的新提案。
+那么接受者就没有理由响应新的准备请求，因为它不会接受提议者想要发布的编号为 n 的提案。
+所以我们让接受者忽略这样的准备请求。
+我们还让它忽略对已经接受的提案的准备请求。</p>
+<p>通过这种优化，接受者只需要记住它曾经接受过的最高编号的提议和它已经响应的最高编号的准备请求的编号。
+因为无论失败如何条件 2 <sup>c</sup> 都必须保持不变，所以即使经历失败然后重新启动，接受者也必须记住此信息。</p>
+<p>将提议者和接受者的动作放在一起，我们看到该算法在以下两个阶段运行。</p>
+<p><strong>第一阶段</strong></p>
+<p>(a) 提议者选择一个提议编号 n 并向大多数接受者发送编号为 n 的准备请求。
+(b) 如果接受者收到的准备请求的数量 n 大于它已经响应的任何准备请求的数量，
+那么它会以承诺不再接受任何编号小于 n 的提案和编号最高的提案来响应该请求(如果有)它已接受。</p>
+<p><strong>第二阶段</strong></p>
+<p>(a) 如果提议者从大多数接受者那里收到对其准备请求（编号为 n）的响应，那么它会向这些接受者中的每一个发送接受请求，
+以获得编号为 n 且值为 v 的提议，其中 v 是最高的值 - 在响应中编号的提案，或者如果响应没有报告提案，则为任何值。
+(b) 如果接受者收到对编号为 n 的提案的接受请求，则它接受该提案，除非它已经响应了编号大于 n 的准备请求。</p>
+<p>一个提议者可以提出多个提议，只要它遵循每个提议的算法即可。
+它可以随时放弃协议中间的提案。
+(即使对提案的请求和/或响应可能在提案被放弃很久之后才到达目的地，但仍保持正确性。)
+如果某个提议者已经开始尝试发布更高编号的提议，那么放弃提议可能是个好主意。
+因此，如果一个接受者因为已经收到了一个更高编号的准备请求而忽略了一个准备或接受请求，那么它可能应该通知提议者，然后提议者应该放弃它的提议。
+这是不影响正确性的性能优化。</p>
+<h4 id="2-3-知道被选择的值">2.3 知道被选择的值</h4>
+<p>要了解已选择一个值，学习者必须发现提案已被大多数接受者接受。
+显而易见的算法是让每个接受者，无论何时接受一个提议，响应所有学习者，向他们发送提议。
+这允许学习者尽快找到一个选择的值，但它需要每个接受者对每个学习者做出回应——回应的数量等于接受者数量和学习者数量的乘积。</p>
+<p>非拜占庭失败的假设使一个学习者很容易从另一个学习者那里发现一个值已被接受。
+我们可以让接受者用他们的接受来回应一个杰出的学习者，当一个值被选择时，它反过来通知其他学习者。
+这种方法需要额外的一轮让所有学习者发现所选值。
+它也不太可靠，因为杰出的学习者可能会失败。
+但它需要的响应数量仅等于接受者数量和学习者数量之和</p>
+<p>更多情况下，接受者可以用他们的接受来回应一些杰出的学习者，然后每个学习者都可以在选择了一个值时通知所有学习者。
+使用更大的杰出学习者集合以更高的通信复杂性为代价提供更高的可靠性。</p>
+<p>由于消息丢失，可以在没有学习者发现的情况下选择一个值。
+学习者可以询问接受者他们接受了哪些提议，但接受者失败可能无法知道大多数人是否接受了特定提议。
+在这种情况下，只有在选择新提案时，学习者才会发现选择了什么值。
+如果学习者需要知道某个值是否已被选择，它可以让提议者使用上述算法发布提议。</p>
+<h4 id="2-4-进度">2.4 进度</h4>
+<p>很容易构建一个场景，其中两个提议者每个都不断发布一系列数量不断增加的提议，但没有一个被选中。
+提案人 p 完成了提案编号 n1 的阶段 1。
+另一个提议者 q 然后为提议编号 n2 &gt; n1 完成阶段 1。
+提议者 p 的第 2 阶段接受对编号为 n1 的提议的请求被忽略，因为接受者都承诺不接受任何编号小于 n2 的新提议。
+因此，提议者 p 然后开始并完成第 1 阶段的新提议编号 n3 &gt; n2，导致第二阶段 2 接受提议者 q 的请求被忽略，等步骤。</p>
+<p>为了保证进度，必须选择一个杰出的提议者作为唯一一个尝试发布提议的人。
+如果杰出的提议者可以与大多数接受者成功通信，并且如果它使用的提议编号大于任何已经使用的提议，那么它将成功发布被接受的提议。
+通过放弃一个提议并在得知某个具有更高提议编号的请求时重试，杰出的提议者最终将选择一个足够高的提议编号。</p>
+<p>如果足够多的系统(提议者、接受者和通信网络)正常工作，则可以通过选举单个杰出的提议者来进行恢复。
+Fischer、Lynch 和 Patterson <code>[1]</code> 的著名结果表明，用于选举提议者的可靠算法必须使用随机性或实时性——例如，使用超时。
+但是，无论选举成败，安全都是有保障的。</p>
+<h4 id="2-5-实施">2.5 实施</h4>
+<p>Paxos 算法 <code>[5]</code> 假设了一个进程间的网络。
+在其共识算法中，每个进程都扮演着提议者、接受者和学习者的角色。
+算法选择一个领导者，领导者扮演杰出提议者和杰出学习者的角色。
+Paxos 共识算法正是上述算法，其中请求和响应作为普通消息发送。
+(响应消息标有相应的提案编号，以防止混淆。)
+在故障期间保留的稳定存储用于维护接受者必须记住的信息。
+在实际发送响应之前，接受器将其预期响应记录在稳定存储中。</p>
+<p>剩下的就是描述保证没有两个提案以相同的编号发布的机制。
+不同的提议者从不相交的数字集中选择他们的数字，因此两个不同的提议者永远不会发布具有相同数字的提议。
+每个提议者都记住(在稳定存储中)它尝试发出的编号最高的提议，并以比它已经使用的提议编号更高的提议编号开始阶段 1。</p>
+<h3 id="3-实现状态机">3 实现状态机</h3>
+<p>实现分布式系统的一种简单方法是作为向中央服务器发出命令的客户端集合。
+服务器可以被描述为一个确定性状态机，它以某种顺序执行客户端命令。
+状态机有一个当前状态；它通过将命令作为输入并产生输出和新状态来执行步骤。
+例如，分布式银行系统的客户端可能是柜员，状态机状态可能由所有用户的账户余额组成。
+取款将通过执行状态机命令来执行，当且仅当余额大于取款金额时，该命令会减少帐户余额，并生成旧余额和新余额作为输出。</p>
+<p>如果该服务器发生故障，则使用单个中央服务器的实现将导致集群故障。
+因此，我们改为使用一组服务器，每个服务器独立实现状态机。
+因为状态机是确定性的，如果所有服务器都执行相同的命令序列，它们将产生相同的状态序列和输出。
+然后，发出命令的客户端可以使用任何服务器为其生成的输出。</p>
+<p>为了保证所有服务器执行相同的状态机命令序列，我们实现了 Paxos 共识算法的一系列单独实例，
+第 i 个实例选择的值是序列中的第 i 个状态机命令。
+每个服务器在算法的每个实例中扮演所有角色(提议者、接受者和学习者)。
+现在，我假设服务器集是固定的，因此共识算法的所有实例都使用相同的角色组。</p>
+<p>在正常操作中，单个服务器被选为领导者，在共识算法的所有实例中充当杰出的提议者(唯一一个尝试发布提议的人)。
+客户端向领导者发送命令，领导者决定每个命令出现的顺序。
+如果领导者决定某个客户端命令应该是第 135 个命令，它会尝试将该命令选为共识算法的第 135 个实例的值。
+它通常会成功。
+它可能因为失败而失败，或者因为另一个服务器也认为自己是领导者，并且对第 135 个命令应该是什么有不同的想法。
+但共识算法确保最多可以选择一个命令作为第 135 个命令。</p>
+<p>我现在将描述 Paxos 状态机实现在正常操作期间是如何工作的。
+稍后，我将讨论可能出错的地方。
+我考虑了当前任领导刚刚失败并选择了新领导时会发生什么。
+(系统启动是一种特殊情况，尚未提出任何命令。)</p>
+<p>作为共识算法所有实例的学习者，新的领导者应该知道大多数已经选择的命令。
+假设它知道命令 1-134、138 和 139，即在共识算法的实例 1-134、138 和 139 中选择的值。
+(我们稍后会看到命令序列中的这种差距是如何产生的。)
+然后它执行实例 135-137 和所有大于 139 的实例的阶段 1。
+(我在下面描述了这是如何完成的。)
+假设这些执行的结果决定了在实例 135 和 140 中建议的值，但在所有其他实例中不限制建议值。
+然后领导者为实例 135 和 140 执行阶段 2，从而选择命令 135 和 140。</p>
+<p>领导者以及学习领导者知道的所有命令的任何其他服务器现在可以执行命令 1-135。
+但是，它不能执行命令 138-140，它也知道，因为命令 136 和 137 尚未被选择。
+领导者可以将客户端请求的下两个命令作为命令 136 和 137。
+相反，我们通过建议(作为命令 136 和 137)一个特殊的 “noop” 命令来让状态保持不变，让它立即填补空白。
+(它通过执行共识算法的实例 136 和 137 的第 2 阶段来实现这一点。)
+一旦选择了这些无操作命令，就可以执行命令 138-140。</p>
+<p>现在已选择命令 1–140。
+领导者也已经完成了所有大于 140 的共识算法的实例的阶段 1，并且可以在这些实例的阶段 2 中自由提出任何值。
+它将命令编号 141 分配给客户端请求的下一个命令，将其作为共识算法实例 141 的阶段 2 中的值。
+它建议它接收的下一个客户端命令作为命令 142，依此类推。</p>
+<p>领导者可以在得知其提议的命令 141 已被选择之前提议命令 142。
+它可能会丢失在建议命令 141 中发送的所有消息，并且在任何其他服务器了解领导者建议作为命令 141 的内容之前选择命令 142。
+当领导者未能在实例 141 中收到对其第 2 阶段消息的预期响应时，它将重新传输这些消息。
+如果一切顺利，将选择其建议的命令。
+但是，它可能首先失败，在所选命令的序列中留下空白。
+一般来说，假设领导者可以提前获得 α 个命令——也就是说，它可以在选择命令 1 到 i 后提出命令 i+1 到 i+α。
+然后可能会出现多达 α-1 个命令的差距。</p>
+<p>新选择的领导者为无限多个共识算法实例执行阶段 1——在上面的场景中，实例 135-137 和所有大于 139 的实例。
+对所有实例使用相同的提议编号，它可以通过向其他服务器发送一条合理的短消息来实现这一点。
+在第 1 阶段，只有当接受者已经收到来自某个提议者的第 2 阶段消息时，接受者才会响应一个简单的 OK。
+(在该场景中，仅实例 135 和 140 是这种情况。)
+因此，服务器(充当接受者)可以使用单个合理的短消息对所有实例进行响应。
+因此，执行阶段 1 的这些无限多个实例没有问题。</p>
+<p>由于领导者的失败和新领导者的选举应该是罕见的事件，执行状态机命令的有效成本——即在命令/值上达成共识——是仅执行共识算法的第 2 阶段的成本。
+可以证明，Paxos 共识算法的第 2 阶段在出现故障的情况下达成一致的任何算法的成本可能最低 <code>[2]</code>。
+因此，Paxos 算法本质上是最优的。</p>
+<p>对系统正常运行的讨论假设总是有一个领导者，除了当前领导者失败和选举新领导者之间的短暂时间。
+在异常情况下，leader 选举可能会失败。
+如果没有服务器充当领导者，则不会提出新命令。
+如果多个服务器认为他们是领导者，那么他们都可以在共识算法的同一个实例中提出值，这可能会阻止任何值被选中。
+但是，安全性得到了保护——两个不同的服务器永远不会在选择作为第 I 个状态机命令的值上存在分歧。
+只需要选举一个领导人来确保进展。</p>
+<p>如果服务器集可以更改，那么必须有某种方法来确定哪些服务器实现了共识算法的哪些实例。
+最简单的方法是通过状态机本身。
+当前的服务器集可以成为状态的一部分，并且可以使用普通的状态机命令进行更改。
+通过让执行第 i 个状态机命令后的状态指定执行共识算法的实例 i + α 的服务器集，我们可以允许领导者提前获得 α 个命令。
+这允许任意复杂的重新配置算法的简单实现。</p>
+<h3 id="参考文献">参考文献</h3>
+<p>[1] Michael J. Fischer, Nancy Lynch, and Michael S. Paterson.
+Impossibility of distributed consensus with one faulty process. Journal of the ACM, 32(2):374–382, April 1985.</p>
+<p>[2] Idit Keidar and Sergio Rajsbaum.
+On the cost of fault-tolerant consensus when there are no faults—a tutorial.
+TechnicalReport MIT-LCS-TR-821, Laboratory for Computer Science, Massachusetts Institute Technology,
+Cambridge, MA, 02139, May 2001. also published in SIGACT News 32(2) (June 2001).</p>
+<p>[3] Leslie Lamport. The implementation of reliable distributed multiprocess systems.
+Computer Networks, 2:95–114, 1978.</p>
+<p>[4] Leslie Lamport. Time, clocks, and the ordering of events in a distributed system.
+Communications of the ACM, 21(7):558–565, July 1978.</p>
+<p>[5] Leslie Lamport.
+The part-time parliament.
+ACM Transactions on Computer Systems, 16(2):133–169, May 1998.</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/" class="print-no-link">#论文</a>
+      
+        <a href="/tags/Paxos/" class="print-no-link">#Paxos</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Paxos Made Simple 中文翻译</div>
+      <div>https://wangqian0306.github.io/2021/paxos_made_simple/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年7月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/filetype/" title="大数据平台常见文件格式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">大数据平台常见文件格式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/apache_flink_stream_and_batch_processing_in_a_single_engine/" title="Apache Flink: Stream and Batch Processing in a Single Engine 中文翻译">
+                        <span class="hidden-mobile">Apache Flink: Stream and Batch Processing in a Single Engine 中文翻译</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

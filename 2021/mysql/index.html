@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="MySQL 单机安装 访问 Yum Repository 下载仓库包，然后进行安装： 12yum localinstall mysql80-community-release-el7-3.noarch.rpmyum install mysql-community-server 或者直接使用 yum 安装 Source distribution 版本 ： 1yum install mysql mys">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/mysql/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="MySQL 单机安装 访问 Yum Repository 下载仓库包，然后进行安装： 12yum localinstall mysql80-community-release-el7-3.noarch.rpmyum install mysql-community-server 或者直接使用 yum 安装 Source distribution 版本 ： 1yum install mysql mys">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-architecture-8-0.png">
+<meta property="og:image" content="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-buffer-pool-list.png">
+<meta property="og:image" content="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-change-buffer.png">
+<meta property="article:published_time" content="2021-08-04T14:12:59.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:59:32.129Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-architecture-8-0.png">
+  
+  
+  
+  <title>MySQL - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MySQL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-08-04 22:12" pubdate>
+          2021年8月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">MySQL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="MySQL">MySQL</h2>
+<h3 id="单机安装">单机安装</h3>
+<p>访问 <a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/repo/yum/">Yum Repository</a> 下载仓库包，然后进行安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum localinstall mysql80-community-release-el7-3.noarch.rpm<br>yum install mysql-community-server<br></code></pre></td></tr></table></figure>
+<p>或者直接使用 yum 安装 Source distribution 版本 ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum install mysql mysql-server -y<br></code></pre></td></tr></table></figure>
+<p>启动服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl <span class="hljs-built_in">enable</span> mysqld --now<br></code></pre></td></tr></table></figure>
+<p>检查临时密码(社区版)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">grep <span class="hljs-string">&#x27;temporary password&#x27;</span> /var/log/mysqld.log<br></code></pre></td></tr></table></figure>
+<p>进行登录(社区版)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">mysql -u root -p<br></code></pre></td></tr></table></figure>
+<p>更新 ROOT 用户密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ALTER USER <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span> IDENTIFIED BY <span class="hljs-string">&#x27;MyNewPass4!&#x27;</span>;<br></code></pre></td></tr></table></figure>
+<p>创建用户并赋予用户指定库的访问权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">CREATE USER <span class="hljs-string">&#x27;rbfish&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED BY <span class="hljs-string">&#x27;Rbfish123..&#x27;</span>;<br>GRANT ALL PRIVILEGES ON *.* TO <span class="hljs-string">&#x27;rbfish&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span>;<br>FLUSH PRIVILEGES;<br></code></pre></td></tr></table></figure>
+<p>开放用户远程访问：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql">USE mysql;<br><span class="hljs-keyword">UPDATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-keyword">SET</span> host <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;%&#x27;</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">user</span> <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;&lt;user&gt;&#x27;</span>;<br>FLUSH PRIVILEGES;<br></code></pre></td></tr></table></figure>
+<p>创建数据库：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> DATABASE `<span class="hljs-operator">&lt;</span>name<span class="hljs-operator">&gt;</span>` <span class="hljs-keyword">CHARACTER SET</span> utf8mb4 <span class="hljs-keyword">COLLATE</span> utf8mb4_general_ci;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：本文以 RockyLinux 7 为例，详情参照 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-linuxunix-excerpt/8.4/en/linux-installation.html">官方文档</a>，记得进入页面后切换至当前版本。</p>
+</blockquote>
+<h3 id="容器化安装">容器化安装</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">services:<br>  db:<br>    image: mysql:latest<br>    restart: always<br>    environment:<br>      MYSQL_ROOT_PASSWORD: example<br>    volumes:<br>      - &lt;<span class="hljs-built_in">dir</span>&gt;:/var/lib/mysql<br>    ports:<br>      - <span class="hljs-string">&quot;3306:3306&quot;</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：详细配置信息请参照 <a target="_blank" rel="noopener" href="https://registry.hub.docker.com/_/mysql">DockerHub 文档</a>或官方文档。</p>
+</blockquote>
+<h3 id="存储引擎">存储引擎</h3>
+<h4 id="InnoDB">InnoDB</h4>
+<p>在 InnoDB 中的数据结构分为以下两个部分：</p>
+<ul>
+<li>内存</li>
+<li>磁盘</li>
+</ul>
+<p><img src="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-architecture-8-0.png" srcset="/img/loading.gif" lazyload alt="InnoDB 架构"></p>
+<h5 id="内存架构">内存架构</h5>
+<p>在内存中的数据类型有以下四种：</p>
+<ul>
+<li><code>Buffer Pool</code> ：缓冲池是主内存中的一个区域，用于 InnoDB 在访问数据时缓存表和索引数据。缓冲池允许直接从内存访问常用数据，从而加快处理速度。</li>
+</ul>
+<p><img src="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-buffer-pool-list.png" srcset="/img/loading.gif" lazyload alt="Buffer Pool"></p>
+<blockquote>
+<p>注：在 Buffer Pool 中采用 LRU 算法来逐出最近最少使用的页。</p>
+</blockquote>
+<ul>
+<li><code>Change Buffer</code> ：更改缓冲区是一种特殊的数据结构，二级索引不在缓冲池中时，它会缓存对这些页所做的更改，并在稍后通过其他读取操作将页加载到缓冲池中时进行合并。</li>
+</ul>
+<p><img src="https://dev.mysql.com/doc/refman/8.0/en/images/innodb-change-buffer.png" srcset="/img/loading.gif" lazyload alt="Change Buffer"></p>
+<ul>
+<li>
+<p><code>Adaptive Hash Index</code> ：自适应哈希索引是基于经常访问的索引页中键的前缀构建的，用于加速用户的查询操作。</p>
+</li>
+<li>
+<p><code>Log Buffer</code> ：日志缓冲区是保存要写入磁盘上日志文件的数据的内存区域。日志缓冲区的内容会定期刷写到磁盘。大型日志缓冲区可以使大型事务能够运行，而无需在事务提交之前将重做日志数据写入磁盘。</p>
+</li>
+</ul>
+<h5 id="磁盘架构">磁盘架构</h5>
+<p>在磁盘中的数据类型有以下六种：</p>
+<ul>
+<li><code>Tables</code>
+<ul>
+<li>idb 文件：表结构，索引，数据等</li>
+<li>cfg 文件：元数据文件，例如锁和加密信息</li>
+<li>cfp 文件：密钥文件</li>
+</ul>
+</li>
+<li><code>Indexes</code>
+<ul>
+<li>聚簇索引：每个表都有一个 InnoDB 称为聚簇索引的特殊索引，用于存储行数据。通常，聚簇索引与主键同义。</li>
+<li>二级索引：聚集索引以外的索引称为二级索引。在 InnoDB 中，二级索引中的每条记录都包含行的主键列，以及为二级索引指定的列。</li>
+</ul>
+</li>
+<li><code>Tablespaces</code>
+<ul>
+<li><code>The Systsem Tablespace</code> ：系统表空间是更改缓冲区的存储区域。如果表是在系统表空间中创建的，而不是在每个表的文件或常规表空间中创建的，则它还可能包含表和索引数据。</li>
+<li><code>File-Per-Table Tablespaces</code> ：独占表空间包含单个表的数据和索引，并存储在文件系统上的单个 InnoDB 数据文件中。</li>
+<li><code>General Tablespaces</code> ：通用表空间是使用 CREATE TABLESPACE 语法创建的共享 InnoDB 表空间。由于共享所以消耗的空间会稍小。</li>
+<li><code>Undo Tablespaces</code> ：撤消表空间包含撤消日志，撤消日志是记录的集合，其中包含有关如何撤消事务对聚集索引记录的最新更改的信息。</li>
+<li><code>Temporary Tablespaces</code>
+<ul>
+<li><code>Session Temporary Tablespaces</code> ：会话临时表空间存储用户创建的临时表和优化程序在配置为磁盘上内部临时表的存储引擎时 InnoDB 创建的内部临时表。</li>
+<li><code>Global Temporary Tablespace</code> ：全局临时表空间存储对用户创建的临时表所做的更改的回滚段。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Doublewrite Buffer</code> ：双重写入缓冲区是一个存储区域，用于在将页面写入 InnoDB 数据文件中的适当位置之前， InnoDB 从缓冲池中刷新的页面。如果在页面写入过程中出现操作系统、存储子系统或意外的 mysqld 进程退出， InnoDB 则可以在崩溃恢复期间从双重写入缓冲区中找到页面的良好副本。</li>
+<li><code>Redo Log</code> ：重做日志是一种基于磁盘的数据结构，用于在崩溃恢复期间更正不完整事务写入的数据。</li>
+<li><code>Undo Logs</code> ：撤消日志是与单个读写事务关联的撤消日志记录的集合。撤消日志记录包含有关如何撤消事务对聚集索引记录的最新更改的信息。如果另一个事务需要查看原始数据作为一致读取操作的一部分，则会从撤消日志记录中检索未修改的数据。撤消日志存在于撤消日志段中，这些日志段包含在回滚段中。回滚段驻留在撤消表空间和全局临时表空间中。</li>
+</ul>
+<h3 id="常见问题">常见问题</h3>
+<h4 id="Too-many-connestions">Too many connestions</h4>
+<p>可以使用如下 SQL 查看当前的连接数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;max_connections&#x27;</span>;<br></code></pre></td></tr></table></figure>
+<p>使用如下 SQL 可以临时设置连接数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> max_connections <span class="hljs-operator">=</span> <span class="hljs-number">200</span>;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：SQL 方式只可以配置单次，重启之后会失效。</p>
+</blockquote>
+<p>最好还是修改配置文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">[mysqld]<br>max_connections=xxx<br></code></pre></td></tr></table></figure>
+<p>此外还需要注意 Linux 中的 ulimit 大小：</p>
+<p>获取当前 ulimit :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ulimit</span> -n <br></code></pre></td></tr></table></figure>
+<p>设置 ulimit ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">ulimit</span> -n &lt;number&gt;<br></code></pre></td></tr></table></figure>
+<p>相关配置参见 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.3/en/server-system-variables.html#sysvar_open_files_limit">MySQL 官方文档</a></p>
+<h4 id="字符集与排序方式">字符集与排序方式</h4>
+<p>为了解决中文和表情符号等特殊内容的存储建议采用 <code>utf8mb4</code> 字符集，而对于排序方式来说 MySQL 5 和 8 的默认排序方式则是不同的：</p>
+<ul>
+<li>MySQL 5 采用了 <code>utf8mb4_general_ci</code></li>
+<li>MySQL 8 采用了 <code>utf8mb4_0900_ai_ci</code>(MySQL 5 并不支持)</li>
+</ul>
+<p>如果需要兼容的情况可以选择采用 <code>utf8mb4_general_ci</code> 排序方式，具体详细内容请参阅 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/charset.html">官方文档</a>。</p>
+<p>在排序方式中有很多的缩写，这些缩写有如下含义：</p>
+<ul>
+<li><code>ci</code> 表示不区分大小写</li>
+<li><code>ai</code> 指的是口音不敏感，也就是说不区分 <code>e</code>，<code>è</code>，<code>é</code>，<code>ê</code> 和 <code>ë</code></li>
+</ul>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/">MySQL 官方文档</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MySQL/" class="print-no-link">#MySQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MySQL</div>
+      <div>https://wangqian0306.github.io/2021/mysql/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年8月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/tz/" title="配置时区">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">配置时区</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/redis-install/" title="Redis 安装及基础使用">
+                        <span class="hidden-mobile">Redis 安装及基础使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

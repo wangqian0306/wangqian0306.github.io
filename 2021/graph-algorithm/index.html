@@ -1,0 +1,655 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="图算法 广度优先算法(Breadth-First Search) 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748class Node:    def __init__(self, id: int, name):        self.id &#x3D; id        sel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图算法">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/graph-algorithm/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="图算法 广度优先算法(Breadth-First Search) 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748class Node:    def __init__(self, id: int, name):        self.id &#x3D; id        sel">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-06T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.462Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>图算法 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="图算法"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-06 22:26" pubdate>
+          2021年12月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">图算法</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="图算法">图算法</h2>
+<h3 id="广度优先算法-Breadth-First-Search">广度优先算法(Breadth-First Search)</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Node</span>:<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span>, name</span>):<br>        <span class="hljs-variable language_">self</span>.<span class="hljs-built_in">id</span> = <span class="hljs-built_in">id</span><br>        <span class="hljs-variable language_">self</span>.name = name<br>        <span class="hljs-variable language_">self</span>.explored = <span class="hljs-literal">False</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__str__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Node(<span class="hljs-subst">&#123;self.<span class="hljs-built_in">id</span>&#125;</span>,<span class="hljs-subst">&#123;self.name&#125;</span>)&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Node(<span class="hljs-subst">&#123;self.<span class="hljs-built_in">id</span>&#125;</span>,<span class="hljs-subst">&#123;self.name&#125;</span>)&quot;</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Relation</span>:<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">int</span>, from_node: Node, to_node: Node</span>):<br>        <span class="hljs-variable language_">self</span>.from_node = from_node<br>        <span class="hljs-variable language_">self</span>.to_node = to_node<br>        <span class="hljs-variable language_">self</span>.<span class="hljs-built_in">id</span> = <span class="hljs-built_in">id</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__str__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Relation(<span class="hljs-subst">&#123;self.<span class="hljs-built_in">id</span>&#125;</span>,<span class="hljs-subst">&#123;self.from_node&#125;</span>,<span class="hljs-subst">&#123;self.to_node&#125;</span>)&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Relation(<span class="hljs-subst">&#123;self.<span class="hljs-built_in">id</span>&#125;</span>,<span class="hljs-subst">&#123;self.from_node&#125;</span>,<span class="hljs-subst">&#123;self.to_node&#125;</span>)&quot;</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Graph</span>:<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, node_list: <span class="hljs-built_in">list</span>[Node], relation_list: <span class="hljs-built_in">list</span>[Relation]</span>):<br>        <span class="hljs-variable language_">self</span>.node_list = node_list<br>        <span class="hljs-variable language_">self</span>.relation_list = relation_list<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">bfs</span>(<span class="hljs-params">self, root: Node, name: <span class="hljs-built_in">str</span></span>):<br>        q = []<br>        root.explored = <span class="hljs-literal">True</span><br>        q.append(root)<br>        <span class="hljs-keyword">while</span> <span class="hljs-built_in">len</span>(q) != <span class="hljs-number">0</span>:<br>            v = q.pop(<span class="hljs-number">0</span>)<br>            <span class="hljs-keyword">if</span> v.name == name:<br>                <span class="hljs-keyword">return</span> v<br>            <span class="hljs-keyword">for</span> relation <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.relation_list:<br>                <span class="hljs-keyword">if</span> relation.from_node == v:<br>                    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> relation.to_node.explored:<br>                        relation.to_node.explored = <span class="hljs-literal">True</span><br>                        q.append(relation.to_node)<br><br></code></pre></td></tr></table></figure>
+<h3 id="深度优先算法-Depth-First-Search">深度优先算法(Depth-First Search)</h3>
+<p>略(参见拓扑排序文章)</p>
+<h3 id="联通分量-Connected-Components">联通分量(Connected Components)</h3>
+<blockquote>
+<p>注：要查找图的所有组件，请遍历其顶点，只要循环到达尚未包含在先前找到的组件中的顶点，就开始新的广度优先或深度优先搜索。</p>
+</blockquote>
+<h3 id="最短路径算法-Dijkstra’s-Shortest-Path">最短路径算法(Dijkstra’s Shortest Path)</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Graph</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, nodes, init_graph</span>):<br>        <span class="hljs-variable language_">self</span>.nodes = nodes<br>        <span class="hljs-variable language_">self</span>.graph = <span class="hljs-variable language_">self</span>.construct_graph(nodes, init_graph)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">construct_graph</span>(<span class="hljs-params">self, nodes, init_graph</span>):<br>        <span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">        This method makes sure that the graph is symmetrical. In other words, if there&#x27;s a path from node A to B with a value V, there needs to be a path from node B to node A with a value V.</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br>        graph = &#123;&#125;<br>        <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> nodes:<br>            graph[node] = &#123;&#125;<br><br>        graph.update(init_graph)<br><br>        <span class="hljs-keyword">for</span> node, edges <span class="hljs-keyword">in</span> graph.items():<br>            <span class="hljs-keyword">for</span> adjacent_node, value <span class="hljs-keyword">in</span> edges.items():<br>                <span class="hljs-keyword">if</span> graph[adjacent_node].get(node, <span class="hljs-literal">False</span>) == <span class="hljs-literal">False</span>:<br>                    graph[adjacent_node][node] = value<br><br>        <span class="hljs-keyword">return</span> graph<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_nodes</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-string">&quot;Returns the nodes of the graph.&quot;</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.nodes<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_outgoing_edges</span>(<span class="hljs-params">self, node</span>):<br>        <span class="hljs-string">&quot;Returns the neighbors of a node.&quot;</span><br>        connections = []<br>        <span class="hljs-keyword">for</span> out_node <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.nodes:<br>            <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.graph[node].get(out_node, <span class="hljs-literal">False</span>) != <span class="hljs-literal">False</span>:<br>                connections.append(out_node)<br>        <span class="hljs-keyword">return</span> connections<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">value</span>(<span class="hljs-params">self, node1, node2</span>):<br>        <span class="hljs-string">&quot;Returns the value of an edge between two nodes.&quot;</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.graph[node1][node2]<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">dijkstra_algorithm</span>(<span class="hljs-params">graph, start_node</span>):<br>    unvisited_nodes = <span class="hljs-built_in">list</span>(graph.get_nodes())<br><br>    <span class="hljs-comment"># We&#x27;ll use this dict to save the cost of visiting each node and update it as we move along the graph</span><br>    shortest_path = &#123;&#125;<br><br>    <span class="hljs-comment"># We&#x27;ll use this dict to save the shortest known path to a node found so far</span><br>    previous_nodes = &#123;&#125;<br><br>    <span class="hljs-comment"># We&#x27;ll use max_value to initialize the &quot;infinity&quot; value of the unvisited nodes</span><br>    max_value = sys.maxsize<br>    <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> unvisited_nodes:<br>        shortest_path[node] = max_value<br>    <span class="hljs-comment"># However, we initialize the starting node&#x27;s value with 0</span><br>    shortest_path[start_node] = <span class="hljs-number">0</span><br><br>    <span class="hljs-comment"># The algorithm executes until we visit all nodes</span><br>    <span class="hljs-keyword">while</span> unvisited_nodes:<br>        <span class="hljs-comment"># The code block below finds the node with the lowest score</span><br>        current_min_node = <span class="hljs-literal">None</span><br>        <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> unvisited_nodes:  <span class="hljs-comment"># Iterate over the nodes</span><br>            <span class="hljs-keyword">if</span> current_min_node == <span class="hljs-literal">None</span>:<br>                current_min_node = node<br>            <span class="hljs-keyword">elif</span> shortest_path[node] &lt; shortest_path[current_min_node]:<br>                current_min_node = node<br><br>        <span class="hljs-comment"># The code block below retrieves the current node&#x27;s neighbors and updates their distances</span><br>        neighbors = graph.get_outgoing_edges(current_min_node)<br>        <span class="hljs-keyword">for</span> neighbor <span class="hljs-keyword">in</span> neighbors:<br>            tentative_value = shortest_path[current_min_node] + graph.value(current_min_node, neighbor)<br>            <span class="hljs-keyword">if</span> tentative_value &lt; shortest_path[neighbor]:<br>                shortest_path[neighbor] = tentative_value<br>                <span class="hljs-comment"># We also update the best path to the current node</span><br>                previous_nodes[neighbor] = current_min_node<br><br>        <span class="hljs-comment"># After visiting its neighbors, we mark the node as &quot;visited&quot;</span><br>        unvisited_nodes.remove(current_min_node)<br><br>    <span class="hljs-keyword">return</span> previous_nodes, shortest_path<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">print_result</span>(<span class="hljs-params">previous_nodes, shortest_path, start_node, target_node</span>):<br>    path = []<br>    node = target_node<br><br>    <span class="hljs-keyword">while</span> node != start_node:<br>        path.append(node)<br>        node = previous_nodes[node]<br><br>    <span class="hljs-comment"># Add the start node manually</span><br>    path.append(start_node)<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;We found the following best path with a value of &#123;&#125;.&quot;</span>.<span class="hljs-built_in">format</span>(shortest_path[target_node]))<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; -&gt; &quot;</span>.join(<span class="hljs-built_in">reversed</span>(path)))<br><br><br>nodes = [<span class="hljs-string">&quot;Reykjavik&quot;</span>, <span class="hljs-string">&quot;Oslo&quot;</span>, <span class="hljs-string">&quot;Moscow&quot;</span>, <span class="hljs-string">&quot;London&quot;</span>, <span class="hljs-string">&quot;Rome&quot;</span>, <span class="hljs-string">&quot;Berlin&quot;</span>, <span class="hljs-string">&quot;Belgrade&quot;</span>, <span class="hljs-string">&quot;Athens&quot;</span>]<br><br>init_graph = &#123;&#125;<br><span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> nodes:<br>    init_graph[node] = &#123;&#125;<br><br>init_graph[<span class="hljs-string">&quot;Reykjavik&quot;</span>][<span class="hljs-string">&quot;Oslo&quot;</span>] = <span class="hljs-number">5</span><br>init_graph[<span class="hljs-string">&quot;Reykjavik&quot;</span>][<span class="hljs-string">&quot;London&quot;</span>] = <span class="hljs-number">4</span><br>init_graph[<span class="hljs-string">&quot;Oslo&quot;</span>][<span class="hljs-string">&quot;Berlin&quot;</span>] = <span class="hljs-number">1</span><br>init_graph[<span class="hljs-string">&quot;Oslo&quot;</span>][<span class="hljs-string">&quot;Moscow&quot;</span>] = <span class="hljs-number">3</span><br>init_graph[<span class="hljs-string">&quot;Moscow&quot;</span>][<span class="hljs-string">&quot;Belgrade&quot;</span>] = <span class="hljs-number">5</span><br>init_graph[<span class="hljs-string">&quot;Moscow&quot;</span>][<span class="hljs-string">&quot;Athens&quot;</span>] = <span class="hljs-number">4</span><br>init_graph[<span class="hljs-string">&quot;Athens&quot;</span>][<span class="hljs-string">&quot;Belgrade&quot;</span>] = <span class="hljs-number">1</span><br>init_graph[<span class="hljs-string">&quot;Rome&quot;</span>][<span class="hljs-string">&quot;Berlin&quot;</span>] = <span class="hljs-number">2</span><br>init_graph[<span class="hljs-string">&quot;Rome&quot;</span>][<span class="hljs-string">&quot;Athens&quot;</span>] = <span class="hljs-number">2</span><br>graph = Graph(nodes, init_graph)<br>previous_nodes, shortest_path = dijkstra_algorithm(graph=graph, start_node=<span class="hljs-string">&quot;Reykjavik&quot;</span>)<br>print_result(previous_nodes, shortest_path, start_node=<span class="hljs-string">&quot;Reykjavik&quot;</span>, target_node=<span class="hljs-string">&quot;Belgrade&quot;</span>)<br></code></pre></td></tr></table></figure>
+<h3 id="最小生成树-Prim’s-Minimum-Cost-Spanning-Tree">最小生成树(Prim’s Minimum Cost Spanning Tree)</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Prim&#x27;s Algorithm in Python</span><br><br>INF = <span class="hljs-number">9999999</span><br><span class="hljs-comment"># number of vertices in graph</span><br>N = <span class="hljs-number">5</span><br><span class="hljs-comment">#creating graph by adjacency matrix method</span><br>G = [[<span class="hljs-number">0</span>, <span class="hljs-number">19</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],<br>     [<span class="hljs-number">19</span>, <span class="hljs-number">0</span>, <span class="hljs-number">5</span>, <span class="hljs-number">9</span>, <span class="hljs-number">2</span>],<br>     [<span class="hljs-number">5</span>, <span class="hljs-number">5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">6</span>],<br>     [<span class="hljs-number">0</span>, <span class="hljs-number">9</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],<br>     [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">6</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>]]<br><br>selected_node = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>]<br><br>no_edge = <span class="hljs-number">0</span><br><br>selected_node[<span class="hljs-number">0</span>] = <span class="hljs-literal">True</span><br><br><span class="hljs-comment"># printing for edge and weight</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Edge : Weight\n&quot;</span>)<br><span class="hljs-keyword">while</span> (no_edge &lt; N - <span class="hljs-number">1</span>):<br>    <br>    minimum = INF<br>    a = <span class="hljs-number">0</span><br>    b = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N):<br>        <span class="hljs-keyword">if</span> selected_node[m]:<br>            <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(N):<br>                <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">not</span> selected_node[n]) <span class="hljs-keyword">and</span> G[m][n]):  <br>                    <span class="hljs-comment"># not in selected and there is an edge</span><br>                    <span class="hljs-keyword">if</span> minimum &gt; G[m][n]:<br>                        minimum = G[m][n]<br>                        a = m<br>                        b = n<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">str</span>(a) + <span class="hljs-string">&quot;-&quot;</span> + <span class="hljs-built_in">str</span>(b) + <span class="hljs-string">&quot;:&quot;</span> + <span class="hljs-built_in">str</span>(G[a][b]))<br>    selected_node[b] = <span class="hljs-literal">True</span><br>    no_edge += <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+<h3 id="拓扑排序-Topological-Sort">拓扑排序(Topological Sort)</h3>
+<p>略(参照独立文章)</p>
+<h3 id="弗洛伊德算法-Floyd-Warshall">弗洛伊德算法(Floyd-Warshall)</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python">nV = <span class="hljs-number">4</span><br><br>INF = <span class="hljs-number">999</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">floyd_warshall</span>(<span class="hljs-params">G</span>):<br>    distance = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> i: <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> j: j, i)), G))<br>    <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(nV):<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(nV):<br>            <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(nV):<br>                distance[i][j] = <span class="hljs-built_in">min</span>(distance[i][j], distance[i][k] + distance[k][j])<br>    print_solution(distance)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">print_solution</span>(<span class="hljs-params">distance</span>):<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(nV):<br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(nV):<br>            <span class="hljs-keyword">if</span> distance[i][j] == INF:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;INF&quot;</span>, end=<span class="hljs-string">&quot; &quot;</span>)<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-built_in">print</span>(distance[i][j], end=<span class="hljs-string">&quot;  &quot;</span>)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; &quot;</span>)<br><br><br>G = [[<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, INF, <span class="hljs-number">5</span>],<br>     [<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, INF, <span class="hljs-number">4</span>],<br>     [INF, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, INF],<br>     [INF, INF, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>]]<br>floyd_warshall(G)<br></code></pre></td></tr></table></figure>
+<h3 id="Kruskal-最小生成树-Kruskal-Minimum-Cost-Spanning-Tree-Algorithm">Kruskal 最小生成树(Kruskal Minimum Cost Spanning Tree Algorithm)</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Graph</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, vertices</span>):<br>        <span class="hljs-variable language_">self</span>.V = vertices<br>        <span class="hljs-variable language_">self</span>.graph = []<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">add_edge</span>(<span class="hljs-params">self, u, v, w</span>):<br>        <span class="hljs-variable language_">self</span>.graph.append([u, v, w])<br><br>    <span class="hljs-comment"># Search function</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">find</span>(<span class="hljs-params">self, parent, i</span>):<br>        <span class="hljs-keyword">if</span> parent[i] == i:<br>            <span class="hljs-keyword">return</span> i<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.find(parent, parent[i])<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">apply_union</span>(<span class="hljs-params">self, parent, rank, x, y</span>):<br>        xroot = <span class="hljs-variable language_">self</span>.find(parent, x)<br>        yroot = <span class="hljs-variable language_">self</span>.find(parent, y)<br>        <span class="hljs-keyword">if</span> rank[xroot] &lt; rank[yroot]:<br>            parent[xroot] = yroot<br>        <span class="hljs-keyword">elif</span> rank[xroot] &gt; rank[yroot]:<br>            parent[yroot] = xroot<br>        <span class="hljs-keyword">else</span>:<br>            parent[yroot] = xroot<br>            rank[xroot] += <span class="hljs-number">1</span><br><br>    <span class="hljs-comment">#  Applying Kruskal algorithm</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">kruskal_algo</span>(<span class="hljs-params">self</span>):<br>        result = []<br>        i, e = <span class="hljs-number">0</span>, <span class="hljs-number">0</span><br>        <span class="hljs-variable language_">self</span>.graph = <span class="hljs-built_in">sorted</span>(<span class="hljs-variable language_">self</span>.graph, key=<span class="hljs-keyword">lambda</span> item: item[<span class="hljs-number">2</span>])<br>        parent = []<br>        rank = []<br>        <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-variable language_">self</span>.V):<br>            parent.append(node)<br>            rank.append(<span class="hljs-number">0</span>)<br>        <span class="hljs-keyword">while</span> e &lt; <span class="hljs-variable language_">self</span>.V - <span class="hljs-number">1</span>:<br>            u, v, w = <span class="hljs-variable language_">self</span>.graph[i]<br>            i = i + <span class="hljs-number">1</span><br>            x = <span class="hljs-variable language_">self</span>.find(parent, u)<br>            y = <span class="hljs-variable language_">self</span>.find(parent, v)<br>            <span class="hljs-keyword">if</span> x != y:<br>                e = e + <span class="hljs-number">1</span><br>                result.append([u, v, w])<br>                <span class="hljs-variable language_">self</span>.apply_union(parent, rank, x, y)<br>        <span class="hljs-keyword">for</span> u, v, weight <span class="hljs-keyword">in</span> result:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;%d - %d: %d&quot;</span> % (u, v, weight))<br><br><br>g = Graph(<span class="hljs-number">6</span>)<br>g.add_edge(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>)<br>g.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>g.add_edge(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">3</span>)<br>g.add_edge(<span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">2</span>)<br>g.add_edge(<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>)<br>g.add_edge(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>)<br>g.add_edge(<span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>)<br>g.add_edge(<span class="hljs-number">4</span>, <span class="hljs-number">3</span>, <span class="hljs-number">3</span>)<br>g.add_edge(<span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span class="hljs-number">2</span>)<br>g.add_edge(<span class="hljs-number">5</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>)<br>g.kruskal_algo()<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/" class="print-no-link">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>图算法</div>
+      <div>https://wangqian0306.github.io/2021/graph-algorithm/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/createrepo/" title="createrepo">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">createrepo</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/superset-install/" title="Superset 安装">
+                        <span class="hidden-mobile">Superset 安装</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

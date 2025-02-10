@@ -1,0 +1,1025 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译 作者：Jesús Camacho-Rodríguez, Ashutosh Chauhan, Alan Gates, Eugene Koifman, Owen O’Malley, Vineet Garg, Zoltan Haindrich, Sergey">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/apache_hive_from_mapreduce_to_enterprise_grade_big_data_warehousing/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译 作者：Jesús Camacho-Rodríguez, Ashutosh Chauhan, Alan Gates, Eugene Koifman, Owen O’Malley, Vineet Garg, Zoltan Haindrich, Sergey">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/01/10/ud1qtVUvL2G7D5a.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/10/tYSki4HVAsbOWTe.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/10/rHG5hRMJI6zk8El.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/11/pHNgZdfrKeMUA6G.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/12/4eLWsPvC9Jpw8EM.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/12/pqlHCgU4ziJAbyD.png">
+<meta property="og:image" content="https://s2.loli.net/2022/01/12/ifugjzOTeptxmk8.png">
+<meta property="article:published_time" content="2022-01-10T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.490Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Hive">
+<meta property="article:tag" content="论文">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/01/10/ud1qtVUvL2G7D5a.png">
+  
+  
+  
+  <title>Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-10 22:26" pubdate>
+          2022年1月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Apache-Hive-From-MapReduce-to-Enterprise-grade-Big-Data-Warehousing-中文翻译">Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译</h2>
+<p>作者：Jesús Camacho-Rodríguez, Ashutosh Chauhan, Alan Gates, Eugene Koifman, Owen O’Malley, Vineet Garg, Zoltan Haindrich, Sergey Shelukhin, Prasanth Jayachandran, Siddharth Seth, Deepak Jaiswal, Slim Bouguerra, Nishant Bangarwa, Sankar Hariappan, Anishek Agarwal, Jason Dere, Daniel Dai, Thejas Nair, Nita Dembla, Gopal Vijayaraghavan, Günther Hagleitner</p>
+<h3 id="摘要">摘要</h3>
+<p>Apache Hive 是一个用于分析大数据工作负载的开源关系型数据库。本文中，我们描述了从批处理工具到成熟的企业数据仓库系统的关键创新。
+我们提出了一种混合架构，它将传统的 MPP 技术与最新的大数据和云概念相结合，以实现当今分析应用程序所需的规模和性能。
+我们通过沿四个主轴详细说明增强功能来探索系统：事务、优化器、运行时(runtime)和联邦集群(federation)。然后，我们提供实验结果来展示系统在典型工作负载下的性能，并以查看社区路线图作为总结。</p>
+<h3 id="1-简介">1. 简介</h3>
+<p>10 多年前首次引入 Hive 时 <code>[55]</code>，作者的动机是在 Hadoop MapReduce 之上公开一个类似 SQL 的接口，以将用户从处理并行批处理作业的低级实现细节中抽象出来。
+Hive 主要专注于 ExtractTransform-Load (ETL) 或批处理报告工作负载，这些工作负载包括 (i) 读取大量数据，(ii) 对该数据执行转换(例如，数据整理、整合、聚合)以及最后 (iii) 加载(输出)到其他系统用于进一步分析。</p>
+<p>随着 Hadoop 成为使用 HDFS 进行廉价数据存储的无处不在的平台，开发人员专注于增加可以在平台内高效执行的工作负载范围。
+在 Hadoop 引入 YARN <code>[56]</code> 资源管理框架之后不久 Spark <code>[14,59]</code> 或 Flink <code>[5,26]</code> 等 MapReduce 之外的数据处理引擎也可以在支持 YARN 之后直接在 Hadoop 上运行。</p>
+<p>用户也越来越关注将他们的数据仓库工作负载从其他系统迁移到 Hadoop。这些工作负载包括交互式和临时报告、仪表板和其他商业智能用例。
+有一个共同要求使这些工作负载对 Hadoop 构成挑战：它们需要低延迟 SQL 引擎。实现这一目标的多项努力是并行启动的，并且出现了与 YARN 兼容的新 SQL MPP 系统，例如 Impala <code>[8, 42]</code> 和 Presto <code>[48]</code>。</p>
+<p>Hive 社区没有实施新系统，而是得出结论，该项目的当前实施为支持这些工作负载提供了良好的基础。
+Hive 是为 Hadoop 中的大规模可靠计算而设计的，它已经提供了 SQL 兼容性(只有一部分)和与其他数据管理系统的连接。
+然而，Hive 需要发展并进行重大改造，采用多年来广泛研究的通用数据仓库技术以满足这些新用例的要求。</p>
+<p>以前向研究界展示的关于 Hive 的工作主要集中在 (i) 它在 HDFS 和 MapReduce <code>[55]</code> 之上的初始架构和实现，以及 (ii) 改进以解决原始系统中的多个性能缺点，包括引入优化的列文件格式，物理优化以减少查询计划中 MapReduce 阶段的数量，以及矢量化执行模型以提高运行时效率 <code>[39]</code>。</p>
+<p>相反，本文描述了在上一篇文章发表之后在 Hive 中引入的重要创新。特别是，它侧重于沿四个不同主轴改进系统的相关工作：</p>
+<p><strong>SQL 和 ACID 支持(第 3 节)</strong> SQL 合规性是数据仓库的一项关键要求。因此，Hive 中的 SQL 支持得到了扩展，包括相关的子查询、完整性约束和扩展的 OLAP 操作等。
+反过来，仓库用户需要支持来按需插入、更新、删除和合并他们的个人记录。Hive 使用构建在 Hive Metastore 之上的事务管理器通过快照隔离策略来提供 ACID 保证。</p>
+<p><strong>优化技术(第 4 节)</strong> 查询优化与使用声明性查询语言(如 SQL)的数据管理系统尤其相关。Hive 没有从头开始实现自己的优化器，而是选择与 Calcite <code>[3, 19]</code> 集成，并将其优化功能带入系统。
+此外，Hive 还包括数据仓库环境中常用的其他优化技术，例如查询重新优化、查询结果缓存和物化视图重写。</p>
+<p><strong>运行时的延迟(第 5 节)</strong> 为了涵盖更广泛的用例，包括交互式查询，改善延迟至关重要。Hive 支持优化的列数据存储方式和运算符的矢量化在之前的文章中已经描述过了 <code>[39]</code>。
+除了这些改进之外，Hive 已经从 MapReduce 转移到 Tez <code>[15, 50]</code>，这是一个与 YARN 兼容的运行时，它比 MapReduce 提供了更多的灵活性来实现任意数据处理应用程序。
+此外，Hive 包括 LLAP，这是一个额外的持久性长期运行的执行程序层，可提供数据缓存、设施运行时优化，并避免启动时的 YARN 容器分配开销。</p>
+<p><strong>联邦集群性能(第 6 节)</strong> Hive 最重要的特性之一是能够在过去几年出现的许多专业数据管理系统之上提供统一的 SQL 层。
+由于其 Calcite 集成和存储处理程序的改进，Hive 可以无缝地推送计算并从这些系统读取数据。反过来，该实现很容易扩展以支持将来的其他系统。</p>
+<p>本文的其余部分安排如下。第 2 节提供了 Hive 架构和主要组件的背景。第 3-6 节描述了我们对沿上述主轴改进系统的主要贡献。第 7 节介绍了 Hive 的实验评估。
+第 8 节讨论了新功能的影响，而第 9 节简要介绍了项目的路线图。最后，第 10 节总结了我们的结论。</p>
+<h3 id="2-系统架构">2 系统架构</h3>
+<p>在本节中，我们将简要介绍 Hive 的架构。图 1 描述了系统中的主要组件。</p>
+<p><img src="https://s2.loli.net/2022/01/10/ud1qtVUvL2G7D5a.png" srcset="/img/loading.gif" lazyload alt="图 1：Apache Hive 架构图"></p>
+<p><strong>数据存储</strong> Hive 中的数据可以使用任何支持的文件格式存储在与 Hadoop 兼容的任何文件系统中。
+截至今天，最常见的文件格式是 ORC <code>[10]</code> 和 Parquet <code>[11]</code>。反过来，兼容的文件系统包括最常用的分布式文件系统实现 HDFS，以及所有主要的商业云对象存储，如 AWS S3 和 Azure Blob 存储。
+此外，Hive 还可以读取和写入数据到其他独立处理系统，例如 Druid <code>[4, 58]</code> 或 HBase <code>[6]</code>，我们将在第 6 节中详细讨论。</p>
+<p><strong>数据目录</strong> Hive 使用 Hive Metastore(简称 HMS)存储有关其数据源的所有信息。简而言之，HMS 是 Hive 可查询的所有数据的目录。
+它使用 RDBMS 来持久化信息，并依赖 Java 对象关系映射实现 DataNucleus <code>[30]</code> 来简化后端对多个 RDBMS 的支持。对于需要低延迟的调用，HMS 可以绕过 DataNucleus 直接查询 RDBMS。
+HMS API 支持多种编程语言，该服务使用 Thrift <code>[16]</code> 实现，这是一个提供接口定义语言、代码生成引擎和二进制通信协议实现的软件框架。</p>
+<p><strong>可更换的数据处理引擎</strong> Hive 已成为 Hadoop 之上最受欢迎的 SQL 引擎之一，它已逐渐远离 MapReduce，以支持与 YARN <code>[50]</code> 兼容的更灵活的处理运行时。
+虽然仍然支持 MapReduce，但目前 Hive 最流行的运行时是 Tez <code>[15, 50]</code>。
+Tez 通过将数据处理建模为 DAG 提供比 MapReduce 更大的灵活性，其中顶点表示应用程序逻辑，边表示数据传输，类似于 Dryad <code>[40]</code> 或 Hyracks <code>[22]</code> 等其他系统。
+此外，Tez 与第 5 节中介绍的持久执行和缓存层 LLAP 兼容。</p>
+<p><strong>查询服务器</strong> HiveServer2(或简称 HS2)允许用户在 Hive 中执行 SQL 查询。HS2 支持本地和远程 JDBC 和 ODBC 连接；Hive 发行版中包括一个名为 Beeline 的 JDBC 简易客户端。</p>
+<p><img src="https://s2.loli.net/2022/01/10/tYSki4HVAsbOWTe.png" srcset="/img/loading.gif" lazyload alt="图 2：HiveServer2 中的查询准备阶段"></p>
+<p>图 2 描述了 SQL 查询在 HS2 中经过的各个阶段，以成为可执行计划。一旦用户向 HS2 提交查询，该查询由驱动程序处理，驱动程序解析语句并从其 AST 生成 Calcite <code>[3, 19]</code> 逻辑计划。
+然后优化 Calcite 计划。请注意，HS2 访问有关 HMS 中数据源的信息以进行验证和优化。随后，计划被转换为物理计划，可能会引入额外的操作符用于数据分区、排序等。
+HS2 对物理计划 DAG 执行额外的优化，如果支持计划中的所有运算符和表达式，则可以从中生成矢量化计划 <code>[39]</code>。
+物理计划被传递给任务编译器，它将操作符树分解为可执行任务的 DAG。Hive 为每个支持的处理运行时实现了一个单独的任务编译器，即 Tez、Spark 和 MapReduce。
+生成任务后，驱动程序将它们提交给 YARN 中的运行时应用程序管理器，由其处理执行。对于每个任务，首先初始化该任务中的物理操作符，然后它们以流水线方式处理输入数据。
+执行完成后，驱动程序获取查询结果并将其返回给用户。</p>
+<h3 id="3-SQL-和-ACID-支持">3 SQL 和 ACID 支持</h3>
+<p>标准 SQL 和 ACID 事务是企业数据仓库中的关键要求。在本节中，我们将介绍 Hive 更广泛的 SQL 支持。
+此外，我们描述了对 Hive 所做的改进，以便在 Hadoop 之上提供 ACID 保证。</p>
+<h4 id="3-1-SQL-支持">3.1 SQL 支持</h4>
+<p>为了替代传统数据仓库，需要扩展 Hive 以支持标准 SQL 的更多功能。Hive 使用嵌套数据模型，支持所有主要的原子 SQL 数据类型以及非原子类型，例如 STRUCT、ARRAY 和 MAP。
+此外，每个新的 Hive 版本都增加了对作为 SQL 规范一部分的重要构造的支持。
+例如，扩展了对相关子查询的支持，即引用外部查询列的子查询、高级 OLAP 操作(如分组或窗口函数)、集合操作和完整性约束等。
+另一方面，Hive 保留了其原始查询语言的多个功能，这些功能对其用户群很有价值。最流行的功能之一是能够在创建表时使用 PARTITIONED BY 列子句指定物理存储布局。
+简而言之，该子句允许用户对表进行水平分区。然后 Hive 将每组分区值的数据存储在文件系统的不同目录中。为了说明这个想法，请考虑下表定义和图 3 中描述的相应物理布局：</p>
+<p><img src="https://s2.loli.net/2022/01/10/rHG5hRMJI6zk8El.png" srcset="/img/loading.gif" lazyload alt="图 3：分区表的物理布局"></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE TABLE store_sales (<br>  sold_date_sk INT, item_sk INT, customer_sk INT, store_sk INT,<br>  quantity INT, list_price DECIMAL(7,2), sales_price DECIMAL(7,2)<br>) PARTITIONED BY (sold_date_sk INT);<br></code></pre></td></tr></table></figure>
+<p>使用 PARTITIONED BY 子句的优点是 Hive 将能够轻松跳过扫描完整分区以查找过滤这些值的查询。</p>
+<h4 id="3-2-ACID-支持">3.2 ACID 支持</h4>
+<p>最初，Hive 仅支持从表中插入和删除完整分区 <code>[55]</code>。尽管对于 ETL 工作负载来说缺乏行级操作是可以接受的，但随着 Hive 演变为支持许多传统的数据仓库工作负载，对完全 DML 支持和 ACID 事务的需求越来越大。
+因此，Hive 现在支持执行 INSERT、UPDATE、DELETE 和 MERGE 语句。
+它通过 Snapshot Isolation <code>[24]</code> 为读取和定义明确的语义提供 ACID 保证，以防使用构建在 HMS 之上的事务管理器发生故障。
+目前事务只能跨越一个语句； 我们计划在不久的将来支持多语句事务。但是，可以使用 Hive 多插入语句 <code>[55]</code> 在单个事务中写入多个表。</p>
+<p>在 Hive 中支持行级操作需要克服的主要挑战是 (i) 系统中缺少事务管理器，以及 (ii) 底层文件系统中缺少文件更新支持。在下文中，我们提供了有关在 Hive 中实施 ACID 以及如何解决这些问题的更多详细信息。</p>
+<p><strong>事务和锁管理</strong> Hive 在 HMS 中存储事务和锁定信息状态。它为系统中运行的每个事务使用全局事务标识符或 TxnId，即 Metastore 生成的单调递增值。
+反过来，每个 TxnId 映射到一个或多个写入标识符或 WriteId。WriteId 也是由 Metastore 生成的单调递增值，但在表范围内。
+WriteId 与事务写入的每条记录一起存储；同一个事务写入同一个表的所有记录共享同一个 WriteId。
+反过来，共享相同 WriteId 的文件使用 FileId 唯一标识，而文件中的每条记录由 RowId 字段唯一标识。
+请注意，WriteId、FileId 和 RowId 的组合唯一标识了表中的每条记录。Hive 中的删除操作被建模为标记记录的插入，该记录指向被删除记录的唯一标识符。</p>
+<p>为了实现快照隔离，HS2 在执行查询时获取需要读取的数据的逻辑快照。快照由一个事务列表表示，该列表包含当时分配的最高 TxnId，即高水位线，以及它下面的一组打开和中止的事务。
+对于查询需要读取的每张表，HS2 首先通过联系 HMS 从事务列表中生成 WriteId 列表； WriteId 列表类似于事务列表，但在单个表的范围内。
+计划中的每个扫描操作在编译期间都绑定到一个 WriteId 列表。该扫描中的读取器将跳过 WriteId (i) 高于高水位线或 (ii) 是打开和中止事务集的一部分的行。
+保留全局和每个表标识符的原因是每个表的读取器保持较小的状态，当系统中有大量打开的事务时，这对性能至关重要。</p>
+<p>对于分区表，锁定粒度是分区，而对于未分区表，需要锁定全表。HS2 只需要为破坏读写器的操作获取排他锁，例如 DROP PARTITION 或 DROP TABLE 语句。
+所有其他常见操作只是获取共享锁。更新和删除通过跟踪其写入集并在提交时解决冲突来使用乐观冲突解决，让第一次提交获胜。</p>
+<p><strong>数据和文件布局</strong> Hive 将每个表和分区的数据存储在不同的目录中(回忆图 3)。
+与 <code>[45]</code> 类似，我们在每个表或分区中使用不同的存储或目录来支持并发读写操作：base 和 delta，它们又可能包含一个或多个文件。
+基本存储中的文件包含直到某个 WriteId 的所有有效记录。例如，文件夹 base_100 包含直到 WriteId 100 的所有记录。另一方面，增量目录包含具有 WriteId 范围内的记录的文件。
+Hive 为插入和删除的记录保留单独的增量目录；更新操作分为删除和插入操作。插入或删除事务创建一个增量目录，其中记录绑定到单个 WriteId，例如 delta_101_101 或 delete_delta_102_102。
+包含多个 WriteId 的增量目录是作为压缩过程的一部分创建的(如下所述)。</p>
+<p>如前所述，查询中的表扫描具有与之关联的 WriteId 列表。扫描中的读取器丢弃完整目录以及基于当前快照无效的单个记录。
+当增量文件中存在删除时，基本和插入增量文件中的记录需要与适用于其 WriteId 范围的删除增量反连接。
+由于删除记录的增量文件通常很小，因此它们可以大部分时间保存在内存中，从而加速合并阶段。</p>
+<p><strong>数据压缩(compaction)</strong> 压缩是 Hive 中的过程，它将 delta 目录中的文件与 delta 目录中的其他文件合并(称为次要压缩)，或者将 delta 目录中的文件与基本目录中的文件合并(称为主要压缩)。
+定期运行压缩的关键原因是(i) 减少表中目录和文件的数量，否则会影响文件系统性能，(ii)减少读取端在查询执行时合并文件的工作量，以及 (iii) 缩短与每个快照关联的打开和中止 TxnId 和 WriteId 的集合，即主要压缩删除历史记录，增加已知表中所有记录有效的 TxnId。</p>
+<p>当超过某些阈值时，HS2 会自动触发压缩，例如，表中的 delta 文件数或 delta 文件中的记录与基本文件的比率。最后，请注意，压缩不需要对表进行任何锁定。
+实际上，清理阶段与合并阶段是分开的，因此任何正在进行的查询都可以在文件从系统中删除之前完成其执行。</p>
+<h3 id="4-查询优化">4 查询优化</h3>
+<p>虽然在 Hive 的初始版本中对优化的支持是有限的，但显然其执行内部的开发不足以保证高效的性能。因此，目前该项目包括关系数据库系统中通常使用的许多复杂技术。
+本节介绍最重要的优化功能，这些功能可帮助系统生成更好的计划并改进查询执行，包括它与 Apache Calcite 的基本集成。</p>
+<h4 id="4-1-基于规则和成本的优化器">4.1 基于规则和成本的优化器</h4>
+<p>最初，Apache Hive 在解析输入 SQL 语句时执行了多次重写以提高性能。此外，它包含一个基于规则的优化器，该优化器将简单的转换应用于查询生成的物理计划。
+例如，许多优化的目标是尽量减少数据混洗的成本，这是 MapReduce 引擎中的一项关键操作。还有其他优化来下推过滤器谓词、投影未使用的列和修剪分区。
+虽然这对某些查询很有效，但使用物理计划表示使得实现复杂的重写(例如连接重新排序、谓词简化和传播，或基于物化视图的重写)变得过于复杂。</p>
+<p>因此，引入了由 Apache Calcite <code>[3, 19]</code> 提供支持的新计划表示和优化器。
+Calcite 是一个模块化和可扩展的查询优化器，具有内置元素，可以以不同的方式组合以构建您自己的优化逻辑。其中包括不同的重写规则(rewriting rules)、计划者(planner)和成本模型(cost model)。</p>
+<p>Calcite 提供了两种不同的规划器引擎：(i) 基于成本的规划器，它触发重写规则以降低整体表达式成本，以及 (ii) 穷举计划器，它穷举地触发规则，直到它生成不再被任何规则修改。转换规则对这两个规划引擎都不起作用。</p>
+<p>Hive 实现类似于其他查询优化器 <code>[52]</code> 的多阶段优化，其中每个优化阶段使用一个计划器和一组重写规则。这允许 Hive 通过指导搜索不同的查询计划来减少整体优化时间。
+Apache Hive 中启用的一些 Calcite 规则是连接重新排序、多个运算符重新排序和消除、常量折叠和传播以及基于约束的转换。</p>
+<p><strong>统计数据</strong> 表统计信息存储在 HMS 中，并在计划时提供给 Calcite。这些包括表基数、不同值的数量、每列的最小值和最大值。
+存储统计信息以便它们可以以附加方式组合，即未来插入以及跨多个分区的数据可以添加到现有统计信息中。范围和基数可以简单地合并。
+对于不同值的数量，HMS 使用基于 HyperLogLog++ <code>[38]</code> 的位数组表示，可以在不损失近似精度的情况下进行组合。</p>
+<h4 id="4-2-查询重新优化">4.2 查询重新优化</h4>
+<p>当执行期间抛出某些错误时，Hive 支持查询重新优化。特别是，它实现了两个独立的重新优化策略。</p>
+<p>第一个策略，覆盖，更改所有查询重新执行的某些配置参数。例如，用户可以选择强制查询重新执行中的所有连接使用某种算法，例如，带有排序合并的哈希分区。当已知某些配置值可以使查询执行更加健壮时，这可能很有用。</p>
+<p>第二种策略，重新优化，依赖于运行时捕获的统计信息。在计划查询时，优化器会根据从 HMS 检索到的统计信息来估计计划中中间结果的大小。如果这些估计不准确，优化器可能会犯计划错误，例如错误的连接算法选择或内存分配。
+这反过来可能导致性能不佳和执行错误。Hive 为计划中的每个运算符捕获运行时统计信息。如果在查询执行期间检测到任何上述问题，则使用运行时统计信息重新优化查询并再次执行。</p>
+<h4 id="4-3-查询结果缓存">4.3 查询结果缓存</h4>
+<p>仓库的事务一致性允许 Hive 通过使用参与表的内部事务状态来重用先前执行的查询的结果。在处理生成重复相同查询的 BI 工具时，查询缓存提供了可扩展性优势。</p>
+<p>每个 HS2 实例都保留自己的查询缓存组件，该组件又保留从查询 AST 表示到条目的映射，该条目包含结果位置和回答查询的数据快照的信息。该组件还负责清除过时的条目并清理这些条目使用的资源。</p>
+<p>在查询编译期间，HS2 在初步步骤中使用输入查询 AST 检查其缓存。查询中不合格的表引用在 AST 用于证明缓存之前被解析，因为根据查询执行时的当前数据库，具有相同文本的两个查询可能访问来自不同数据库的表。
+如果缓存命中并且查询使用的表不包含新的或修改的数据，则查询计划将包含从缓存位置获取结果的单个任务。
+如果该条目不存在，则查询照常运行，如果查询满足某些条件，则为查询生成的结果保存到缓存中；例如，查询不能包含非确定性函数(rand)、运行时常量函数(current_date、current_timestamp)等。</p>
+<p>查询缓存有一个挂起的条目模式，当数据更新并且其中几个同时观察到缓存未命中时，它可以防止雷鸣般的相同查询群。
+缓存将被第一个进入的查询重新填充。此外，该查询可能会获得更多的集群容量，因为它会将结果提供给所有其他遭受缓存未命中的并发相同查询。</p>
+<h4 id="4-4-物化视图与重写">4.4 物化视图与重写</h4>
+<p>传统上，用于加速数据仓库中查询处理的最强大的技术之一是相关物化视图的预计算 <code>[28,31,35-37]</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs text">(a)<br><br>CREATE MATERIALIZED VIEW mat_view AS<br>SELECT d_year, d_moy, d_dom, SUM(ss_sales_price) AS sum_sales<br>FROM store_sales, date_dim<br>WHERE ss_sold_date_sk = d_date_sk AND d_year &gt; 2017<br>GROUP BY d_year, d_moy, d_dom;<br><br>(b)<br><br>q1:<br><br>SELECT SUM(ss_sales_price) AS sum_sales<br>FROM store_sales, date_dim<br>WHERE ss_sold_date_sk = d_date_sk AND<br>  d_year = 2018 AND d_moy IN (1,2,3);<br><br>(b)<br><br>q&#x27;1:<br><br>SELECT SUM(sum_sales)<br>FROM mat_view<br>WHERE d_year = 2018 AND d_moy IN (1,2,3);<br><br>(c)<br><br>q2:<br><br>SELECT d_year, d_moy, SUM(ss_sales_price) AS sum_sales<br>FROM store_sales, date_dim<br>WHERE ss_sold_date_sk = d_date_sk AND d_year &gt; 2016<br>GROUP BY d_year, d_moy;<br><br>q&#x27;2:<br><br>SELECT d_year, d_moy, SUM(sum_sales)<br>FROM (<br>  SELECT d_year, d_moy, SUM(sum_sales) AS sum_sales<br>  FROM mat_view<br>  GROUP BY d_year, d_moy<br>  UNION ALL<br>  SELECT d_year, d_moy, SUM(ss_sales_price) AS sum_sales<br>  FROM store_sales, date_dim<br>  WHERE ss_sold_date_sk = d_date_sk AND<br>    d_year &gt; 2016 AND d_year &lt;= 2017<br>  GROUP BY d_year, d_moy<br>) subq<br>GROUP BY d_year, d_moy;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>图 4：物化视图定义 (a) 和完整样本 (b) 和部分样本 © 包含重写。</p>
+</blockquote>
+<p>Apache Hive 支持物化视图和基于这些物化的自动查询重写。特别的是，物化视图只是语义丰富的表。因此，它们可以由 Hive 或其他支持的系统本地存储(参见第 6 节)，并且它们可以无缝利用 LLAP 加速等功能(参见第 5.1 节)。
+优化器依靠 Calcite 自动生成对 SelectProject-Join-Aggregate (SPJA)查询表达式的全部和部分包含的重写(参见图 4)。
+重写算法利用 Hive 中声明的完整性约束信息，例如主键、外键、唯一键和非空值，以产生额外的有效转换。该算法封装在规则中，由基于成本的优化器触发，该优化器负责决定是否应该使用重写来回答查询。
+请注意，如果多次重写适用于查询的不同部分，优化器最终可能会选择多个视图替换。</p>
+<p><strong>物化视图维护</strong> 当物化视图使用的源表中的数据发生更改时，例如，插入新数据或修改现有数据，我们将需要刷新物化视图的内容以使其与这些更改保持同步。
+目前，物化视图的重建操作需要由用户使用 REBUILD 语句手动触发。</p>
+<p>默认情况下，Hive 尝试增量重建物化视图 <code>[32, 34]</code>，如果失败，则回退到完全重建。
+当前实现仅在对源表进行 INSERT 操作时支持增量重建，而 UPDATE 和 DELETE 操作将强制物化视图的完全重建。</p>
+<p>一个有趣的方面是增量维护依赖于重写算法本身。由于查询与数据的快照相关联，因此物化视图定义通过扫描每个表的 WriteId 列值的过滤条件来丰富(参见第 3.2 节)。
+这些过滤条件反映了创建或最后刷新实体化视图时的数据快照。当触发维护操作时，重写算法可能会产生部分包含的重写，该重写从源表中读取物化视图和新数据。
+这个重写的计划又被转换为 (i) 如果它是 SPJ 物化视图，则为 INSERT 操作，或者 (ii) 如果它是 SPJA 物化视图，则为 MERGE 操作。</p>
+<p><strong>物化视图生命周期</strong> 默认情况下，一旦物化视图内容过时，物化视图将不会用于查询重写。</p>
+<p>但是，在某些情况下，在以微批次更新物化视图的同时接受对陈旧数据的重写可能会很好。
+对于这些情况，Hive 允许用户组合定期运行的重建操作，例如每 5/10 分钟一次，并使用表属性定义物化视图定义中允许的数据陈旧窗口。</p>
+<blockquote>
+<p>注：表属性允许 Hive 中的用户使用元数据键值对标记表和物化视图定义</p>
+</blockquote>
+<h4 id="4-5-共享工作优化">4.5 共享工作优化</h4>
+<p>Hive 能够识别给定查询的执行计划中的重叠子表达式，只计算一次并重用它们的结果。
+共享工作优化器不会触发转换以在计划中找到等效的子表达式，而是仅合并计划的相等部分，类似于先前工作中提出的其他基于重用的方法 <code>[25, 41]</code>。
+它在执行之前应用重用算法：它开始合并相同表上的扫描操作，然后继续合并计划运算符，直到发现差异。来自合并表达式的新共享边的数据传输策略的决定留给底层引擎，即 Apache Tez。
+基于重用的方法的优点是它可以加速执行多次计算相同子表达式的查询，而不会引入太多优化开销。尽管如此，由于共享工作优化器没有探索等效计划的完整搜索空间，Hive 可能无法检测到现有的重用机会。</p>
+<h4 id="4-6-动态半连接-semijoin-缩减">4.6 动态半连接(semijoin)缩减</h4>
+<p>半连接缩减是一种传统技术，用于在查询执行期间减少中间结果的大小 <code>[17, 20]</code>。该优化对于具有一个或多个维度表的星型数据库特别有用。
+对这些数据库的查询通常会连接事实表和维度表，这些表使用一个或多个列上的谓词进行过滤。但是，这些列并未在连接条件中使用，因此无法静态创建对事实表的过滤器。
+以下 SQL 查询显示了 store_sales 和 store_returns 事实表与商品维度表之间的这种连接示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs roomsql">SELECT ss_customer_sk, SUM(ss_sales_price) AS sum_sales<br>FROM store_sales, store_returns, item<br>WHERE ss_item_sk = sr_item_sk AND<br>  ss_ticket_number = sr_ticket_number AND<br>  ss_item_sk = i_item_sk AND<br>  i_category = &#x27;Sports&#x27;<br>GROUP BY ss_customer_sk<br>ORDER BY sum_sales DESC;<br></code></pre></td></tr></table></figure>
+<p>通过应用半连接缩减，Hive 评估被过滤的子表达式(在上面的示例中，项目表上的过滤器)，随后，表达式产生的值用于跳过从其余表中读取记录。
+半连接缩减由优化器引入，并被推送到计划中的扫描运算符中。根据数据布局，Hive 实现了两种优化变体。</p>
+<p><strong>动态分区修剪</strong> 如果表会被半链接缩减并且被目标链接列分组的话就会应用它。评估过滤子表达式后，Hive 使用生成的值在查询运行时动态跳过读取不需要的分区。
+回想一下，每个表分区值都存储在文件系统中的不同文件夹中，因此跳过它们很简单。</p>
+<p><strong>索引半连接</strong> 如果表被半链接缩减但没有被目标链接列分组的话，Hive 可以使用过滤子表达式生成的值来 (i) 创建具有最小值和最大值的范围过滤条件，(ii) 使用子表达式产生的值创建一个布隆过滤器。
+Hive 使用这两个过滤器填充半连接缩减器，这可用于避免在运行时扫描整个行组，例如，如果数据存储在 ORC 文件中 <code>[39]</code>。</p>
+<h3 id="5-执行查询">5 执行查询</h3>
+<p>查询执行内部的改进，例如从 MapReduce 到 Apache Tez [50] 的转换以及基于列的存储格式和矢量化运算符 <code>[39]</code> 的实现，将 Hive 中的查询延迟降低了几个数量级。
+但是，为了进一步改进执行运行时，Hive 需要额外的增强功能来克服其针对长时间运行的查询量身定制的初始架构固有的限制。
+其中，(i) 执行需要在启动时分配 YARN 容器，这很快成为低延迟查询的关键瓶颈，(ii) JustIn-Time (JIT) 编译器优化没有预想中有效，因为容器在查询执行后被简单地杀死，(iii) Hive 无法利用查询内部和查询之间的数据共享和缓存可能性，导致不必要的 IO 开销。</p>
+<h4 id="5-1-LLAP-Live-Long-and-Process">5.1 LLAP: Live Long and Process</h4>
+<p>Live Long and Process，也称为 LLAP，是一个可选层，它提供持久的多线程查询执行器和内存缓存中的多租户，以在 Hive 中大规模提供更快的 SQL 处理。
+LLAP 不会取代 Hive 使用的现有执行运行时，例如 Tez，而是对其进行了增强。特别是，Hive 查询协调器在 LLAP 节点和常规容器上透明地调度和监控执行。</p>
+<p>LLAP 的数据 I/O、缓存和查询片段执行能力被封装在守护进程中。守护进程设置为在集群的工作节点中连续运行，促进 JIT 优化，同时避免任何启动开销。
+YARN 用于粗粒度的资源分配和调度。它为守护进程保留内存和 CPU 并处理重启和重定位。
+守护进程是无状态的：每个都包含许多执行程序以并行运行多个查询片段和一个本地工作队列。
+故障和恢复很简单，因为如果 LLAP 守护程序失败，任何节点仍可用于处理输入数据的任何片段。</p>
+<p><strong>I/O 调度算法</strong> 守护进程使用单独的线程来卸载数据 I/O 和解压缩，我们将其称为 I/O 调度算法。
+数据分批读取并转换为内部游程编码 (RLE) 列格式，可用于矢量化处理。一个列批次在读取后立即进入执行阶段，这允许在准备后续批次的同时处理先前的批次。</p>
+<p>使用特定于每种格式的插件完成从底层文件格式到 LLAP 内部数据格式的转换。目前 LLAP 支持 ORC <code>[10]</code>、Parquet <code>[11]</code> 和文本文件格式的转译。
+I/O 调度算法可以将投影、sargable 谓词和布隆过滤器下推到文件读取器(如果提供的话)。例如，ORC 文件可以利用这些结构跳过读取整个列和行组。</p>
+<blockquote>
+<p>注：sargable 谓词代表如下操作 <code>=, &gt;, &lt;, &gt;=, &lt;=, BETWEEN, LIKE, IS [NOT] NULL</code></p>
+</blockquote>
+<p><img src="https://s2.loli.net/2022/01/11/pHNgZdfrKeMUA6G.png" srcset="/img/loading.gif" lazyload alt="LLAP 中的缓存寻址"></p>
+<p><strong>数据缓存</strong> LLAP 将堆外缓存作为其主要缓冲池，用于保存进入 I/O 调度算法的数据。对于每个文件，缓存由 I/O 调度算法沿两个维度寻址：行组和列组。
+一组行和列形成一个行列块(参见图 5)。I/O 调度算法重新组装选定的投影并评估谓词以提取块，这些块可以重组为操作员管道的向量批次。在缓存未命中的情况下，在执行重构之前，将用丢失的块重新填充缓存。
+结果是当用户沿着非规范化维度导航数据集时缓存的增量填充，这是缓存优化的常见模式。</p>
+<p>LLAP 缓存输入文件中的元数据和数据。为了在存在文件更新的情况下保持缓存的有效性，LLAP 使用分配给存储在 HDFS 中的每个文件的唯一标识符以及有关文件长度的信息。
+这类似于 blob 存储(如 AWS S3 或 Azure Blob 存储)中的 ETag 字段。</p>
+<p>即使对于从未在缓存中的数据，元数据(包括索引信息)也会被缓存。特别是，第一次扫描会批量填充元数据，该元数据用于确定必须加载的行组并在确定缓存未命中之前评估谓词。
+这种方法的优点是 LLAP 不会加载对给定查询实际上不必要的块，因此将避免破坏缓存。</p>
+<p>缓存是增量可变的，即向表中添加新数据不会导致缓存完全失效。具体来说，缓存仅在查询处理该文件时才获取文件，这会将可见性的控制权转移回查询事务状态。
+具体来说，缓存仅在查询处理该文件时才获取文件，这会将可见性的控制权转移回查询事务状态。
+由于 ACID 实现通过调整文件级别的可见性来处理事务(回忆第 3.2 节)，缓存变成了数据的 MVCC 视图，为可能处于不同事务状态的多个并发查询提供服务。</p>
+<p>缓存中数据的驱逐策略是可交换的。目前，默认使用针对具有频繁完整和部分扫描操作的分析工作负载调整的简单 LRFU (最近最少/经常使用)替换策略。
+驱逐的数据单位是块。这种选择代表了低开销处理和存储效率之间的折衷。</p>
+<p><strong>查询片段执行</strong> LLAP 守护进程执行任意查询计划片段，其中包含过滤器、投影、数据转换、连接、部分聚合和排序等操作。
+它们允许并行执行来自不同查询和会话的多个片段。片段中的操作是矢量化的，它们直接在内部 RLE 格式上运行。
+对 I/O、缓存和执行使用相同的格式可以最大限度地减少所有这些之间交互所需的工作。</p>
+<p>如上所述，LLAP 不包含自己的执行逻辑。相反，它的执行器基本上可以复制 YARN 容器的功能。
+但是，出于稳定性和安全性原因，LLAP 仅接受 Hive 代码和静态指定的用户定义函数 (UDF)。</p>
+<h4 id="5-2-工作负载管理方面的改进">5.2 工作负载管理方面的改进</h4>
+<p>工作负载管理器控制 Hive 执行的每个查询对 LLAP 资源的访问。管理员可以创建资源计划，即自包含的资源共享配置，以通过在 LLAP 上运行的并发查询来提高执行可预测性和集群共享。
+这些因素在多租户环境中至关重要。尽管可以在系统中定义多个资源计划，但在给定时间，对于给定的部署，只有其中一个是活动的。资源计划在 HMS 中由 Hive 持久化。</p>
+<p>资源计划包括 (i) 一个或多个资源池，每个池具有最大资源量和并发查询数，(ii) 映射会被当做根，根据特定查询属性(例如用户、组或应用程序)将传入查询到池中，(iii) 根据在运行时收集的查询指标启动操作的触发器，例如终止池中的查询或将查询从一个池移动到另一个池。
+尽管查询获得了池中定义的集群资源的保证部分，但工作负载管理器试图防止集群未被充分利用。具体来说，可以为查询分配尚未分配到的池中的空闲资源，直到映射到该池的后续查询声明它们为止。</p>
+<p>举个例子，请考虑生产集群的以下资源计划定义：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE RESOURCE PLAN daytime;<br>CREATE POOL daytime.bi<br>  WITH alloc_fraction=0.8, query_parallelism=5;<br>CREATE POOL daytime.etl<br>  WITH alloc_fraction=0.2, query_parallelism=20;<br>CREATE RULE downgrade IN daytime<br>  WHEN total_runtime &gt; 3000 THEN MOVE etl;<br>ADD RULE downgrade TO bi;<br>CREATE APPLICATION MAPPING visualization_app IN daytime TO bi;<br>ALTER PLAN daytime SET DEFAULT POOL = etl;<br>ALTER RESOURCE PLAN daytime ENABLE ACTIVATE;<br></code></pre></td></tr></table></figure>
+<p>第 1 行为日常创建资源计划。第 2-3 行使用集群中 80% 的 LLAP 资源创建一个池 <code>bi</code>。这些资源可用于同时执行多达 5 个查询。
+类似地，第 4-5 行创建了一个池 <code>etl</code>，其中包含可用于同时执行多达 20 个查询的其余资源。第 6-8 行创建一个规则，当查询运行超过 3 秒时，将查询从 <code>bi</code> 移动到 <code>etl</code> 资源池。
+注意前面的操作可以执行，因为查询分片比容器更容易抢占。第 9 行为名为 <code>interactive_bi</code> 的应用程序创建了一个映射，即由 <code>interactive_bi</code> 触发的所有查询最初都将从 <code>bi</code> 池中获取资源。
+反过来，第 10 行将系统中其余查询的默认池设置为 <code>etl</code>。最后，第 11 行启用并激活集群中的资源计划。</p>
+<h3 id="6-联邦集群仓库系统">6 联邦集群仓库系统</h3>
+<p>在过去的十年中，专业数据管理系统 <code>[54]</code> 越来越多，这些系统变得流行，因为它们在特定用例中实现了比传统 RDBMS 更好的成本效益性能。</p>
+<p>除了其本机处理能力外，Hive 还可以充当中介 <code>[23、27、57]</code>，因为它旨在支持对多个独立数据管理系统的查询。通过 Hive 统一访问这些系统的好处是多方面的。
+应用程序开发人员可以选择混合多个系统来实现所需的性能和功能，但他们只需要针对单个接口进行编码。因此，应用程序变得独立于底层数据系统，这为以后更改系统提供了更大的灵活性。
+Hive 本身可用于实现不同系统之间的数据移动和转换，从而减轻对第三方工具的需求。
+此外，作为中介的 Hive 可以通过 Ranger <code>[12]</code> 或 Sentry <code>[13]</code> 在进群范围内实施访问控制和捕获审计跟踪，还可以通过 Atlas <code>[2]</code> 帮助满足合规性要求。</p>
+<h4 id="6-1-存储处理程序">6.1 存储处理程序</h4>
+<p>为了以模块化和可扩展的方式与其他引擎交互，Hive 包含一个需要为每个引擎实现的存储处理程序接口。
+存储处理程序包括：(i) 输入格式，描述如何从外部引擎读取数据，包括如何拆分工作以增加并行度，(ii) 输出格式，描述如何将数据写入外部 引擎，(iii) 一个 SerDe（序列化器和反序列化器），它描述了如何将数据从 Hive 内部表示转换为外部引擎表示，反之亦然
+(iv) Metastore 钩子，它定义了作为针对 HMS 的事务的一部分调用的通知方法，例如，当创建由外部系统支持的新表时或将新行插入该表时触发。
+从外部系统读取数据的可用存储处理程序的最小实现至少包含输入格式和解码器。</p>
+<p>一旦实现了存储处理程序接口，从 Hive 查询外部系统就很简单了，所有的复杂性都对用户隐藏在存储处理程序实现后面。
+例如，Apache Druid <code>[4, 58]</code> 是一个开源数据存储，专为事件数据的商业智能 (OLAP) 查询而设计，广泛用于支持面向用户的分析应用程序；Hive 提供了一个 Druid 存储处理程序，因此它可以利用其效率来执行交互式查询。
+要开始从 Hive 查询 Druid，唯一需要的操作是从 Hive 注册或创建 Druid 数据源。首先，如果 Druid 中已经存在数据源，我们可以通过简单的语句将 Hive 外部表映射到它：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE EXTERNAL TABLE druid_table_1<br>STORED BY &#x27;org.apache.hadoop.hive.druid.DruidStorageHandler&#x27;<br>TBLPROPERTIES (&#x27;druid.datasource&#x27; = &#x27;my_druid_source&#x27;);<br></code></pre></td></tr></table></figure>
+<p>请注意，我们不需要为数据源指定列名或类型，因为它们是从 Druid 元数据中自动推断出来的。 反过来，我们可以使用如下简单语句在 Hive 中创建 Druid 中的数据源：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">CREATE EXTERNAL TABLE druid_table_2 (<br>  __time TIMESTAMP, dim1 VARCHAR(20), m1 FLOAT)<br>STORED BY &#x27;org.apache.hadoop.hive.druid.DruidStorageHandler&#x27;<br></code></pre></td></tr></table></figure>
+<p>一旦 Druid 源在 Hive 中作为外部表可用，我们就可以对它们执行任何允许的表操作。</p>
+<h4 id="6-2-使用-Calcite-推动计算">6.2 使用 Calcite 推动计算</h4>
+<p>Hive 最强大的功能之一是可以利用 Calcite 适配器 <code>[19]</code> 将复杂的计算推送到支持的系统并以这些系统支持的语言生成查询。</p>
+<p>继续 Druid 示例，查询 Druid 的最常见方式是通过 HTTP 上的 REST API 使用 JSON 表示的查询。
+一旦用户声明了存储在 Druid 中的表，Hive 就可以从输入 SQL 查询透明地生成 Druid JSON 查询。
+特别是，优化器应用匹配计划中的一系列操作符的规则，并生成一个新的等效序列，在 Druid 中执行更多操作。
+一旦我们完成了优化阶段，需要由 Druid 执行的运算符子集由 Calcite 转换为有效的 JSON 查询，该查询附加到将从 Druid 读取的扫描运算符。
+请注意，对于支持 Calcite 自动生成的查询的存储处理程序，其输入格式需要包含将查询发送到外部系统(可能将查询拆分为多个可以并行执行的子查询)并读回查询的结果。</p>
+<p><img src="https://s2.loli.net/2022/01/12/4eLWsPvC9Jpw8EM.png" srcset="/img/loading.gif" lazyload alt="图 6：Hive 中的联邦查询示例"></p>
+<p>截至今天，Hive 可以使用 Calcite 将操作推送到 Druid 和具有 JDBC 支持的多个引擎。
+图 6 描述了对存储在 Druid 中的表执行的查询，以及 Calcite 生成的相应计划和 JSON 查询。</p>
+<h3 id="7-绩效评估">7 绩效评估</h3>
+<p>为了研究我们工作的影响，我们使用不同的标准基准随着时间的推移评估 Hive。在本节中，我们对结果进行了总结，强调了整篇论文中提出的改进的影响。</p>
+<p><strong>实验装置</strong> 下面介绍的实验在由 10 个节点组成的集群上运行，这些节点由 10 Gigabit 以太网连接。
+每个节点都有一个 8 核 2.40GHz Intel Xeon CPU E5-2630 v3 和 256GB RAM，并有两个 6TB 磁盘用于 HDFS 和 YARN 存储。</p>
+<h4 id="7-1-与以前版本的比较">7.1 与以前版本的比较</h4>
+<p><img src="https://s2.loli.net/2022/01/12/pqlHCgU4ziJAbyD.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们在 10TB 规模的数据集上使用 TPC-DS 查询进行了实验。数据使用 ORC 文件格式存储在 HDFS 中的 ACID 表中，事实表按天分区。
+这些结果的可重复性所需的所有信息都是公开的。我们比较了 Hive <code>[7]</code> 的两个不同版本：(i) Hive v1.2，于 2015 年 9 月发布，运行在 Tez v0.5 之上，(ii) 最新的 Hive v3.1，于 11 月发布 2018 年，使用启用了 LLAP 的 Tez v0.9。
+图 7 显示了两个 Hive 版本的响应时间(由用户感知)；注意对数 y 轴。对于每个查询，我们报告了三个命中缓存的平均值。首先，观察在 Hive v1.2 中只能执行 50 个查询；图中省略了无法执行的查询的响应时间值。
+原因是 Hive v1.2 缺乏对集合操作的支持，例如 EXCEPT 或 INTERSECT、具有非等连接条件的相关标量子查询、区间表示法和未选择列的排序以及其他 SQL 功能。
+对于这 50 个查询，Hive v3.1 的性能明显优于之前的版本。特别是，Hive v3.1 平均快了 4.6 倍，最高快了 45.5 倍(参见 q58)。
+图中强调了改进超过 15 倍的查询。更重要的是，由于对 SQL 支持的改进，Hive v3.1 可以执行完整的 99 个 TPC-DS 查询。
+两个版本之间的性能差异如此之大，以至于 Hive v3.1 执行的所有查询的聚合响应时间仍然比 Hive v1.2 中 50 个查询的时间低 15%。
+新的优化功能，例如共享工作优化器，本身就产生了很大的不同；例如，启用 q88 后，它的速度提高了 2.7 倍。</p>
+<h4 id="7-2-LLAP-加速">7.2 LLAP 加速</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">执行模式</th>
+<th style="text-align:center">总响应时长(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">容器化(未开启 LLAP)</td>
+<td style="text-align:center">41576</td>
+</tr>
+<tr>
+<td style="text-align:center">LLAP</td>
+<td style="text-align:center">15540</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>表 1：使用 LLAP 之后的相应时间性能提升。</p>
+</blockquote>
+<p>为了说明 LLAP 对使用 Tez 容器执行查询的优势，我们使用相同的配置在 Hive v3.1 中运行所有 99 个 TPC-DS 查询，但启用/禁用了 LLAP。
+表 1 显示了实验中所有查询的聚合时间；我们可以观察到，LLAP 本身可以将工作负载响应时间显着降低 2.7 倍。</p>
+<h4 id="7-3-Druid-上的联邦查询">7.3 Druid 上的联邦查询</h4>
+<p>在下文中，我们说明了可以从使用 Hive 的物化视图和联邦功能的组合中获得的显着性能优势。对于这个实验，我们在 1TB 规模的数据集上使用 Star-Schema Benchmark (SSB) <code>[47]</code>。
+SSB 基准测试基于 TPC-H，旨在模拟迭代和交互式查询数据仓库的过程，以播放假设场景、深入挖掘并更好地了解趋势。
+它由一个事实表和 4 个维度表组成，工作负载包含 13 个查询，这些查询在不同的表集上连接、聚合和放置相当严格的维度过滤器。</p>
+<p><img src="https://s2.loli.net/2022/01/12/ifugjzOTeptxmk8.png" srcset="/img/loading.gif" lazyload alt="图 8：本机 Hive 和 Druid 联邦之间的查询响应时间比较"></p>
+<p>对此实验，我们创建了一个非规范化数据库模式的物化视图。物化存储在 Hive 中。然后我们在基准中运行查询，这些查询由优化器自动重写，以从物化视图中得到响应。
+随后，我们将物化视图存储在 Druid v0.12 中并重复相同的步骤。图 8 描述了每个变体的响应时间。
+观察到 Hive/Druid 比 Hive 中本地存储的物化视图的执行速度快 1.6 倍。原因是 Hive 使用 Calcite 将大部分查询计算推送到 Druid，因此它可以受益于 Druid 为这些查询提供更低的延迟。</p>
+<h3 id="8-讨论">8 讨论</h3>
+<p>在本节中，我们将讨论这项工作中提出的改进的影响，以及在实施这些新功能时面临的多重挑战和经验教训。</p>
+<p>随着时间的推移，应该添加到项目中的功能面向于用户面临的缺陷，Hive 社区中的报告，或将项目商业化的公司决定。</p>
+<p>例如，企业用户要求实施 ACID 保证，以便卸载在 Hadoop 产生之前很久就存在的数据仓库。此外，最近生效的新法规(赋予个人要求删除个人数据的权利的欧洲 GDPR)也强调了这一新功能的重要性。
+毫不奇怪，ACID 支持已迅速成为在 Hadoop 之上选择 Hive 而不是其他 SQL 引擎的关键区别。
+但是，将 ACID 功能引入 Hive 并不简单，初始实现必须进行重大更改，因为与非 ACID 表相比，它引入了读取延迟损失，这是用户无法接受的。
+这是由于原始设计中的一个细节，我们没有预见到它会对生产性能产生如此大的影响：使用单一 delta type 的文件来存储插入、更新和删除的记录。
+如果工作负载包含大量写入操作或压缩运行不够频繁，则文件读取器必须对大量基本文件和增量文件执行排序合并以整合数据，这可能会造成内存压力。
+此外，过滤器下推以跳过读取整个行组不能应用于这些增量文件。本文中描述的 ACID 的第二个实现是随 Hive v3.1 推出的。它解决了上述问题，性能与非 ACID 表相当。</p>
+<p>随着时间的推移，Hive 用户的另一个常见且频繁的请求是改善其运行时延迟。LLAP 开发始于 4 年前，旨在解决系统架构固有的问题，例如缺乏数据缓存或长时间运行的执行程序。
+来自初始部署的反馈很快被纳入系统。例如，由于用户查询之间的集群资源争用，可预测性是生产中的一个巨大问题，这导致了工作负载管理器的实施。
+目前，看到公司部署 LLAP 来为多租户集群中的 TB 数据提供查询服务，实现秒级的平均延迟是非常值得的。</p>
+<p>另一个重要的决定是与 Calcite 集成以进行查询优化。在正确的抽象级别表示查询对于在 Hive 中实现高级优化算法至关重要，这反过来又为系统带来了巨大的性能优势。
+此外，利用该集成可以轻松地生成查询，以便与其他系统进行联合。由于现在组织使用过多的数据管理系统很常见，因此 Hive 用户对这一新功能感到非常兴奋。</p>
+<h3 id="9-路线图">9 路线图</h3>
+<p><strong>对 Hive 的持续改进</strong> 社区将继续致力于本文讨论的领域，以使 Hive 成为更好的仓储解决方案。例如，基于我们已经完成的支持 ACID 功能的工作，我们计划实现多语句事务。
+此外，我们将继续改进 Hive 中使用的优化技术。在运行时捕获的用于查询重新优化的统计信息已经保存在 HMS 中，这将使我们能够将该信息反馈到优化器中以获得更准确的估计，类似于其他系统 <code>[53, 60]</code>。
+物化视图工作仍在进行中，最需要的功能之一是为 Hive 实现顾问或推荐器 <code>[1, 61]</code>。对 LLAP 性能和稳定性的改进以及与其他专业系统(例如 Kafka <code>[9, 43]</code>)的新连接器的实施也在进行中。</p>
+<p><strong>独立元存储</strong> HMS 已成为 Hadoop 中的关键部分，因为它被 Spark 或 Presto 等其他数据处理引擎用于为中央存储库提供有关每个系统中所有数据源的信息。
+因此，从 Hive 中分离出 Metastore 并将其作为独立项目开发的兴趣和正在进行的工作越来越多。这些系统中的每一个都将在 Metastore 中拥有自己的目录，并且可以更轻松地跨不同引擎访问数据。</p>
+<p><strong>云中的容器化 Hive</strong> 基于云的数据仓库解决方案，如 Azure SQL DW <code>[18]</code>、Redshift <code>[33, 49]</code>、BigQuery <code>[21, 46]</code> 和 Snowflake <code>[29, 51]</code> 在过去几年中越来越受欢迎。
+此外，人们对 Kubernetes <code>[44]</code> 等系统越来越感兴趣，以为在本地或云端部署的应用程序提供容器编排。
+Hive 的模块化架构可以轻松隔离其组件(HS2、HMS、LLAP)并在容器中运行它们。正在进行的工作重点是完成使用 Kubernetes 在商业云中部署 Hive 的工作。</p>
+<h3 id="10-结论">10 结论</h3>
+<p>Apache Hive 的早期成功源于利用众所周知的接口进行批处理操作的并行性的能力。它使数据加载和管理变得简单，优雅地处理节点、软件和硬件故障，无需昂贵的修复或恢复时间。</p>
+<p>在本文中，我们展示了社区如何将系统的实用性从 ETL 工具扩展到成熟的企业级数据仓库。我们描述了添加一个事务系统，该系统非常适合星型数据库中所需的数据修改。
+我们展示了将查询延迟和并发性带入交互式操作领域所必需的主要运行时改进。我们还描述了处理当今视图层次结构和大数据操作所必需的基于成本的优化技术。
+最后，我们展示了 Hive 如何在今天用作多个存储和数据系统的关系前端。所有这一切的发生在都没有损害使其流行的系统的原始特征的基础上。</p>
+<p>Apache Hive 架构和设计原则已被证明在当今的分析环境中非常强大。我们相信，随着新的部署和存储环境的出现，它将继续在新的部署和存储环境中蓬勃发展，正如今天在容器化和云中所展示的那样。</p>
+<h3 id="致谢">致谢</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">We would like to thank the Apache Hive community, contributors and users, who build, maintain, use, test, write about, and continue to push the project forward. <br>We would also like to thank Oliver Draese for his feedback on the original draft of this paper.<br></code></pre></td></tr></table></figure>
+<h3 id="参考资料">参考资料</h3>
+<p>[1] Sanjay Agrawal, Surajit Chaudhuri, and Vivek R. Narasayya. 2000. Automated Selection of Materialized Views and Indexes in SQL Databases. In PVLDB.</p>
+<p>[2] Apache Atlas 2018. Apache Atlas: Data Governance and Metadata framework for Hadoop. <a target="_blank" rel="noopener" href="http://atlas.apache.org/">http://atlas.apache.org/</a>.</p>
+<p>[3] Apache Calcite 2018. Apache Calcite: Dynamic data management framework. <a target="_blank" rel="noopener" href="http://calcite.apache.org/">http://calcite.apache.org/</a>.</p>
+<p>[4] Apache Druid 2018. Apache Druid: Interactive analytics at scale. <a target="_blank" rel="noopener" href="http://druid.io/">http://druid.io/</a>.</p>
+<p>[5] Apache Flink 2018. Apache Flink: Stateful Computations over Data Streams. <a target="_blank" rel="noopener" href="http://flink.apache.org/">http://flink.apache.org/</a>.</p>
+<p>[6] Apache HBase 2018. Apache HBase. <a target="_blank" rel="noopener" href="http://hbase.apache.org/">http://hbase.apache.org/</a>.</p>
+<p>[7] Apache Hive 2018. Apache Hive. <a target="_blank" rel="noopener" href="http://hive.apache.org/">http://hive.apache.org/</a>.</p>
+<p>[8] Apache Impala 2018. Apache Impala. <a target="_blank" rel="noopener" href="http://impala.apache.org/">http://impala.apache.org/</a>.</p>
+<p>[9] Apache Kafka 2018. Apache Kafka: A distributed streaming platform. <a target="_blank" rel="noopener" href="http://kafka.apache.org/">http://kafka.apache.org/</a>.</p>
+<p>[10] Apache ORC 2018. Apache ORC: High-Performance Columnar Storage for Hadoop. <a target="_blank" rel="noopener" href="http://orc.apache.org/">http://orc.apache.org/</a>.</p>
+<p>[11] Apache Parquet 2018. Apache Parquet. <a target="_blank" rel="noopener" href="http://parquet.apache.org/">http://parquet.apache.org/</a>.</p>
+<p>[12] Apache Ranger 2018. Apache Ranger: Framework to enable, monitor and manage comprehensive data security across the Hadoop platform. <a target="_blank" rel="noopener" href="http://ranger.apache.org/">http://ranger.apache.org/</a>.</p>
+<p>[13] Apache Sentry 2018. Apache Sentry: System for enforcing fine grained role based authorization to data and metadata stored on a Hadoop cluster. <a target="_blank" rel="noopener" href="http://sentry.apache.org/">http://sentry.apache.org/</a>.</p>
+<p>[14] Apache Spark 2018. Apache Spark: Unified Analytics Engine for Big Data. <a target="_blank" rel="noopener" href="http://spark.apache.org/">http://spark.apache.org/</a>.</p>
+<p>[15] Apache Tez 2018. Apache Tez. <a target="_blank" rel="noopener" href="http://tez.apache.org/">http://tez.apache.org/</a>.</p>
+<p>[16] Apache Thrift 2018. Apache Thrift. <a target="_blank" rel="noopener" href="http://thrift.apache.org/">http://thrift.apache.org/</a>.</p>
+<p>[17] Peter M. G. Apers, Alan R. Hevner, and S. Bing Yao. 1983. Optimization Algorithms for Distributed Queries. IEEE Trans. Software Eng. 9, 1(1983), 57–68.</p>
+<p>[18] Azure SQL DW 2018. Azure SQL Data Warehouse. mhttp://azure.microsoft.com/en-us/services/sql-data-warehouse/.</p>
+<p>[19] Edmon Begoli, Jesús Camacho-Rodríguez, Julian Hyde, Michael J. Mior, and Daniel Lemire. 2018. Apache Calcite: A Foundational Framework for Optimized Query Processing Over Heterogeneous Data Sources. In SIGMOD.</p>
+<p>[20] Philip A. Bernstein, Nathan Goodman, Eugene Wong, Christopher L. Reeve, and James B. Rothnie Jr. 1981. Query Processing in a System for Distributed Databases (SDD-1). ACM Trans. Database Syst. 6, 4 (1981), 602–625.</p>
+<p>[21] BigQuery 2018. BigQuery: Analytics Data Warehouse. <a target="_blank" rel="noopener" href="http://cloud.google.com/bigquery/">http://cloud.google.com/bigquery/</a>.</p>
+<p>[22] Vinayak R. Borkar, Michael J. Carey, Raman Grover, Nicola Onose, and Rares Vernica. 2011. Hyracks: A flexible and extensible foundation for data-intensive computing. In ICDE.</p>
+<p>[23] Francesca Bugiotti, Damian Bursztyn, Alin Deutsch, Ioana Ileana, and Ioana Manolescu. 2015. Invisible Glue: Scalable Self-Tunning MultiStores. In CIDR.</p>
+<p>[24] Michael J. Cahill, Uwe Röhm, and Alan David Fekete. 2008. Serializable isolation for snapshot databases. In SIGMOD.</p>
+<p>[25] Jesús Camacho-Rodríguez, Dario Colazzo, Melanie Herschel, Ioana Manolescu, and Soudip Roy Chowdhury. 2016. Reuse-based Optimization for Pig Latin. In CIKM.</p>
+<p>[26] Paris Carbone, Asterios Katsifodimos, Stephan Ewen, Volker Markl, Seif Haridi, and Kostas Tzoumas. 2015. Apache Flink™: Stream and Batch Processing in a Single Engine. IEEE Data Eng. Bull. 38, 4 (2015), 28–38.</p>
+<p>[27] Michael J. Carey, Laura M. Haas, Peter M. Schwarz, Manish Arya, William F. Cody, Ronald Fagin, Myron Flickner, Allen Luniewski, Wayne Niblack, Dragutin Petkovic, Joachim Thomas, John H. Williams, and Edward L. Wimmers. 1995.
+Towards Heterogeneous Multimedia Information Systems: The Garlic Approach.
+In RIDE-DOM Workshop.</p>
+<p>[28] Surajit Chaudhuri, Ravi Krishnamurthy, Spyros Potamianos, and Kyuseok Shim. 1995. Optimizing Queries with Materialized Views. In ICDE.</p>
+<p>[29] Benoît Dageville, Thierry Cruanes, Marcin Zukowski, Vadim Antonov, Artin Avanes, Jon Bock, Jonathan Claybaugh, Daniel Engovatov, Martin Hentschel, Jiansheng Huang, Allison W. Lee, Ashish Motivala, Abdul Q. Munir, Steven Pelley, Peter Povinec, Greg Rahn, Spyridon Triantafyllis, and Philipp Unterbrunner. 2016.
+The Snowflake Elastic Data Warehouse. In SIGMOD.</p>
+<p>[30] DataNucleus 2018. DataNucleus: JDO/JPA/REST Persistence of Java Objects. <a target="_blank" rel="noopener" href="http://www.datanucleus.org/">http://www.datanucleus.org/</a>.</p>
+<p>[31] Jonathan Goldstein and Per-Åke Larson. 2001. Optimizing Queries Using Materialized Views: A practical, scalable solution. In SIGMOD.</p>
+<p>[32] Timothy Griffin and Leonid Libkin. 1995. Incremental Maintenance of Views with Duplicates. In SIGMOD.</p>
+<p>[33] Anurag Gupta, Deepak Agarwal, Derek Tan, Jakub Kulesza, Rahul Pathak, Stefano Stefani, and Vidhya Srinivasan. 2015. Amazon Redshift and the Case for Simpler Data Warehouses. In SIGMOD.</p>
+<p>[34] Ashish Gupta and Inderpal Singh Mumick. 1995. Maintenance of Materialized Views: Problems, Techniques, and Applications. IEEE Data Eng. Bull. 18, 2 (1995), 3–18.</p>
+<p>[35] Himanshu Gupta. 1997. Selection of Views to Materialize in a Data Warehouse. In ICDT.</p>
+<p>[36] Himanshu Gupta, Venky Harinarayan, Anand Rajaraman, and Jeffrey D. Ullman. 1997. Index Selection for OLAP. In ICDE.</p>
+<p>[37] Venky Harinarayan, Anand Rajaraman, and Jeffrey D. Ullman. 1996. Implementing Data Cubes Efficiently. In SIGMOD.</p>
+<p>[38] Stefan Heule, Marc Nunkesser, and Alexander Hall. 2013. HyperLogLog in practice: algorithmic engineering of a state of the art cardinality estimation algorithm. In EDBT.</p>
+<p>[39] Yin Huai, Ashutosh Chauhan, Alan Gates, Günther Hagleitner, Eric N. Hanson, Owen O’Malley, Jitendra Pandey, Yuan Yuan, Rubao Lee, and Xiaodong Zhang. 2014. Major technical advancements in apache hive. In SIGMOD.</p>
+<p>[40] Michael Isard, Mihai Budiu, Yuan Yu, Andrew Birrell, and Dennis Fetterly. 2007. Dryad: distributed data-parallel programs from sequential building blocks. In EuroSys.</p>
+<p>[41] Alekh Jindal, Shi Qiao, Hiren Patel, Zhicheng Yin, Jieming Di, Malay Bag, Marc Friedman, Yifung Lin, Konstantinos Karanasos, and Sriram Rao. 2018. Computation Reuse in Analytics Job Service at Microsoft. In SIGMOD.</p>
+<p>[42] Marcel Kornacker, Alexander Behm, Victor Bittorf, Taras Bobrovytsky, Casey Ching, Alan Choi, Justin Erickson, Martin Grund, Daniel Hecht, Matthew Jacobs, Ishaan Joshi, Lenni Kuff, Dileep Kumar, Alex Leblang, Nong Li, Ippokratis Pandis, Henry Robinson, David Rorke, Silvius Rus, John Russell, Dimitris Tsirogiannis, Skye Wanderman-Milne, and Michael Yoder. 2015.
+Impala: A Modern, Open-Source SQL Engine for Hadoop. In CIDR.</p>
+<p>[43] Jay Kreps, Neha Narkhede, and Jun Rao. 2011. Kafka : a Distributed Messaging System for Log Processing. In NetDB.</p>
+<p>[44] Kubernetes 2018. Kubernetes: Production-Grade Container Orchestration. <a target="_blank" rel="noopener" href="http://kubernetes.io/">http://kubernetes.io/</a>.</p>
+<p>[45] Per-Åke Larson, Cipri Clinciu, Campbell Fraser, Eric N. Hanson, Mostafa Mokhtar, Michal Nowakiewicz, Vassilis Papadimos, Susan L. Price, Srikumar Rangarajan, Remus Rusanu, and Mayukh Saubhasik.2013. Enhancements to SQL server column stores. In SIGMOD.</p>
+<p>[46] Sergey Melnik, Andrey Gubarev, Jing Jing Long, Geoffrey Romer, Shiva Shivakumar, Matt Tolton, and Theo Vassilakis. 2010.
+Dremel: Interactive Analysis of Web-Scale Datasets. In PVLDB.</p>
+<p>[47] Patrick E. O’Neil, Elizabeth J. O’Neil, Xuedong Chen, and Stephen Revilak. 2009. The Star Schema Benchmark and Augmented Fact Table Indexing. In TPCTC.</p>
+<p>[48] Presto 2018. Presto: Distributed SQL query engine for big data.<a target="_blank" rel="noopener" href="http://prestodb.io/">http://prestodb.io/</a>.</p>
+<p>[49] Redshift 2018. Amazon Redshift: Amazon Web Services. <a target="_blank" rel="noopener" href="http://aws.amazon.com/redshift/">http://aws.amazon.com/redshift/</a>.</p>
+<p>[50] Bikas Saha, Hitesh Shah, Siddharth Seth, Gopal Vijayaraghavan, Arun C. Murthy, and Carlo Curino. 2015. Apache Tez: A Unifying Framework for Modeling and Building Data Processing Applications. In SIGMOD.</p>
+<p>[51] Snowflake 2018. Snowflake: The Enterprise Data Warehouse Built in the Cloud. <a target="_blank" rel="noopener" href="http://www.snowflake.com/">http://www.snowflake.com/</a>.</p>
+<p>[52] Mohamed A. Soliman, Lyublena Antova, Venkatesh Raghavan, Amr El-Helw, Zhongxian Gu, Entong Shen, George C. Caragea, Carlos Garcia-Alvarado, Foyzur Rahman, Michalis Petropoulos, Florian Waas, Sivaramakrishnan Narayanan, Konstantinos Krikellas, and Rhonda Baldwin. 2014. Orca: a modular query optimizer architecture for big data. In SIGMOD.</p>
+<p>[53] Michael Stillger, Guy M. Lohman, Volker Markl, and Mokhtar Kandil. 2014. LEO - DB2’s LEarning Optimizer. In PVLDB.</p>
+<p>[54] Michael Stonebraker and Ugur Çetintemel. 2005. “One Size Fits All”:An Idea Whose Time Has Come and Gone. In ICDE.</p>
+<p>[55] Ashish Thusoo, Joydeep Sen Sarma, Namit Jain, Zheng Shao, Prasad Chakka, Ning Zhang, Suresh Anthony, Hao Liu, and Raghotham Murthy. 2010. Hive - a petabyte scale data warehouse using Hadoop. In ICDE.</p>
+<p>[56] Vinod Kumar Vavilapalli, Arun C. Murthy, Chris Douglas, Sharad Agarwal, Mahadev Konar, Robert Evans, Thomas Graves, Jason Lowe, Hitesh Shah, Siddharth Seth, Bikas Saha, Carlo Curino, Owen O’Malley,
+Sanjay Radia, Benjamin Reed, and Eric Baldeschwieler. 2013. Apache Hadoop YARN: yet another resource negotiator. In SOCC.</p>
+<p>[57] Gio Wiederhold. 1992. Mediators in the Architecture of Future Information Systems. IEEE Computer 25, 3 (1992), 38–49.</p>
+<p>[58] Fangjin Yang, Eric Tschetter, Xavier Léauté, Nelson Ray, Gian Merlino, and Deep Ganguli. 2014. Druid: a real-time analytical data store. In SIGMOD.</p>
+<p>[59] Matei Zaharia, Mosharaf Chowdhury, Michael J. Franklin, Scott Shenker, and Ion Stoica. 2010. Spark: Cluster Computing with Working Sets. In USENIX HotCloud.</p>
+<p>[60] Mohamed Zaït, Sunil Chakkappen, Suratna Budalakoti, Satyanarayana R. Valluri, Ramarajan Krishnamachari, and Alan Wood. 2017. Adaptive Statistics in Oracle 12c. In PVLDB.</p>
+<p>[61] Daniel C. Zilio, Jun Rao, Sam Lightstone, Guy M. Lohman, Adam J. Storm, Christian Garcia-Arellano, and Scott Fadden. 2004. DB2 Design Advisor: Integrated Automatic Physical Database Design. In PVLDB.</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hive/" class="print-no-link">#Hive</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/" class="print-no-link">#论文</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Apache Hive: From MapReduce to Enterprise-grade Big Data Warehousing 中文翻译</div>
+      <div>https://wangqian0306.github.io/2022/apache_hive_from_mapreduce_to_enterprise_grade_big_data_warehousing/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/impala_a_modern_open_source_sql_engine_for_hadoop/" title="Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Impala: A Modern, Open-Source SQL Engine for Hadoop 中文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/regex/" title="regex">
+                        <span class="hidden-mobile">regex</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Apache BookKeeper 简介 BookKeeper 是一种服务，它提供日志条目流(记录)的持久存储在名为 ledgers 的序列中。BookKeeper 会将数据分布式的复制到多台设备中存储。 基本元素 在 BookKeeper 中：  每个日志记录单元被称为 entry 又名 record 由日志记录单元的数据流被称为 ledger 每个存储 ledger 的服务器被称为 booki">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache BookKeeper">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/bookkeeper/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Apache BookKeeper 简介 BookKeeper 是一种服务，它提供日志条目流(记录)的持久存储在名为 ledgers 的序列中。BookKeeper 会将数据分布式的复制到多台设备中存储。 基本元素 在 BookKeeper 中：  每个日志记录单元被称为 entry 又名 record 由日志记录单元的数据流被称为 ledger 每个存储 ledger 的服务器被称为 booki">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-15T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.462Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Pulsar">
+<meta property="article:tag" content="BookKeeper">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Apache BookKeeper - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Apache BookKeeper"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-15 22:26" pubdate>
+          2022年9月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Apache BookKeeper</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Apache-BookKeeper">Apache BookKeeper</h2>
+<h3 id="简介">简介</h3>
+<p>BookKeeper 是一种服务，它提供日志条目流(记录)的持久存储在名为 <code>ledgers</code> 的序列中。BookKeeper 会将数据分布式的复制到多台设备中存储。</p>
+<h3 id="基本元素">基本元素</h3>
+<p>在 BookKeeper 中：</p>
+<ul>
+<li>每个日志记录单元被称为 <code>entry</code> 又名 <code>record</code></li>
+<li>由日志记录单元的数据流被称为 <code>ledger</code></li>
+<li>每个存储 <code>ledger</code> 的服务器被称为 <code>bookie</code></li>
+</ul>
+<p>BookKeeper 被设计为可靠且具有弹性以应对各种故障。Bookies 可能会崩溃、损坏数据或丢弃数据，但只要在 ensemble 中有足够多的 bookie 行为正确，整个服务就会正确运行。</p>
+<p>每个 <code>entry</code> 包含了写入 <code>ledger</code> 的字节序列。每个条目都有以下字段：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">列名</th>
+<th style="text-align:center">Java 类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>Ledger number</code></td>
+<td style="text-align:center">Long</td>
+<td style="text-align:center"><code>entry</code> 写入的 <code>ledger</code> ID</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>Entry number</code></td>
+<td style="text-align:center">Long</td>
+<td style="text-align:center"><code>entry</code> ID</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>Last confirmed (LC)</code></td>
+<td style="text-align:center">Long</td>
+<td style="text-align:center">最后一个 <code>entry</code> 的 ID</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>Data</code></td>
+<td style="text-align:center">Byte[]</td>
+<td style="text-align:center">数据</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>Authentication code</code></td>
+<td style="text-align:center">Byte[]</td>
+<td style="text-align:center">消息认证编号</td>
+</tr>
+</tbody>
+</table>
+<p>每个 <code>ledger</code> 会按顺序存储 <code>entry</code> ,并且遵循以下规则：</p>
+<ul>
+<li>序列化写入</li>
+<li>至多写入一次</li>
+</ul>
+<p>这代表了 <code>ledger</code> 的语义为只做追加。<code>entry</code> 写入之后就无法被修改。正当的写入顺序需要客户端负责。</p>
+<p>每个 <code>bookie</code> 服务器存储 <code>ledgers</code> 的一些片段，它们是 BookKeeper 存储服务器的组成元素。
+为了性能考虑对于给定 L <code>ledger</code> 来说都有一组 <code>bookie</code> 服务器负责存储。
+当一些 <code>entrie</code> 写入 <code>ledger</code> 时，这些 <code>entrie</code> 会被分散存储到 <code>bookie</code> 组中(写入一个子组肯定比写入所有的服务器更好)。</p>
+<h3 id="数据存储">数据存储</h3>
+<blockquote>
+<p>注：BookKeeper 收到了 HDFS NameNode 的启发。</p>
+</blockquote>
+<p>目前 BookKeeper 使用 ZooKeeper 存储元数据，例如：<code>ledger</code> 元数据，目前可用的 <code>bookie</code> 服务器，等等。</p>
+<p>实际数据则按照日志结构进行存储，分为如下三种：</p>
+<ul>
+<li><code>journals</code></li>
+<li><code>entry logs</code></li>
+<li><code>index files</code></li>
+</ul>
+<h4 id="Journals">Journals</h4>
+<p>一个 <code>journal file</code> 存储了 BookKeeper 的事务日志。在 <code>ledger</code> 更新发生之前，<code>bookie</code> 会确保此更新事务的相关描述会被写入一个暂未合规的存储中。一个新的 <code>journal file</code> 会在 <code>bookie</code> 启动或者旧的 <code>journal file</code> 文件大小达到设定阈值的时候创建。</p>
+<h4 id="Entry-logs">Entry logs</h4>
+<p><code>entry log file</code> 管理了 BookKeeper 客户端发送回来已经完成写入的 <code>entry</code>。来自不同 <code>ledger</code> 的 <code>entry</code> 会经过聚合然后顺序写入，而它们的 <code>offset</code> 会作为指针缓存在 <code>ledger</code>
+中来支持快速检索。</p>
+<p>一个新的 <code>entry log file</code> 会在 <code>bookie</code> 启动或者旧的 <code>entry log file</code> 文件大小达到设定阈值的时候创建。
+旧的 <code>entry log file</code> 一旦与 <code>ledger</code> 断开关联就会被垃圾回收线程收集。</p>
+<h4 id="Index-files">Index files</h4>
+<p><code>index file</code> 是为了每个 <code>ledger</code> 创建的，其中包含了文件头和一些固定长度的索引页，其中记录了 <code>entry log file</code> 中存储数据的 <code>offset</code>。</p>
+<p>由于更新 <code>index file</code> 会引入随机磁盘I/O，因此 <code>index file</code> 由后台运行的同步线程进行延迟更新。这确保了更新的快速性能。在索引页被持久化到磁盘之前，它们被收集在 <code>ledger</code> 缓存中进行查找。</p>
+<blockquote>
+<p>注：<code>ledger</code> 缓存页存储在内存池中，这可以让磁盘头调度更有效。</p>
+</blockquote>
+<h4 id="写入顺序">写入顺序</h4>
+<p>当客户端指示 <code>bookie</code> 写入 <code>ledger</code> 一项 <code>entry</code> 时，会遵循如下步骤持久写入磁盘：</p>
+<ol>
+<li>写入 <code>entry log</code></li>
+<li>将 <code>entry</code> 索引写入 <code>ledger</code> 缓存</li>
+<li>对应于此 <code>entry</code> 的写入事件会追加写入 <code>journal</code></li>
+<li>返回响应至客户端</li>
+</ol>
+<blockquote>
+<p>注: 出于性能原因，<code>entry log</code> 会缓存一些到本地内存中，然后批量的写入磁盘。当 <code>ledger</code> 缓存到足够的索引页就会将它们刷写至磁盘。</p>
+</blockquote>
+<p><code>ledger</code> 缓存页会在如下两种情况下写入 <code>index files</code>：</p>
+<ul>
+<li><code>ledger</code> 缓存的内存达到阈值。没有空间存储新的缓存页了。旧的缓存页会被驱逐出缓存然后持久化到磁盘中。</li>
+<li>一个后台同步线程会在周期性的运行负责将 <code>ledger</code> 缓存页刷写到 <code>index files</code>。</li>
+</ul>
+<p>除了刷新 <code>ledger</code> 缓存页之外，此同步线程还负责滚动 <code>journal file</code> 并通过此方式防止 <code>journal file</code> 使用太多的磁盘空间。在同步线程中的数据刷写流程如下：</p>
+<ul>
+<li>将 <code>LastLogMark</code> 记录在内存中。<code>LastLogMark</code> 表示了此 <code>entriy</code> 在持久化之前(存储到 <code>index file</code> 和 <code>entry log file</code>)的如下两种信息：
+<ol>
+<li><code>txnLogId</code>(<code>journal file</code> ID)</li>
+<li><code>txnLogPos</code>(<code>journal</code> 的 <code>offset</code>)</li>
+</ol>
+</li>
+<li>旧的缓存页会从 <code>ledger</code> 缓存页刷写到 <code>index files</code> 并且 <code>entry log file</code> 也会被刷写，来确保所有缓存在 <code>entry log file</code> 的 <code>entry</code> 都被持久化在磁盘上。</li>
+</ul>
+<blockquote>
+<p>注：理想情况下 <code>bookie</code> 只需要刷写索引页和 <code>entry log file</code> 其中先于 <code>LastLogMark</code> 的 <code>entry</code>。但是在 <code>ledger</code> 和 <code>entry log</code> 映射到 <code>journal files</code> 中的内容并没有这样的信息。因此，线程会在此处完全刷写 <code>ledger</code> 缓存和 <code>entry log</code>，并且可能会刷写 <code>LastLogMark</code> 之后的数据。不过，刷写更多数据没什么大问题，只是有些多余。</p>
+</blockquote>
+<ul>
+<li>将 <code>LastLogMark</code> 持久化到磁盘，这可以让在 <code>LastLogMark</code> 之前的 <code>entry</code> 数据和索引页写入磁盘。这样可以让 <code> journal file</code> 更安全的移除早于 <code>txnLogId</code> 的数据。</li>
+</ul>
+<p>如果 <code>bookie</code> 在持久化 <code>LastLogMark</code> 之前故障了，它还是会有 <code>journal file</code> 其中存储了 索引页中可能没有持久化的 <code>entry</code>。因此，当 <code>bookie</code> 重启的时候，它会检查 <code>journal file</code> 并且重新存储这些 <code>entry</code>，数据不会丢失。</p>
+<p>使用上述数据刷写机制，当 <code>bookie</code> 关闭时，同步线程跳过数据刷写是安全的。然而在 <code>entry logger</code> 中会使用缓存的频道(channel)批量写入数据，在关闭时它可能还缓冲了数据。 <code>bookie</code> 还需要确保在关闭期间 <code>entry log</code> 每次的刷写都是完成的。否则，<code>entry log file</code> 会因部分 <code>entry</code> 而损坏。</p>
+<h4 id="数据压缩">数据压缩</h4>
+<p>在 <code>bookie</code> 中， <code>entry log file</code> 含有不同的 <code>ledger</code> 它们的 <code>entry</code> 交错在一起。 <code>bookie</code> 为了清理磁盘空间会运行垃圾回收线程删除不相关的 <code>entry log file</code>。
+如果一个给定的 <code>entry log file</code> 包含有尚未删除 <code>ledger</code> 中的 <code>entry</code>，则 <code>entry log file</code> 则永远不会被删除占用的磁盘空间也永远不会清空。为了避免此种情况，<code>bookie</code> 服务器会在垃圾回收线程中压缩 <code>entry log file</code> 并以此来节约空间。</p>
+<p>压缩有两种不同的运行频率：小型压缩和大型压缩。小型压缩和大型压缩的区别在于它们的阈值和运行间隔。</p>
+<ul>
+<li>垃圾收集阈值是那些未删除的 <code>ledger</code> 占用 <code>entry log file</code> 大小的百分比。默认的小型压缩阈值为 0.2，大型压缩为 0.8。</li>
+<li>垃圾收集运行间隔是运行压缩的频率。默认的小型压缩间隔为1小时，而大型压缩阈值为1天。</li>
+</ul>
+<blockquote>
+<p>注：如果阈值或间隔设置为小于或等于零，则禁用压缩。</p>
+</blockquote>
+<p>垃圾收集器线程中的数据压缩流程如下：</p>
+<ul>
+<li>此线程会扫描 <code>entry log files</code> 来获取 <code>entry log</code> 元数据，其中记录了 <code>ledger</code> 组成的 <code>entry log</code> 和它对应的百分比</li>
+<li>在正常的垃圾收集流程中，一旦 <code>bookie</code> 确定已删除 <code>ledger</code>，它将从 <code>entry log</code> 元数据中删除并减小存储空间</li>
+<li>如果 <code>entry log file</code> 的剩余大小达到指定阈值，则 <code>entry log</code> 中 <code>ledger</code> 的活动的 <code>entry</code> 将被复制到新的 <code>entry log file</code></li>
+<li>复制所有有效 <code>entry</code> 后，将删除旧 <code>entry log file</code>。f方式</li>
+</ul>
+<h3 id="部署需求">部署需求</h3>
+<p>为了达到最佳性能 BookKeeper 部署需要至少四个节点，且每台服务器至少要有两个硬盘。分别负责：</p>
+<ul>
+<li><code>journalDirectory</code> 负责 <code>journal</code> 存储</li>
+<li><code>ledgerDirectories</code> 负责 <code>entry</code> 和部分 <code>ledger</code> 的存储</li>
+</ul>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://bookkeeper.apache.org">官方文档</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Pulsar/" class="print-no-link">#Pulsar</a>
+      
+        <a href="/tags/BookKeeper/" class="print-no-link">#BookKeeper</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Apache BookKeeper</div>
+      <div>https://wangqian0306.github.io/2022/bookkeeper/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/flink_table/" title="Flink Table API">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Flink Table API</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/kmp/" title="KMP 算法">
+                        <span class="hidden-mobile">KMP 算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

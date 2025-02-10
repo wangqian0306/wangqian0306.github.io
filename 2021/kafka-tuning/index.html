@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Kafka 性能和高可用性调整 操作系统部分 文件描述符限制   ulimit -n 1000000   vim &#x2F;etc&#x2F;sysctl.conf   1vm.max_map_count&#x3D;655360 交换内存(swap)  打开交换内存 vm.swapiness 应当设置为 1 设置内存可以填充脏页的百分比 vm.dirty_background_ratio 应当设置为小于 10 大部分情况下可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka 性能和高可用性调整">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/kafka-tuning/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Kafka 性能和高可用性调整 操作系统部分 文件描述符限制   ulimit -n 1000000   vim &#x2F;etc&#x2F;sysctl.conf   1vm.max_map_count&#x3D;655360 交换内存(swap)  打开交换内存 vm.swapiness 应当设置为 1 设置内存可以填充脏页的百分比 vm.dirty_background_ratio 应当设置为小于 10 大部分情况下可">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-15T14:43:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.466Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Kafka 性能和高可用性调整 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kafka 性能和高可用性调整"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-09-15 22:43" pubdate>
+          2021年9月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Kafka 性能和高可用性调整</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Kafka-性能和高可用性调整">Kafka 性能和高可用性调整</h2>
+<h3 id="操作系统部分">操作系统部分</h3>
+<h4 id="文件描述符限制">文件描述符限制</h4>
+<ul>
+<li>
+<p><code>ulimit -n 1000000</code></p>
+</li>
+<li>
+<p><code>vim /etc/sysctl.conf</code></p>
+</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">vm.max_map_count=655360<br></code></pre></td></tr></table></figure>
+<h4 id="交换内存-swap">交换内存(swap)</h4>
+<ul>
+<li>打开交换内存 <code>vm.swapiness</code> 应当设置为 1</li>
+<li>设置内存可以填充脏页的百分比 <code>vm.dirty_background_ratio</code> 应当设置为小于 10 大部分情况下可以直接设为 5</li>
+<li>设置脏页填充的绝对最大系统内存量<code>vm.dirty_ratio</code> 应当设置为大于 20，60~80 是一个比较合理的区间</li>
+</ul>
+<p>在使用的过程中可以针对 swap 内的脏页数量进行监控，防止集群崩溃造成数据丢失。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> /proc/vmstat | grep <span class="hljs-string">&quot;dirty|writeback&quot;</span><br></code></pre></td></tr></table></figure>
+<h4 id="磁盘及挂载参数">磁盘及挂载参数</h4>
+<ul>
+<li>建议采用 XFS 文件系统</li>
+<li>在挂载 Kafka 数据盘时建议采用 <code>noatime</code> 参数(屏蔽最后访问时间的更改，提高性能)</li>
+</ul>
+<h4 id="网络配置">网络配置</h4>
+<ul>
+<li>socket 读写缓冲区配置为 131072 (128 KB)
+<ul>
+<li><code>net.core.wmem_default</code></li>
+<li><code>net.core.wmem_default</code></li>
+</ul>
+</li>
+<li>socket 读写缓冲最大值为 2097152 (2 MB)
+<ul>
+<li><code>net.core.wmen_max</code></li>
+<li><code>net.core.rmem_max</code></li>
+</ul>
+</li>
+<li>TCP socket 读写缓冲区大小设置为 4096 65536 2048000 (最小值 默认值 最大值)
+<ul>
+<li><code>net.ipv4.tcp_wmem</code></li>
+<li><code>net.ipv4.tcp_rmem</code></li>
+</ul>
+</li>
+<li>打开 TCP 时间窗扩展 <code>net.ipv4.tcp_window_scaling</code> 设置为 1</li>
+<li>提升并发量 <code>net.ipv4.tcp_max_syn_backlog</code> 设置为比 1024 更大的值</li>
+<li>允许更多的数据包进入内核 <code>net.core.netdev_max_backlog</code> 设置为比 1000 更大的值</li>
+</ul>
+<h3 id="JVM-部分">JVM 部分</h3>
+<ul>
+<li>建议使用 Java 11</li>
+</ul>
+<h3 id="配置部分">配置部分</h3>
+<h4 id="Broker-启动参数">Broker 启动参数</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">-Xmx6g -Xms6g -XX:MetaspaceSize=96m -XX:+UseG1GC<br>-XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M<br>-XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent<br></code></pre></td></tr></table></figure>
+<h4 id="机架名">机架名</h4>
+<p>为了防止单个机架的故障导致服务不可用，可以设置 <code>broker.rack</code> 参数。这样一来 Kafka 会保证分区的副本被分布在多个机架上，从而获得更高的可用性。</p>
+<h4 id="副本选举策略">副本选举策略</h4>
+<p><code>unclean.leader.election</code> 参数默认为 true，表示允许不同步的副本成为首领，可能会造成消息丢失。如果业务场景不能接受消息丢失则需要修改为 false。</p>
+<p><code>auto.leader.rebalance.enable</code> 参数设置为 false，表示禁止定期进行的重新选举。</p>
+<h3 id="监控部分">监控部分</h3>
+<p>对于服务器需要监控如下参数：</p>
+<ul>
+<li>CPU 使用率</li>
+<li>网络输入/输出吞吐量</li>
+<li>磁盘平均等待时间</li>
+<li>磁盘剩余空间</li>
+<li>内存使用率</li>
+<li>TCP 链接数</li>
+<li>打开文件数</li>
+<li>inode 使用情况</li>
+</ul>
+<p>对于 JVM 需要监控如下内容：</p>
+<ul>
+<li>Full GC 发生频率和时间长度</li>
+<li>活跃对象大小</li>
+<li>应用线程总数</li>
+</ul>
+<p>对于生产者来说需要监控如下参数：</p>
+<ul>
+<li>error-rate</li>
+<li>retry-rate</li>
+</ul>
+<blockquote>
+<p>注：通过这两项参数明确生产者的错误率。</p>
+</blockquote>
+<p>对于消费者来说需要监控如下参数：</p>
+<ul>
+<li>consumer-lag</li>
+<li>records-lag-max</li>
+<li>records-lead-min</li>
+</ul>
+<blockquote>
+<p>注：Lag 表示距离最新消息还有多少积压。Lead 值是指消费者最新消费消息的位移与分区当前第一条消息位移的差值。一旦你监测到 Lead 越来越小，甚至是快接近于 0 了，你就一定要小心了，这可能预示着消费者端要丢消息了</p>
+</blockquote>
+<p>对于 broker 来说需要监控如下参数：</p>
+<ul>
+<li>UnderReplicatedPartitions(未同步的分区)</li>
+<li>ActiveControllerCount(活跃度控制器数量)</li>
+<li>RequestHandlerAvgIdlePercent(请求处理器空闲率)</li>
+<li>BytesInPerSec(主题输入字节/秒)</li>
+<li>BytesOutPerSec(主题输出字节/秒)</li>
+<li>MessagesInPerSec(主题接收消息/秒)</li>
+<li>PartitionCount(分区数量)</li>
+<li>LeaderCount(首领数量)</li>
+<li>OfflinePartitionsCount(离线分区数量)</li>
+</ul>
+<blockquote>
+<p>注：详情参阅 <a target="_blank" rel="noopener" href="http://kafka.apache.org/documentation.html#monitoring">官方文档</a>。</p>
+</blockquote>
+<h3 id="性能指标调优">性能指标调优</h3>
+<h4 id="调优吞吐量">调优吞吐量</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数位置</th>
+<th style="text-align:center">参数描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">适当增加 <code>num.replica.fetchers</code> 参数值，但不用超过 CPU 核心数</td>
+</tr>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">调优 GC 参数以避免经常性的 Full GC</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">适当增加 <code>batch.size</code> 参数值，比如从默认的 16 KB 增加到 512 KB 或 1MB</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">适当增加 <code>linger.ms</code> 参数值，比如 10~100</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>compression.type=lz4</code> 或者 <code>zstd</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>acks=0</code> 或 <code>1</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>retries=0</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">如果多线程共享同一个 Producer 实例，就增加 <code>buffer.memory</code> 参数值</td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">采用多 Consumer 进程或线程同时消费数据</td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">增加 <code>fetch.min.bytes</code> 参数值，比如设置成 1KB 或更大</td>
+</tr>
+</tbody>
+</table>
+<h4 id="调优延时">调优延时</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数位置</th>
+<th style="text-align:center">参数描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Broker 端</td>
+<td style="text-align:center">适当增加 <code>num.replica.fetchers</code> 参数值</td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>linger.ms=0</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">不启用压缩，即设置 <code>compression.type=none</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Producer 端</td>
+<td style="text-align:center">设置 <code>acks=1</code></td>
+</tr>
+<tr>
+<td style="text-align:center">Consumer 端</td>
+<td style="text-align:center">设置 <code>fetch.min.bytes=1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="批处理指标监控">批处理指标监控</h4>
+<ul>
+<li><code>batch-size-avg</code> ：此指标是批处理的实际大小。如果一切顺利，这将非常接近 batch.size。如果 batch-size-avg 始终低于设置的批量大小，则 <a target="_blank" rel="noopener" href="http://linger.ms">linger.ms</a> 可能不够高。同时，如果 <a target="_blank" rel="noopener" href="http://linger.ms">linger.ms</a> 很高，而批次仍然很小，则可能是记录生成速度不够快。如果已经很高了可以再调整回原来的值。</li>
+<li><code>records-per-request-avg</code> ：每个请求跨批次的平均记录数。</li>
+<li><code>record-size-avg</code> ：注意不要接近或超过 <code>batch.size</code></li>
+<li><code>buffer-available-bytes</code> ：内存余量。</li>
+<li><code>record-queue-time-avg</code> ：在发送记录之前等待填充的时间。</li>
+</ul>
+<h3 id="参考资料">参考资料</h3>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://kafka.apache.org/documentation/">Kafka 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100029201">Kafka 核心技术与实战</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/kafka-producer-and-consumer-internals-4-consumer-fetch-requests/">Kafka Producer and Consumer Internals</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Kafka/" class="print-no-link">#Kafka</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kafka 性能和高可用性调整</div>
+      <div>https://wangqian0306.github.io/2021/kafka-tuning/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年9月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/grafana/" title="Grafana">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Grafana</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/docker-swarm%20%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/" title="Docker Swarm 初步使用">
+                        <span class="hidden-mobile">Docker Swarm 初步使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

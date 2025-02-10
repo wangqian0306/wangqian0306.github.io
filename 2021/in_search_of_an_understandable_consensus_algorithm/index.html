@@ -1,0 +1,1565 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="In Search of an Understandable Consensus Algorithm 中文翻译 作者：Diego Ongaro and John Ousterhout, Stanford University 英文原文 引言 Raft 是一种用于管理复制日志的共识算法。 它产生的结果等价于 (multi-)Paxos，和 Paxos 一样高效，但它的结构设计与 Paxos 不同；这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="In Search of an Understandable Consensus Algorithm 中文翻译">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/in_search_of_an_understandable_consensus_algorithm/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="In Search of an Understandable Consensus Algorithm 中文翻译 作者：Diego Ongaro and John Ousterhout, Stanford University 英文原文 引言 Raft 是一种用于管理复制日志的共识算法。 它产生的结果等价于 (multi-)Paxos，和 Paxos 一样高效，但它的结构设计与 Paxos 不同；这">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/05/LqwCptXDksYQ6PS.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/mLZFaRUeJHr6tnh.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/4qAjsvHZGJWeQni.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/10/CNWm3xIYE4RoPkB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/11/fXbZogKLqIisSPB.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/aXrSYWnukhp1QVo.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/Jq3R4WVNngKOFID.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/YkCQyJlR8cXEbfF.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/kP7Mcf8wiqYFn5Z.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/18/fJzkQoWDOCcITnX.png">
+<meta property="article:published_time" content="2021-06-24T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.490Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="论文">
+<meta property="article:tag" content="Raft">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png">
+  
+  
+  
+  <title>In Search of an Understandable Consensus Algorithm 中文翻译 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="In Search of an Understandable Consensus Algorithm 中文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-06-24 22:26" pubdate>
+          2021年6月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">In Search of an Understandable Consensus Algorithm 中文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="In-Search-of-an-Understandable-Consensus-Algorithm-中文翻译">In Search of an Understandable Consensus Algorithm 中文翻译</h2>
+<p>作者：Diego Ongaro and John Ousterhout, Stanford University</p>
+<p><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/atc14/atc14-paper-ongaro.pdf">英文原文</a></p>
+<h3 id="引言">引言</h3>
+<p>Raft 是一种用于管理复制日志的共识算法。
+它产生的结果等价于 (multi-)Paxos，和 Paxos 一样高效，但它的结构设计与 Paxos 不同；这使得 Raft 更易于理解，也为构建实用系统提供了更好的基础。
+为了增强可理解性，Raft 将共识的关键要素(例如领导节点选举、日志复制和安全性)进行分离，并强制执行更强的一致性以减少必须判断的状态数量。
+用户研究的结果表明，Raft 比 Paxos 更容易让学生学习。
+Raft 还包括一种用于更改集群成员的新机制，该机制使用重叠多数来保证安全。</p>
+<h3 id="1-简介">1 简介</h3>
+<p>共识算法允许一组机器作为一个连贯的组进行工作，可以在其某些成员的失效的情况下继续工作。
+因此，它们在构建可靠的大型软件系统方面发挥着关键作用。
+Paxos <code>[13, 14]</code> 在过去十年中主导了共识算法的讨论：大多数共识的实现都是基于 Paxos 或受其影响，而 Paxos 已成为用于教授学生共识的主要工具。</p>
+<p>不幸的是，Paxos 非常难以理解，尽管作者多次尝试使其更易于理解。
+此外，其架构需要进行复杂的更改才能支持实际系统。
+这样做结果是使的系统构建者和学生都在为 Paxos 苦苦挣扎。</p>
+<p>在自己研读 Paxos 之后，我们着手寻找一种新的共识算法，可以为系统构建和教育提供更好的基石。
+我们的方法非常独特，因为我们的主要目标是可理解性：我们能否为实际系统定义一个共识算法，并以比 Paxos 更容易学习的方式来描述它？
+此外，我们希望该算法能够促进对系统构建者至关重要的直觉的成长。
+重要的不仅是算法要起作用，而且要清楚它为什么起作用。</p>
+<p>这项工作的结果是一种称为 Raft 的共识算法。
+在设计 Raft 时，我们应用了特定的技术来提高可理解性，包括分解(Raft 将领导选举、日志复制和安全性分开)和状态空间缩减
+(相对于 Paxos，Raft 降低了不确定性的程度以及服务器之间可能不一致的方式)。
+对两所大学的 43 名学生进行的用户研究表明，Raft 比 Paxos 更容易理解：
+在学习了这两种算法后，其中 33 名学生能够比关于 Paxos 的问题更好地回答有关 Raft 的问题。</p>
+<p>Raft 在许多方面类似于现有的共识算法(最值得注意的是，Oki 和 Liskov 的 Viewstamped Replication <code>[27, 20]</code>)，但它有几个新颖的特点：</p>
+<ul>
+<li><strong>强领导</strong>：Raft 使用比其他共识算法更强大的领导形式。例如，日志条目仅从领导节点流向其他服务器。这简化了复制日志的管理，让 Raft 更容易理解。</li>
+<li><strong>领导选举</strong>：Raft 使用随机计时器来选举领导节点。这仅为任何共识算法已经需要的心跳增加了少量机制，同时简单快速地解决了冲突。</li>
+<li><strong>成员变更</strong>：Raft 用于更改集群中服务器集的机制使用了一种新的联合共识方法，其中两种不同配置的大多数在转换期间重叠。这允许集群在配置更改期间继续正常运行。</li>
+</ul>
+<p>我们相信 Raft 优于 Paxos 和其他共识算法，无论是出于教育目的还是作为实现的基础。
+它比其他算法更简单易懂；描述完整，足以满足实际系统的需要；它有几个开源实现，被多家公司使用；其安全特性已得到正式规定和证明；其效率可与其他算法相媲美。</p>
+<p>论文的其余部分介绍了复制状态机问题(第 2 节)，讨论了 Paxos 的优缺点(第 3 节)，描述了我们实现可理解性的一般方法(第 4 节)，
+介绍了 Raft 共识算法(第 5-7 节)，评估 Raft 性能(第 8 节)，并讨论相关工作(第 9 节)。</p>
+<h3 id="2-复制状态机">2 复制状态机</h3>
+<p>共识算法通常出现在复制状态机的背景下 <code>[33]</code>。
+在这种方法中，一组服务器上的状态机计算相同状态的相同副本，并且即使某些服务器关闭也可以继续运行。
+复制状态机用于解决分布式系统中的各种容错问题。
+例如，具有单个集群领导节点的大型系统，如 GFS <code>[7]</code>、HDFS <code>[34]</code> 和 RAMCloud <code>[30]</code>
+通常使用单独的复制状态机来管理领导节点选举并存储必须生存的配置信息防止领导崩溃。
+复制状态机的例子包括 Chubby <code>[2]</code> 和 ZooKeeper <code>[9]</code>。</p>
+<p><img src="https://i.loli.net/2021/08/05/V8k2rEI1zJdPiLB.png" srcset="/img/loading.gif" lazyload alt="图 1：复制状态机架构"></p>
+<blockquote>
+<p>注：共识算法管理包含来自客户端的状态机命令的复制日志。状态机处理来自日志的相同命令序列，因此它们产生相同的输出。</p>
+</blockquote>
+<p>复制状态机通常使用复制日志来实现，如图 1 所示。
+每个服务器存储一个包含一系列命令的日志，它的状态机按顺序执行这些命令。
+每个日志以相同的顺序包含相同的命令，因此每个状态机处理相同的命令序列。
+由于状态机是确定性的，每个状态机都计算相同的状态和相同的输出序列。</p>
+<p>保持复制日志的一致性是一致性算法的工作。
+服务器上的共识模块接收来自客户端的命令并将它们添加到其日志中。
+它与其他服务器上的共识模块通信，以确保每个日志最终包含相同顺序的相同请求，即使某些服务器出现故障。
+一旦命令被正确复制，每个服务器的状态机就会按日志顺序处理它们，并将输出返回给客户端。
+结果，服务器似乎形成了一个单一的、高度可靠的状态机。</p>
+<p>实际系统的共识算法通常具有以下特性：</p>
+<ul>
+<li>它们在所有非拜占庭(non-Byzantine)条件下确保安全(从不返回错误结果)，包括网络延迟、分区和丢包、重复和重新排序。</li>
+<li>只要任何大多数服务器都可以运行并且可以相互通信以及与客户端通信，它们就具有完整的功能(可用)。因此，一个典型的五台服务器集群可以容忍任意两台服务器的故障。假设服务器因停止而失效：他们稍后可能会从稳定存储的状态中恢复并重新加入集群。</li>
+<li>它们不依赖于时间来确保日志的一致性：错误的时钟和极端的消息延迟在最坏的情况下会导致可用性问题。</li>
+<li>在一般情况下，只要集群的大部分响应了一轮远程过程调用，命令就可以完成；少数慢速服务器不会影响整体系统性能。</li>
+</ul>
+<h3 id="3-Paxos-有什么问题？">3 Paxos 有什么问题？</h3>
+<p>在过去的十年中，Leslie Lamport 的 Paxos 协议 <code>[13]</code> 几乎成为共识的同义词：它是课程中最常教授的协议，大多数共识的实现都以它为起点。
+Paxos 首先定义了一个能够就单个决策达成一致的协议，例如单个复制的日志条目。
+我们将这个子集称为单法令 Paxos。
+Paxos 然后将这个协议的多个实例组合起来，以促进一系列决策，例如日志(multi-Paxos)。
+Paxos 确保安全性和生命监测，并且支持集群成员的更改。
+其正确性已被证明，在正常情况下是有效的。</p>
+<p>不幸的是，Paxos 有两个明显的缺点。
+第一个缺点是 Paxos 异常难以理解。</p>
+<p>众所周知，完整的解释 <code>[13]</code> 是不透明的。很少有人能够成功地理解它，而且只有付出巨大的努力的情况下才有可能。
+因此，有几次尝试用更简单的术语来解释 Paxos <code>[14, 18, 19]</code>。
+这些解释侧重于单法令子集，但它们仍然具有挑战性。
+在 NSDI 2012 对与会者的非正式调查中，我们发现很少有人对 Paxos 感到满意，即使是经验丰富的研究人员也是如此。
+我们自己也在与 Paxos 斗争；直到阅读了几个简化的解释并设计了我们自己的替代方案之后，我们才能够理解完整的方案，这个过程花了将近一年的时间。</p>
+<p>我们假设 Paxos 的不透明性源于它选择单法令子集作为其基础。
+单法令 Paxos 密集而微妙：它分为两个阶段，没有简单直观的解释，不能独立理解。
+因此，很难对单法令协议的工作原理产生直觉。
+multi-Paxos 的组合规则显着增加了复杂性和微妙性。
+我们认为，就多个决策(即日志而不是单个条目)达成共识的整体问题可以用其他更直接、更明显的方式进行分解。</p>
+<p>Paxos 的第二个问题是它没有为构建实际实现提供良好的基础。
+原因之一是对于 multi-Paxos 没有广泛认可的算法。
+Lamport 的描述主要是关于单法令 Paxos；他勾画了多 Paxos 的可能方法，但缺少许多细节。
+已经有几次尝试充实和优化 Paxos，例如 <code>[24]、[35] 和 [11]</code>，但这些尝试彼此不同，也与 Lamport 的初始设计不同。
+Chubby <code>[4]</code> 等系统已经实现了类似 Paxos 的算法，但在大多数情况下，它们的细节尚未公开。</p>
+<p>此外，Paxos 架构对于构建实用系统来说是一种糟糕的架构；这是单法令分解的另一个结果。
+例如，独立选择一组日志条目，然后将它们融合到一个顺序日志中几乎没有什么好处；这只会增加复杂性。
+围绕日志设计一个系统会更简单、更有效，其中新条目以受约束的顺序进行追加。
+另一个问题是 Paxos 在其核心使用对称的点对点方法(尽管它最终暗示了一种弱领导形式作为性能优化)。
+这在一个只做出一个决定的简化世界中是有意义的，但很少有实际系统使用这种方法。
+如果必须做出一系列决策，首先选举一个领导节点，然后让领导节点协调决策会更简单、更快捷。</p>
+<p>因此，实际系统与 Paxos 几乎没有相似之处。
+每个实现都从 Paxos 开始，发现实现它的困难，然后开发出截然不同的架构。
+这既费时又容易出错，理解 Paxos 的困难加剧了这个问题。
+Paxos 的公式可能是证明其正确性定理的好方法，但实际实现与 Paxos 如此不同，以至于证明没有什么价值。
+以下来自 Chubby 实施者的评论是非常典型的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Paxos 算法的描述与现实世界系统的需求之间存在重大差距。......最终系统将基于未经证实的协议 [4]。<br></code></pre></td></tr></table></figure>
+<p>由于这些问题，我们得出结论，Paxos 没有为系统构建或教育提供良好的基础。
+考虑到共识在大型软件系统中的重要性，我们决定看看是否可以设计一种替代的共识算法，其属性比 Paxos 更好。
+Raft 是那个实验的结果。</p>
+<h3 id="4-设计可理解性">4 设计可理解性</h3>
+<p>我们在设计 Raft 时有几个目标：
+它必须为系统构建提供完整且实用的基础，从而显着减少开发人员所需的设计工作量；
+它必须在所有条件下都是安全的，并且在典型的操作条件下可用；
+并且它必须对常见操作有效。
+但我们最重要的目标——也是最困难的挑战——是可理解性。
+这种算法必须能被大部分的受众理解。
+此外，必须让受众能够对算法产生直觉，以便系统构建者可以进行在现实世界实现中进行扩展(往往是不可避免的)。</p>
+<p>在 Raft 的设计中有很多地方我们不得不在替代方法中进行选择。
+在这些情况下，我们根据可理解性评估了备选方案：解释每个备选方案有多难(例如，它的状态空间有多复杂，是否有微妙的含义？)，以及读者完全理解的难易程度，用户了解该方法及其含义吗？</p>
+<p>我们认识到这种分析具有高度的主观性；尽管如此，我们还是使用了两种普遍适用的技术。
+第一种技术是众所周知的问题分解方法：在可能的情况下，我们将问题分成可以相对独立地解决、解释和理解的单独部分。
+例如，在 Raft 中，我们将领导节点选举、日志复制、安全性和成员资格更改进行分离。</p>
+<p>我们的第二种方法是通过减少要判断的状态数量来简化状态空间，使系统更加连贯并尽可能消除不确定性。
+具体来说，日志是不允许有漏洞的，Raft 限制了日志彼此不一致的方式。
+尽管在大多数情况下我们试图消除不确定性，但在某些情况下，不确定性实际上提高了可理解性。
+特别是，随机方法引入了不确定性，但它们倾向于通过以类似的方式处理所有可能的选择来减少状态空间(“选择任何一个；无关紧要”)。
+我们使用随机化来简化 Raft 领导节点选举算法。</p>
+<h3 id="5-Raft-共识算法">5 Raft 共识算法</h3>
+<p><img src="https://i.loli.net/2021/08/05/LqwCptXDksYQ6PS.png" srcset="/img/loading.gif" lazyload alt="图 2：Raft 共识算法的简要总结(不包括成员变更和日志压缩)"></p>
+<blockquote>
+<p>注：左上框中的服务器行为被描述为一组独立且重复触发的规则。诸如第 5.2 节之类的部分编号指示讨论特定功能的位置。正式的规范 <code>[28]</code> 更准确地描述了算法。</p>
+</blockquote>
+<p>Raft 是一种用于管理第 2 节中描述的形式的复制日志的算法。
+图 2 以简明的形式总结了算法以供参考，图 3 列出了算法的关键特性；这些图的元素将在本节的其余部分逐个讨论。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">安全选举</td>
+<td style="text-align:center">在给定的任期中至多会有一个节点被选举成为领导节点。(第 5.2 节)</td>
+</tr>
+<tr>
+<td style="text-align:center">只做追加的领导节点</td>
+<td style="text-align:center">领导节点不会重写或者删除条目日志，只会做追加操作。(第 5.3 节)</td>
+</tr>
+<tr>
+<td style="text-align:center">日志匹配</td>
+<td style="text-align:center">如果两个日志包含具有相同索引和任期号，则日志在给定索引之前的所有条目中都是相同的。(第 5.3 节)</td>
+</tr>
+<tr>
+<td style="text-align:center">领导节点完备</td>
+<td style="text-align:center">如果在给定的任期内提交了一个日志条目，那么该条目将出现在所有更高编号任期的领导节点的日志中。(第 5.4 节)</td>
+</tr>
+<tr>
+<td style="text-align:center">状态机安全</td>
+<td style="text-align:center">如果服务器已经通过了一项日志条目到索引对应的状态机上，则其他服务器将永远不会为同一索引通过不同的日志条目。(第 5.4 节)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>图 3：Raft 保证这些属性中的每一个在任何时候都是正确的。章节编号指示了每个属性对应描述的所处位置。</p>
+</blockquote>
+<p>Raft 通过首先选举一个杰出的领导节点来实现共识，然后让领导节点完全负责管理复制日志。
+领导节点接受来自客户端的日志条目，将它们复制到其他服务器上，并告诉服务器何时将日志条目应用到它们的状态机是安全的。
+拥有领导节点简化了复制日志的管理。
+例如，领导节点可以在不咨询其他服务器的情况下决定在日志中放置新条目的位置，并且数据以简单的方式从领导节点流向其他服务器。
+领导节点可能会失败或与其他服务器断开连接，在这种情况下会选出新的领导节点</p>
+<p>鉴于领导节点的实现思路，Raft 将共识问题分解为三个相对独立的子问题，这些子问题将在以下小节中讨论：</p>
+<ul>
+<li>领导选举：在旧的领导节点故障或下线时，一个新的领导节点必须被选举出来(第 5.2 节)。</li>
+<li>日志副本：领导节点必须从客户端接收日志条目，并且将它们进行复制并分发到集群中，使得其他节点的日志与领导节点的日志保持一致。</li>
+<li>安全性：Raft 的关键安全属性是图 3 中的状态机的安全属性：如果任何服务器已将特定日志条目应用于其状态机，则其他服务器不能为相同的日志索引应用不同的命令。5.4 节描述了 Raft 如何保证这个属性；该解决方案涉及对第 5.2 节中描述的选举机制的额外限制。</li>
+</ul>
+<p>在介绍了共识算法之后，本节将讨论可用性问题和时序在系统中的作用。</p>
+<h4 id="5-1-Raft-基础知识">5.1 Raft 基础知识</h4>
+<p>一个 Raft 集群包含多个服务器；五是一个典型的设置，它允许系统容忍两次故障。
+在任何给定时间，每个服务器都处于以下三种状态之一：领导节点、从属节点或候选节点。
+在正常操作中，只有一个领导节点，所有其他服务器都是从属节点。
+从属节点是被动的：他们不会自己发出请求，而只是回应领导节点和候选节点的请求。
+领导节点处理所有客户端请求(如果客户端联系从属节点，则将其重定向到领导节点)。
+第三个状态，候选节点，用于选举一个新的领导者，如第 5.2 节所述。
+图 4 显示了状态及其转换；下面将讨论这些转换。</p>
+<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" srcset="/img/loading.gif" lazyload alt="图 4：服务器状态"></p>
+<blockquote>
+<p>注：从属节点只相应来自其他服务的请求，如果从属节点没有收到任何通信，它就会成为候选节点并发起选举。
+从整个集群的大多数节点中获得选票的候选节点会成为新的领导者，领导者通常会运行到失败为止。</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/08/09/ZBwA2WQpxn7GIot.png" srcset="/img/loading.gif" lazyload alt="图 5：时间被切分为任期，选举开始时就产生了一个任期"></p>
+<blockquote>
+<p>注：选举成功后，由一个领导节点管理集群直到任期结束。若选举失败，在这种情况下，任期结束但是没有新的领导者。
+我们可以在不同的时间和服务器上观测到任期的转换。</p>
+</blockquote>
+<p>Raft 将时间划分为任意长度的任期，如图 5 所示。
+任期使用连续整数进行编号。
+每个任期都从选举开始，其中一个或多个候选节点尝试成为领导节点，如第 5.2 节所述。
+如果一个候选节点赢得了选举，他就会在剩余的任期中持续作为领导节点。
+在某些情况下选举会导致分裂投票。
+在这种情况下，任期将在没有领导节点的情况下结束；新的任期(新的选举)将很快开始。
+Raft 确保在给定的任期内最多有一个领导节点。</p>
+<p>不同的服务器可能会在不同的时间观察任期之间的转换，在某些情况下，服务器可能不会观察到选举甚至整个任期。
+任期在 Raft 中充当逻辑时钟 <code>[12]</code>，它们允许服务器检测过时的信息，例如过时的领导节点。
+每个服务器存储一个当前的任期编号，随着时间的推移单调增加。
+每当服务器通信时都会交换当前任期；如果一台服务器的当任期小于另一台服务器的当前任期，则它将其当前任期更新为较大的值。
+如果候选节点或领导节点发现其任期已过时，它会立即恢复到从属节点状态。
+如果服务器收到带有过期任期号的请求，它会拒绝该请求。</p>
+<p>Raft 服务器使用远程过程调用(RPC) 进行通信，共识算法只需要两种类型的 RPC。
+RequestVote RPC 由候选节点在选举期间发起(第 5.2 节)，而 AppendEntries RPC 由领导节点发起以复制日志条目并提供一种心跳监测的形式(第 5.3 节)。
+如果服务器没有及时收到响应，它们会重试 RPC，并且它们并行发出 RPC 以获得最佳性能。</p>
+<h4 id="5-2-领导选举">5.2 领导选举</h4>
+<p>Raft 使用心跳机制来触发领导者选举。
+当服务器启动时，它们从跟从属节点开始。
+只要服务器从领导节点或候选节点那里接收到有效的 RPC，它就会保持从属节点状态。
+领导节点定期向所有从属节点发送心跳(不携带日志条目的 AppendEntries RPC)以维护他们的权限。
+如果从属节点在称为选举超时的一段时间内没有收到任何通信，则它假定没有可行的领导节点并开始选举以选择新的领导节点。</p>
+<p>要开始选举，从属节点会增加其当前任期并转换到候选状态。
+然后它为自己投票并并行地向集群中的每个其他服务器发出 RequestVote RPC。
+候选人继续保持这种状态，直到发生以下三件事之一：(a) 赢得选举, (b) 另一个服务器将自己确立为领导节点, © 一段时间没有选中的领导节点。
+这些结果将在以下段落中单独讨论。</p>
+<p>候选节点会在获得集群内众多节点的同样任期的投票之后赢得选举。
+每个服务器将在给定的任期内以先到先得的方式投票给至多一个候选节点(注：第 5.4 节增加了对投票的附加限制)。
+多数规则确保至多一名候选节点可以赢得特定任期的选举(图 3 中的选举安全属性)。
+一旦候选节点赢得选举，它就会变成领导节点。
+然后它向所有其他服务器发送心跳消息以建立权限并防止产生新的选举。</p>
+<p>在等待投票时，候选节点可能会收到来自另一台声称是领导节点服务器的 AppendEntries RPC。
+如果领导节点的任期(包含在其 RPC 中)至少与候选节点的当前任期一样大，则候选节点将领导者视为合法并返回从属节点状态。
+如果 RPC 中的任期小于候选节点的当前任期，则候选节点拒绝 RPC 并继续处于候选节点状态。</p>
+<p>第三种可能的结果是候选节点既不赢也不输选举：如果许多从属节点同时成为候选节点，可能会分裂选票，从而没有候选节点获得多数票。
+发生这种情况时，每个候选节点将超时并通过增加其任期并启动另一轮 RequestVote RPC 来开始新的选举。
+然而，如果没有额外的措施，分裂选票可能会无限重复。</p>
+<p>Raft 使用随机选举超时来确保分裂选票很少发生并且使它们能被快速解决。
+为了首先防止分裂投票，选举超时是从固定间隔(例如，150-300 毫秒)中随机选择的。
+这会分散服务器，以便在大多数情况下只有一个服务器会超时；它赢得了选举并在任何其他服务器超时之前发送心跳。
+相同的机制用于处理分裂投票。
+每个候选节点在选举开始时重新开始其随机选举超时，并在开始下一次选举之前等待该超时过去；这降低了在新选举中再次出现分裂投票的可能性。
+8.3 节表明这种方法可以快速选举出一个领导节点。</p>
+<p>选举过程只是一个样例，用于使我们更便于理解在设计思路上的取舍。
+最初我们计划采用一个排名系统：每个候选节点都会分配一个唯一的排名，便于进行竞选。
+如果一个候选节点发现另一个排名更高的候选节点那它会返回从属节点状态，这样排名更高的候选节点可以更轻松的赢得下一次选举。
+我们发现这种方法在可用性方面产生了一些微妙的问题(如果排名较高的服务器出现故障，排名较低的服务器可以需要超时并再次成为候选节点，但如果这样做过早，它可以重置选举领导者的进度)。
+我们对算法进行了多次调整，但每次调整后都会出现新的极端情况。
+最终我们得出结论，随机重试方法更加明显和易于理解。</p>
+<h4 id="5-3-日志副本">5.3 日志副本</h4>
+<p>一旦领导节点被选举出来，它就会开始向客户端提供服务。
+每个客户端发送的请求中都会包含一个命令，这个命令会在由复制状态机上执行。
+领导节点会将命令追加到日志中并新增一个条目，然后并行触发 AppendEntries RPC 到其他节点，从而新增日志条目副本。
+当日志条目被复制写入完成后(如同下面描述的一样)，领导节点就会将日志条目应用于其状态机并将该执行的结果返回给客户端。
+如果从属节点崩溃或运行缓慢，或者网络数据包丢失，领导节点会无限期地重试 AppendEntries RPC (即使它已经响应了客户端)，直到所有从属节点最终存储所有日志条目。</p>
+<p><img src="https://i.loli.net/2021/08/10/mLZFaRUeJHr6tnh.png" srcset="/img/loading.gif" lazyload alt="图 6：日志由按顺序编号的条目组成"></p>
+<blockquote>
+<p>注：每个条目包含创建它的任期(每个框中的数字)和状态机的命令。如果该条目可以安全地应用于状态机，则该条目被视为已提交。</p>
+</blockquote>
+<p>日志的组织方式如图 6 所示。
+每个日志条目存储一个状态机命令以及领导者收到条目时的任期号。
+日志条目中的术语编号用于检测日志之间的不一致并确保图 3 中的某些属性。
+每个日志条目还有一个整数索引，用于标识其在日志中的位置。</p>
+<p>领导节点决定何时将日志条目应用到状态机是安全的；这样的条目称为已提交。
+Raft 保证提交的日志条目是持久的，并且最终会被所有可用的状态机执行。
+一旦创建条目的领导者在大多数服务器上复制了它（例如，图 6 中的条目 7），就会提交一个日志条目。
+这也会提交领导节点日志中的所有先前条目，包括由以前的领导者创建的条目。
+第 5.4 节讨论了在领导节点变更后应用此规则时的一些微妙之处，并且还表明这种承诺的定义是安全的。
+领导节点跟踪它知道要提交的最高索引，并将该索引包含在未来的 AppendEntries RPC(包括心跳)中，以便其他服务器最终发现。
+一旦从属节点获悉日志条目已提交，它就会将该条目应用于其本地状态机(按日志顺序)。</p>
+<p>我们设计了 Raft 日志机制来保持不同服务器上的日志之间的高度一致性。
+这不仅简化了系统的行为并使其更具可预测性，而且还是确保安全的重要组成部分。
+Raft 维护了以下属性，它们共同构成了图 3 中的日志匹配属性：</p>
+<ul>
+<li>如果不同日志中的两个条目具有相同的索引和任期，则它们存储相同的命令。</li>
+<li>如果不同日志中的两个条目具有相同的索引和任期，则日志在所有前面的条目中都是相同的。</li>
+</ul>
+<p>第一个属性来自这样一个事实，即领导节点在给定期限内最多创建一个具有给定日志索引的条目，并且日志条目永远不会改变它们在日志中的位置。
+第二个属性由 AppendEntries 执行的简单一致性检查保证。
+在发送 AppendEntries RPC 时，领导节点在其日志中包含条目的索引和任期，该条目紧接在新条目之前。
+如果从属节点在其日志中没有找到具有相同索引和任期的条目，则它拒绝新条目。
+一致性检查作为一个归纳步骤：日志的初始空状态满足日志匹配属性，并且一致性检查在日志扩展时保留日志匹配属性。
+结果，每当 AppendEntries 成功返回时，领导节点就知道从属节点的日志通过新条目与自己的日志保持同步。</p>
+<p><img src="https://i.loli.net/2021/08/10/4qAjsvHZGJWeQni.png" srcset="/img/loading.gif" lazyload alt="图 7：当顶部的领导节点选举成功时，任何场景(a-f)都可能发生在从属节点的日志中"></p>
+<blockquote>
+<p>注：每个框代表一个日志条目；框中的数字是它的任期。
+从属节点可能缺少日志条目(a-b)，含有额外未提交的条目(c-d)，或两者都有(e-f)
+例如：如果该服务器是第 2 任期的领导节点，在其日志中添加了几个条目，然后在提交任何条目之前崩溃，则可能会发生的场景如下(f) 它迅速重启，成为第 3 任期的领导节点，并在其日志中添加了更多的条目；在提交第 2 任期或第 3 任期中的任何条目之前，服务器再次崩溃并保持停机数个任期。</p>
+</blockquote>
+<p>正常运行时，领导节点和从属节点的日志保持一致，因此 AppendEntries 进行的一致性检查永远不会失败。
+然而，领导节点崩溃可能会造成日志不一致(旧的领导节点可能没有完全复制它日志中的所有条目)。
+这些不一致可能会导致一系列领导节点和从属节点崩溃。
+图 7 说明了从属节点日志可能与新领导节点日志不同的方式。
+从属节点可能缺失领导节点上存在的日志条目，或可能有领导节点上不存在的额外条目又或者兼而有之。
+日志中缺失和无关的条目可能跨越多个任期。</p>
+<p>为了使从属节点的日志与自己的一致，领导节点必须找到两个日志一致的最新日志条目，删除该点之后从属节点日志中的任何条目，并将该点之后领导节点的所有条目发送给从属节点。
+所有这些操作都是为了响应 AppendEntries RPC 执行的一致性检查而发生的。
+领导节点为每个从属节点维护一个 nextIndex，这是领导节点将发送给该从属节点的下一个日志条目的索引。
+当领导领导节点第一次选举成功时，它会将所有 nextIndex 值初始化为紧随其后的索引其日志中的最后一个(图 7 中的 11)。
+如果一个从属节点的日志与领导节点不一致，则 AppendEntries 一致性检查将在下一次 AppendEntries RPC 中失败。
+拒绝后，领导领导节点递减 nextIndex 并重试 AppendEntries RPC。
+最终，nextIndex 将达到领导节点和从属节点日志匹配的点。
+当这种情况发生时，AppendEntries 将成功，它会删除从属节点日志中的任何冲突条目，并从领导节点的日志中附加条目(如果有的话)。
+一旦 AppendEntries 成功，从属节点的日志就会与领导节点的日志一致，并且在接下来的任期内都会保持这种状态。</p>
+<p>可以优化协议以减少被拒绝的 AppendEntries RPC 的数量；详情见 <code>[29]</code>。</p>
+<p>有了这种机制，领导节点在选举成功后不需要采取任何特殊的行动来恢复日志的一致性。
+领导节点只需要正常启动，日志会自动进行收敛以响应 AppendEntries 一致性检查的失败。
+领导节点永远不会覆盖或删除自己日志中的条目(图 3 中的领导节点仅附加属性)。</p>
+<p>这种日志复制机制展示了第 2 节中描述的理想共识属性：只要大多数服务器都启动，Raft 就可以接受、复制和应用新的日志条目；在正常情况下，可以通过一轮 RPC 将新条目复制到集群中的大多数节点；并且单个慢从属节点不会影响整体性能。</p>
+<h4 id="5-4-安全性">5.4 安全性</h4>
+<p>前面的部分描述了 Raft 如何选举领导节点和复制日志条目。
+然而，到目前为止描述的机制还不足以确保每个状态机以相同的顺序执行完全相同的命令。
+例如，当领导节点提交多个日志条目时，追随节点可能不可用，然后它可以被选为领导节点并用新的条目覆盖这些条目；因此，不同的状态机可能会执行不同的命令序列。</p>
+<p>本节通过添加对哪些服务器可以被选为领导节点的限制来完成 Raft 算法。
+该限制确保任何给定任期的领导节点都包含之前任期中提交的所有条目(图 3 中的领导者完整性属性)。
+考虑到选举限制，我们然后使承诺规则更加精确。
+最后，我们展示了领导节点完整性属性的证明草图，并展示了它如何导致复制状态机的正确行为。</p>
+<h5 id="5-4-1-选举限制">5.4.1 选举限制</h5>
+<p>在任何基于领导节点的共识算法中，领导节点最终必须存储所有提交的日志条目。
+在一些共识算法中，例如 ViewSamped 复制算法 <code>[20]</code>，即使它不最初包含所有承载的条目，也可以选择领导节点。
+这些算法包含额外的机制来识别丢失的条目并将它们传输给新的领导节点，无论是在选举过程中还是之后不久。
+不幸的是，这会导致相当多的额外机制和复杂性。
+Raft 使用一种更简单的方法，它保证从选举的那一刻起，每个新领导节点都存在以前任期的所有提交条目，而无需将这些条目传输给领导节点。
+这意味着日志条目仅在一个方向上流动，从领导节点到从属节点，领导节点永远不会覆盖其日志中的现有条目。</p>
+<p>Raft 使用投票过程来防止候选节点赢得选举，除非其日志包含所有承诺的条目。
+候选节点必须联系集群的大多数成员才能当选，这意味着每个提交的条目必须至少出现在其中一个服务器中。
+如果候选人的日志至少与该多数中的任何其他日志一样最新(“最新”定义如下)，那么它将保存所有提交的条目。
+RequestVote RPC 实现了这个限制：RPC 包含有关候选节点日志的信息，如果从属节点自己的日志比候选节点的日志更新，则从属节点拒绝投票。</p>
+<p>Raft 通过比较日志中最后一个条目的索引和任期来确定两个日志中的哪一个是最新的。
+如果日志的最后条目具有不同的任期，则具有较晚任期的日志是最新的。
+如果日志以相同的任期结束，则以更长的日志为准。</p>
+<h5 id="5-4-2-提交以前任期的日志条目">5.4.2 提交以前任期的日志条目</h5>
+<p><img src="https://i.loli.net/2021/08/10/CNWm3xIYE4RoPkB.png" srcset="/img/loading.gif" lazyload alt="图 8：一个时间序列，显示了为什么领导者无法使用旧条款的日志条目来确定承诺"></p>
+<blockquote>
+<p>注：在(a)中，S1 是领导节点，部分复制了索引 2 处的日志条目。
+在(b)中 S1 崩溃；S5 被选为第 3 任期的领导节点，其投票来自 S3、S4 及其本身，并在日志索引 2 处接受不同的条目。
+在©中 S5 崩溃；S1 重新启动，被选举成领导节点，并继续进行日志复制。此时，第 2 项的日志条目已在大多数服务器上复制，但尚未提交。
+如果 S1 崩溃如 (d) 中，则 S5 可以是选举领导节点(来自 S2，S3 和 S4 的投票)，并从任期 3 中覆盖自己的日志条目。
+然而，如果 S1 在崩溃之前在大多数服务器上复制了当前任期的条目，如(e)所示，则该条目已提交(S5 无法赢得选举)。
+此时，日志中的所有先前条目也都已提交。</p>
+</blockquote>
+<p>如第 5.3 节所述，一旦该日志条目存储在大多数服务器上，领导节点就知道其当前任期中的日志条目已提交。
+如果领导节点在提交条目之前崩溃，未来的领导节点将尝试完成复制该条目。
+然而，领导节点不能立即断定前一任期的条目一旦存储在大多数服务器上就已提交。
+图 8 说明了一种情况，旧日志条目存储在大多数服务器上，但仍然可以被未来的领导者覆盖。</p>
+<p>为了消除图 8 中的问题，Raft 从不通过计算副本数来提交前几项的日志条目。
+通过计算副本数，仅提交来自领导者当前任期的日志条目；一旦以这种方式提交了当前术语中的条目，那么由于日志匹配属性，所有先前的条目都将被间接提交。
+在某些情况下，领导节点可以安全地得出一个较旧的日志条目已提交的结论(例如，如果该条目存储在每个服务器上)，但 Raft 为简单起见采取了更保守的方法。</p>
+<p>Raft 在提交规则中会产生这种额外的复杂性，因为当领导者从以前的任期复制条目时，日志条目会保留其原始任期号。
+在其他共识算法中，如果一个新的领导节点从之前的“任期”中重新复制条目，它必须使用新的“任期号”这样做。
+Raft 的方法使推理日志条目变得更容易，因为它们随着时间的推移和跨日志保持相同的术语编号。
+此外，与其他算法相比，Raft 中的新领导节点发送的先前任期中的日志条目更少(其他算法必须发送冗余日志条目以重新编号，然后才能提交)。</p>
+<h5 id="5-4-3-安全论证">5.4.3 安全论证</h5>
+<p>在给出了完整的 Raft 算法之后，我们现在可以更加精确的讨论领导节点的完整性特性(Leader Completeness Property, 这一讨论基于 9.2 节的安全性证明)。
+我们假设领导节点的完全性特性是不满足的，然后我们推出矛盾来。
+假设任期 T 的领导节点(leader<sub>T</sub>)在任期内提交了一个日志条目，但是该日志条目没有被存储到未来某些任期的领导节点中。
+假设 U 是大于 T 的没有存储该日志条目的最小任期号。</p>
+<p><img src="https://i.loli.net/2021/08/11/fXbZogKLqIisSPB.png" srcset="/img/loading.gif" lazyload alt="图 9：矛盾推导"></p>
+<blockquote>
+<p>注：如果 S1 (任期 T 的领导节点)在它的任期里提交了一个新的日志条目，然后 S5 在之后的任期 U 里被选举为领导节点，那么肯定至少会有一个节点，如 S3，既接收了来自 S1 的日志条目，也给 S5 投票了。</p>
+</blockquote>
+<ol>
+<li>在选举时，leader<sub>U</sub> 的日志中必须没有待提交的条目(领导节点永远不会删除或覆盖条目)。</li>
+<li>leader<sub>T</sub> 复制了在集群的大多数成员上的条目，leader<sub>U</sub> 收到了集群大多数成员的投票。因此，至少有一个服务器(“投票者(the voter)”)同时接受了来自 leader<sub>T</sub> 的条目并投票给了 leader<sub>U</sub>，如图 9 所示。投票者是达成矛盾的关键。</li>
+<li>在投票给 leader<sub>U</sub> 之前，投票者必须已经接受了 leader<sub>T</sub> 提交的条目；否则它会拒绝来自 leader<sub>T</sub> 的 AppendEntries 请求(其当前任期将高于 T)。</li>
+<li>投票者在投票给 leader<sub>U</sub> 时仍然存储该条目，因为每个干预的领导节点都包含该条目(假设)，领导者永远不会删除条目，而从属节点只会在与领导节点冲突时删除条目。</li>
+<li>选民投票给了 leader<sub>U</sub>，所以 leader<sub>U</sub> 的日志必须和选民的一样最新。这导致了两个矛盾之一。</li>
+<li>首先，如果投票者和 leader<sub>U</sub> 共享相同的最后一个日志任期，那么 leader<sub>U</sub> 的日志必须至少和投票者一样长，所以它的日志包含了投票者日志中的每一个条目。这是一个矛盾，因为选民包含提交的条目，而 leader<sub>U</sub> 被认为没有。</li>
+<li>否则，leader<sub>U</sub> 的最后一个日志任期必须大于投票者的。此外，它大于 T，因为投票者的最后一个日志任期至少是 T(它包含来自期限 T 的提交条目)。创建 leader<sub>U</sub> 的最后一个日志条目的较早领导者必须在其日志中包含已提交的条目 (假设)。那么，根据日志匹配属性，leader<sub>U</sub> 的日志也必须包含提交的条目，这是一个矛盾。</li>
+<li>因此，所有比 T 大的任期的 leader 一定都包含了任期 T 中提交的所有日志条目。</li>
+<li>日志匹配特性保证了未来的 leader 也会包含被间接提交的日志条目，例如图 8 (d) 中的索引 2。</li>
+</ol>
+<p>通过领导节点的完整性特性，很容易证明图 3 中的状态机安全属性，并且所有状态机都以相同的顺序应用相同的日志条目(参见 <code>[29]</code> )。</p>
+<h4 id="5-5-从属节点和候选节点崩溃">5.5 从属节点和候选节点崩溃</h4>
+<p>到目前为止，我们一直专注于讨论领导节点的故障。
+从属节点和候选节点崩溃比领导者崩溃更容易处理，并且它们都以相同的方式处理。
+如果从属节点或候选节点崩溃，那么未来发送给它的 RequestVote 和 AppendEntries RPC 将失败。
+Raft 通过无限重试来处理这些失败；如果崩溃的服务器重新启动，则 RPC 将成功完成。
+如果服务器在完成 RPC 之后但在响应之前崩溃，那么它会在重新启动后再次收到相同的 RPC。
+Raft RPC 是幂等的，所以这不会造成伤害。
+例如，如果一个从属节点收到一个 AppendEntries 请求，其中包括其日志中已经存在的日志条目，它会忽略新请求中的这些条目。</p>
+<h4 id="5-6-时间和可用性">5.6 时间和可用性</h4>
+<p>我们对 Raft 的要求之一是安全不能依赖于时间：系统不能仅仅因为某些事件发生得比预期的快或慢而产生错误的结果。
+然而，可用性(系统及时响应客户的能力)必须不可避免地取决于时间。
+例如，当有服务器崩溃时，消息交换的时间就会比正常情况下长，候选节点将不会等待太长的时间来赢得选举；没有一个稳定的领导节点，Raft 将无法工作。
+领导人选举是选举的一个方面，时机是最关键的。只要系统满足以下时间要求，筏板将能够选择并保持稳定的领导者：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">broadcastTime &lt; electionTimeout &lt; MTBF<br></code></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">广播时间 &lt; 选举超时周期 &lt; MTBF<br></code></pre></td></tr></table></figure>
+<p>在这个不等式中，broadcastTime 是服务器向集群中的每个服务器并行发送 RPC 并接收它们的响应所花费的平均时间；electionTimeout 是第 5.2 节中描述的选举超时；MTBF 是单个故障的平均间隔时间。
+广播时间应该比选举超时时间少一个数量级，以便领导者可以可靠地发送阻止追随者开始选举所需的心跳消息； 鉴于用于选举超时的随机方法，这种不平等也使得分裂选票不太可能。
+选举超时应该比 MTBF 小几个数量级，以便系统稳步前进。
+当领导节点崩溃时，系统将在大约选举超时时间内不可用；我们希望这仅占总时间的一小部分。</p>
+<p>广播时间和 MTBF 是底层系统的属性，而选举超时是我们必须选择的。
+Raft 的 RPC 通常需要接收方将信息持久化到稳定的存储中，因此广播时间可能在 0.5 毫秒到 20 毫秒之间，具体取决于存储技术。
+因此，选举超时很可能在 10 毫秒到 500 毫秒之间。
+典型的服务器 MTBF 为几个月或更长时间，很容易满足时序要求。</p>
+<h3 id="6-集群成员变更">6 集群成员变更</h3>
+<p>到目前为止，我们假设集群配置（参与共识算法的服务器集）是固定的。
+在实践中，有时需要更改配置，例如在服务器出现故障时更换服务器或更改复制程度。
+虽然这可以通过使整个集群脱机、更新配置文件，然后重新启动集群来完成，但这会使集群在转换期间不可用。
+此外，如果有任何手动步骤，则存在操作员错误的风险。
+为了避免这些问题，我们决定自动化配置更改并将它们合并到 Raft 共识算法中。</p>
+<p><img src="https://i.loli.net/2021/08/18/aXrSYWnukhp1QVo.png" srcset="/img/loading.gif" lazyload alt="图 10：直接从一种配置切换到另一种配置是不安全的，因为不同的服务器会在不同的时间切换"></p>
+<blockquote>
+<p>注：在本例中，集群从三台服务器增加到五台。不幸的是，有一个时间点可以选举两个不同的领导者担任同一任期，一个拥有大多数旧配置(C <sub>old</sub> )，另一个拥有大多数新配置(C <sub>new</sub> )。</p>
+</blockquote>
+<p>为了使配置更改机制安全，在过渡期间不能有可能在同一任期内选举两个领导者的情况。
+不幸的是，服务器直接从旧配置切换到新配置的任何方法都是不安全的。
+一次原子地切换所有服务器是不可能的，因此在转换过程中，集群可能会分裂为两个独立的大多数(参见图 10)。</p>
+<p>为了确保安全，配置更改必须使用两阶段方法。
+有多种方法可以实现这两个阶段。
+例如，一些系统(例如，`[20] )使用第一阶段禁用旧配置，使其无法处理客户端请求；然后第二阶段启用新配置。
+在 Raft 中，集群首先切换到我们称之为联合共识的过渡配置； 一旦达成联合共识，系统就会转换到新的配置。
+联合共识结合了新旧配置：</p>
+<ul>
+<li>日志条目被复制到两种配置中的所有服务器。</li>
+<li>任一配置中的任何服务器都可以充当领导者。</li>
+<li>协议(用于选举和进入承诺)需要与新旧配置不同的多数。</li>
+</ul>
+<p>联合共识允许单个服务器在不同时间在配置之间转换，而不会影响安全性。
+此外，联合共识允许集群在整个配置更改期间继续为客户端请求提供服务。</p>
+<p><img src="https://i.loli.net/2021/08/18/Jq3R4WVNngKOFID.png" srcset="/img/loading.gif" lazyload alt="图 11：配置变动时间线。"></p>
+<blockquote>
+<p>注：虚线显示已创建但未提交的配置条目，实线显示最新提交的配置条目。
+领导节点首先在其日志中创建 C <sub>old,new</sub> 配置条目并将其提交到 C <sub>old,new</sub>（大多数 C <sub>old</sub> 和大多数 C <sub>new</sub>）。
+然后它创建 C <sub>new</sub> 条目并将其提交给大多数 C <sub>new</sub>。
+在时间线中没有任何的节点可以使 C <sub>old</sub> 和 C <sub>new</sub> 独立做出决定。</p>
+</blockquote>
+<p>集群配置使用复制日志中的特殊条目进行存储和通信；图 11 说明了配置更改过程。
+当领导节点收到将配置从 C <sub>old</sub> 更改为 C <sub>new</sub> 的请求时，它将联合共识的配置(图中的 C <sub>old,new</sub>)存储为日志条目，并使用前面描述的机制复制该条目。
+一旦给定的服务器将新的配置条目添加到其日志中，它将使用该配置进行所有未来决策(服务器始终使用其日志中的最新配置，无论该条目是否已提交)。
+这意味着领导者将使用 C <sub>old,new</sub> 的规则来确定 C <sub>old,new</sub> 的日志条目何时被提交。
+如果领导者崩溃，则可能会在 C <sub>old</sub> 或 C <sub>old,new</sub> 下选择新的领导者，这取决于获胜候选人是否收到了 C <sub>old,new</sub>。
+无论如何，C <sub>new</sub> 在此期间不能单方面做出决定。</p>
+<p>一旦 C <sub>old,new</sub> 被提交，C <sub>old</sub> 和 C <sub>new</sub> 都不能在未经对方同意的情况下做出决定，并且领导节点完备性(Leader Completeness Property)确保只有具有 C <sub>old,new</sub> 日志条目的服务器才能被选举为领导节点。
+现在，领导节点可以安全地创建一个描述 C <sub>new</sub> 的日志条目并将其复制到集群中。
+同样，此配置将在每个服务器上看到后立即生效。
+当新配置在 C <sub>new</sub> 规则下被提交时，旧配置是无关紧要的，不在新配置中的服务器可以被关闭。
+如图 11 所示，C <sub>old</sub> 和 C <sub>new</sub> 没有时间可以同时做出单边决策；这样就保证了安全。</p>
+<p>关于重新配置还有三个问题需要解决。
+第一个问题是新服务器最初可能不会存储任何日志条目。
+如果在这种状态下将它们添加到集群中，它们可能需要很长时间才能赶上进度，在此期间可能无法提交新的日志条目。
+为了避免可用性差距，Raft 在配置更改之前引入了一个额外的阶段，在这个阶段，新服务器作为非投票成员加入集群(领导节点将日志条目复制给他们，但他们不作为集群中的投票成员)。
+一旦新服务器的配置赶上集群的其余部分，重新配置就可以如上所述进行</p>
+<p>第二个问题是集群领导节点可能没有新配置。
+在这种情况下，一旦提交了 C <sub>new</sub> 日志条目，领导节点就会下台(返回从属节点状态)。
+这意味着在领导节点在管理一个不包含自己的集群时会有一段时间(在它正在提交 C <sub>new</sub> 的时候)；它会复制日志条目，但不作为集群中的投票成员。
+当 C <sub>new</sub> 被提交时会发生领导节点变更，因为这是新配置可以独立运行的第一个点(总是可以从 C <sub>new</sub> 中选择领导节点)。
+在这一点之前，可能是只有来自 C <sub>old</sub> 的服务器可以选择领导节点。</p>
+<p>第三个问题是移除的服务器(那些不在 C <sub>new</sub> 中的)可能会破坏集群。
+这些服务器不会收到心跳，因此它们将超时并开始新的选举。
+然后他们将发送带有新任期号的 RequestVote RPC，这将导致当前领导节点恢复到从属节点状态。
+最终会选出一个新的领导节点，但是被移除的服务器会再次超时，这个过程会重复，导致可用性较差。</p>
+<p>为防止出现此问题，服务器在认为当前领导节点存在时会忽略 RequestVote RPC。
+具体来说，如果服务器在听取当前领导节点的最小选举超时内收到 RequestVote RPC，则不会更新其任期或授予其投票权。
+这不会影响正常选举，其中每个服务器在开始选举之前至少等待最小选举超时。
+然而，它有助于避免被移除的服务器造成的中断：如果领导节点能够获得其集群的心跳，那么它就不会被更大的任期号废黜。</p>
+<h3 id="7-客户端和日志压缩">7 客户端和日志压缩</h3>
+<p>由于篇幅限制，本节已被省略，但该材料可在本文的扩展版本中获得 <code>[29]</code>。
+它描述了客户端如何与 Raft 交互，包括客户端如何找到集群领导者以及 Raft 如何支持线性化语义 <code>[8]</code>。
+扩展版本还描述了如何使用快照方法回收复制日志中的空间。
+这些问题适用于所有基于共识的系统，Raft 的解决方案与其他系统类似。</p>
+<h3 id="8-实施和评估">8 实施和评估</h3>
+<p>我们已经将 Raft 实现为复制状态机的一部分，该状态机存储 RAMCloud <code>[30]</code> 的配置信息并协助 RAMCloud 协调器的故障转移。
+实现 Raft 使用了大约 2000 行 C++ 代码，不包括测试、注释或空行。
+源代码可免费获得 <code>[21]</code>。
+根据本文的草稿，还有大约 25 个独立的第三方开源实现 <code>[31]</code> Raft 处于不同的开发阶段。
+此外，各种公司正在部署基于 Raft 的系统 <code>[31]</code>。</p>
+<p>本节的其余部分使用三个标准评估 Raft：可理解性、正确性和性能。</p>
+<h4 id="8-1-可理解性">8.1 可理解性</h4>
+<p>为了衡量 Raft 相对于 Paxos 的可理解性，我们对斯坦福大学的高级操作系统课程和伯克利大学的分布式计算课程的高年级毕业生和普通学生进行了实验研究。
+我们录制了一个 Raft 和另一个 Paxos 的视频讲座，并创建了相应的测验。
+Raft 讲座涵盖了本文的内容； Paxos 讲座涵盖了足够的材料来创建等效的复制状态机，包括单法令 Paxos、多法令 Paxos、重新配置和一些实践中需要的优化(例如领导节点选举)。
+测验测试了对算法的基本理解，还要求学生对极端情况进行推理。
+每个学生观看一个视频，参加相应的测验，观看第二个视频，并参加第二个测验。
+大约一半的参与者先做 Paxos 部分，另一半先做 Raft 部分，以考虑到从研究的第一部分中获得的表现和经验的个体差异。
+我们比较了参与者在每个测验中的分数，以确定参与者是否对 Raft 表现出更好的理解。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">关注点</th>
+<th style="text-align:left">为减轻偏见而采取的措施</th>
+<th style="text-align:center">审查材料</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">同等的授课质量</td>
+<td style="text-align:left">两者的讲师相同。Paxos 讲座基于并改进了几所大学使用的现有材料。Paxos 讲座的时间延长了 14%。</td>
+<td style="text-align:center">视频</td>
+</tr>
+<tr>
+<td style="text-align:center">相同的测验难度</td>
+<td style="text-align:left">问题按难度分组并在考试中配对。</td>
+<td style="text-align:center">测验</td>
+</tr>
+<tr>
+<td style="text-align:center">公平的评分</td>
+<td style="text-align:left">使用说明的方式，以随机顺序评分，在测验之间交替进行。</td>
+<td style="text-align:center">说明文档</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>表 1：对研究中可能对 Paxos 存在偏见的担忧、针对每种偏见采取的措施以及可用的其他材料。</p>
+</blockquote>
+<p>我们试图让 Paxos 和 Raft 之间的比较尽可能公平。
+该实验在两个方面对 Paxos 有利：43 名参与者中有 15 人报告说之前有使用 Paxos 的经验，Paxos 视频比 Raft 视频长 14%。
+如表 1 所述，我们已采取措施减轻潜在的偏见来源。
+我们所有的材料都可供审查 <code>[26, 28]</code>。</p>
+<p><img src="https://i.loli.net/2021/08/18/YkCQyJlR8cXEbfF.png" srcset="/img/loading.gif" lazyload alt="图 12：比较 43 名参与者在 Raft 和 Paxos 测验中的表现的散点图"></p>
+<blockquote>
+<p>注：对角线 (33) 以上的点代表 Raft 得分更高的参与者。</p>
+</blockquote>
+<p>平均而言，参与者在 Raft 测验中的得分比 Paxos 测验高 4.9 分(在可能的 60 分中，平均 Raft 得分为 25.7，平均 Paxos 得分为 20.8)；
+图 12 显示了他们的个人得分。
+配对 t 检验表明，在 95% 的置信度下，Raft 分数的真实分布的平均值至少比 Paxos 分数的真实分布大 2.5 个百分点。</p>
+<p>我们还创建了一个线性回归模型，该模型根据三个因素预测新生的测验分数：他们参加了哪个测验、他们先前的 Paxos 经验程度以及他们学习算法的顺序。
+该模型预测测验的选择会产生 12.5 分的差异，有利于 Raft。
+这明显高于观察到的 4.9 分的差异，因为许多实际的学生之前都有 Paxos 经验，这对 Paxos 有很大帮助，而对 Raft 的帮助略小。
+奇怪的是，该模型还预测已经参加 Paxos 测验的人在 Raft 上的分数降低了 6.3 分； 虽然我们不知道为什么，但这似乎在统计上是显着的。</p>
+<p><img src="https://i.loli.net/2021/08/18/kP7Mcf8wiqYFn5Z.png" srcset="/img/loading.gif" lazyload alt="图 13：关于实现和解释的评分"></p>
+<blockquote>
+<p>注：使用 5 分制，参与者被问到(左)他们认为哪种算法在功能正常、正确和高效的系统中更容易实现，(右)哪种算法更容易向计算机专业的毕业生解释。</p>
+</blockquote>
+<p>我们还在测验后对参与者进行了调查，以了解他们认为哪种算法更容易实现或解释；这些结果如图 13 所示。
+绝大多数参与者报告说，Raft 更容易实现和解释（每个问题 41 个中的 33 个）。
+然而，这些自我报告的感觉可能不如参与者的测验分数可靠，而且参与者可能因为我们对 Raft 更容易理解的假设的了解而产生偏见。</p>
+<p>Raft 用户研究的详细讨论可在 <code>[28]</code> 中找到。</p>
+<h4 id="8-2-准确性">8.2 准确性</h4>
+<p>我们已经为第 5 节中描述的共识机制制定了正式的规范和安全性证明。
+正式规范 <code>[28]</code> 使用 TLA+ 规范语言 <code>[15]</code> 使图 2 中总结的信息完全准确。
+它大约有 400 行长，作为证明的主题。
+对于任何实现 Raft 的人来说，它本身也很有用。
+我们已经使用 TLA 证明系统 <code>[6]</code> 实际证明了日志完整性属性。
+然而，这个证明依赖于没有经过机械检查的不变量(例如，我们没有证明规范的类型安全)。
+此外，我们编写了状态机安全属性的非正式证明 <code>[28]</code>，该证明是完整的(仅依赖于规范)且相对精确(大约 3500 字长)。</p>
+<h4 id="8-3-性能">8.3 性能</h4>
+<p>Raft 的性能类似于 Paxos 等其他共识算法。
+性能最重要的情况是当已建立的领导者正在复制新的日志条目时。
+Raft 使用最少数量的消息（从领导者到一半集群的单次往返）实现了这一点。
+还可以进一步提高 Raft 的性能。
+例如，它可以轻松支持批处理和流式请求，以实现更高的吞吐量和更低的延迟。
+在其他算法的文献中已经提出了各种优化；其中许多可以应用于 Raft，我们将在未来进行实现。</p>
+<p>我们使用“官方”的 Raft 实现方式来衡量 Raft 的领导节点选举算法的性能并回答两个问题。
+第一，选举过程收敛很快吗？
+其次，领导节点崩溃后可以达到的最少停机时间是多少？</p>
+<p><img src="https://i.loli.net/2021/08/18/fJzkQoWDOCcITnX.png" srcset="/img/loading.gif" lazyload alt="图 14：检测和更换宕机的领导节点的时间"></p>
+<blockquote>
+<p>注：上图改变了选举超时的随机性，下图缩放了最小选举超时。
+每行代表 1000 次试验(除了“150-150ms”的 100 次试验)并且对应于选举超时的特定选择；例如，“150-155ms”表示选举超时时间是随机选择的，并且在 150ms 和 155ms 之间统一。
+测量是在五台服务器的集群上进行的，广播时间大约为 15 毫秒。
+九台服务器集群的结果是相似的。</p>
+</blockquote>
+<p>为了衡量领导选举，我们反复使由五台服务器组成的集群的领导崩溃，并对检测到崩溃和选举新领导所需的时间进行计时(见图 14)。
+为了产生最坏的情况，每次试验中的服务器都有不同的日志长度，因此一些候选节点没有资格成为领导节点。
+此外，为了鼓励分裂投票，我们的测试脚本在终止进程之前触发了来自领导节点的心跳 RPC 的同步广播(这近似于领导者在崩溃之前复制新日志条目的行为)。
+领导节点在其心跳间隔内均匀随机崩溃，这是所有测试的最小选举超时时间的一半。
+因此，最小可能的停机时间大约是最小选举超时时间的一半。</p>
+<p>图 14 中的上方图表显示，选举超时中的少量随机化足以避免选举中的分裂投票。
+在缺乏随机性的情况下，由于许多分裂选票，在我们的测试中，领导节点选举的时间始终超过 10 秒。
+仅添加 5 毫秒的随机性有很大帮助，导致平均停机时间为 287 毫秒。
+使用更多的随机性可以改善最坏情况的行为：随机性为 50 毫秒时，最坏情况的完成时间(超过 1000 次试验)为 513 毫秒。</p>
+<p>图 14 中的下方图表显示可以通过减少选举超时来减少停机时间。
+选举超时时间为 12-24 毫秒，平均只需要 35 毫秒就可以选举出一个领导节点(最长的试验需要 152 毫秒)。
+然而，将超时时间降低到这一点之后违反了 Raft 的时间要求：在其他服务器开始新的选举之前，领导节点很难广播心跳。
+这可能会导致不必要的领导节点变更并降低整体系统可用性。
+我们建议使用保守的选举超时，例如 150-300 毫秒；此类超时不太可能导致不必要的领导节点更改，并且仍将提供良好的可用性。</p>
+<h3 id="9-相关工作">9 相关工作</h3>
+<p>有许多与共识算法相关的出版物，其中许多属于以下类别之一：</p>
+<ul>
+<li>Lamport 对 Paxos 的原始描述 <code>[13]</code>，并试图更清楚地解释它 <code>[14, 18, 19]</code>。</li>
+<li>Paxos 的详细说明，填补缺失的细节并修改算法，为实现提供更好的基础 <code>[24, 35, 11]</code>。</li>
+<li>实现共识算法的系统，例如 Chubby <code>[2, 4]</code>、ZooKeeper <code>[9, 10]</code> 和 Spanner <code>[5]</code>。Chubby 和 Spanner 的算法尚未详细发布，但都声称基于 Paxos。ZooKeeper 的算法已经更详细的公布了，但是和 Paxos 有很大的不同。</li>
+<li>可应用于 Paxos <code>[16, 17, 3, 23, 1, 25]</code> 的性能优化。</li>
+<li>Oki 和 Liskov 的 Viewstamped Replication (VR)，一种与 Paxos 大约同时开发的共识替代方法。最初的描述 <code>[27]</code> 与分布式交易协议交织在一起，但在最近的更新 <code>[20]</code> 中，核心共识协议已被分离。VR 使用基于领导者的方法，与 Raft 有许多相似之处。</li>
+</ul>
+<p>Raft 和 Paxos 最大的区别在于 Raft 的强大领导力：Raft 将领导选举作为共识协议的重要组成部分，并将尽可能多的功能集中在领导身上。
+这种方法产生了更容易理解的更简单的算法。
+例如，在 Paxos 中，leader 选举与基本共识协议是正交的：它仅用作性能优化，而不是达成共识所必需的。
+然而，这导致了额外的机制：Paxos 包括用于基本共识的两阶段协议和用于领导者选举的单独机制。
+相比之下，Raft 将领导节点选举直接纳入共识算法，并将其用作共识的两个阶段中的初始阶段。
+这样就减少了很多机制。</p>
+<p>与 Raft 一样，VR 和 ZooKeeper 也是基于领导者的，因此与 Paxos 相比，有许多 Raft 的优势。
+然而，Raft 的机制比 VR 或 ZooKeeper 少，因为它最大限度地减少了非领导节点的功能。
+例如，Raft 中的日志条目仅向一个方向流动：从 AppendEntries RPC 中的领导节点向外流动。
+在 VR 中，日志条目是双向流动的(领导节点可以在选举过程中收到日志条目)；这会导致额外的机制和复杂性。
+已发布的 ZooKeeper 描述也将日志条目传输到领导节点和从领导节点传输日志条目，但实现显然更像 Raft <code>[32]</code>。</p>
+<p>Raft 的消息类型比我们所知道的任何其他基于共识的日志复制算法都要少。
+例如，VR 和 ZooKeeper 各自定义了 10 种不同的消息类型，而 Raft 只有 4 种消息类型(两个 RPC 请求及其响应)。
+Raft 的消息比其他算法更密集一些，但它们总体上更简单。
+另外，VR 和 ZooKeeper 是按照领导节点变化时传输整个日志的方式来描述的；将需要额外的消息类型来优化这些机制，以便它们实用。</p>
+<p>在其他工作中已经提出或实施了几种不同的集群成员更改方法，包括 Lamport 的原始提案 <code>[13]</code>、VR <code>[20]</code> 和 SMART <code>[22]</code>。
+我们为 Raft 选择了联合共识方法，因为它利用了共识协议的其余部分，因此很少有额外的机制需要更改成员资格。
+Lamport 的基于 α 的方法不是 Raft 的选择，因为它假设可以在没有领导者的情况下达成共识。
+相比 VR 和 SMART，Raft 的重配置算法的优势在于可以在不限制正常请求处理的情况下发生成员变化；相比之下，VR 在配置更改期间停止所有正常处理，而 SMART 对未完成请求的数量施加了类似 α 的限制。
+Raft 的方法也比 VR 或 SMART 添加更少的机制。</p>
+<h3 id="10-结论">10 结论</h3>
+<p>算法的设计通常以正确性、效率和/或简洁性为主要目标。
+尽管这些都是有价值的目标，但我们认为可理解性同样重要。
+在开发人员将算法转化为实际实现之前，其他任何目标都无法实现，这将不可避免地偏离和扩展已发布的形式。
+除非开发人员对算法有深刻的理解并且可以对它产生直觉，否则他们将很难在他们的实现中保留其理想的属性。</p>
+<p>在本文中，我们解决了分布式共识的问题，其中一种被广泛接受但难以理解的算法 Paxos 多年来一直在挑战学生和开发人员。
+我们开发了一种新算法 Raft，我们已经证明它比 Paxos 更容易理解。
+我们也相信 Raft 为系统构建提供了更好的基础。
+使用可理解性作为主要设计目标改变了我们处理 Raft 设计的方式；随着设计的进展，我们发现自己重复使用了一些技术，例如分解问题和简化状态空间。
+这些技术不仅提高了 Raft 的可理解性，而且更容易让我们相信它的正确性。</p>
+<h3 id="11-致谢">11 致谢</h3>
+<p>The user study would not have been possible without the support of Ali Ghodsi, David Mazieres, and the students of CS 294-91 at Berkeley and CS 240 at Stanford.
+Scott Klemmer helped us design the user study, and Nelson Ray advised us on statistical analysis.
+The Paxos slides for the user study borrowed heavily from a slide deck originally created by Lorenzo Alvisi.
+Special thanks go to David Mazi`eres and Ezra Hoch for finding subtle bugs in Raft.
+Many people provided helpful feedback on the paper and user study materials, including Ed Bugnion, Michael Chan, Hugues Evrard, Daniel Giffin, Arjun Gopalan, Jon Howell, Vimal kumar Jeyakumar, Ankita Kejriwal, Aleksandar Kracun, Amit Levy, Joel Martin, Satoshi Matsushita, Oleg Pesok, David Ramos, Robbert van Renesse, Mendel Rosenblum, Nicolas Schiper, Deian Stefan, Andrew Stone, Ryan Stutsman, David Terei, Stephen Yang, Matei Zaharia, 24 anonymous conference reviewers (with duplicates), and especially our shepherd Eddie Kohler. Werner Vogels tweeted a link to an earlier draft, which gave Raft significant exposure.
+This work was supported by the Gigascale Systems Research Center and the Multiscale Systems Center, two of six research centers funded under the Focus Center Research Program, a Semiconductor Research Corporation program, by STARnet, a Semiconductor Research Corporation program sponsored by MARCO and DARPA, by the National Science Foundation under Grant No. 0963859, and by grants from Facebook, Google, Mellanox, NEC, NetApp, SAP, and Samsung.
+Diego Ongaro is supported by The Junglee Corporation Stanford Graduate Fellowship.</p>
+<h3 id="附录">附录</h3>
+<h4 id="图-2-中文翻译">图 2 中文翻译</h4>
+<h5 id="状态-State">状态 (State)</h5>
+<ul>
+<li>所有服务器上的持久状态</li>
+</ul>
+<p>(在响应 RPC 之前更新稳定存储)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">currentTerm</td>
+<td style="text-align:center">服务器最后知道的任期号(从0开始递增)</td>
+</tr>
+<tr>
+<td style="text-align:center">votedFor</td>
+<td style="text-align:center">在当前任期内收到选票的候选人ID (如果没有就为 null)</td>
+</tr>
+<tr>
+<td style="text-align:center">log[]</td>
+<td style="text-align:center">日志条目；每个条目包含状态机的要执行命令和从领导节点处收到时的任期号</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>所有服务器上的易失性状态</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">commitIndex</td>
+<td style="text-align:center">已知的被提交的最大日志条目的索引值(从0开始递增)</td>
+</tr>
+<tr>
+<td style="text-align:center">lastApplied</td>
+<td style="text-align:center">被状态机执行的最大日志条目的索引值(从0开始递增)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>领导节点上的易失性状态</li>
+</ul>
+<p>(选举后重新初始化)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">nextIndex[]</td>
+<td style="text-align:center">对于每一个服务器，记录需要发给它的下一个日志条目的索引(初始化为领导节点上一条日志的索引值 + 1)</td>
+</tr>
+<tr>
+<td style="text-align:center">matchIndex[]</td>
+<td style="text-align:center">对于每一个服务器，记录已经复制到该服务器的日志的最高索引值(从 0 开始递增)</td>
+</tr>
+</tbody>
+</table>
+<h5 id="附加内容-RPC-AppendEntries-RPC">附加内容 RPC (AppendEntries RPC)</h5>
+<p>此方法由领导节点调用并复制日志条目(第 5.3 节)；也用作心跳信号的传输(第 5.2 节)。</p>
+<ul>
+<li>参数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">term</td>
+<td style="text-align:center">领导节点任期号</td>
+</tr>
+<tr>
+<td style="text-align:center">leaderId</td>
+<td style="text-align:center">领导节点 ID，为了其他服务器能重定向到客户端</td>
+</tr>
+<tr>
+<td style="text-align:center">prevLogIndex</td>
+<td style="text-align:center">紧接在新条目之前的日志条目的索引</td>
+</tr>
+<tr>
+<td style="text-align:center">prevLogTerm</td>
+<td style="text-align:center">最新日志之前的日志的 Leader 任期号</td>
+</tr>
+<tr>
+<td style="text-align:center">entries[]</td>
+<td style="text-align:center">将要存储的日志条目(表示心跳信息时为空，有时会为了效率发送超过一条)</td>
+</tr>
+<tr>
+<td style="text-align:center">leaderCommit</td>
+<td style="text-align:center">领导节点提交的日志条目索引</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>结果</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">term</td>
+<td style="text-align:center">目前的任期号，用于领导节点更新自己的任期号</td>
+</tr>
+<tr>
+<td style="text-align:center">success</td>
+<td style="text-align:center">如果其它服务器包含能够匹配上 prevLogIndex 和 prevLogTerm 的日志时为真</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>接受者需要实现：</li>
+</ul>
+<ol>
+<li>如果 term &lt; currentTerm返回 false(第 5.1 节)</li>
+<li>如果在 prevLogIndex 处的日志的任期号与 prevLogTerm 不匹配时，返回 false(第 5.3 节)</li>
+<li>如果一条已经存在的日志与新的冲突(index 相同但是任期号 term 不同)，则删除已经存在的日志和它之后所有的日志(第 5.3 节)</li>
+<li>添加任何在已有的日志中不存在的条目</li>
+<li>如果 leaderCommit &gt; commitIndex，将 commitIndex 设置为 leaderCommit 和最新日志条目索引号中较小的一个</li>
+</ol>
+<h5 id="投票请求-RPC-RequestVote-RPC">投票请求 RPC (RequestVote RPC)</h5>
+<p>由候选人调用来收集选票(第 5.2 节)。</p>
+<ul>
+<li>参数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">term</td>
+<td style="text-align:center">候选人任期</td>
+</tr>
+<tr>
+<td style="text-align:center">candidateId</td>
+<td style="text-align:center">要求投票的候选人</td>
+</tr>
+<tr>
+<td style="text-align:center">lastLogIndex</td>
+<td style="text-align:center">最后存储的候选人日志条目索引(第 5.4 节)</td>
+</tr>
+<tr>
+<td style="text-align:center">lastLogTerm</td>
+<td style="text-align:center">最后存储的候选人日志条目任期(第 5.4 节)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>结果</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">term</td>
+<td style="text-align:center">目前的任期，让候选人可以更新自己</td>
+</tr>
+<tr>
+<td style="text-align:center">voteGranted</td>
+<td style="text-align:center">若候选人获取到了选票则为 true</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>接收者要实现的内容</li>
+</ul>
+<ol>
+<li>如果任期 &lt; 当前任期则返回 false(第 5.1 节)</li>
+<li>如果 votedFor 为 null 或是 CandidateId，并且候选人的日志至少与接收者的日志一样都处于最新，则批准投票(第 5.2 和 5.4 节)</li>
+</ol>
+<h5 id="服务器要遵守的规则">服务器要遵守的规则</h5>
+<p>所有服务器部分：</p>
+<ul>
+<li>如果 commitIndex &gt; lastApplied，就提升 lastApplied 然后接受 <code>log[lastApplied]</code> 至状态机(第 5.3 节)</li>
+<li>如果 RPC 请求或相应内容中的 term T &gt; currentTerm：就将 currentTerm = T，并转化为从属节点(第 5.1 节)</li>
+</ul>
+<p>从属节点部分：</p>
+<ul>
+<li>回应来自候选人和领导节点的 RPC</li>
+<li>如果选举超时之前没有收到来自当前领导节点的 Append Entries RPC 或候选人的投票请求：转化为候选人</li>
+</ul>
+<p>候选人部分：</p>
+<ul>
+<li>转变为候选人之后开始选举
+<ul>
+<li>增加 currentTerm</li>
+<li>为自己投票</li>
+<li>重置选举定时器</li>
+<li>发送 RequestVote RPC 至其他节点</li>
+</ul>
+</li>
+<li>如果接收到了大多数节点的投票：转化为领导节点</li>
+<li>如果接收到了新的领导节点的 AppendEntries RPC：转化为从属节点</li>
+<li>如果选举超时：重新开始选举</li>
+</ul>
+<p>领导节点部分：</p>
+<ul>
+<li>一旦成为领导节点：向其他所有服务器发送空的 AppendEntries RPC(heartbeat)；在空闲时间重复发送以防止选举超时(第 5.2节)</li>
+<li>如果收到来自客户端的请求：向本地日志增加条目，在该条目应用到状态机后响应客户端(第 5.3节)</li>
+<li>如果从属节点最新一次的日志索引(lon index) &gt;= nextIndex：通过 AppendEntries RPC 将 nextIndex 之后的所有日志条目发送出去
+<ul>
+<li>如果发送成功：更新从属节点的 nextIndex 和 matchIndex</li>
+<li>如果因为日志不一致导致 AppendEntries 发送失败：递减 nextIndex 然后进行重试</li>
+</ul>
+</li>
+<li>如果存在 N 使得 N &gt; commitIndex，大部分 <code>matchIndex[i] ≥ N</code>，并且 <code>log[N].term == currentTerm</code>: 将 commitIndex 设置为 N(第 5.3 和 5.4 节)</li>
+</ul>
+<h4 id="参考资料">参考资料</h4>
+<p><code>[1]</code> BOLOSKY, W. J., BRADSHAW, D., HAAGENS, R. B., KUSTERS, N. P., AND LI, P.
+Paxos replicated state machines as the basis of a high-performance data store.
+In Proc. NSDI’11, USENIX Conference on Networked Systems Design and Implementation (2011), USENIX, pp. 141–154.</p>
+<p><code>[2]</code> BURROWS, M.
+The Chubby lock service for looselycoupled distributed systems.
+In Proc. OSDI’06, Symposium on Operating Systems Design and Implementation (2006), USENIX, pp. 335–350.</p>
+<p><code>[3]</code> CAMARGOS, L. J., SCHMIDT, R. M., AND PEDONE, F. Multicoordinated Paxos. In Proc. PODC’07,
+ACM Symposium on Principles of Distributed Computing (2007), ACM, pp. 316–317.</p>
+<p><code>[4]</code> CHANDRA, T. D., GRIESEMER, R., AND REDSTONE,
+J.Paxos made live: an engineering perspective.
+In Proc. PODC’07, ACM Symposium on Principles of Distributed Computing (2007), ACM, pp. 398–407.</p>
+<p><code>[5]</code> CORBETT, J. C., DEAN, J., EPSTEIN, M., FIKES, A., FROST, C., FURMAN, J. J., GHEMAWAT, S., GUBAREV, A., HEISER, C., HOCHSCHILD, P., HSIEH, W., KANTHAK, S., KOGAN, E., LI, H., LLOYD, A., MELNIK, S., MWAURA, D., NAGLE, D., QUINLAN, S., RAO, R., ROLIG, L., SAITO, Y., SZYMANIAK, M., TAYLOR, C., WANG, R., AND WOODFORD, D. Spanner
+Google’s globally-distributed database.
+In Proc. OSDI’12, USENIX Conference on Operating Systems Design and Implementation (2012), USENIX, pp. 251–264.</p>
+<p><code>[6]</code> COUSINEAU, D., DOLIGEZ, D., LAMPORT, L., MERZ, S., RICKETTS, D., AND VANZETTO, H. TLA+ proofs. In Proc. FM’12, Symposium on Formal Methods (2012),
+D. Giannakopoulou and D. M´ery, Eds., vol. 7436 of Lecture Notes in Computer Science, Springer, pp. 147–154.</p>
+<p><code>[7]</code> GHEMAWAT, S., GOBIOFF, H., AND LEUNG, S.-T.
+The Google file system.
+In Proc. SOSP’03, ACM Symposium on Operating Systems Principles (2003), ACM, pp. 29–43.</p>
+<p><code>[8]</code> HERLIHY, M. P., AND WING, J. M. Linearizability:
+a correctness condition for concurrent objects.
+ACM Transactions on Programming Languages and Systems 12 (July 1990), 463–492.</p>
+<p><code>[9]</code> HUNT, P., KONAR, M., JUNQUEIRA, F. P., AND REED, B.
+ZooKeeper: wait-free coordination for internet-scale systems.
+In Proc ATC’10, USENIX Annual Technical Conference (2010), USENIX, pp. 145–158.</p>
+<p><code>[10]</code> JUNQUEIRA, F. P., REED, B. C., AND SERAFINI, M. Zab:
+High-performance broadcast for primary-backup systems.
+In Proc. DSN’11, IEEE/IFIP Int’l Conf. on Dependable Systems &amp; Networks (2011), IEEE Computer Society, pp. 245–256.</p>
+<p><code>[11]</code> KIRSCH, J., AND AMIR, Y.
+Paxos for system builders. Tech. Rep. CNDS-2008-2, Johns Hopkins University,2008.</p>
+<p><code>[12]</code> LAMPORT, L. Time, clocks, and the ordering of events in a distributed system.
+Commununications of the ACM 21, 7(July 1978), 558–565.</p>
+<p><code>[13]</code> LAMPORT, L. The part-time parliament. ACM Transactions on Computer Systems 16, 2 (May 1998), 133–169.</p>
+<p><code>[14]</code> LAMPORT, L. Paxos made simple. ACM SIGACT News 32, 4 (Dec. 2001), 18–25.</p>
+<p><code>[15]</code> LAMPORT, L. Specifying Systems, The TLA+ Language and Tools for Hardware and Software Engineers. AddisonWesley, 2002.</p>
+<p><code>[16]</code> LAMPORT, L. Generalized consensus and Paxos. Tech. Rep. MSR-TR-2005-33, Microsoft Research, 2005.</p>
+<p><code>[17]</code> LAMPORT, L. Fast paxos. Distributed Computing 19, 2(2006), 79–103.</p>
+<p><code>[18]</code> LAMPSON, B. W.
+How to build a highly available system using consensus.
+In Distributed Algorithms, O. Baboaglu and K. Marzullo, Eds. Springer-Verlag, 1996, pp. 1–17.</p>
+<p><code>[19]</code> LAMPSON, B. W. The ABCD’s of Paxos. In Proc. PODC’01, ACM Symposium on Principles of Distributed Computing (2001), ACM, pp. 13–13.</p>
+<p><code>[20]</code> LISKOV, B., AND COWLING, J. Viewstamped replication revisited. Tech. Rep. MIT-CSAIL-TR-2012-021, MIT, July 2012.</p>
+<p><code>[21]</code> LogCabin source code. <a target="_blank" rel="noopener" href="http://github.com/logcabin/logcabin">http://github.com/logcabin/logcabin</a>.</p>
+<p><code>[22]</code> LORCH, J. R., ADYA, A., BOLOSKY, W. J., CHAIKEN, R., DOUCEUR, J. R., AND HOWELL, J.
+The SMART way to migrate replicated stateful services.
+In Proc. EuroSys’06, ACM SIGOPS/EuroSys European Conference on Computer Systems (2006), ACM, pp. 103–115.</p>
+<p><code>[23]</code> MAO, Y., JUNQUEIRA, F. P., AND MARZULLO, K. Mencius: building efficient replicated state machines for WANs.
+In Proc. OSDI’08, USENIX Conference on Operating Systems Design and Implementation (2008), USENIX, pp. 369–384.</p>
+<p><code>[24]</code> MAZIERES , D. Paxos made practical.
+<a target="_blank" rel="noopener" href="http://www.scs.stanford.edu/%CB%9Cdm/home/papers/paxos.pdf">http://www.scs.stanford.edu/˜dm/home/papers/paxos.pdf</a>, Jan. 2007.</p>
+<p><code>[25]</code> MORARU, I., ANDERSEN, D. G., AND KAMINSKY, M.
+There is more consensus in egalitarian parliaments.
+In Proc. SOSP’13, ACM Symposium on Operating System Principles (2013), ACM.</p>
+<p><code>[26]</code> Raft user study. <a target="_blank" rel="noopener" href="http://ramcloud.stanford.edu/%CB%9Congaro/userstudy/">http://ramcloud.stanford.edu/˜ongaro/userstudy/</a>.</p>
+<p><code>[27]</code> OKI, B. M., AND LISKOV, B. H. Viewstamped replication: A new primary copy method to support highly-available distributed systems. In Proc. PODC’88,
+ACM Symposium on Principles of Distributed Computing(1988), ACM, pp. 8–17.</p>
+<p><code>[28]</code> ONGARO, D. Consensus: Bridging Theory and Practice. PhD thesis, Stanford University, 2014 (work in progress).
+<a target="_blank" rel="noopener" href="http://ramcloud.stanford.edu/%CB%9Congaro/thesis.pdf">http://ramcloud.stanford.edu/˜ongaro/thesis.pdf</a>.</p>
+<p><code>[29]</code> ONGARO, D., AND OUSTERHOUT, J. In search of an understandable consensus algorithm (extended version).
+<a target="_blank" rel="noopener" href="http://ramcloud.stanford.edu/raft.pdf">http://ramcloud.stanford.edu/raft.pdf</a>.</p>
+<p><code>[30]</code> OUSTERHOUT, J., AGRAWAL, P., ERICKSON, D.,KOZYRAKIS, C., LEVERICH, J., MAZIERES ` , D., MITRA, S., NARAYANAN, A., ONGARO, D., PARULKAR, G., ROSENBLUM, M., RUMBLE, S. M., STRATMANN, E., AND STUTSMAN, R. The case for RAMCloud.
+Communications of the ACM 54 (July 2011), 121–130.</p>
+<p><code>[31]</code> Raft consensus algorithm website.
+<a target="_blank" rel="noopener" href="http://raftconsensus.github.io">http://raftconsensus.github.io</a>.</p>
+<p><code>[32]</code> REED, B. Personal communications, May 17, 2013.</p>
+<p><code>[33]</code> SCHNEIDER, F. B. Implementing fault-tolerant services using the state machine approach: a tutorial. ACM Computing Surveys 22, 4 (Dec. 1990), 299–319.</p>
+<p><code>[34]</code> SHVACHKO, K., KUANG, H., RADIA, S., AND CHANSLER, R. The Hadoop distributed file system.
+In Proc. MSST’10, Symposium on Mass Storage Systems and Technologies (2010), IEEE Computer Society, pp. 1–10.</p>
+<p><code>[35]</code> VAN RENESSE, R. Paxos made moderately complex. Tech. rep., Cornell University, 2012.</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87/" class="print-no-link">#论文</a>
+      
+        <a href="/tags/Raft/" class="print-no-link">#Raft</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>In Search of an Understandable Consensus Algorithm 中文翻译</div>
+      <div>https://wangqian0306.github.io/2021/in_search_of_an_understandable_consensus_algorithm/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年6月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" title="An Architecture for Fast and General Data Processing on Large Clusters 部分中文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">An Architecture for Fast and General Data Processing on Large Clusters 部分中文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/architecture_of_next_generation_apache_hadoop_mapreduce_framework/" title="Architecture of Next Generation Apache Hadoop MapReduce Framework 中文翻译版">
+                        <span class="hidden-mobile">Architecture of Next Generation Apache Hadoop MapReduce Framework 中文翻译版</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

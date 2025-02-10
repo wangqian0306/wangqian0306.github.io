@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="WebClient 和 RestClient 简介 1Fourteen years ago, when RestTemplate was introduced in Spring Framework 3.0, we quickly discovered that exposing every capability of HTTP in a template-like class resulted">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebClient 和 RestClient">
+<meta property="og:url" content="https://wangqian0306.github.io/2023/webclient-restclient/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="WebClient 和 RestClient 简介 1Fourteen years ago, when RestTemplate was introduced in Spring Framework 3.0, we quickly discovered that exposing every capability of HTTP in a template-like class resulted">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-14T14:32:58.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.482Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>WebClient 和 RestClient - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="WebClient 和 RestClient"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-14 22:32" pubdate>
+          2023年4月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">WebClient 和 RestClient</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="WebClient-和-RestClient">WebClient 和 RestClient</h2>
+<h3 id="简介">简介</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Fourteen years ago, when RestTemplate was introduced in Spring Framework 3.0, we quickly discovered that exposing every capability of HTTP in a template-like class resulted in too many overloaded methods. <br></code></pre></td></tr></table></figure>
+<p>十四年前，当在 Spring Framework 3.0 中引入时 RestTemplate，我们很快发现，在类似模板的类中公开HTTP的所有功能会导致太多的重载方法。</p>
+<p>所以在 Spring Framework 中实现了如下两种客户端，用来执行 Http 请求：</p>
+<ul>
+<li>WebClient：异步客户端</li>
+<li>RestClient：同步客户端</li>
+</ul>
+<h3 id="WebClient-实现">WebClient 实现</h3>
+<p>引入 WebFlux 包：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs groovy">dependencies &#123;<br>    implementation <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-starter-webflux&#x27;</span><br>    implementation <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写请求结果类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">JokeResponse</span><span class="hljs-params">(String id, String joke, Integer status)</span> &#123;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写请求类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.web.service.annotation.GetExchange;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">JokeClient</span> &#123;<br><br>    <span class="hljs-meta">@GetExchange(&quot;/&quot;)</span><br>    JokeResponse <span class="hljs-title function_">random</span><span class="hljs-params">()</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写主类和 Bean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.WebClient;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.support.WebClientAdapter;<br><span class="hljs-keyword">import</span> org.springframework.web.service.invoker.HttpServiceProxyFactory;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(Application.class, args);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    JokeClient <span class="hljs-title function_">jokeClient</span><span class="hljs-params">(WebClient.Builder builder)</span> &#123;<br>        <span class="hljs-type">WebClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> builder<br>                .baseUrl(<span class="hljs-string">&quot;https://icanhazdadjoke.com/&quot;</span>)<br>                .defaultHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>                .build();<br>        <span class="hljs-type">HttpServiceProxyFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();<br>        <span class="hljs-keyword">return</span> factory.createClient(JokeClient.class);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写测试接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> jakarta.annotation.Resource;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestController</span> &#123;<br><br>    <span class="hljs-meta">@Resource</span><br>    JokeClient jokeClient;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">test</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">JokeResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> jokeClient.random();<br>        <span class="hljs-keyword">return</span> response.joke();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>更换支持库(可选)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> JettyResourceFactory <span class="hljs-title function_">resourceFactory</span><span class="hljs-params">()</span> &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JettyResourceFactory</span>();<br>&#125;<br><br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> WebClient <span class="hljs-title function_">webClient</span><span class="hljs-params">()</span> &#123;<br><br>	<span class="hljs-type">HttpClient</span> <span class="hljs-variable">httpClient</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HttpClient</span>();<br>	<span class="hljs-type">ClientHttpConnector</span> <span class="hljs-variable">connector</span> <span class="hljs-operator">=</span><br>			<span class="hljs-keyword">new</span> <span class="hljs-title class_">JettyClientHttpConnector</span>(httpClient, resourceFactory()); <br><br>	<span class="hljs-keyword">return</span> WebClient.builder().clientConnector(connector).build(); <br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：每种库的日志需要单独调节，支持库的清单参阅官方文档。</p>
+</blockquote>
+<p>配置代理(可选)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.http.client.reactive.ReactorClientHttpConnector;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.WebClient;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.support.WebClientAdapter;<br><span class="hljs-keyword">import</span> org.springframework.web.service.invoker.HttpServiceProxyFactory;<br><span class="hljs-keyword">import</span> reactor.netty.http.client.HttpClient;<br><span class="hljs-keyword">import</span> reactor.netty.transport.ProxyProvider;<br><br><span class="hljs-meta">@Bean</span><br>JokeClient <span class="hljs-title function_">jokeClient</span><span class="hljs-params">(WebClient.Builder builder)</span> &#123;<br>    <span class="hljs-type">HttpClient</span> <span class="hljs-variable">httpClient</span> <span class="hljs-operator">=</span> HttpClient.create()<br>            .proxy(proxy -&gt; proxy<br>                    .type(ProxyProvider.Proxy.HTTP)<br>                    .host(<span class="hljs-string">&quot;localhost&quot;</span>)<br>                    .port(<span class="hljs-number">7890</span>));<br>    <span class="hljs-type">WebClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> builder<br>            .clientConnector(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ReactorClientHttpConnector</span>(httpClient))<br>            .baseUrl(<span class="hljs-string">&quot;https://icanhazdadjoke.com/&quot;</span>)<br>            .defaultHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>            .build();<br>    <span class="hljs-type">HttpServiceProxyFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();<br>    <span class="hljs-keyword">return</span> factory.createClient(JokeClient.class);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="RestClient-实现">RestClient 实现</h3>
+<p>引入 Web 包：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs grovvy">dependencies &#123;<br>    implementation &#x27;org.springframework.boot:spring-boot-starter-web&#x27;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写请求结果类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">JokeResponse</span><span class="hljs-params">(String id, String joke, Integer status)</span> &#123;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写请求类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.web.service.annotation.GetExchange;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">JokeClient</span> &#123;<br><br>    <span class="hljs-meta">@GetExchange(&quot;/&quot;)</span><br>    JokeResponse <span class="hljs-title function_">random</span><span class="hljs-params">()</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写主类和 Bean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.web.client.RestClient;<br><span class="hljs-keyword">import</span> org.springframework.web.client.support.RestClientAdapter;<br><span class="hljs-keyword">import</span> org.springframework.web.service.invoker.HttpServiceProxyFactory;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(Application.class, args);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    JokeClient <span class="hljs-title function_">jokeClient</span><span class="hljs-params">(RestClient.Builder builder)</span> &#123;<br>        <span class="hljs-type">RestClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> builder<br>                .baseUrl(<span class="hljs-string">&quot;https://icanhazdadjoke.com/&quot;</span>)<br>                .defaultHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>                .build();<br>        <span class="hljs-type">HttpServiceProxyFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();<br>        <span class="hljs-keyword">return</span> factory.createClient(JokeClient.class);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> jakarta.annotation.Resource;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestController</span> &#123;<br><br>    <span class="hljs-meta">@Resource</span><br>    JokeClient jokeClient;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">test</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">JokeResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> jokeClient.random();<br>        <span class="hljs-keyword">return</span> response.joke();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>更换支持库(可选)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.boot.web.client.RestClientCustomizer;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;<br><span class="hljs-keyword">import</span> org.springframework.http.client.JettyClientHttpRequestFactory;<br><span class="hljs-keyword">import</span> org.springframework.web.client.RestClient;<br><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomRestClientConf</span> &#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> RestClient <span class="hljs-title function_">restClient</span><span class="hljs-params">(RestClient.Builder builder)</span> &#123;<br>        <span class="hljs-keyword">return</span> builder.build();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> RestClientCustomizer <span class="hljs-title function_">restClientCustomizer</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">JettyClientHttpRequestFactory</span> <span class="hljs-variable">requestFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JettyClientHttpRequestFactory</span>();<br>        <span class="hljs-keyword">return</span> (restClientBuilder) -&gt; restClientBuilder<br>                .requestFactory(requestFactory)<br>                .baseUrl(<span class="hljs-string">&quot;http://localhost:8080/&quot;</span>);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：每种库的日志需要单独调节，支持库的清单参阅官方文档。</p>
+</blockquote>
+<p>设置代理(可选)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.http.client.SimpleClientHttpRequestFactory;<br><span class="hljs-keyword">import</span> org.springframework.web.client.RestClient;<br><span class="hljs-keyword">import</span> org.springframework.web.client.support.RestClientAdapter;<br><span class="hljs-keyword">import</span> org.springframework.web.service.invoker.HttpServiceProxyFactory;<br><br><span class="hljs-keyword">import</span> java.net.InetSocketAddress;<br><span class="hljs-keyword">import</span> java.net.Proxy;<br><br><span class="hljs-meta">@Bean</span><br>JokeClient <span class="hljs-title function_">jokeClient</span><span class="hljs-params">(RestClient.Builder builder)</span> &#123;<br>    <span class="hljs-type">Proxy</span> <span class="hljs-variable">proxy</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Proxy</span>(Proxy.Type.HTTP, <span class="hljs-keyword">new</span> <span class="hljs-title class_">InetSocketAddress</span>(<span class="hljs-string">&quot;localhost&quot;</span>, <span class="hljs-number">7890</span>));<br>    <span class="hljs-type">SimpleClientHttpRequestFactory</span> <span class="hljs-variable">simpleClientHttpRequestFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleClientHttpRequestFactory</span>();<br>    simpleClientHttpRequestFactory.setProxy(proxy);<br>    <span class="hljs-type">RestClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> builder<br>            .requestFactory(simpleClientHttpRequestFactory)<br>            .baseUrl(<span class="hljs-string">&quot;https://icanhazdadjoke.com/&quot;</span>)<br>            .defaultHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>            .build();<br>    <span class="hljs-type">HttpServiceProxyFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();<br>    <span class="hljs-keyword">return</span> factory.createClient(JokeClient.class);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="常见问题">常见问题</h3>
+<h4 id="获取请求状态码">获取请求状态码</h4>
+<p>可以使用如下样例获取请求结果对象，然后读取状态码等信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.http.ResponseEntity;<br><span class="hljs-keyword">import</span> org.springframework.web.service.annotation.GetExchange;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">JokeClient</span> &#123;<br><br>    <span class="hljs-meta">@GetExchange(&quot;/&quot;)</span><br>    ResponseEntity&lt;JokeResponse&gt; <span class="hljs-title function_">random</span><span class="hljs-params">()</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="Mock-测试">Mock 测试</h4>
+<p>编写如下测试程序即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;<br><span class="hljs-keyword">import</span> org.junit.jupiter.api.Test;<br><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;<br><span class="hljs-keyword">import</span> org.springframework.boot.test.autoconfigure.web.client.RestClientTest;<br><span class="hljs-keyword">import</span> org.springframework.http.MediaType;<br><span class="hljs-keyword">import</span> org.springframework.test.web.client.MockRestServiceServer;<br><br><span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.assertj.core.api.Assertions.assertThat;<br><span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;<br><span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;<br><br><br><span class="hljs-meta">@RestClientTest(JokeClient.class)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JokeTest</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    MockRestServiceServer server;<br><br>    <span class="hljs-meta">@Autowired</span><br>    JokeClient jokeClient;<br><br>    <span class="hljs-meta">@Autowired</span><br>    ObjectMapper objectMapper;<br><br>    <span class="hljs-meta">@Test</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">shouldReturnAllPosts</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> JsonProcessingException &#123;<br>        <span class="hljs-type">JokeResponse</span> <span class="hljs-variable">jokeResponse</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JokeResponse</span>(<span class="hljs-string">&quot;1&quot;</span>, <span class="hljs-string">&quot;demo&quot;</span>, <span class="hljs-number">1</span>);<br>        <span class="hljs-built_in">this</span>.server<br>                .expect(requestTo(<span class="hljs-string">&quot;https://icanhazdadjoke.com/&quot;</span>))<br>                .andRespond(withSuccess(objectMapper.writeValueAsString(jokeResponse), MediaType.APPLICATION_JSON));<br><br>        <span class="hljs-type">JokeResponse</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> jokeClient.random();<br>        assertThat(result.joke()).isEqualTo(<span class="hljs-string">&quot;demo&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="拦截器">拦截器</h4>
+<p>可以使用拦截器的方式改变请求中的内容样例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.slf4j.Logger;<br><span class="hljs-keyword">import</span> org.slf4j.LoggerFactory;<br><span class="hljs-keyword">import</span> org.springframework.http.HttpRequest;<br><span class="hljs-keyword">import</span> org.springframework.http.client.ClientHttpRequestExecution;<br><span class="hljs-keyword">import</span> org.springframework.http.client.ClientHttpRequestInterceptor;<br><span class="hljs-keyword">import</span> org.springframework.http.client.ClientHttpResponse;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Component;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TokenInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ClientHttpRequestInterceptor</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Logger</span> <span class="hljs-variable">log</span> <span class="hljs-operator">=</span> LoggerFactory.getLogger(TokenInterceptor.class);<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ClientHttpResponse <span class="hljs-title function_">intercept</span><span class="hljs-params">(HttpRequest request, <span class="hljs-type">byte</span>[] body, ClientHttpRequestExecution execution)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        log.info(<span class="hljs-string">&quot;Intercepting request: &quot;</span> + request.getURI());<br>        request.getHeaders().add(<span class="hljs-string">&quot;x-request-id&quot;</span>, <span class="hljs-string">&quot;12345&quot;</span>);<br>        <span class="hljs-keyword">return</span> execution.execute(request, body);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.http.client.ClientHttpRequestInterceptor;<br><span class="hljs-keyword">import</span> org.springframework.stereotype.Component;<br><span class="hljs-keyword">import</span> org.springframework.web.client.RestClient;<br><br><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JokeClient</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RestClient restClient;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">JokeClient</span><span class="hljs-params">(RestClient.Builder builder, ClientHttpRequestInterceptor tokenInterceptor)</span> &#123;<br>        <span class="hljs-built_in">this</span>.restClient = builder<br>                .baseUrl(<span class="hljs-string">&quot;https://icanhazdadjoke.com&quot;</span>)<br>                .defaultHeader(<span class="hljs-string">&quot;Accept&quot;</span>, <span class="hljs-string">&quot;application/json&quot;</span>)<br>                .requestInterceptor(tokenInterceptor)<br>                .build();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> JokeResponse <span class="hljs-title function_">random</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> restClient.get()<br>                .uri(<span class="hljs-string">&quot;/&quot;</span>)<br>                .retrieve()<br>                .body(JokeResponse.class);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="处理不同的返回状态码和对象">处理不同的返回状态码和对象</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.http.HttpStatus;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.ClientResponse;<br><span class="hljs-keyword">import</span> org.springframework.web.reactive.function.client.WebClient;<br><span class="hljs-keyword">import</span> reactor.core.publisher.Mono;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncRequestService</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> WebClient webClient;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AsyncRequestService</span><span class="hljs-params">(WebClient.Builder webClientBuilder)</span> &#123;<br>        <span class="hljs-built_in">this</span>.webClient = webClientBuilder.baseUrl(<span class="hljs-string">&quot;http://xxx.xxx.xxx&quot;</span>).build();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> Mono&lt;ClientResponse&gt; <span class="hljs-title function_">asyncFetchDataWithStatus</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> webClient.get()<br>                .uri(<span class="hljs-string">&quot;/xxx&quot;</span>)<br>                .exchangeToMono(response -&gt; &#123;<br>                    <span class="hljs-keyword">if</span> (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.ACCEPTED)) &#123;<br>                        <span class="hljs-keyword">return</span> Mono.just(response);<br>                    &#125;<br>                    <span class="hljs-keyword">return</span> Mono.error(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;Failed to fetch data&quot;</span>));<br>                &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.http.HttpStatus;<br><span class="hljs-keyword">import</span> org.springframework.http.ResponseEntity;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><span class="hljs-keyword">import</span> reactor.core.publisher.Mono;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AsyncRequestController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AsyncRequestService asyncRequestService;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AsyncRequestController</span><span class="hljs-params">(AsyncRequestService asyncRequestService)</span> &#123;<br>        <span class="hljs-built_in">this</span>.asyncRequestService = asyncRequestService;<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/fetch-data&quot;)</span><br>    <span class="hljs-keyword">public</span> Mono&lt;ResponseEntity&lt;String&gt;&gt; <span class="hljs-title function_">fetchData</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> asyncRequestService.asyncFetchDataWithStatus()<br>                .flatMap(response -&gt; &#123;<br>                    <span class="hljs-keyword">if</span> (response.statusCode().equals(HttpStatus.OK)) &#123;<br>                        <span class="hljs-keyword">return</span> response.bodyToMono(String.class)<br>                                .map(body -&gt; ResponseEntity.ok(body));<br>                    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (response.statusCode().equals(HttpStatus.ACCEPTED)) &#123;<br>                        <span class="hljs-keyword">return</span> Mono.just(ResponseEntity.status(HttpStatus.ACCEPTED).body(<span class="hljs-string">&quot;Processing...&quot;</span>));<br>                    &#125; <span class="hljs-keyword">else</span> &#123;<br>                        <span class="hljs-keyword">return</span> Mono.just(ResponseEntity.status(response.statusCode()).body(<span class="hljs-string">&quot;Unhandled status code&quot;</span>));<br>                    &#125;<br>                &#125;)<br>                .onErrorResume(e -&gt; &#123;<br>                    <span class="hljs-keyword">return</span> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(<span class="hljs-string">&quot;Error occurred&quot;</span>));<br>                &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="日志记录">日志记录</h4>
+<blockquote>
+<p>注：使用 SpringBoot Actuator 就可以拿到请求日志，但是问题在于不是很方便读取。之后可以测下 Micrometer 会不会集成。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/danvega/rc-logging/blob/main/src/main/java/dev/danvega/ClientLoggerRequestInterceptor.java">参考代码</a></p>
+<p>之后在 RestClient 构建的时候配置拦截器就即可。</p>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html">WebClient 文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/danvega/async-client/blob/main/src/test/java/dev/danvega/post/PostClientTest.java">WebClient 单元测试样例项目</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/integration/rest-clients.html">RestClient 文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://spring.io/blog/2024/10/28/restclient-support-for-oauth2-in-spring-security-6-4">Spring Security 6.4 中 OAuth2 的 RestClient 支持</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=l35P5GylXN8">&quot;Spring Boot REST Client Logging Made Easy</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring/" class="category-chain-item">Spring</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Java/" class="print-no-link">#Java</a>
+      
+        <a href="/tags/Spring-Boot/" class="print-no-link">#Spring Boot</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>WebClient 和 RestClient</div>
+      <div>https://wangqian0306.github.io/2023/webclient-restclient/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/hibernate/" title="Hibernate 常用功能记录">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Hibernate 常用功能记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/copilot/" title="Github Copilot 技巧梳理">
+                        <span class="hidden-mobile">Github Copilot 技巧梳理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

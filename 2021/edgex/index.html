@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="EdgeX 总体架构  EdgeX 由以下四个基本模块构成  设备服务层 (DEVICE SERVICES) 核心服务层 (CORE SERVICES) 支持服务层 (SUPPORT SERVICES) 应用服务层 (APPLICATION SERVICES)  在上述层级的基础上扩展了以下服务  安全服务 (SECURITY) 系统管理服务 (MANAGEMENT)  设备服务层 设备服务层当中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EdgeX 平台初探">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/edgex/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="EdgeX 总体架构  EdgeX 由以下四个基本模块构成  设备服务层 (DEVICE SERVICES) 核心服务层 (CORE SERVICES) 支持服务层 (SUPPORT SERVICES) 应用服务层 (APPLICATION SERVICES)  在上述层级的基础上扩展了以下服务  安全服务 (SECURITY) 系统管理服务 (MANAGEMENT)  设备服务层 设备服务层当中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://docs.edgexfoundry.org/1.3/general/EdgeX_architecture.png">
+<meta property="article:published_time" content="2021-04-16T13:41:32.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.474Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="EdgeX">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://docs.edgexfoundry.org/1.3/general/EdgeX_architecture.png">
+  
+  
+  
+  <title>EdgeX 平台初探 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="EdgeX 平台初探"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-04-16 21:41" pubdate>
+          2021年4月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">EdgeX 平台初探</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="EdgeX-总体架构">EdgeX 总体架构</h2>
+<p><img src="https://docs.edgexfoundry.org/1.3/general/EdgeX_architecture.png" srcset="/img/loading.gif" lazyload alt="架构图"></p>
+<p>EdgeX 由以下四个基本模块构成</p>
+<ul>
+<li>设备服务层 (DEVICE SERVICES)</li>
+<li>核心服务层 (CORE SERVICES)</li>
+<li>支持服务层 (SUPPORT SERVICES)</li>
+<li>应用服务层 (APPLICATION SERVICES)</li>
+</ul>
+<p>在上述层级的基础上扩展了以下服务</p>
+<ul>
+<li>安全服务 (SECURITY)</li>
+<li>系统管理服务 (MANAGEMENT)</li>
+</ul>
+<h3 id="设备服务层">设备服务层</h3>
+<p>设备服务层当中的服务可以自行选择进行安装，目前支持的内容如下：</p>
+<ul>
+<li>测试设备
+<ul>
+<li>随机数生成器(Go)</li>
+<li>虚拟设备(Go)</li>
+</ul>
+</li>
+<li>官方支持的设备
+<ul>
+<li>Modbus (Go)</li>
+<li>MQTT (Go)</li>
+<li>Grove ©</li>
+<li>Camera (Go)</li>
+<li>Rest (Go)</li>
+<li>BACnet ©</li>
+</ul>
+</li>
+<li>研发中的设备
+<ul>
+<li>OPC UA ©</li>
+<li>Bluetooth ©</li>
+<li>GPS ©</li>
+</ul>
+</li>
+<li>收费的连接器(IOTech 公司提供)
+<ul>
+<li>Modbus</li>
+<li>BACnet</li>
+<li>Bluetooth</li>
+<li>CAN</li>
+<li>EtherCAT</li>
+<li>EtherNet/IP</li>
+<li>FILE</li>
+<li>zigbee</li>
+<li>GPS</li>
+<li>MQTT</li>
+<li>OPC UA</li>
+</ul>
+</li>
+</ul>
+<h3 id="核心服务层">核心服务层</h3>
+<p>核心服务层由以下微服务构成，必须在系统中安装：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">服务名</th>
+<th style="text-align:center">英文名</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">核心数据存储微服务</td>
+<td style="text-align:center">Core data</td>
+<td style="text-align:center">集成了数据总线，完成接收数据并进行存储的功能</td>
+</tr>
+<tr>
+<td style="text-align:center">基础控制微服务</td>
+<td style="text-align:center">Command</td>
+<td style="text-align:center">调配系统上下层控制</td>
+</tr>
+<tr>
+<td style="text-align:center">元数据存储微服务</td>
+<td style="text-align:center">Metadata</td>
+<td style="text-align:center">存储元数据，关联设备与服务</td>
+</tr>
+<tr>
+<td style="text-align:center">配置中心微服务</td>
+<td style="text-align:center">Registry and Configuration</td>
+<td style="text-align:center">存储微服务配置</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：配置中心微服务由 <a target="_blank" rel="noopener" href="https://www.consul.io/">Consul</a> 实现。</p>
+</blockquote>
+<h3 id="支持服务层">支持服务层</h3>
+<p>支持服务包括范围广泛的微服务，包括边缘分析。
+正常的软件应用程序职责，如日志记录、调度和数据清理由支持服务层中的微服务执行。
+支持服务层由以下微服务构成，如下服务都可以选择安装：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">服务名</th>
+<th style="text-align:center">英文名</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">规则引擎微服务</td>
+<td style="text-align:center">Rules Engine</td>
+<td style="text-align:center">完成部分边缘分析功能</td>
+</tr>
+<tr>
+<td style="text-align:center">计划微服务</td>
+<td style="text-align:center">Scheduling</td>
+<td style="text-align:center">定时触发系统内的 REST API</td>
+</tr>
+<tr>
+<td style="text-align:center">警报微服务</td>
+<td style="text-align:center">Alerts and Notifications</td>
+<td style="text-align:center">输出报警信息</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注: 目前的规则引擎服务由 <a target="_blank" rel="noopener" href="https://www.emqx.io/products/kuiper">EMQ X Kuiper</a> 实现。</p>
+</blockquote>
+<h3 id="应用服务层">应用服务层</h3>
+<p>本层中尚且没有提供成品的微服务，而是提供了 SDK。</p>
+<p>在 SDK 中主要实现了以下功能</p>
+<ul>
+<li>基于 EdgeX 的消息总线触发器(支持 ZeroMQ, MQTT, Redis Streams)</li>
+<li>基于 MQTT 的触发器</li>
+<li>基于 HTTP 的触发器</li>
+</ul>
+<h3 id="安全服务">安全服务</h3>
+<p>安全服务分为了以下功能</p>
+<ul>
+<li>密钥管理（密钥）</li>
+<li>网关</li>
+<li>用户管理</li>
+<li>ACL 管理</li>
+</ul>
+<p>以上功能是结合下列项目实现的:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://konghq.com/">KONG</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.vaultproject.io/">Vault</a></li>
+</ul>
+<blockquote>
+<p>注: 目前 KONG 项目支持 REST API 调用，Vault 有多种语言支持。</p>
+</blockquote>
+<h3 id="系统管理服务">系统管理服务</h3>
+<p>系统管理服务目前有两种控制方式分别为</p>
+<ul>
+<li>System Management Agent
+<ul>
+<li>通过对外开放接口的形式来让中心节点操控边缘端</li>
+</ul>
+</li>
+<li>System Management Executor
+<ul>
+<li>在集群内使用可执行文件的方式完成边缘端控制</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Go/" class="category-chain-item">Go</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/go/" class="print-no-link">#go</a>
+      
+        <a href="/tags/EdgeX/" class="print-no-link">#EdgeX</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>EdgeX 平台初探</div>
+      <div>https://wangqian0306.github.io/2021/edgex/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年4月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/mosquitto/" title="Mosquitto 入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mosquitto 入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/go/" title="Go 语言入门">
+                        <span class="hidden-mobile">Go 语言入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

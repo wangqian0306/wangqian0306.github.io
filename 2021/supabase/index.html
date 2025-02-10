@@ -1,0 +1,720 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Supabase 简介 Supabase 是一个应用开发平台，可以实现如下功能：  Postgres 数据库托管 身份验证和授权 自动生成的 API  REST 实时订阅 GraphQL（测试版）   函数 数据库函数 边缘函数 文件存储 仪表盘   注：此项目当前还处于 Public Beta 测试阶段，适合于大多数非企业使用场景。  使用 创建数据库 登录 https:&#x2F;&#x2F;supabase.c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Supabase">
+<meta property="og:url" content="https://wangqian0306.github.io/2021/supabase/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Supabase 简介 Supabase 是一个应用开发平台，可以实现如下功能：  Postgres 数据库托管 身份验证和授权 自动生成的 API  REST 实时订阅 GraphQL（测试版）   函数 数据库函数 边缘函数 文件存储 仪表盘   注：此项目当前还处于 Public Beta 测试阶段，适合于大多数非企业使用场景。  使用 创建数据库 登录 https:&#x2F;&#x2F;supabase.c">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-04T14:12:59.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.470Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Supabase">
+<meta property="article:tag" content="Next.js">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Supabase - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Supabase"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-08-04 22:12" pubdate>
+          2021年8月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Supabase</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Supabase">Supabase</h2>
+<h3 id="简介">简介</h3>
+<p>Supabase 是一个应用开发平台，可以实现如下功能：</p>
+<ul>
+<li>Postgres 数据库托管</li>
+<li>身份验证和授权</li>
+<li>自动生成的 API
+<ul>
+<li>REST</li>
+<li>实时订阅</li>
+<li>GraphQL（测试版）</li>
+</ul>
+</li>
+<li>函数</li>
+<li>数据库函数</li>
+<li>边缘函数</li>
+<li>文件存储</li>
+<li>仪表盘</li>
+</ul>
+<blockquote>
+<p>注：此项目当前还处于 Public Beta 测试阶段，适合于大多数非企业使用场景。</p>
+</blockquote>
+<h3 id="使用">使用</h3>
+<h4 id="创建数据库">创建数据库</h4>
+<p>登录 <a target="_blank" rel="noopener" href="https://supabase.com/">https://supabase.com/</a> 官方网站，然后注册登录，并按照如下流程进行初始化：</p>
+<ul>
+<li>创建组织</li>
+<li>创建项目</li>
+<li>选择 <code>SQL editor</code> 然后输入如下 SQL</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- Create the table</span><br><span class="hljs-keyword">create table</span> notes (<br>  id serial <span class="hljs-keyword">primary key</span>,<br>  title text<br>);<br><br><span class="hljs-comment">-- Insert some sample data</span><br><span class="hljs-keyword">insert into</span> notes (title)<br><span class="hljs-keyword">values</span><br>  (<span class="hljs-string">&#x27;Today I created a Supabase project.&#x27;</span>),<br>  (<span class="hljs-string">&#x27;I added some data and queried it from Next.js.&#x27;</span>),<br>  (<span class="hljs-string">&#x27;It was awesome!&#x27;</span>);<br></code></pre></td></tr></table></figure>
+<h4 id="使用模板-Next-js-Supabase">使用模板(Next.js + Supabase)</h4>
+<p>使用如下命令即可初始化一个样例项目，访问项目即可看到配置方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npx create-next-app -e with-supabase<br></code></pre></td></tr></table></figure>
+<p>然后需要编辑 <code>.env.example</code> 文件，并将其重命名为 <code>.env.local</code>:</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">NEXT_PUBLIC_SUPABASE_URL=&lt;SUBSTITUTE_SUPABASE_URL&gt;<br>NEXT_PUBLIC_SUPABASE_ANON_KEY=&lt;SUBSTITUTE_SUPABASE_ANON_KEY&gt;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注: 此处的地址需要访问创建的 Supabase 仪表板中的项目详情中查看。</p>
+</blockquote>
+<p>最后可以编写如下页面进行测试：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-string">&#x27;use client&#x27;</span><br><br><span class="hljs-keyword">import</span> &#123; createClient &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@/utils/supabase/client&#x27;</span><br><span class="hljs-keyword">import</span> &#123; useEffect, useState &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span><br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">Page</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-keyword">const</span> [notes, setNotes] = useState&lt;<span class="hljs-built_in">any</span>[] | <span class="hljs-literal">null</span>&gt;(<span class="hljs-literal">null</span>)<br>    <span class="hljs-keyword">const</span> supabase = <span class="hljs-title function_">createClient</span>()<br><br>    <span class="hljs-title function_">useEffect</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>        <span class="hljs-keyword">const</span> <span class="hljs-title function_">getData</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; &#123;<br>            <span class="hljs-keyword">const</span> &#123; data &#125; = <span class="hljs-keyword">await</span> supabase.<span class="hljs-title function_">from</span>(<span class="hljs-string">&#x27;notes&#x27;</span>).<span class="hljs-title function_">select</span>()<br>            <span class="hljs-title function_">setNotes</span>(data)<br>        &#125;<br>        <span class="hljs-title function_">getData</span>()<br>    &#125;, [])<br><br>    <span class="hljs-keyword">return</span> <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">pre</span>&gt;</span>&#123;JSON.stringify(notes, null, 2)&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span></span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="修改现有项目">修改现有项目</h4>
+<p>可以使用如下命令安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npm install @supabase/ssr @supabase/supabase-js<br></code></pre></td></tr></table></figure>
+<p>编写 <code>lib/supabase/client.ts</code> :</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; createBrowserClient &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@supabase/ssr&quot;</span>;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">createClient</span> = (<span class="hljs-params"></span>) =&gt;<br>  <span class="hljs-title function_">createBrowserClient</span>(<br>    process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_URL</span>!,<br>    process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!,<br>  );<br></code></pre></td></tr></table></figure>
+<p>编写 <code>lib/supabase/middleware.ts</code> :</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; createServerClient, <span class="hljs-keyword">type</span> <span class="hljs-title class_">CookieOptions</span> &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@supabase/ssr&quot;</span>;<br><span class="hljs-keyword">import</span> &#123; <span class="hljs-keyword">type</span> <span class="hljs-title class_">NextRequest</span>, <span class="hljs-title class_">NextResponse</span> &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;next/server&quot;</span>;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">updateSession</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"><span class="hljs-attr">request</span>: <span class="hljs-title class_">NextRequest</span></span>) =&gt; &#123;<br>  <span class="hljs-comment">// This `try/catch` block is only here for the interactive tutorial.</span><br>  <span class="hljs-comment">// Feel free to remove once you have Supabase connected.</span><br>  <span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// Create an unmodified response</span><br>    <span class="hljs-keyword">let</span> response = <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">next</span>(&#123;<br>      <span class="hljs-attr">request</span>: &#123;<br>        <span class="hljs-attr">headers</span>: request.<span class="hljs-property">headers</span>,<br>      &#125;,<br>    &#125;);<br><br>    <span class="hljs-keyword">const</span> supabase = <span class="hljs-title function_">createServerClient</span>(<br>      process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_URL</span>!,<br>      process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!,<br>      &#123;<br>        <span class="hljs-attr">cookies</span>: &#123;<br>          <span class="hljs-title function_">get</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span></span>) &#123;<br>            <span class="hljs-keyword">return</span> request.<span class="hljs-property">cookies</span>.<span class="hljs-title function_">get</span>(name)?.<span class="hljs-property">value</span>;<br>          &#125;,<br>          <span class="hljs-title function_">set</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">value</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">options</span>: <span class="hljs-title class_">CookieOptions</span></span>) &#123;<br>            <span class="hljs-comment">// If the cookie is updated, update the cookies for the request and response</span><br>            request.<span class="hljs-property">cookies</span>.<span class="hljs-title function_">set</span>(&#123;<br>              name,<br>              value,<br>              ...options,<br>            &#125;);<br>            response = <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">next</span>(&#123;<br>              <span class="hljs-attr">request</span>: &#123;<br>                <span class="hljs-attr">headers</span>: request.<span class="hljs-property">headers</span>,<br>              &#125;,<br>            &#125;);<br>            response.<span class="hljs-property">cookies</span>.<span class="hljs-title function_">set</span>(&#123;<br>              name,<br>              value,<br>              ...options,<br>            &#125;);<br>          &#125;,<br>          <span class="hljs-title function_">remove</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">options</span>: <span class="hljs-title class_">CookieOptions</span></span>) &#123;<br>            <span class="hljs-comment">// If the cookie is removed, update the cookies for the request and response</span><br>            request.<span class="hljs-property">cookies</span>.<span class="hljs-title function_">set</span>(&#123;<br>              name,<br>              <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;&quot;</span>,<br>              ...options,<br>            &#125;);<br>            response = <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">next</span>(&#123;<br>              <span class="hljs-attr">request</span>: &#123;<br>                <span class="hljs-attr">headers</span>: request.<span class="hljs-property">headers</span>,<br>              &#125;,<br>            &#125;);<br>            response.<span class="hljs-property">cookies</span>.<span class="hljs-title function_">set</span>(&#123;<br>              name,<br>              <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;&quot;</span>,<br>              ...options,<br>            &#125;);<br>          &#125;,<br>        &#125;,<br>      &#125;,<br>    );<br><br>    <span class="hljs-comment">// This will refresh session if expired - required for Server Components</span><br>    <span class="hljs-comment">// https://supabase.com/docs/guides/auth/server-side/nextjs</span><br>    <span class="hljs-keyword">await</span> supabase.<span class="hljs-property">auth</span>.<span class="hljs-title function_">getUser</span>();<br><br>    <span class="hljs-keyword">return</span> response;<br>  &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>    <span class="hljs-comment">// If you are here, a Supabase client could not be created!</span><br>    <span class="hljs-comment">// This is likely because you have not set up environment variables.</span><br>    <span class="hljs-comment">// Check out http://localhost:3000 for Next Steps.</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">next</span>(&#123;<br>      <span class="hljs-attr">request</span>: &#123;<br>        <span class="hljs-attr">headers</span>: request.<span class="hljs-property">headers</span>,<br>      &#125;,<br>    &#125;);<br>  &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>编写 <code>lib/supabase/server.ts</code> :</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; createServerClient, <span class="hljs-keyword">type</span> <span class="hljs-title class_">CookieOptions</span> &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@supabase/ssr&quot;</span>;<br><span class="hljs-keyword">import</span> &#123; cookies &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;next/headers&quot;</span>;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-title function_">createClient</span> = (<span class="hljs-params"></span>) =&gt; &#123;<br>  <span class="hljs-keyword">const</span> cookieStore = <span class="hljs-title function_">cookies</span>();<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-title function_">createServerClient</span>(<br>    process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_URL</span>!,<br>    process.<span class="hljs-property">env</span>.<span class="hljs-property">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!,<br>    &#123;<br>      <span class="hljs-attr">cookies</span>: &#123;<br>        <span class="hljs-title function_">get</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span></span>) &#123;<br>          <span class="hljs-keyword">return</span> cookieStore.<span class="hljs-title function_">get</span>(name)?.<span class="hljs-property">value</span>;<br>        &#125;,<br>        <span class="hljs-title function_">set</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">value</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">options</span>: <span class="hljs-title class_">CookieOptions</span></span>) &#123;<br>          <span class="hljs-keyword">try</span> &#123;<br>            cookieStore.<span class="hljs-title function_">set</span>(&#123; name, value, ...options &#125;);<br>          &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>            <span class="hljs-comment">// The `set` method was called from a Server Component.</span><br>            <span class="hljs-comment">// This can be ignored if you have middleware refreshing</span><br>            <span class="hljs-comment">// user sessions.</span><br>          &#125;<br>        &#125;,<br>        <span class="hljs-title function_">remove</span>(<span class="hljs-params"><span class="hljs-attr">name</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">options</span>: <span class="hljs-title class_">CookieOptions</span></span>) &#123;<br>          <span class="hljs-keyword">try</span> &#123;<br>            cookieStore.<span class="hljs-title function_">set</span>(&#123; name, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;&quot;</span>, ...options &#125;);<br>          &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>            <span class="hljs-comment">// The `delete` method was called from a Server Component.</span><br>            <span class="hljs-comment">// This can be ignored if you have middleware refreshing</span><br>            <span class="hljs-comment">// user sessions.</span><br>          &#125;<br>        &#125;,<br>      &#125;,<br>    &#125;,<br>  );<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h4 id="Vector-插件">Vector 插件</h4>
+<p>运行以下 sql 可以引入 vector 插件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> extension vector<br><span class="hljs-keyword">with</span><br>  schema extensions;<br></code></pre></td></tr></table></figure>
+<p>然后使用如下 sql 即可创建一个表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create table</span> documents (<br>  id serial <span class="hljs-keyword">primary key</span>,<br>  content text <span class="hljs-keyword">not null</span>,<br>  embedding vector(<span class="hljs-number">384</span>)<br>);<br></code></pre></td></tr></table></figure>
+<p>使用如下 sql 建立一个语义检索函数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">or</span> replace <span class="hljs-keyword">function</span> match_documents (<br>  query_embedding vector(<span class="hljs-number">384</span>),<br>  match_threshold <span class="hljs-type">float</span>,<br>  match_count <span class="hljs-type">int</span><br>)<br><span class="hljs-keyword">returns</span> setof documents<br><span class="hljs-keyword">language</span> <span class="hljs-keyword">sql</span><br><span class="hljs-keyword">as</span> $$<br>  <span class="hljs-keyword">select</span> <span class="hljs-operator">*</span><br>  <span class="hljs-keyword">from</span> documents<br>  <span class="hljs-keyword">where</span> documents.embedding <span class="hljs-operator">&lt;</span>#<span class="hljs-operator">&gt;</span> query_embedding <span class="hljs-operator">&lt;</span> <span class="hljs-operator">-</span>match_threshold<br>  <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> documents.embedding <span class="hljs-operator">&lt;</span>#<span class="hljs-operator">&gt;</span> query_embedding <span class="hljs-keyword">asc</span><br>  limit least(match_count, <span class="hljs-number">200</span>);<br>$$;<br></code></pre></td></tr></table></figure>
+<p>修改 <code>types.d.ts</code>:</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">type</span> <span class="hljs-title class_">Message</span> = &#123;<br>    <span class="hljs-attr">content</span>: <span class="hljs-built_in">string</span><br>&#125;<br><span class="hljs-keyword">type</span> <span class="hljs-title class_">Embedding</span> = &#123;<br>    <span class="hljs-attr">embedding</span>: []<br>&#125;<br><span class="hljs-keyword">type</span> <span class="hljs-title class_">SelectDocument</span> = &#123;<br>    <span class="hljs-attr">id</span>: <span class="hljs-built_in">number</span>,<br>    <span class="hljs-attr">content</span>: <span class="hljs-built_in">string</span>,<br>    <span class="hljs-attr">embedding</span>: []<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>安装 <code>transformers.js</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npm i @xenova/transformers<br></code></pre></td></tr></table></figure>
+<p>修改 <code>next.config.mjs</code> 配置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">/** @type &#123;import(&#x27;next&#x27;).NextConfig&#125; */<br>const nextConfig = &#123;<br>    output: &#x27;standalone&#x27;,<br>    experimental: &#123;<br>        serverComponentsExternalPackages: [&#x27;sharp&#x27;, &#x27;onnxruntime-node&#x27;],<br>    &#125;,<br>&#125;;<br><br>export default nextConfig;<br></code></pre></td></tr></table></figure>
+<p>编写 <code>/app/api/transformers/pipeline.ts</code>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123;<span class="hljs-title class_">PipelineType</span>&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xenova/transformers/types/pipelines&quot;</span>;<br><span class="hljs-keyword">import</span> &#123;pipeline&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xenova/transformers&quot;</span>;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">P</span> = (<span class="hljs-params"></span>) =&gt; <span class="hljs-keyword">class</span> <span class="hljs-title class_">PipelineSingleton</span> &#123;<br>  <span class="hljs-keyword">static</span> <span class="hljs-attr">task</span>: <span class="hljs-title class_">PipelineType</span> = <span class="hljs-string">&#x27;feature-extraction&#x27;</span>;<br>  <span class="hljs-keyword">static</span> model = <span class="hljs-string">&#x27;Supabase/gte-small&#x27;</span>;<br>  <span class="hljs-keyword">static</span> <span class="hljs-attr">instance</span>:<span class="hljs-built_in">any</span> = <span class="hljs-literal">null</span>;<br><br>  <span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">getInstance</span>(<span class="hljs-params"><span class="hljs-attr">progress_callback</span>:<span class="hljs-built_in">any</span> = <span class="hljs-literal">null</span></span>) &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">instance</span> === <span class="hljs-literal">null</span>) &#123;<br>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">instance</span> = <span class="hljs-title function_">pipeline</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">task</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">model</span>, &#123; progress_callback &#125;);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">instance</span>;<br>  &#125;<br>&#125;<br><br><span class="hljs-keyword">declare</span> <span class="hljs-keyword">const</span> <span class="hljs-attr">global</span>: &#123;<br>  <span class="hljs-title class_">PipelineSingleton</span>?: <span class="hljs-built_in">any</span>;<br>&#125;;<br><br><span class="hljs-keyword">let</span> <span class="hljs-title class_">PipelineSingleton</span>:<span class="hljs-built_in">any</span>;<br><span class="hljs-keyword">if</span> (process.<span class="hljs-property">env</span>.<span class="hljs-property">NODE_ENV</span> !== <span class="hljs-string">&#x27;production&#x27;</span>) &#123;<br>  <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">global</span>.<span class="hljs-property">PipelineSingleton</span>) &#123;<br>    <span class="hljs-variable language_">global</span>.<span class="hljs-property">PipelineSingleton</span> = <span class="hljs-title function_">P</span>();<br>  &#125;<br>  <span class="hljs-title class_">PipelineSingleton</span> = <span class="hljs-variable language_">global</span>.<span class="hljs-property">PipelineSingleton</span>;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  <span class="hljs-title class_">PipelineSingleton</span> = <span class="hljs-title function_">P</span>();<br>&#125;<br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">PipelineSingleton</span>;<br></code></pre></td></tr></table></figure>
+<p>编写 <code>/app/api/transformers/route.ts</code> ：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123;<span class="hljs-title class_">NextResponse</span>,<span class="hljs-title class_">NextRequest</span>&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;next/server&quot;</span>;<br><span class="hljs-keyword">import</span> <span class="hljs-title class_">PipelineSingleton</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@/app/api/transformers/pipeline&quot;</span>;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">POST</span>(<span class="hljs-params"><span class="hljs-attr">request</span>:<span class="hljs-title class_">NextRequest</span></span>) &#123;<br>  <span class="hljs-keyword">const</span> &#123;content&#125;: <span class="hljs-title class_">Partial</span>&lt;<span class="hljs-title class_">Message</span>&gt; = <span class="hljs-keyword">await</span> request.<span class="hljs-title function_">json</span>()<br>  <span class="hljs-keyword">if</span> (!content) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">json</span>(&#123;<br>      <span class="hljs-attr">error</span>: <span class="hljs-string">&#x27;Missing content&#x27;</span>,<br>    &#125;, &#123; <span class="hljs-attr">status</span>: <span class="hljs-number">400</span> &#125;);<br>  &#125;<br>  <span class="hljs-keyword">const</span> classifier = <span class="hljs-keyword">await</span> <span class="hljs-title class_">PipelineSingleton</span>.<span class="hljs-title function_">getInstance</span>();<br>  <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> <span class="hljs-title function_">classifier</span>(content, &#123;<br>    <span class="hljs-attr">pooling</span>: <span class="hljs-string">&#x27;mean&#x27;</span>,<br>    <span class="hljs-attr">normalize</span>: <span class="hljs-literal">true</span>,<br>  &#125;);<br>  <span class="hljs-keyword">const</span> embedding = <span class="hljs-title class_">Array</span>.<span class="hljs-title function_">from</span>(result.<span class="hljs-property">data</span>)<br>  <span class="hljs-keyword">return</span> <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">json</span>(&#123;<span class="hljs-string">&quot;embedding&quot;</span>: embedding&#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写 <code>/app/api/document/route.ts</code></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123;<span class="hljs-title class_">NextResponse</span>,<span class="hljs-title class_">NextRequest</span>&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;next/server&quot;</span>;<br><span class="hljs-keyword">import</span> <span class="hljs-title class_">PipelineSingleton</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@/app/api/transformers/pipeline&quot;</span>;<br><span class="hljs-keyword">import</span> &#123; createClient &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@/app/lib/supabase/client&quot;</span>;<br><br><span class="hljs-keyword">const</span> supabase = <span class="hljs-title function_">createClient</span>()<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">POST</span>(<span class="hljs-params"><span class="hljs-attr">request</span>:<span class="hljs-title class_">NextRequest</span></span>) &#123;<br>  <span class="hljs-keyword">const</span> &#123;content&#125;: <span class="hljs-title class_">Partial</span>&lt;<span class="hljs-title class_">Message</span>&gt; = <span class="hljs-keyword">await</span> request.<span class="hljs-title function_">json</span>()<br>  <span class="hljs-keyword">if</span> (!content) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">json</span>(&#123;<br>      <span class="hljs-attr">error</span>: <span class="hljs-string">&#x27;Missing content&#x27;</span>,<br>    &#125;, &#123; <span class="hljs-attr">status</span>: <span class="hljs-number">400</span> &#125;);<br>  &#125;<br>  <span class="hljs-keyword">const</span> classifier = <span class="hljs-keyword">await</span> <span class="hljs-title class_">PipelineSingleton</span>.<span class="hljs-title function_">getInstance</span>();<br>  <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> <span class="hljs-title function_">classifier</span>(content, &#123;<br>    <span class="hljs-attr">pooling</span>: <span class="hljs-string">&#x27;mean&#x27;</span>,<br>    <span class="hljs-attr">normalize</span>: <span class="hljs-literal">true</span>,<br>  &#125;);<br>  <span class="hljs-keyword">const</span> embedding = <span class="hljs-title class_">Array</span>.<span class="hljs-title function_">from</span>(result.<span class="hljs-property">data</span>)<br>  <span class="hljs-keyword">const</span> &#123; data, error &#125; = <span class="hljs-keyword">await</span> supabase.<span class="hljs-title function_">from</span>(<span class="hljs-string">&#x27;documents&#x27;</span>).<span class="hljs-title function_">insert</span>(&#123;<br>    content,<br>    embedding,<br>  &#125;)<br>  <span class="hljs-keyword">if</span> (error) &#123;<br>    <span class="hljs-keyword">throw</span> error;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title class_">NextResponse</span>.<span class="hljs-title function_">json</span>(data);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>修改 <code>/app/page.tsx</code> 代码即可进行检索：</p>
+<figure class="highlight typescript"><figcaption><span>jsx</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-string">&#x27;use client&#x27;</span>;<br><br><span class="hljs-keyword">import</span> &#123;createClient&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@/app/lib/supabase/client&quot;</span>;<br><span class="hljs-keyword">import</span> &#123;useState&#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span><br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">Test</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> [value, setValue] = useState&lt;<span class="hljs-built_in">string</span>&gt;(<span class="hljs-string">&quot;&quot;</span>);<br>  <span class="hljs-keyword">const</span> [documents, setDocuments] = useState&lt;<span class="hljs-title class_">SelectDocument</span>[]&gt;([]);<br>  <span class="hljs-keyword">const</span> [ready, setReady] = useState&lt;<span class="hljs-built_in">boolean</span>&gt;();<br>  <span class="hljs-keyword">const</span> supabase = <span class="hljs-title function_">createClient</span>()<br><br>  <span class="hljs-keyword">const</span> <span class="hljs-title function_">handleInputChange</span> = (<span class="hljs-params"><span class="hljs-attr">event</span>: <span class="hljs-title class_">React</span>.<span class="hljs-title class_">ChangeEvent</span>&lt;<span class="hljs-title class_">HTMLInputElement</span>&gt;</span>) =&gt; &#123;<br>    <span class="hljs-title function_">setValue</span>(event.<span class="hljs-property">target</span>.<span class="hljs-property">value</span>);<br>  &#125;;<br><br>  <span class="hljs-keyword">const</span> <span class="hljs-title function_">insert</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"><span class="hljs-attr">text</span>: <span class="hljs-built_in">string</span></span>) =&gt; &#123;<br>    <span class="hljs-keyword">if</span> (!text)<br>      <span class="hljs-keyword">return</span>;<br>    <span class="hljs-keyword">if</span> (ready === <span class="hljs-literal">null</span>)<br>      <span class="hljs-title function_">setReady</span>(<span class="hljs-literal">false</span>);<br>    <span class="hljs-keyword">try</span> &#123;<br>      <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;/api/document&quot;</span>, &#123;<br>        <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,<br>        <span class="hljs-attr">headers</span>: &#123;<br>          <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,<br>        &#125;,<br>        <span class="hljs-attr">body</span>: <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123;<br>          <span class="hljs-attr">content</span>: text<br>        &#125;)<br>      &#125;);<br>      <span class="hljs-keyword">if</span> (!ready)<br>        <span class="hljs-title function_">setReady</span>(<span class="hljs-literal">true</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&#x27;There was a problem with the fetch operation:&#x27;</span>, error);<br>    &#125;<br>  &#125;;<br><br>  <span class="hljs-keyword">const</span> <span class="hljs-title function_">search</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"><span class="hljs-attr">text</span>: <span class="hljs-built_in">string</span></span>) =&gt; &#123;<br>    <span class="hljs-keyword">if</span> (!text)<br>      <span class="hljs-keyword">return</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>      <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;/api/transformers&quot;</span>, &#123;<br>        <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,<br>        <span class="hljs-attr">headers</span>: &#123;<br>          <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,<br>        &#125;,<br>        <span class="hljs-attr">body</span>: <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123;<br>          <span class="hljs-attr">content</span>: text<br>        &#125;)<br>      &#125;);<br>      <span class="hljs-keyword">const</span> <span class="hljs-attr">emb</span>:<span class="hljs-title class_">Embedding</span> = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">json</span>();<br>      <span class="hljs-keyword">const</span> &#123;data&#125; = <span class="hljs-keyword">await</span> supabase.<span class="hljs-title function_">rpc</span>(<span class="hljs-string">&#x27;match_documents&#x27;</span>, &#123;<br>        <span class="hljs-attr">query_embedding</span>: emb.<span class="hljs-property">embedding</span>,<br>        <span class="hljs-attr">match_threshold</span>: <span class="hljs-number">0.78</span>,<br>        <span class="hljs-attr">match_count</span>: <span class="hljs-number">10</span>,<br>      &#125;)<br>      <span class="hljs-keyword">const</span> <span class="hljs-attr">documents</span>: <span class="hljs-title class_">SelectDocument</span>[] = data.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">item</span>: <span class="hljs-built_in">any</span></span>) =&gt;</span> (&#123;<br>        <span class="hljs-attr">id</span>: item.<span class="hljs-property">id</span>,<br>        <span class="hljs-attr">content</span>: item.<span class="hljs-property">content</span>,<br>        <span class="hljs-attr">embedding</span>: item.<span class="hljs-property">embedding</span><br>      &#125;));<br>      <span class="hljs-title function_">setDocuments</span>(documents)<br>    &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&#x27;There was a problem with the fetch operation:&#x27;</span>, error);<br>    &#125;<br>  &#125;;<br><br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">main</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;flex min-h-screen flex-col items-center justify-center p-12&quot;</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-5xl font-bold mb-2 text-center&quot;</span>&gt;</span>Transformers.js<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-2xl mb-4 text-center&quot;</span>&gt;</span>Next.js template (server-side)<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">input</span></span></span><br><span class="hljs-tag"><span class="language-xml">        <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span></span></span><br><span class="hljs-tag"><span class="language-xml">        <span class="hljs-attr">value</span>=<span class="hljs-string">&#123;value&#125;</span></span></span><br><span class="hljs-tag"><span class="language-xml">        <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;w-full max-w-xs p-2 border border-gray-300 rounded mb-4&quot;</span></span></span><br><span class="hljs-tag"><span class="language-xml">        <span class="hljs-attr">placeholder</span>=<span class="hljs-string">&quot;Enter text here&quot;</span></span></span><br><span class="hljs-tag"><span class="language-xml">        <span class="hljs-attr">onChange</span>=<span class="hljs-string">&#123;handleInputChange&#125;</span></span></span><br><span class="hljs-tag"><span class="language-xml">      /&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">&#123;()</span> =&gt;</span> insert(value)&#125;&gt;Insert<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">&#123;()</span> =&gt;</span> search(value)&#125;&gt;Transformers<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span></span><br><span class="language-xml">        &#123;documents.map(document =&gt; (</span><br><span class="language-xml">          <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">key</span>=<span class="hljs-string">&#123;document.id&#125;</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>&#123;document.content&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></span><br><span class="language-xml">          <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span></span><br><span class="language-xml">        ))&#125;</span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">main</span>&gt;</span></span><br>  );<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>还可使用如下 sql 进行内容检索：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span><br><span class="hljs-keyword">from</span> match_documents(<br>  <span class="hljs-string">&#x27;[...]&#x27;</span>::vector(<span class="hljs-number">384</span>),<br>  <span class="hljs-number">0.78</span>,<br>  <span class="hljs-number">10</span><br>);<br></code></pre></td></tr></table></figure>
+<h4 id="本地部署-Docker">本地部署(Docker)</h4>
+<p>使用如下命令即可在本地部署一套 Supabase 服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Get the code</span><br>git <span class="hljs-built_in">clone</span> --depth 1 https://github.com/supabase/supabase<br><br><span class="hljs-comment"># Go to the docker folder</span><br><span class="hljs-built_in">cd</span> supabase/docker<br><br><span class="hljs-comment"># Copy the fake env vars</span><br><span class="hljs-built_in">cp</span> .env.example .<span class="hljs-built_in">env</span><br><br><span class="hljs-comment"># Pull the latest images</span><br>docker compose pull<br><br><span class="hljs-comment"># Start the services (in detached mode)</span><br>docker compose up -d<br></code></pre></td></tr></table></figure>
+<p>待程序启动后即可访问 <a target="_blank" rel="noopener" href="http://localhost:8000">http://localhost:8000</a> 进入服务</p>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://github.com/supabase/supabase">官方项目</a></p>
+<p><a target="_blank" rel="noopener" href="https://supabase.com/">官方网站</a></p>
+<p><a target="_blank" rel="noopener" href="https://supabase.com/docs/guides/getting-started/quickstarts/nextjs">Next.js 样例文档</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%89%8D%E7%AB%AF/" class="category-chain-item">前端</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Supabase/" class="print-no-link">#Supabase</a>
+      
+        <a href="/tags/Next-js/" class="print-no-link">#Next.js</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Supabase</div>
+      <div>https://wangqian0306.github.io/2021/supabase/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年8月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/redis-install/" title="Redis 安装及基础使用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis 安装及基础使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/rabbitmq/" title="RabbitMQ 入门">
+                        <span class="hidden-mobile">RabbitMQ 入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

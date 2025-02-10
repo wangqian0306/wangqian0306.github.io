@@ -1,0 +1,748 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="BIND 服务安装及配置流程 简介 BIND 是 DNS 服务软件，在本文中会有 bind1,bind2 两台设备完成此次安装。 主机搭建  配置 Hostname  1hostnamectl set-hostname &lt;bind1_host&gt;.&lt;domain&gt;  安装软件：  1yum -y install bind bind-utils  配置服务  12mv &#x2F;etc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BIND 服务安装及配置流程">
+<meta property="og:url" content="https://wangqian0306.github.io/2020/bind/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="BIND 服务安装及配置流程 简介 BIND 是 DNS 服务软件，在本文中会有 bind1,bind2 两台设备完成此次安装。 主机搭建  配置 Hostname  1hostnamectl set-hostname &lt;bind1_host&gt;.&lt;domain&gt;  安装软件：  1yum -y install bind bind-utils  配置服务  12mv &#x2F;etc">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-01T13:57:04.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.474Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>BIND 服务安装及配置流程 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BIND 服务安装及配置流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-12-01 21:57" pubdate>
+          2020年12月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BIND 服务安装及配置流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="BIND-服务安装及配置流程">BIND 服务安装及配置流程</h2>
+<h3 id="简介">简介</h3>
+<p>BIND 是 DNS 服务软件，在本文中会有 <code>bind1</code>,<code>bind2</code> 两台设备完成此次安装。</p>
+<h3 id="主机搭建">主机搭建</h3>
+<ul>
+<li>配置 Hostname</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">hostnamectl set-hostname &lt;bind1_host&gt;.&lt;domain&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>安装软件：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum -y install <span class="hljs-built_in">bind</span> bind-utils<br></code></pre></td></tr></table></figure>
+<ul>
+<li>配置服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mv</span> /etc/named.conf /etc/named.conf.bk<br>vim /etc/named.conf<br></code></pre></td></tr></table></figure>
+<p>填入如下配置</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs text">options &#123;<br>	listen-on port 53 &#123; any; &#125;;<br>	listen-on-v6 &#123; any; &#125;;<br>	directory 	&quot;/var/named&quot;;<br>	dump-file 	&quot;/var/named/data/cache_dump.db&quot;;<br>	statistics-file &quot;/var/named/data/named_stats.txt&quot;;<br>	memstatistics-file &quot;/var/named/data/named_mem_stats.txt&quot;;<br>	recursing-file  &quot;/var/named/data/named.recursing&quot;;<br>	secroots-file   &quot;/var/named/data/named.secroots&quot;;<br>	allow-query     &#123; any; &#125;;<br>        allow-transfer  &#123; localhost; &lt;bind-2_ip&gt;; &#125;;<br><br>	recursion yes;<br><br>	dnssec-enable yes;<br>	dnssec-validation yes;<br><br>	bindkeys-file &quot;/etc/named.root.key&quot;;<br><br>	managed-keys-directory &quot;/var/named/dynamic&quot;;<br><br>	pid-file &quot;/run/named/named.pid&quot;;<br>	session-keyfile &quot;/run/named/session.key&quot;;<br>&#125;;<br><br>logging &#123;<br>        channel default_debug &#123;<br>                file &quot;data/named.run&quot;;<br>                severity dynamic;<br>        &#125;;<br>&#125;;<br><br>zone &quot;.&quot; IN &#123;<br>	type hint;<br>	file &quot;named.ca&quot;;<br>&#125;;<br><br>include &quot;/etc/named.rfc1912.zones&quot;;<br>include &quot;/etc/named.root.key&quot;;<br><br>zone &quot;&lt;domain&gt;&quot; IN &#123;<br>        type master;<br>        file &quot;&lt;domain&gt;.lan&quot;;<br>        allow-update &#123; none; &#125;;<br>&#125;;<br><br>zone &quot;&lt;reverse_ip_area&gt;.in-addr.arpa&quot; IN &#123;<br>       type master;<br>       file &quot;&lt;reverse_ip_area&gt;.db&quot;;<br>       allow-update &#123; none; &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：reverse_ip_area 为反向书写的IP地址(去掉最后一位)，例如： 1.168.192</p>
+</blockquote>
+<ul>
+<li>配置正向解析</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim /var/named/&lt;domain&gt;.lan<br></code></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs text">$TTL 86400<br>@   IN  SOA     dlp.&lt;domain&gt;. &lt;bind1_host&gt;.&lt;domain&gt;. (<br>        2019100301  ;Serial<br>        3600        ;Refresh<br>        1800        ;Retry<br>        604800      ;Expire<br>        86400       ;Minimum TTL<br>)<br><br>        IN  NS      dlp.&lt;domain&gt;.<br>        <br>        IN  A       &lt;bind1_ip&gt;<br><br>        IN  MX 10   dlp.&lt;domain&gt;.<br><br>dlp     IN  A       &lt;bind1_ip&gt;<br>&lt;bind1_host&gt;  IN  A       &lt;bind1_ip&gt;<br>&lt;bind2_host&gt;  IN  A       &lt;bind2_ip&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>配置反向解析</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim /var/named/&lt;reverse_ip_area&gt;.db<br></code></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs text">$TTL 86400<br>@   IN  SOA     dlp.&lt;domain&gt;. &lt;bind1_host&gt;.&lt;domain&gt;. (<br>        2019100301  ;Serial<br>        3600        ;Refresh<br>        1800        ;Retry<br>        604800      ;Expire<br>        86400       ;Minimum TTL<br>)<br>        IN  NS      dlp.&lt;domain&gt;.<br><br>&lt;bind1_ip&gt;      IN  PTR     dlp.&lt;domain&gt;.<br>&lt;bind1_ip&gt;      IN  PTR     &lt;bind1_host&gt;.&lt;domain&gt;.<br>&lt;bind2_ip&gt;      IN  PTR     &lt;bind2_host&gt;.&lt;domain&gt;.<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此处 IP 只填写最后一位</p>
+</blockquote>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl <span class="hljs-built_in">enable</span> --now named<br>firewall-cmd --add-service=dns --permanent<br>firewall-cmd --reload<br></code></pre></td></tr></table></figure>
+<h3 id="从机搭建">从机搭建</h3>
+<p>从机搭建逻辑与主机相同，但是只需要配置 <code>/etc/named.conf</code> 文件即可</p>
+<ul>
+<li>配置 Hostname</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">hostnamectl set-hostname &lt;bind2_host&gt;.&lt;domain&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>安装软件：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum -y install <span class="hljs-built_in">bind</span> bind-utils<br></code></pre></td></tr></table></figure>
+<ul>
+<li>配置服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mv</span> /etc/named.conf /etc/named.conf.bk<br>vim /etc/named.conf<br></code></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs text">options &#123;<br>    listen-on port 53 &#123; any; &#125;;<br>    listen-on-v6 &#123; any; &#125;;<br>    directory 	&quot;/var/named&quot;;<br>    dump-file 	&quot;/var/named/data/cache_dump.db&quot;;<br>    statistics-file &quot;/var/named/data/named_stats.txt&quot;;<br>    memstatistics-file &quot;/var/named/data/named_mem_stats.txt&quot;;<br>    recursing-file  &quot;/var/named/data/named.recursing&quot;;<br>    secroots-file   &quot;/var/named/data/named.secroots&quot;;<br>    allow-query     &#123; any; &#125;;<br>    allow-transfer  &#123; localhost; &lt;bind-2_ip&gt;; &#125;;<br>    <br>    recursion yes;<br>    <br>    dnssec-enable yes;<br>    dnssec-validation yes;<br>    <br>    bindkeys-file &quot;/etc/named.root.key&quot;;<br>    <br>    managed-keys-directory &quot;/var/named/dynamic&quot;;<br>    <br>    pid-file &quot;/run/named/named.pid&quot;;<br>    session-keyfile &quot;/run/named/session.key&quot;;<br>&#125;;<br><br>logging &#123;<br>    channel default_debug &#123;<br>        file &quot;data/named.run&quot;;<br>        severity dynamic;<br>    &#125;;<br>&#125;;<br><br>zone &quot;.&quot; IN &#123;<br>    type hint;<br>    file &quot;named.ca&quot;;<br>&#125;;<br><br>include &quot;/etc/named.rfc1912.zones&quot;;<br>include &quot;/etc/named.root.key&quot;;<br><br>zone &quot;&lt;domain&gt;&quot; IN &#123;<br>    type slave;<br>    masters &#123; &lt;bind1_ip&gt;; &#125;;<br>    masterfile-format text;<br>    file &quot;slaves/&lt;domain&gt;.lan&quot;;<br>    notify no;<br>&#125;;<br><br>zone &quot;&lt;reverse_ip_area&gt;.in-addr.arpa&quot; IN &#123;<br>   type slave;<br>   masters &#123; &lt;bind1_ip&gt;; &#125;;<br>   masterfile-format text;<br>   file &quot;slaves/reverse_ip_area.db&quot;;<br>   notify no;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl <span class="hljs-built_in">enable</span> --now named<br>firewall-cmd --add-service=dns --permanent<br>firewall-cmd --reload<br></code></pre></td></tr></table></figure>
+<ul>
+<li>检查配置文件同步</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> /var/named/slaves/<br></code></pre></td></tr></table></figure>
+<p>若出现配置文件则证明解析正常。</p>
+<h3 id="使用配置好的-BIND-服务器">使用配置好的 BIND 服务器</h3>
+<ul>
+<li>获取网卡信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nmcli connection show<br></code></pre></td></tr></table></figure>
+<ul>
+<li>修改网卡配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">nmcli connection modify &lt;name&gt; ipv4.dns &lt;dns_server_ip&gt;<br>nmcli connection down &lt;name&gt;; nmcli connection up &lt;name&gt;<br></code></pre></td></tr></table></figure>
+<h3 id="动态配置">动态配置</h3>
+<p>bind 服务适配了 RFC2136 规范，如果在 <code>/etc/named.conf</code> 文件中打开配置项，即可完成动态更新。</p>
+<p>首先需要在外部 DNS 服务器上运行如下命令，生成密钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">tsig-keygen -a hmac-sha256 externaldns-key<br></code></pre></td></tr></table></figure>
+<p>应该得到这样的输出，将其放置在 <code>/etc/named.conf</code> 文件中，并将其保存成密钥文件 <code>key.txt</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">key &quot;externaldns&quot; &#123;<br>    algorithm hmac-sha256;<br>    secret &quot;&lt;secret&gt;&quot;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>之后在需要更新的 <code>zone</code> 部分进行如下配置即可：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">zone &quot;xxxx&quot; &#123;<br>    type master;<br>    file &quot;xxxx&quot;;<br>    allow-transfer &#123;<br>        key &quot;externaldns-key&quot;;<br>    &#125;;<br>    update-policy &#123;<br>        grant externaldns-key zonesub ANY;<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>测试命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nsupdate -k key.txt<br></code></pre></td></tr></table></figure>
+<p>然后输入如下内容：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">&gt; server &lt;server_ip&gt;<br>&gt; zone &lt;domain&gt;<br>&gt; update add &lt;host&gt; 86400 A &lt;ip&gt;<br>&gt; send<br>&gt; quit<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：若没有额外的错误输出则证明配置完成。</p>
+</blockquote>
+<p>之后即可进行如下测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ping &lt;host&gt;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：若出现配置的 IP 则证明动态更新成功。</p>
+</blockquote>
+<h3 id="常见问题">常见问题</h3>
+<h4 id="Permission-Denied">Permission Denied</h4>
+<p>此处问题大多是由于 SELinux 权限限制的问题可以暂时关闭 SELinux 进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">setenforce 0<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注: 此处命令只能是单次生效如果需要完全关闭则还需要修改配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim /etc/selinux/conf<br></code></pre></td></tr></table></figure>
+<p>然后修改配置项即可 <code>SELINUX=disabled</code></p>
+<h4 id="部分域名无法解析">部分域名无法解析</h4>
+<p>此问题可能是 Bind 在转发 DNS 时遇到了网络问题，可以按照如下逻辑修改配置项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">options &#123;<br>    ....<br>    dnssec-enable no;<br>    dnssec-validation no;<br>    forward only;<br>    forwarders &#123; 114.114.114.114; &#125;;<br>    ....<br>&#125;;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此处的 114.114.114.114 (电信公共 DNS) 仅仅是示例，可以根据网络条件进行填写。</p>
+</blockquote>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://bind9.readthedocs.io/en/latest/index.html">官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc2136">RFC2136</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/DNS/" class="print-no-link">#DNS</a>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BIND 服务安装及配置流程</div>
+      <div>https://wangqian0306.github.io/2020/bind/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年12月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/kerberos/" title="Kerberos HA 搭建流程整理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kerberos HA 搭建流程整理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/nexus/" title="Nexus 服务安装及配置流程">
+                        <span class="hidden-mobile">Nexus 服务安装及配置流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

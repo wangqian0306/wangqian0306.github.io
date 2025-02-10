@@ -1,0 +1,1046 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Linux 系统性能排查 整体情况排查 htop  注：此软件需要在软件管理工具中独立安装，例：yum install -y htop  可以使用 htop 命令获取当前系统的整体情况，在此页面可以对如下参数项进行进行一些基本排查。 软件上半部分为系统基础信息：  CPU 核心使用率(数字编号的图形) 内存使用情况(Mem) 交换内存使用情况(Swp) 进程总览(Tasks 即总进程数，thr 线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 系统性能排查">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/monitor/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Linux 系统性能排查 整体情况排查 htop  注：此软件需要在软件管理工具中独立安装，例：yum install -y htop  可以使用 htop 命令获取当前系统的整体情况，在此页面可以对如下参数项进行进行一些基本排查。 软件上半部分为系统基础信息：  CPU 核心使用率(数字编号的图形) 内存使用情况(Mem) 交换内存使用情况(Swp) 进程总览(Tasks 即总进程数，thr 线">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/Pqwn1t.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/30/NkUu4LwH35bqns7.png">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/PqwRC5.png">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/Pq4KTG.png">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/Pq4jQ4.png">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/Pq08xt.png">
+<meta property="og:image" content="https://s6.jpg.cm/2022/07/01/Pq0fDU.png">
+<meta property="article:published_time" content="2022-06-29T13:57:04.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.474Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s6.jpg.cm/2022/07/01/Pqwn1t.png">
+  
+  
+  
+  <title>Linux 系统性能排查 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 系统性能排查"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-29 21:57" pubdate>
+          2022年6月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 系统性能排查</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Linux-系统性能排查">Linux 系统性能排查</h2>
+<h3 id="整体情况排查">整体情况排查</h3>
+<h4 id="htop">htop</h4>
+<blockquote>
+<p>注：此软件需要在软件管理工具中独立安装，例：<code>yum install -y htop</code></p>
+</blockquote>
+<p>可以使用 <code>htop</code> 命令获取当前系统的整体情况，在此页面可以对如下参数项进行进行一些基本排查。</p>
+<p>软件上半部分为系统基础信息：</p>
+<ul>
+<li>CPU 核心使用率(数字编号的图形)</li>
+<li>内存使用情况(Mem)</li>
+<li>交换内存使用情况(Swp)</li>
+<li>进程总览(Tasks 即总进程数，thr 线程数，running 代表处于此状态的进程数)</li>
+<li>系统平均负载倍数(平均负载部分有三个值分别为：最近 1 分钟负载，最近 5 分钟负载，最近 15 分钟负载)</li>
+<li>系统持续运行时间(Uptime)</li>
+</ul>
+<p>软件下半部分为进程详细清单，参数解释如下：</p>
+<ul>
+<li>PID – 描述进程的ID号</li>
+<li>USER – 描述进程的所有者（谁跑的）</li>
+<li>PRI – 描述Linux内核查看的进程优先级</li>
+<li>NI – 描述由用户或root重置的进程优先级</li>
+<li>VIR – 它描述进程正在使用的虚拟内存 （virtual memory）</li>
+<li>RES – 描述进程正在消耗的物理内存（physical memory）</li>
+<li>SHR – 描述进程正在使用的共享内存（shared memory）</li>
+<li>S – 描述流程的当前状态 (state)</li>
+<li>CPU％ – 描述每个进程消耗的CPU百分比</li>
+<li>MEM％ – 描述每个进程消耗的内存百分比</li>
+<li>TIME+ – 显示自流程开始执行以来的时间</li>
+<li>Command –它与每个进程并行显示完整的命令执行 (比如/usr/lib/R)</li>
+</ul>
+<h5 id="CPU-核心使用率图示">CPU 核心使用率图示</h5>
+<p>蓝色：显示低优先级(low priority)进程使用的CPU百分比。
+绿色：显示用于普通用户(user)拥有的进程的CPU百分比。
+红色：显示系统进程(kernel threads)使用的CPU百分比。
+橙色：显示IRQ时间使用的CPU百分比。
+洋红色(Magenta)：显示Soft IRQ时间消耗的CPU百分比。
+灰色：显示IO等待时间消耗的CPU百分比。
+青色：显示窃取时间(Steal time)消耗的CPU百分比。</p>
+<h5 id="内存及交换内存使用率图示">内存及交换内存使用率图示</h5>
+<p>绿色：显示内存页面占用的 RAM 百分比
+蓝色：显示缓冲区页面占用的 RAM 百分比
+橙色：显示缓存页面占用的 RAM 百分比</p>
+<h5 id="进程状态汇总">进程状态汇总</h5>
+<p>R: Running：表示进程(process)正在使用CPU
+S: Sleeping: 通常进程在大多数时间都处于睡眠状态，并以固定的时间间隔执行小检查，或者等待用户输入后再返回运行状态。
+T/S: Traced/Stopped: 表示进程正在处于暂停的状态
+Z:Zombie or defunct:已完成执行但在进程表中仍具有条目的进程。</p>
+<h4 id="dstat">dstat</h4>
+<blockquote>
+<p>注：此软件需要在软件管理工具中独立安装，例：<code>yum install -y dstat</code></p>
+</blockquote>
+<p>可以使用 <code>dstat -vtns [&lt;option&gt;] &lt;second&gt; </code> 命令，查看当前的 CPU 和一些 IO 状况，其中 <code>option</code> 参数表示需要查看的内容 <code>second</code> 参数代表每隔多少秒进行一次统计，参数详解如下：</p>
+<ul>
+<li>CPU 使用率(total-cpu-usage)，可以在 <code>option</code> 参数中添加 <code>-C &lt;core_num&gt;,total</code> 来查看某个核心及总量的使用情况
+<ul>
+<li>用户时间占比(usr)</li>
+<li>系统时间占比(sys)</li>
+<li>空闲时间占比(idl)</li>
+<li>等待时间占比(wai)</li>
+<li>硬中断次数(hiq)</li>
+<li>软中断次数(siq)</li>
+</ul>
+</li>
+<li>内存使用率(memory-usage)
+<ul>
+<li>已用内存(used)</li>
+<li>缓冲区(buff)</li>
+<li>缓存(cache)</li>
+<li>可用内存(free)</li>
+</ul>
+</li>
+<li>交换内存使用率(swap)
+<ul>
+<li>已用内存(used)</li>
+<li>可用内存(free)</li>
+</ul>
+</li>
+<li>磁盘使用率(dsk)，可以在 <code>option</code> 参数中添加 <code>-D &lt;disk_name&gt;,total</code> 参数查看某个磁盘的使用情况
+<ul>
+<li>读取带宽(read)</li>
+<li>写入带宽(writ)</li>
+</ul>
+</li>
+<li>网络使用率(net)，可以在 <code>option</code> 参数中添加 <code>-N &lt;network_name&gt;,total</code> 参数查看某个网卡的使用情况
+<ul>
+<li>输入带宽(recv)</li>
+<li>输出带宽(send)</li>
+</ul>
+</li>
+<li>系统使用情况(system)
+<ul>
+<li>中断数量(int)</li>
+<li>上下文切换次数(csw)</li>
+</ul>
+</li>
+<li>系统的分页活动(paging)
+<ul>
+<li>换入次数(in)</li>
+<li>换出次数(out)</li>
+</ul>
+</li>
+</ul>
+<p>除此之外 dstat 命令还可以监控如下内容：</p>
+<ul>
+<li>aio 状态：<code>--aio</code></li>
+<li>文件系统状态：<code>--fs</code></li>
+<li>ipc 状态：<code>--ipc</code></li>
+<li>锁状态：<code>--lock</code></li>
+<li>Socket 状态(raw)<code>：--raw</code></li>
+<li>Socket 状态<code>：--socket</code></li>
+<li>TCP 状态：<code>--tcp</code></li>
+<li>UPD 状态：<code>--udp</code></li>
+<li>unix 状态：<code>--unix</code></li>
+<li>虚拟内存状态：<code>--vm</code></li>
+</ul>
+<h3 id="CPU-检测">CPU 检测</h3>
+<p><img src="https://s6.jpg.cm/2022/07/01/Pqwn1t.png" srcset="/img/loading.gif" lazyload alt="CPU 性能指标梳理"></p>
+<p><img src="https://s2.loli.net/2022/06/30/NkUu4LwH35bqns7.png" srcset="/img/loading.gif" lazyload alt="CPU 检测分析工具梳理"></p>
+<p>具体指标的分析方式参见下表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">性能指标</th>
+<th style="text-align:center">分析工具</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">平均负载</td>
+<td style="text-align:center"><code>uptime</code> <code>htop</code> <code>/proc/loadavg</code></td>
+<td style="text-align:left">最后一个常用于监控系统</td>
+</tr>
+<tr>
+<td style="text-align:center">系统 CPU 使用率</td>
+<td style="text-align:center"><code>vmstat</code> <code>mpstat</code> <code>htop</code> <code>sar</code> <code>/proc/stat</code></td>
+<td style="text-align:left"><code>sar</code> 还可以记录历史数据，<code>/proc/stat</code> 常用于监控系统</td>
+</tr>
+<tr>
+<td style="text-align:center">进程 CPU 使用率</td>
+<td style="text-align:center"><code>htop</code> <code>ps</code> <code>pidstat</code></td>
+<td style="text-align:left"><code>pidstat</code> 只显示实际使用了 CPU 的进程</td>
+</tr>
+<tr>
+<td style="text-align:center">系统上下文切换</td>
+<td style="text-align:center"><code>vmstat</code></td>
+<td style="text-align:left">除了上下文切换次数，还提供运行状态和不可中断状态进程的数量</td>
+</tr>
+<tr>
+<td style="text-align:center">进程上下文切换</td>
+<td style="text-align:center"><code>pidstat</code></td>
+<td style="text-align:left">注意加上 <code>-w</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">软中断</td>
+<td style="text-align:center"><code>htop</code> <code>mpstat</code> <code>/proc/softirqs</code></td>
+<td style="text-align:left"><code>htop</code> 提供使用率，其他内容则提供了在每个 CPU 上的运行次数</td>
+</tr>
+<tr>
+<td style="text-align:center">硬中断</td>
+<td style="text-align:center"><code>vmstat</code> <code>/proc/interrupts</code></td>
+<td style="text-align:left"><code>vmstat</code> 提供总的中断次数，而 <code>/proc/interrupts</code> 提供各种中断在每个 CPU 上运行的累计次数</td>
+</tr>
+<tr>
+<td style="text-align:center">CPU 缓存</td>
+<td style="text-align:center"><code>pref</code></td>
+<td style="text-align:left">使用 <code>pref stat</code> 子命令</td>
+</tr>
+<tr>
+<td style="text-align:center">CPU 基础信息</td>
+<td style="text-align:center"><code>lscpu</code> <code>/proc/cpuinfo</code></td>
+<td style="text-align:left"><code>lscpu</code> 更直观</td>
+</tr>
+<tr>
+<td style="text-align:center">事件剖析</td>
+<td style="text-align:center"><code>pref</code> 火焰图 <code>execsnoop</code></td>
+<td style="text-align:left"><code>pref</code> 和火焰图用户来分析热点函数以及调用栈，<code>execsnoop</code> 用来监测短时进程</td>
+</tr>
+<tr>
+<td style="text-align:center">动态追踪</td>
+<td style="text-align:center"><code>ftrace</code> <code>bcc</code> <code>systemtap</code></td>
+<td style="text-align:left"><code>ftrace</code> 用于跟踪内核函数调用栈，而 <code>bcc</code> 和 <code>systemtap</code> 则用于跟踪内核或应用程序的执行过程</td>
+</tr>
+</tbody>
+</table>
+<h3 id="内存检测">内存检测</h3>
+<p><img src="https://s6.jpg.cm/2022/07/01/PqwRC5.png" srcset="/img/loading.gif" lazyload alt="内存性能指标梳理"></p>
+<p>具体指标的分析方式参见下表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">性能指标</th>
+<th style="text-align:center">分析工具</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">系统已用，可用，剩余内存</td>
+<td style="text-align:center"><code>free</code> <code>vmstat</code> <code>dstat</code> <code>sar</code> <code>/proc/meminfo</code></td>
+<td style="text-align:left"><code>/proc/meminfo</code> 常用于监控系统</td>
+</tr>
+<tr>
+<td style="text-align:center">进程虚拟内存，常驻内存，共享内存</td>
+<td style="text-align:center"><code>ps</code> <code>htop</code> <code>pidstat</code> <code>/proc/&lt;pid&gt;/stat</code> <code>/proc/&lt;pid&gt;/status</code></td>
+<td style="text-align:left"><code>pidstat</code> 命令需要加上 <code>-r</code> 选项，<code>/proc/&lt;pid&gt;/stat</code> 和 <code>/proc/&lt;pid&gt;/status</code> 常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">进行内存分布</td>
+<td style="text-align:center"><code>pmap</code> <code>/proc/&lt;pid&gt;/maps</code></td>
+<td style="text-align:left"><code>/proc/&lt;pid&gt;/maps</code> 是 <code>pmap</code> 的数据来源，常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">进程 swap 换出内存</td>
+<td style="text-align:center"><code>htop</code> <code>/proc/&lt;pid&gt;/status</code></td>
+<td style="text-align:left"><code>/proc/&lt;pid&gt;/status</code> 是 <code>htop</code> 的数据来源，常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">进程缺页异常</td>
+<td style="text-align:center"><code>ps</code> <code>htop</code> <code>pidstat</code></td>
+<td style="text-align:left"><code>pidstat</code> 命令需要加上 <code>-r</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">系统换页情况</td>
+<td style="text-align:center"><code>sar</code></td>
+<td style="text-align:left"><code>sar</code> 命令需要加上 <code>-B</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">缓存/缓冲区用量</td>
+<td style="text-align:center"><code>free</code> <code>vmstat</code> <code>dstat</code> <code>sar</code> <code>cachestat</code></td>
+<td style="text-align:left"><code>cachestat</code> 需要安装 <code>bcc</code></td>
+</tr>
+<tr>
+<td style="text-align:center">缓存缓冲区命中率</td>
+<td style="text-align:center"><code>cachetop</code></td>
+<td style="text-align:left">需要安装 <code>bcc</code></td>
+</tr>
+<tr>
+<td style="text-align:center">swap 已用和剩余空间</td>
+<td style="text-align:center"><code>free</code> <code>sar</code></td>
+<td style="text-align:left"><code>sar</code> 可以记录历史</td>
+</tr>
+<tr>
+<td style="text-align:center">swap 换入换出</td>
+<td style="text-align:center"><code>vmstat</code> <code>sar</code></td>
+<td style="text-align:left"><code>sar</code> 可以记录历史</td>
+</tr>
+<tr>
+<td style="text-align:center">内存泄漏检测</td>
+<td style="text-align:center"><code>memleak</code></td>
+<td style="text-align:left"><code>memleak</code> 需要安装 <code>bcc</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="磁盘检测">磁盘检测</h3>
+<p><img src="https://s6.jpg.cm/2022/07/01/Pq4KTG.png" srcset="/img/loading.gif" lazyload alt="磁盘性能指标梳理"></p>
+<p><img src="https://s6.jpg.cm/2022/07/01/Pq4jQ4.png" srcset="/img/loading.gif" lazyload alt="磁盘检测分析工具梳理"></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">性能指标</th>
+<th style="text-align:center">分析工具</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">文件系统空间容量，使用量以及剩余空间</td>
+<td style="text-align:center"><code>df</code></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">索引节点容量，使用量以及剩余量</td>
+<td style="text-align:center"><code>df</code></td>
+<td style="text-align:left">需要加上 <code>-r</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">页缓存和可回收 Slab 缓存</td>
+<td style="text-align:center"><code>/proc/meminfo</code> <code>sar</code> <code>vmstat</code></td>
+<td style="text-align:left"><code>sar</code> 命令需要加上 <code>-r</code> 选项，<code>/proc/meminfo</code> 常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">缓冲区</td>
+<td style="text-align:center"><code>/proc/meninfo</code> <code>sar</code> <code>vmstat</code></td>
+<td style="text-align:left"><code>sar</code> 命令需要加上 <code>-r</code> 选项，<code>/proc/meminfo</code> 常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">目录项，索引节点以及文件系统的缓存</td>
+<td style="text-align:center"><code>/proc/slabinfo</code> <code>slabtop</code></td>
+<td style="text-align:left"><code>/proc/slabinfo</code> 常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">磁盘 I/O 使用率，IOPS，吞吐量，响应时间，I/O 平均大小以及等待队列长度</td>
+<td style="text-align:center"><code>iostat</code> <code>sar</code> <code>dstat</code> <code>/proc/diskstatus</code></td>
+<td style="text-align:left"><code>sar</code> 命令需要加上 <code>-d</code> 选项，<code>/proc/diskstatus</code> 常用于监控系统中</td>
+</tr>
+<tr>
+<td style="text-align:center">进程 I/O 大小以及 I/O 延迟</td>
+<td style="text-align:center"><code>pidstat</code>  <code>iotop</code></td>
+<td style="text-align:left"><code>pidstat</code> 命令需要加上 <code>-d</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">块设备 I/O 事件跟踪</td>
+<td style="text-align:center"><code>blktrace</code></td>
+<td style="text-align:left">需要跟 <code>blkparse</code> 配合使用，例如  <code>blktrace -d /dev/&lt;disk_name&gt; -o- &amp;#124; blkparse -i-</code></td>
+</tr>
+<tr>
+<td style="text-align:center">进程 I/O 系统调用跟踪</td>
+<td style="text-align:center"><code>strace</code> <code>pref</code> <code>trace</code></td>
+<td style="text-align:left"><code>strace</code> 只可以跟踪单个进程，<code>pref</code> 和 <code>trace</code> 还可以跟踪所有进程的系统调用</td>
+</tr>
+<tr>
+<td style="text-align:center">进程块设备 I/O 大小跟踪</td>
+<td style="text-align:center"><code>biosnoop</code> <code>biotop</code></td>
+<td style="text-align:left">需要安装 <code>bcc</code></td>
+</tr>
+<tr>
+<td style="text-align:center">动态追踪</td>
+<td style="text-align:center"><code>ftrace</code> <code>bcc</code> <code>systemtap</code></td>
+<td style="text-align:left"><code>ftrace</code> 用于跟踪内核函数调用栈，而 <code>bcc</code> 和 <code>systemtap</code> 则用于跟踪内核或应用程序的执行过程</td>
+</tr>
+</tbody>
+</table>
+<h3 id="网络检测">网络检测</h3>
+<p><img src="https://s6.jpg.cm/2022/07/01/Pq08xt.png" srcset="/img/loading.gif" lazyload alt="网络性能指标梳理"></p>
+<p><img src="https://s6.jpg.cm/2022/07/01/Pq0fDU.png" srcset="/img/loading.gif" lazyload alt="磁盘检测分析工具梳理"></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">性能指标</th>
+<th style="text-align:center">分析工具</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">吞吐量(BPS)</td>
+<td style="text-align:center"><code>sar</code> <code>nethogs</code> <code>iftop</code> <code>/proc/net/dev</code></td>
+<td style="text-align:left">分别可以查看网络接口，进程以及 IP 地址的网络吞吐量；<code>/proc/net/dev</code> 常用于监控系统</td>
+</tr>
+<tr>
+<td style="text-align:center">吞吐量(PPS)</td>
+<td style="text-align:center"><code>sar</code> <code>/proc/net/dev</code></td>
+<td style="text-align:left"><code>sar</code> 命令需要加上 <code>-n DEV</code> 选项</td>
+</tr>
+<tr>
+<td style="text-align:center">网络连接数</td>
+<td style="text-align:center"><code>netstat</code> <code>ss</code></td>
+<td style="text-align:left"><code>ss</code> 速度更快</td>
+</tr>
+<tr>
+<td style="text-align:center">网络错误数</td>
+<td style="text-align:center"><code>netstat</code> <code>sar</code></td>
+<td style="text-align:left">注意使用 <code>netstat -s</code> 或 <code>sar -n EDEV/EIP</code></td>
+</tr>
+<tr>
+<td style="text-align:center">网络延迟</td>
+<td style="text-align:center"><code>ping</code> <code>hping3</code></td>
+<td style="text-align:left"><code>ping</code> 基于 ICMP，而 <code>hping3</code> 基于 TCP 协议</td>
+</tr>
+<tr>
+<td style="text-align:center">连接跟踪数</td>
+<td style="text-align:center"><code>conntrack</code> <code>/proc/sys/net/netfilter/nf_connectrack_count</code> <code>/proc/sys/net/netfilter/nf_connectrack_max</code></td>
+<td style="text-align:left"><code>conntrack</code> 可以查看所有连接</td>
+</tr>
+<tr>
+<td style="text-align:center">路由</td>
+<td style="text-align:center"><code>mtr</code> <code>traceroute</code> <code>route</code></td>
+<td style="text-align:left"><code>route</code> 用于查询路由表，而 <code>mtr</code> 和 <code>traceroute</code> 通常用于排查定位路由问题</td>
+</tr>
+<tr>
+<td style="text-align:center">DNS</td>
+<td style="text-align:center"><code>dig</code> <code>nslookup</code></td>
+<td style="text-align:left">用于排查 DNS 解析的问题</td>
+</tr>
+<tr>
+<td style="text-align:center">防火墙和 NAT</td>
+<td style="text-align:center"><code>iptables</code></td>
+<td style="text-align:left">用于排查防火墙和 NAT 问题</td>
+</tr>
+<tr>
+<td style="text-align:center">网卡选项</td>
+<td style="text-align:center"><code>ethtool</code></td>
+<td style="text-align:left">用于查看和配置网络接口的功能选项</td>
+</tr>
+<tr>
+<td style="text-align:center">网络抓包</td>
+<td style="text-align:center"><code>tcpdump</code></td>
+<td style="text-align:left">通常用 <code>tcpdump</code> 抓包后再使用 Wireshark 工具进行分析</td>
+</tr>
+<tr>
+<td style="text-align:center">动态追踪</td>
+<td style="text-align:center"><code>ftrace</code> <code>bcc</code> <code>systemtap</code></td>
+<td style="text-align:left"><code>ftrace</code> 用于跟踪内核函数调用栈，而 <code>bcc</code> 和 <code>systemtap</code> 则用于跟踪内核或应用程序的执行过程</td>
+</tr>
+</tbody>
+</table>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg2MzU2MDYzOA==&amp;mid=2247497271&amp;idx=1&amp;sn=35c94a05c2f8119963f426feaa131a84&amp;chksm=ce7400e6f90389f072d6abefe1c14676b86b51eaa1c681b66b94fa7040e97768f937275bfb96&amp;mpshare=1&amp;scene=1&amp;srcid=06290au4y21HUZyHAConEJvM&amp;sharer_sharetime=1656465189420&amp;sharer_shareid=50fa697c70389182b3ee50f3e931b174&amp;version=4.0.8.6027&amp;platform=win#rd">Linux性能问题分析流程与性能优化思路</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/296803907">Linux htop 详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.thegeekdiary.com/dstat-command-examples-in-linux/">dstat Command Examples in Linux</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 系统性能排查</div>
+      <div>https://wangqian0306.github.io/2022/monitor/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/native/" title="Spring Native">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Spring Native</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/heroku/" title="Heroku">
+                        <span class="hidden-mobile">Heroku</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

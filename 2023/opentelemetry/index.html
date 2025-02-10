@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="OpenTelemetry 简介 OpenTelemetry 是一个可观测性框架和工具包，旨在创建和管理遥测数据，如跟踪、指标和日志。至关重要的是，OpenTelemetry 与供应商和工具无关，这意味着它可以与各种可观测性后端一起使用，包括 Jaeger 和 Prometheus 等开源工具，以及商业产品。 运行方式 OpenTelemetry 在使用过程中可以分成两种角色：  开发者  在开发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenTelemetry">
+<meta property="og:url" content="https://wangqian0306.github.io/2023/opentelemetry/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="OpenTelemetry 简介 OpenTelemetry 是一个可观测性框架和工具包，旨在创建和管理遥测数据，如跟踪、指标和日志。至关重要的是，OpenTelemetry 与供应商和工具无关，这意味着它可以与各种可观测性后端一起使用，包括 Jaeger 和 Prometheus 等开源工具，以及商业产品。 运行方式 OpenTelemetry 在使用过程中可以分成两种角色：  开发者  在开发">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-19T15:09:32.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.486Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="OpenTelemetry">
+<meta property="article:tag" content="Jaeger">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>OpenTelemetry - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="OpenTelemetry"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-19 23:09" pubdate>
+          2023年10月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">OpenTelemetry</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="OpenTelemetry">OpenTelemetry</h2>
+<h3 id="简介">简介</h3>
+<p>OpenTelemetry 是一个可观测性框架和工具包，旨在创建和管理遥测数据，如跟踪、指标和日志。至关重要的是，OpenTelemetry 与供应商和工具无关，这意味着它可以与各种可观测性后端一起使用，包括 Jaeger 和 Prometheus 等开源工具，以及商业产品。</p>
+<h3 id="运行方式">运行方式</h3>
+<p>OpenTelemetry 在使用过程中可以分成两种角色：</p>
+<ul>
+<li>开发者
+<ul>
+<li>在开发过程中引入 OpenTelemetry 支持如下语言
+<ul>
+<li>C++</li>
+<li>.Net</li>
+<li>Erlang/Elixir</li>
+<li>Go</li>
+<li>Java</li>
+<li>JavaScript/TypeScript</li>
+<li>PHP</li>
+<li>Python</li>
+<li>Ruby</li>
+<li>Rust</li>
+<li>Swift</li>
+<li>Lua</li>
+<li>Perl</li>
+<li>Julia</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>运维
+<ul>
+<li>运维人员可以在程序运行前添加例如 Java Agent 的方式引入监控，支持如下语言
+<ul>
+<li>.Net</li>
+<li>Java</li>
+<li>JavaScript</li>
+<li>PHP</li>
+<li>Python</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>从使用上来说整体的运行方式如下：</p>
+<img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgZGF0YS1kaWFncmFtLXR5cGU9IkRFU0NSSVBUSU9OIiBoZWlnaHQ9IjI1MHB4IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBzdHlsZT0id2lkdGg6MzczcHg7aGVpZ2h0OjI1MHB4O2JhY2tncm91bmQ6I0ZGRkZGRjsiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDM3MyAyNTAiIHdpZHRoPSIzNzNweCIgem9vbUFuZFBhbj0ibWFnbmlmeSI+PGRlZnMvPjxnPjwhLS1lbnRpdHkgU2VydmljZV9BLS0+PGcgaWQ9ImVsZW1fU2VydmljZV9BIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjM2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9Ijg4LjMxODQiIHg9IjciIHk9IjciLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2OC4zMTg0IiB4PSIxNyIgeT0iMjkuOTk1MSI+U2VydmljZV9BPC90ZXh0PjwvZz48IS0tZW50aXR5IFNlcnZpY2VfQi0tPjxnIGlkPSJlbGVtX1NlcnZpY2VfQiI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzNi4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI4OC4zNDU3IiB4PSIxMjkuOTkiIHk9IjciLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2OC4zNDU3IiB4PSIxMzkuOTkiIHk9IjI5Ljk5NTEiPlNlcnZpY2VfQjwvdGV4dD48L2c+PCEtLWVudGl0eSBTZXJ2aWNlX0MtLT48ZyBpZD0iZWxlbV9TZXJ2aWNlX0MiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iODguNTE2NiIgeD0iMjUyLjkiIHk9IjciLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2OC41MTY2IiB4PSIyNjIuOSIgeT0iMjkuOTk1MSI+U2VydmljZV9DPC90ZXh0PjwvZz48IS0tZW50aXR5IE90ZWwgY29sbGVjdG9yLS0+PGcgaWQ9ImVsZW1fT3RlbCBjb2xsZWN0b3IiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTEzLjYyNSIgeD0iMTE3LjM1IiB5PSIxMDcuOCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjkzLjYyNSIgeD0iMTI3LjM1IiB5PSIxMzAuNzk1MSI+T3RlbCBjb2xsZWN0b3I8L3RleHQ+PC9nPjwhLS1lbnRpdHkgREItLT48ZyBpZD0iZWxlbV9EQiI+PHBhdGggZD0iTTI2NS45NywxMTMuMyBDMjY1Ljk3LDEwMy4zIDI4Ni4xNjI0LDEwMy4zIDI4Ni4xNjI0LDEwMy4zIEMyODYuMTYyNCwxMDMuMyAzMDYuMzU0OCwxMDMuMyAzMDYuMzU0OCwxMTMuMyBMMzA2LjM1NDgsMTM4LjU5NjkgQzMwNi4zNTQ4LDE0OC41OTY5IDI4Ni4xNjI0LDE0OC41OTY5IDI4Ni4xNjI0LDE0OC41OTY5IEMyODYuMTYyNCwxNDguNTk2OSAyNjUuOTcsMTQ4LjU5NjkgMjY1Ljk3LDEzOC41OTY5IEwyNjUuOTcsMTEzLjMgIiBmaWxsPSIjRjFGMUYxIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48cGF0aCBkPSJNMjY1Ljk3LDExMy4zIEMyNjUuOTcsMTIzLjMgMjg2LjE2MjQsMTIzLjMgMjg2LjE2MjQsMTIzLjMgQzI4Ni4xNjI0LDEyMy4zIDMwNi4zNTQ4LDEyMy4zIDMwNi4zNTQ4LDExMy4zICIgZmlsbD0iI0ZGRkZGRiIgZmlsbC1vcGFjaXR5PSIwLjAwMDAwIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIyMC4zODQ4IiB4PSIyNzUuOTciIHk9IjE0MC4yOTUxIj5EQjwvdGV4dD48L2c+PCEtLWVudGl0eSBPcGVuIHNvdXJjZS9WZW5kb3ItLT48ZyBpZD0iZWxlbV9PcGVuIHNvdXJjZS9WZW5kb3IiPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTYzLjYyOTkiIHg9IjIwNC4zNCIgeT0iMjA4LjU5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTQzLjYyOTkiIHg9IjIxNC4zNCIgeT0iMjMxLjU4NTEiPk9wZW4gc291cmNlL1ZlbmRvcjwvdGV4dD48L2c+PCEtLWxpbmsgU2VydmljZV9BIHRvIE90ZWwgY29sbGVjdG9yLS0+PGcgaWQ9ImxpbmtfU2VydmljZV9BX090ZWwgY29sbGVjdG9yIj48cGF0aCBkPSJNNzIuODcsNDMuNTggQzk1LjIxLDYxLjUzIDEyMy42MDE3LDg0LjM0MTYgMTQ2LjAyMTcsMTAyLjM0MTYgIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuMDAwMDAiIGlkPSJTZXJ2aWNlX0EtdG8tT3RlbCBjb2xsZWN0b3IiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjE1Mi4yNiwxMDcuMzUsMTQ3Ljg5OTksMTAwLjAwMjIsMTQ0LjE0MzYsMTA0LjY4MDksMTUyLjI2LDEwNy4zNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjwvZz48IS0tbGluayBTZXJ2aWNlX0IgdG8gT3RlbCBjb2xsZWN0b3ItLT48ZyBpZD0ibGlua19TZXJ2aWNlX0JfT3RlbCBjb2xsZWN0b3IiPjxwYXRoIGQ9Ik0xNzQuMTYsNDMuMzYgQzE3NC4xNiw2MS4zOCAxNzQuMTYsODEuNTMgMTc0LjE2LDk5LjYgIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuMDAwMDAiIGlkPSJTZXJ2aWNlX0ItdG8tT3RlbCBjb2xsZWN0b3IiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjE3NC4xNiwxMDcuNiwxNzcuMTYsOTkuNiwxNzEuMTYsOTkuNiwxNzQuMTYsMTA3LjYiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48L2c+PCEtLWxpbmsgU2VydmljZV9DIHRvIE90ZWwgY29sbGVjdG9yLS0+PGcgaWQ9ImxpbmtfU2VydmljZV9DX090ZWwgY29sbGVjdG9yIj48cGF0aCBkPSJNMjc1LjQ1LDQzLjU4IEMyNTMuMTEsNjEuNTMgMjI0LjcxODMsODQuMzQxNiAyMDIuMjk4MywxMDIuMzQxNiAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC4wMDAwMCIgaWQ9IlNlcnZpY2VfQy10by1PdGVsIGNvbGxlY3RvciIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTk2LjA2LDEwNy4zNSwyMDQuMTc2NCwxMDQuNjgwOSwyMDAuNDIwMSwxMDAuMDAyMiwxOTYuMDYsMTA3LjM1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PC9nPjwhLS1saW5rIE90ZWwgY29sbGVjdG9yIHRvIERCLS0+PGcgaWQ9ImxpbmtfT3RlbCBjb2xsZWN0b3JfREIiPjxwYXRoIGQ9Ik0yMzEuNDcsMTI1Ljk0IEMyNDIuODYsMTI1Ljk0IDI0Ni4yNiwxMjUuOTQgMjU3LjY1LDEyNS45NCAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC4wMDAwMCIgaWQ9Ik90ZWwgY29sbGVjdG9yLXRvLURCIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyNjUuNjUsMTI1Ljk0LDI1Ny42NSwxMjIuOTQsMjU3LjY1LDEyOC45NCwyNjUuNjUsMTI1Ljk0IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PC9nPjwhLS1yZXZlcnNlIGxpbmsgREIgdG8gT3BlbiBzb3VyY2UvVmVuZG9yLS0+PGcgaWQ9ImxpbmtfREJfT3BlbiBzb3VyY2UvVmVuZG9yIj48cGF0aCBkPSJNMjg2LjE2LDE1Ni44NyBDMjg2LjE2LDE3NC43MiAyODYuMTYsMTkxLjU5IDI4Ni4xNiwyMDguMTUgIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuMDAwMDAiIGlkPSJEQi1iYWNrdG8tT3BlbiBzb3VyY2UvVmVuZG9yIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyODYuMTYsMTQ4Ljg3LDI4My4xNiwxNTYuODcsMjg5LjE2LDE1Ni44NywyODYuMTYsMTQ4Ljg3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PC9nPjwhLS1TUkM9W0FxZkRCYWRDSXl6OUxHWEVCSWhCSjR3RFQtR2dtWDFwbVlCY3A4S2FnRUhWYWZnWmE5b1ZhbUNLb1l6SXVrOUFJSW45SjRlaUpiTG1TSzlMTTkyUWZyMlNOcmdLZEFlVmJmZ04wYk9DanJqMURvTV9GNF9OcFd4SkhCWFJZNTNaWjRTRDV4ZzhXY3ZIUGRmNjJLV25vQXRPTkFZV01yZTBhR1MwXS0tPjwvZz48L3N2Zz4='>
+<blockquote>
+<p>注：Otel 为 OpenTelemetry 的缩写且此处的 Open source/Vendor 代表 Jaeger 等可视化工具。</p>
+</blockquote>
+<h3 id="Kubernetes-部署">Kubernetes 部署</h3>
+<p>可以使用 Helm 部署 OpenTelemetry Collector，具体步骤如下：</p>
+<p><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/kubernetes/helm/collector/">Kubernetes 部署</a></p>
+<h3 id="本地测试">本地测试</h3>
+<p><a target="_blank" rel="noopener" href="https://signoz.io/docs/install/docker/">SigNoz 本地测试</a></p>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/">官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://spring.io/blog/2024/10/28/lets-use-opentelemetry-with-spring">Let’s use OpenTelemetry with Spring</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/OpenTelemetry/" class="print-no-link">#OpenTelemetry</a>
+      
+        <a href="/tags/Jaeger/" class="print-no-link">#Jaeger</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>OpenTelemetry</div>
+      <div>https://wangqian0306.github.io/2023/opentelemetry/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/photogrammetry/" title="摄影测量">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">摄影测量</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/nasa/" title="NASA 开源数据">
+                        <span class="hidden-mobile">NASA 开源数据</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,697 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Flink Window 简介 Window 即窗口操作把一个数据集切分为有限的数据片以便于聚合处理。当面对无边界的数据时，有些操作需要窗口(以定义大多数聚合操作需要的边界：汇总，外链接，以时间区域定义的操作；如最近 5 分钟 xx等)。 另一些则不需要(如过滤，映射，内链接等)。对有边界的数据，窗口是可选的，不过很多情况下仍然是一种有效的语义概念(如回填一大批的更新数据到之前读取无边界数据源处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink Window">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/flink_window/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Flink Window 简介 Window 即窗口操作把一个数据集切分为有限的数据片以便于聚合处理。当面对无边界的数据时，有些操作需要窗口(以定义大多数聚合操作需要的边界：汇总，外链接，以时间区域定义的操作；如最近 5 分钟 xx等)。 另一些则不需要(如过滤，映射，内链接等)。对有边界的数据，窗口是可选的，不过很多情况下仍然是一种有效的语义概念(如回填一大批的更新数据到之前读取无边界数据源处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/02/14/N27kFuq1sKIYdhU.png">
+<meta property="article:published_time" content="2022-02-14T14:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.470Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Flink">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/02/14/N27kFuq1sKIYdhU.png">
+  
+  
+  
+  <title>Flink Window - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Flink Window"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-14 22:26" pubdate>
+          2022年2月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Flink Window</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Flink-Window">Flink Window</h2>
+<h3 id="简介">简介</h3>
+<p>Window 即窗口操作把一个数据集切分为有限的数据片以便于聚合处理。当面对无边界的数据时，有些操作需要窗口(以定义大多数聚合操作需要的边界：汇总，外链接，以时间区域定义的操作；如最近 5 分钟 xx等)。
+另一些则不需要(如过滤，映射，内链接等)。对有边界的数据，窗口是可选的，不过很多情况下仍然是一种有效的语义概念(如回填一大批的更新数据到之前读取无边界数据源处理过的数据，译者注：类似于 Lambda 架构)。
+窗口基本上都是基于时间的；不过也有些系统支持基于记录数的窗口。这种窗口可以认为是基于一个逻辑上的时间域，该时间域中的元素包含顺序递增的逻辑时间戳。
+窗口可以是对齐的，也就是说窗口应用于所有落在窗口时间范围内的数据。也可以是非对齐的，也就是应用于部分特定的数据子集(如按某个键值筛选的数据子集)。窗口可以分为如下的几种类型，详情如图所示：</p>
+<p><img src="https://s2.loli.net/2022/02/14/N27kFuq1sKIYdhU.png" srcset="/img/loading.gif" lazyload alt="窗口类型划分"></p>
+<p><strong>固定窗口(Fixed)</strong> (有时叫滚动窗口 Tumbling)是按固定窗口大小定义的，比如说小时窗口或天窗口。它们一般是对齐窗口，也就是说，每个窗口都包含了对应时间段范围内的所有数据。有时为了把窗口计算的负荷均匀分摊到整个时间范围内，有时固定窗口会做成把窗口的边界的时间加上一个随机数，这样的固定窗口则变成了不对齐窗口。</p>
+<p><strong>滑动窗口(Sliding)</strong> 按窗口大小和滑动周期大小来定义，比如说小时窗口，每一分钟滑动一次。这个滑动周期一般比窗口大小小，也就是说窗口有相互重合之处。滑动窗口一般也是对齐的；尽管上面的图为了画出滑动的效果窗口没有遮盖到所有的键，但其实五个滑动窗口其实是包含了所有的3个键，而不仅仅是窗口3包含了所有的3个键。固定窗口可以看做是滑动窗口的一个特例，即窗口大小和滑动周期大小相等。</p>
+<p><strong>会话窗口(Sessions)</strong> 是在数据的子集上捕捉一段时间内的活动。一般来说会话按超时时间来定义，任何发生在超时时间以内的事件认为属于同一个会话。会话是非对齐窗口。如上图，窗口 2 只包含 key1，窗口 3 则只包含 key2。而窗口 1 和 4 都包含了 key3。</p>
+<p>而在 Flink 中的窗口可以进行如下的划分：</p>
+<ul>
+<li>键控窗口(Keyed Window)</li>
+<li>非键控窗口(Non-Keyed Window)</li>
+</ul>
+<h3 id="窗口分类">窗口分类</h3>
+<h4 id="键控窗口">键控窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">stream<br>       .keyBy(...)               &lt;-  keyed versus non-keyed windows<br>       .window(...)              &lt;-  required: &quot;assigner&quot;<br>      [.trigger(...)]            &lt;-  optional: &quot;trigger&quot; (else default trigger)<br>      [.evictor(...)]            &lt;-  optional: &quot;evictor&quot; (else no evictor)<br>      [.allowedLateness(...)]    &lt;-  optional: &quot;lateness&quot; (else zero)<br>      [.sideOutputLateData(...)] &lt;-  optional: &quot;output tag&quot; (else no side output for late data)<br>       .reduce/aggregate/apply()      &lt;-  required: &quot;function&quot;<br>      [.getSideOutput(...)]      &lt;-  optional: &quot;output tag&quot;<br></code></pre></td></tr></table></figure>
+<h4 id="非键控窗口">非键控窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">stream<br>       .windowAll(...)           &lt;-  required: &quot;assigner&quot;<br>      [.trigger(...)]            &lt;-  optional: &quot;trigger&quot; (else default trigger)<br>      [.evictor(...)]            &lt;-  optional: &quot;evictor&quot; (else no evictor)<br>      [.allowedLateness(...)]    &lt;-  optional: &quot;lateness&quot; (else zero)<br>      [.sideOutputLateData(...)] &lt;-  optional: &quot;output tag&quot; (else no side output for late data)<br>       .reduce/aggregate/apply()      &lt;-  required: &quot;function&quot;<br>      [.getSideOutput(...)]      &lt;-  optional: &quot;output tag&quot;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：[] 代表此操作为可选，建议采用键控窗口否则并行度会降低。</p>
+</blockquote>
+<h3 id="例程">例程</h3>
+<h4 id="滚动窗口">滚动窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;T&gt; input = ...;<br><br>// tumbling event-time windows<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(TumblingEventTimeWindows.of(Time.seconds(5)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br><br>// tumbling processing-time windows<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br><br>// daily tumbling event-time windows offset by -8 hours.<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(TumblingEventTimeWindows.of(Time.days(1), Time.hours(-8)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br></code></pre></td></tr></table></figure>
+<h4 id="滑动窗口">滑动窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;T&gt; input = ...;<br><br>// sliding event-time windows<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br><br>// sliding processing-time windows<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br><br>// sliding processing-time windows offset by -8 hours<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(SlidingProcessingTimeWindows.of(Time.hours(12), Time.hours(1), Time.hours(-8)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br></code></pre></td></tr></table></figure>
+<h4 id="会话窗口">会话窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;T&gt; input = ...;<br><br>// event-time session windows with static gap<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(EventTimeSessionWindows.withGap(Time.minutes(10)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br>    <br>// event-time session windows with dynamic gap<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(EventTimeSessionWindows.withDynamicGap((element) -&gt; &#123;<br>        // determine and return session gap<br>    &#125;))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br><br>// processing-time session windows with static gap<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(ProcessingTimeSessionWindows.withGap(Time.minutes(10)))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br>    <br>// processing-time session windows with dynamic gap<br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(ProcessingTimeSessionWindows.withDynamicGap((element) -&gt; &#123;<br>        // determine and return session gap<br>    &#125;))<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br></code></pre></td></tr></table></figure>
+<h4 id="全局窗口">全局窗口</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;T&gt; input = ...;<br><br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(GlobalWindows.create())<br>    .&lt;windowed transformation&gt;(&lt;window function&gt;);<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此窗口方案仅在您还指定自定义触发器时才有效。</p>
+</blockquote>
+<h3 id="Window-Function">Window Function</h3>
+<p>在定义了窗口分配器之后，我们需要指定我们想要在每个窗口上执行的计算被称为 Window Function 即窗口函数。</p>
+<p>窗口函数分为以下几种：</p>
+<ul>
+<li>ReduceFunction</li>
+<li>AggregateFunction</li>
+<li>ProcessWindowFunction</li>
+</ul>
+<p>其中的前两种可以更有效地执行。</p>
+<h4 id="ReduceFunction">ReduceFunction</h4>
+<p>合并相同 key 的内容</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;Tuple2&lt;String, Long&gt;&gt; input = ...;<br><br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(&lt;window assigner&gt;)<br>    .reduce(new ReduceFunction&lt;Tuple2&lt;String, Long&gt;&gt;() &#123;<br>      public Tuple2&lt;String, Long&gt; reduce(Tuple2&lt;String, Long&gt; v1, Tuple2&lt;String, Long&gt; v2) &#123;<br>        return new Tuple2&lt;&gt;(v1.f0, v1.f1 + v2.f1);<br>      &#125;<br>    &#125;);<br></code></pre></td></tr></table></figure>
+<h4 id="AggregateFunction">AggregateFunction</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs text">private static class AverageAggregate<br>    implements AggregateFunction&lt;Tuple2&lt;String, Long&gt;, Tuple2&lt;Long, Long&gt;, Double&gt; &#123;<br>  @Override<br>  public Tuple2&lt;Long, Long&gt; createAccumulator() &#123;<br>    return new Tuple2&lt;&gt;(0L, 0L);<br>  &#125;<br><br>  @Override<br>  public Tuple2&lt;Long, Long&gt; add(Tuple2&lt;String, Long&gt; value, Tuple2&lt;Long, Long&gt; accumulator) &#123;<br>    return new Tuple2&lt;&gt;(accumulator.f0 + value.f1, accumulator.f1 + 1L);<br>  &#125;<br><br>  @Override<br>  public Double getResult(Tuple2&lt;Long, Long&gt; accumulator) &#123;<br>    return ((double) accumulator.f0) / accumulator.f1;<br>  &#125;<br><br>  @Override<br>  public Tuple2&lt;Long, Long&gt; merge(Tuple2&lt;Long, Long&gt; a, Tuple2&lt;Long, Long&gt; b) &#123;<br>    return new Tuple2&lt;&gt;(a.f0 + b.f0, a.f1 + b.f1);<br>  &#125;<br>&#125;<br><br>DataStream&lt;Tuple2&lt;String, Long&gt;&gt; input = ...;<br><br>input<br>    .keyBy(&lt;key selector&gt;)<br>    .window(&lt;window assigner&gt;)<br>    .aggregate(new AverageAggregate());<br></code></pre></td></tr></table></figure>
+<h4 id="ProcessWindowFunction">ProcessWindowFunction</h4>
+<p>ProcessWindowFunction 获得一个包含窗口所有元素的可迭代对象，以及一个可以访问时间和状态信息的 Context 对象，这使得它能够提供比其他窗口函数更大的灵活性。这是以性能和资源消耗为代价的，因为元素不能增量聚合，而是需要在内部缓冲，直到窗口被认为准备好处理。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs text">DataStream&lt;Tuple2&lt;String, Long&gt;&gt; input = ...;<br><br>input<br>  .keyBy(t -&gt; t.f0)<br>  .window(TumblingEventTimeWindows.of(Time.minutes(5)))<br>  .process(new MyProcessWindowFunction());<br><br>public class MyProcessWindowFunction <br>    extends ProcessWindowFunction&lt;Tuple2&lt;String, Long&gt;, String, String, TimeWindow&gt; &#123;<br><br>  @Override<br>  public void process(String key, Context context, Iterable&lt;Tuple2&lt;String, Long&gt;&gt; input, Collector&lt;String&gt; out) &#123;<br>    long count = 0;<br>    for (Tuple2&lt;String, Long&gt; in: input) &#123;<br>      count++;<br>    &#125;<br>    out.collect(&quot;Window: &quot; + context.window() + &quot;count: &quot; + count);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="具有增量聚合的-ProcessWindowFunction">具有增量聚合的 ProcessWindowFunction</h4>
+<p>ProcessWindowFunction 可以与 ReduceFunction 或 AggregateFunction 组合</p>
+<blockquote>
+<p>注：此处暂略，参见官方文档。</p>
+</blockquote>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/datastream/operators/windows/#allowed-lateness">官方文档</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Flink/" class="category-chain-item">Flink</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Flink/" class="print-no-link">#Flink</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Flink Window</div>
+      <div>https://wangqian0306.github.io/2022/flink_window/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/flink_state/" title="Flink State">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Flink State</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/flink_watermark/" title="Flink Watermark">
+                        <span class="hidden-mobile">Flink Watermark</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

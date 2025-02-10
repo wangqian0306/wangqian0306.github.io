@@ -1,0 +1,703 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Ansible 试用 简介 本文会简述 Ansible 的使用方式。Ansible 项目的目录结构如下所示： 123456789101112131415161718# playbookssite.ymlwebservers.ymlfooservers.ymlroles&#x2F;    common&#x2F;        tasks&#x2F;        handlers&#x2F;        library&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ansible 试用">
+<meta property="og:url" content="https://wangqian0306.github.io/2022/ansible-trial/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Ansible 试用 简介 本文会简述 Ansible 的使用方式。Ansible 项目的目录结构如下所示： 123456789101112131415161718# playbookssite.ymlwebservers.ymlfooservers.ymlroles&#x2F;    common&#x2F;        tasks&#x2F;        handlers&#x2F;        library&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-28T15:09:32.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.486Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Ansible">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Ansible 试用 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Ansible 试用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-28 23:09" pubdate>
+          2022年3月28日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Ansible 试用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Ansible-试用">Ansible 试用</h2>
+<h3 id="简介">简介</h3>
+<p>本文会简述 Ansible 的使用方式。Ansible 项目的目录结构如下所示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs text"># playbooks<br>site.yml<br>webservers.yml<br>fooservers.yml<br>roles/<br>    common/<br>        tasks/<br>        handlers/<br>        library/<br>        files/<br>        templates/<br>        vars/<br>        defaults/<br>        meta/<br>    webservers/<br>        tasks/<br>        defaults/<br>        meta/<br></code></pre></td></tr></table></figure>
+<p>默认情况下，Ansible 将在角色中的每个目录中main.yml查找相关内容的文件（也main.yaml和main）：</p>
+<ul>
+<li>tasks/main.yml- 角色执行的任务的主要列表。</li>
+<li>handlers/main.yml- 处理程序，可以在此角色内部或外部使用。</li>
+<li>library/my_module.py- 可在此角色中使用的模块（有关更多信息，请参阅在角色中嵌入模块和插件）。</li>
+<li>defaults/main.yml- 角色的默认变量（有关更多信息，请参阅使用变量）。这些变量在所有可用变量中具有最低优先级，并且可以很容易地被任何其他变量（包括库存变量）覆盖。</li>
+<li>vars/main.yml- 角色的其他变量（有关更多信息，请参阅使用变量）。</li>
+<li>files/main.yml- 角色部署的文件。</li>
+<li>templates/main.yml- 角色部署的模板。</li>
+<li>meta/main.yml- 角色的元数据，包括角色依赖项。</li>
+</ul>
+<h3 id="配置目标地址">配置目标地址</h3>
+<p>在项目中会存在 <code>hosts</code> 或 <code>hosts.yaml</code> 文档，通过此文档可以指定安装服务的位置。</p>
+<p>在官方实例中提供了 <code>hosts.yaml</code> 的四种样例：</p>
+<ul>
+<li>不指定组的主机</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 样例 1: 对于这样的主机需要将其放在 &#x27;all&#x27; 或 &#x27;ungrouped&#x27; 参数下，在样例中定义了 4 个主机，有一个主机还被配置了两个参数</span><br><span class="hljs-attr">all:</span><br>  <span class="hljs-attr">hosts:</span><br>      <span class="hljs-attr">green.example.com:</span><br>          <span class="hljs-attr">ansible_ssh_host:</span> <span class="hljs-number">191.168</span><span class="hljs-number">.100</span><span class="hljs-number">.32</span><br>          <span class="hljs-attr">anyvariable:</span> <span class="hljs-string">value</span><br>      <span class="hljs-attr">blue.example.com:</span><br>      <span class="hljs-attr">192.168.100.1:</span><br>      <span class="hljs-attr">192.168.100.10:</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>指定组的主机</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 样例 2: 4 个位于 webservers 组中的主机，并且它们全都具有相同的配置项</span><br><span class="hljs-attr">webservers:</span><br>  <span class="hljs-attr">hosts:</span><br>     <span class="hljs-attr">alpha.example.org:</span><br>     <span class="hljs-attr">beta.example.org:</span><br>     <span class="hljs-attr">192.168.1.100:</span><br>     <span class="hljs-attr">192.168.1.110:</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-attr">http_port:</span> <span class="hljs-number">8080</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>使用子组的方式</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 样例 3：可以选定范围的方式指定主机并将子组和变量添加到组中。子组和普通组一样可以定义全部内容，并且子组会从父组继承全部变量，同样父组也会包含子组中的所有主机。</span><br><span class="hljs-comment"># testing 组是父组，webservers 组是它的子组。而且在 testing 组中已经指定了 www[001:006].example.com 的主机</span><br><span class="hljs-attr">webservers:</span><br>  <span class="hljs-attr">hosts:</span><br>    <span class="hljs-attr">gamma1.example.org:</span><br>    <span class="hljs-attr">gamma2.example.org:</span><br><span class="hljs-attr">testing:</span><br>  <span class="hljs-attr">hosts:</span><br>    <span class="hljs-string">www[001:006].example.com:</span><br>  <span class="hljs-attr">vars:</span><br>    <span class="hljs-attr">testing1:</span> <span class="hljs-string">value1</span><br>  <span class="hljs-attr">children:</span><br>    <span class="hljs-attr">webservers:</span><br><span class="hljs-attr">other:</span><br>  <span class="hljs-attr">children:</span><br>    <span class="hljs-attr">webservers:</span><br>      <span class="hljs-string">gamma3.example.org</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：testing 组包含下面所有主机：
+<a target="_blank" rel="noopener" href="http://gamma1.example.org">gamma1.example.org</a>
+<a target="_blank" rel="noopener" href="http://gamma2.example.org">gamma2.example.org</a>
+<a target="_blank" rel="noopener" href="http://gamma3.example.org">gamma3.example.org</a>
+<a target="_blank" rel="noopener" href="http://www001.example.com">www001.example.com</a>
+<a target="_blank" rel="noopener" href="http://www002.example.com">www002.example.com</a>
+<a target="_blank" rel="noopener" href="http://www003.example.com">www003.example.com</a>
+<a target="_blank" rel="noopener" href="http://www004.example.com">www004.example.com</a>
+<a target="_blank" rel="noopener" href="http://www005.example.com">www005.example.com</a>
+<a target="_blank" rel="noopener" href="http://www006.example.com">www006.example.com</a></p>
+</blockquote>
+<ul>
+<li>全局参数</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 样例 4：全局参数，在 `all` 组中的参数会具有最低级的优先级</span><br><span class="hljs-attr">all:</span><br>  <span class="hljs-attr">vars:</span><br>      <span class="hljs-attr">commontoall:</span> <span class="hljs-string">thisvar</span><br></code></pre></td></tr></table></figure>
+<h3 id="配置运行文件">配置运行文件</h3>
+<p>在项目中可以编写称为 playbook 的脚本文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">all</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: hosts</span><br>  <span class="hljs-comment"># 是否必填: 是</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   指明需要部署的主机或组。</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">## 样例:</span><br>  <span class="hljs-comment">#   hosts: all -- 所有主机</span><br>  <span class="hljs-comment">#   hosts: host1 -- 主机 host1 单独运行</span><br>  <span class="hljs-comment">#   hosts: group1 -- group1 中的所有主机</span><br>  <span class="hljs-comment">#   hosts: group1,group2 -- group1 和 group2 中的所有主机</span><br>  <span class="hljs-comment">#   hosts: group1,host1 -- hosts in group1 AND host</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">## 表达式样例 </span><br>  <span class="hljs-comment">#   hosts: group1,!group3 -- 在 group1 但是不在 group3 中的主机</span><br>  <span class="hljs-comment">#   hosts: group1,&amp;group3 -- 在 group1 和 group3 中的主机</span><br>  <span class="hljs-comment">#   hosts: group1:&amp;group3 -- 同上但是使用 `:` 替代了 `,`</span><br>  <span class="hljs-comment">#   hosts: group1:!group2:&amp;group3 -- 在 group1 和 group3 但不在 group2 的主机</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">## 使用参数的形式传递</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment"># 可以通过如下的方式传递参数</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   hosts: &#x27;&#123;&#123;mygroups&#125;&#125;&#x27; -- 使用 mygroups 参数传递主机</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment"># 这对于测试 playbook 非常方便，在针对生产、偶尔的维护任务和其他情况运行 playbook 之前，在一个临时环境中运行相同的 playbook，在这些情况下，您只需要针对几个系统而不是整个组运行 playbook。</span><br>  <span class="hljs-comment"># 请注意，不能在清单中设置该变量，因为在使用清单变量之前，我们需要了解主机。所以通常会使用 “额外变量”，如下所示。</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment"># 如果如上所示设置主机，则可以指定在每次运行时应用 playbook 的主机，如下所示：</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   ansible-playbook playbook.yml --extra-vars=&quot;mygroups=staging&quot;</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment"># 使用 --extra vars 将变量设置为组、主机名或主机模式的任意组合，就像上一节中的示例一样。</span><br>  <br>  <span class="hljs-attr">roles:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">foo</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">bar</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">foo</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: roles</span><br>  <span class="hljs-comment"># 默认: 无</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介: 需要执行任务的角色</span><br>  <br>  <span class="hljs-attr">name:</span> <span class="hljs-string">my</span> <span class="hljs-string">heavily</span> <span class="hljs-string">commented</span> <span class="hljs-string">play</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: name</span><br>  <span class="hljs-comment"># 默认: play</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介: 需要执行命令的简介</span><br><br>  <span class="hljs-attr">gather_facts:</span> <span class="hljs-literal">yes</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: gather_facts</span><br>  <span class="hljs-comment"># 默认: None</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   此参数控制着程序是否触发 `fact gathering task` (也被叫做 `gather_facts` 或 `setup` 操作) 来获取远程执行的返回结果。</span><br>  <span class="hljs-comment">#   执行的返回值也通常在选择执行计划和作为参数输入的时候很有用。</span><br>  <span class="hljs-comment">#   例如我们想执行 `ansible_os_distribution` 命令来获取主机的系统类型到底是 RHEL, Ubuntu 或 FreeBSD 等, 以及 CPU, RAM 等硬件信息。</span><br><br>  <span class="hljs-attr">remote_user:</span> <span class="hljs-string">login_user</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数:  remote_user</span><br>  <span class="hljs-comment"># 默认: 依赖于 `connection` 插件, 对于 ssh 来说就是 &#x27;执行当前命令的用户&#x27;</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   登录远程设备的用户，通常也是执行命令的用户</span><br><br>  <span class="hljs-attr">become:</span> <span class="hljs-literal">True</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: become</span><br>  <span class="hljs-comment"># 默认: False</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   如果设置为 True 就会提升命令的执行权限，像是在命令行中加入了 `--become` 参数一样。</span><br><br>  <span class="hljs-attr">become_user:</span> <span class="hljs-string">root</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: become_user</span><br>  <span class="hljs-comment"># 默认: None</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   当使用权限升级时，这是您在与远程用户登录后 “become” 的用户。例如，您以 “login_user” 身份登录远程用户，然后您“become” root 用户以执行任务。</span><br><br>  <span class="hljs-attr">become_method:</span> <span class="hljs-string">sudo</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: become_method</span><br>  <span class="hljs-comment"># 默认: sudo</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   当使用特权升级时，这会选择用于特权升级的插件。</span><br>  <span class="hljs-comment">#   使用 `ansible-doc -t become -l` 命令来提示更多内容。</span><br><br>  <span class="hljs-attr">connection:</span> <span class="hljs-string">ssh</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: connection</span><br>  <span class="hljs-comment"># 默认: ssh</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   这将设置 Ansible 将使用哪个 `connection` 插件尝试与目标主机进行通信。</span><br>  <span class="hljs-comment">#   注意此处是由 paramiko (python 版本的 ssh, 在 ssh 命令行不能很好地与目标系统配合使用的情况下非常有用。</span><br>  <span class="hljs-comment">#   除此之外还有 “local”，强制 “local fork” 执行任务，但通常您真正想要的是 “delegate_to:localhost”，其余内容需要参见下面的实例。</span><br>  <span class="hljs-comment">#   使用 `ansible-doc -t connection -l` 命令来提示更多内容。</span><br><br>  <span class="hljs-attr">ignore_unreachable:</span> <span class="hljs-literal">yes</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: ignore_unreachable</span><br>  <span class="hljs-comment"># 默认: false</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   忽略无法链接的主机。</span><br><br>  <span class="hljs-attr">vars:</span><br>  <span class="hljs-comment">###########</span><br>  <span class="hljs-comment"># 关键参数: vars</span><br>  <span class="hljs-comment"># 默认: none</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   为该任务定义的变量键值对，通常用于模板或任务变量。</span><br><br>    <span class="hljs-comment"># 在使用时填写 &#123;&#123;color&#125;&#125; 即可引用变量</span><br>    <span class="hljs-attr">color:</span> <span class="hljs-string">brown</span><br><br>    <span class="hljs-comment"># 键值对的数据类型允许传入复杂的结构, 在使用时可以采用  &#123;&#123;web[&#x27;memcache&#x27;]&#125;&#125; 这样的方式来获取子项，或 &#123;&#123;web&#125;&#125; 来获取完整的对象</span><br>    <span class="hljs-attr">web:</span><br>      <span class="hljs-attr">memcache:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.2</span><br>      <span class="hljs-attr">httpd:</span> <span class="hljs-string">apache</span><br><br>    <span class="hljs-comment"># 列表型参数，使用 &#123;&#123; mylist[1] &#125;&#125; 可以得到 &#x27;b&#x27;, 索引从 0 开始.</span><br>    <span class="hljs-attr">mylist:</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">a</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">b</span><br>       <span class="hljs-bullet">-</span> <span class="hljs-string">c</span><br><br>    <span class="hljs-comment"># 参数可以使用 Jinja 模板引擎进行动态配置, 直至使用的时候才会被读取.</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 在这个 playbook 中, 此表达式永远会返回 False, 因为 &#x27;color&#x27; 在上面被赋值为了 &#x27;brown&#x27;。</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 当 ansible 转译如下内容时会首先将 &#x27;color&#x27; 赋值为 &#x27;brown&#x27; 然后依据 Jinja 表达式对比 &#x27;brown&#x27; == &#x27;blue&#x27;</span><br>    <span class="hljs-attr">is_color_blue:</span> <span class="hljs-string">&quot;<span class="hljs-template-variable">&#123;&#123; color == &#x27;blue&#x27; &#125;&#125;</span>&quot;</span><br>	<br>	<span class="hljs-attr">my_version:</span> <span class="hljs-number">1.2</span><span class="hljs-number">.3</span><br><br>  <span class="hljs-attr">vars_files:</span><br>  <span class="hljs-comment">##########</span><br>  <span class="hljs-comment"># 关键参数: vars_files</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   此处可以填写一个 YAML 格式的参数文件列表，这些参数会在 `vars` 之后载入，无论 `vars` 写在哪里。样例如下：</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   ---</span><br>  <span class="hljs-comment">#   monitored_by: phobos.mars.nasa.gov</span><br>  <span class="hljs-comment">#   fish_sticks: &quot;good with custard&quot;</span><br>  <span class="hljs-comment">#   ... # (文件结束)</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   注： `---` 应该位于页面最左端</span><br>  <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 使用绝对路径引入配置文件</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">/srv/ansible/vars/vars_file.yml</span><br><br>    <span class="hljs-comment"># 使用相对路径引入配置文件</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">vars/vars_file.yml</span><br><br>    <span class="hljs-comment"># 使用可变配置引入配置文件</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">vars/&#123;&#123;something&#125;&#125;.yml</span><br><br>    <span class="hljs-comment"># 也可以使用数组来引入配置文件</span><br>    <span class="hljs-bullet">-</span> [ <span class="hljs-string">&#x27;vars/&#123;&#123;platform&#125;&#125;.yml&#x27;</span>, <span class="hljs-string">vars/default.yml</span> ]<br><br>    <span class="hljs-comment"># 文件会按照顺序进行引入，所以后面的配置文件可以写入更多的内容</span><br>    <span class="hljs-bullet">-</span> [ <span class="hljs-string">&#x27;vars/&#123;&#123;host&#125;&#125;.yml&#x27;</span> ]<br><br>    <span class="hljs-comment"># 但是如果在做主机特定的变量文件，可以考虑在你的库中设置一个组的变量，并把你的主机添加到那个组。</span><br><br>  <span class="hljs-attr">vars_prompt:</span><br>  <span class="hljs-comment">##########</span><br>  <span class="hljs-comment"># 关键参数: vars_prompt</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   Ansible 将在每次运行此 playbook 时提示手动输入的变量列表。用于敏感数据，也可用于不同部署的版本号等。</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   如果已经提供了这个值，Ansible将不会提示输入，比如在传递时——额外的变量，但不是来自库存。</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   如果检测到它是非交互式会话，它也不会提示。例如，当从cron调用时。</span><br>  <span class="hljs-comment">#</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">passphrase</span><br>      <span class="hljs-attr">prompt:</span> <span class="hljs-string">&quot;Please enter the passphrase for the SSL certificate&quot;</span><br>      <span class="hljs-attr">private:</span> <span class="hljs-literal">yes</span><br>      <span class="hljs-comment">#   在 private 参数为 yes 时输入不会回显到终端</span><br><br>    <span class="hljs-comment"># 在配置不敏感的内容时应该这样做.</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">release_version</span><br>      <span class="hljs-attr">prompt:</span> <span class="hljs-string">&quot;Please enter a release tag&quot;</span><br>      <span class="hljs-attr">private:</span> <span class="hljs-literal">no</span><br><br>    <span class="hljs-comment"># 配置默认值</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">package_version</span><br>      <span class="hljs-attr">prompt:</span> <span class="hljs-string">&quot;Please enter a package version&quot;</span><br>      <span class="hljs-attr">default:</span> <span class="hljs-string">&#x27;1.0&#x27;</span><br><br>    <span class="hljs-comment"># 可以在这个链接找到更多特性 https://docs.ansible.com/ansible/latest/user_guide/playbooks_prompts.html</span><br><br>  <span class="hljs-attr">roles:</span><br>  <span class="hljs-comment">##########</span><br>  <span class="hljs-comment"># 关键参数: roles</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介: 在此 playbook 中的的权限列表。执行时间在 pre_tasks 和基础信息获取之后, 但在 &#x27;tasks&#x27; 之前.</span><br><br>  <span class="hljs-attr">tasks:</span><br>  <span class="hljs-comment">##########</span><br>  <span class="hljs-comment"># 关键参数: tasks</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介: 此 playbook 中的任务列表. 在 roles 之后执行，在 post_tasks 之前执行</span><br><br>    <span class="hljs-comment"># 一个简单的任务</span><br>    <span class="hljs-comment"># 每个任务都必须有一个操作。&#x27;name&#x27; 是一个可选项，但是对说明任务的工作项非常有用</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Check</span> <span class="hljs-string">that</span> <span class="hljs-string">the</span> <span class="hljs-string">target</span> <span class="hljs-string">can</span> <span class="hljs-string">execute</span> <span class="hljs-string">Ansible</span> <span class="hljs-string">tasks</span><br>      <span class="hljs-attr">action:</span> <span class="hljs-string">ping</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># Ansible 的 modules 会完成业务工作!, &#x27;action&#x27; 并不是必须的, 当然也可以使用 &#x27;action itself&#x27; 作为 task 的一部分</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">file:</span> <span class="hljs-string">path=/tmp/secret</span> <span class="hljs-string">mode=0600</span> <span class="hljs-string">owner=root</span> <span class="hljs-string">group=root</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># &#x27;action&#x27; 的格式如同上面的内容:</span><br>    <span class="hljs-comment"># &lt;modulename&gt;: &lt;module parameters&gt;</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 可以使用如下的方式进行参数测试:</span><br>    <span class="hljs-comment">#   ansible -m &lt;module&gt; -a &quot;&lt;module parameters&gt;&quot;</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># modules 文档如下:</span><br>    <span class="hljs-comment"># http://ansible.github.com/modules.html</span><br><br>    <span class="hljs-comment"># 通常情况下，大多数人希望使用“k:v”符号，而不是上面使用的“k=v”（但对临时执行有用）。</span><br>    <span class="hljs-comment"># 虽然这两种格式基本上都是可交换的，`k:v`更明确，类型更友好，并且更容易转义。</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">secret</span> <span class="hljs-string">is</span> <span class="hljs-string">locked</span> <span class="hljs-string">down</span><br>      <span class="hljs-attr">file:</span><br>         <span class="hljs-attr">path:</span> <span class="hljs-string">/tmp/secret</span><br>         <span class="hljs-attr">mode:</span> <span class="hljs-string">&#x27;0600&#x27;</span><br>         <span class="hljs-attr">owner:</span> <span class="hljs-string">root</span><br>         <span class="hljs-attr">group:</span> <span class="hljs-string">root</span><br><br>    <span class="hljs-comment"># 请注意 &#x27;action&#x27; 参数的缩进, 并且 &#x27;task&#x27; 要位于顶层</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 在任务中使用变量</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Paint</span> <span class="hljs-string">the</span> <span class="hljs-string">server</span><br>      <span class="hljs-attr">command:</span> <span class="hljs-string">echo</span> &#123;&#123;<span class="hljs-string">color</span>&#125;&#125;<br><br>    <span class="hljs-comment"># 您还可以在任务级别定义变量</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">secret</span> <span class="hljs-string">is</span> <span class="hljs-string">locked</span> <span class="hljs-string">down</span><br>      <span class="hljs-attr">file:</span><br>         <span class="hljs-attr">path:</span> <span class="hljs-string">&#x27;&#123;&#123;secret_file&#125;&#125;&#x27;</span><br>         <span class="hljs-attr">mode:</span> <span class="hljs-string">&#x27;0600&#x27;</span><br>         <span class="hljs-attr">owner:</span> <span class="hljs-string">root</span><br>         <span class="hljs-attr">group:</span> <span class="hljs-string">root</span><br>      <span class="hljs-attr">vars:</span><br>        <span class="hljs-attr">secret_file:</span> <span class="hljs-string">/tmp/secret</span><br><br>	<span class="hljs-comment"># 在运行任务时进行检查</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">debug:</span><br>        <span class="hljs-attr">msg:</span> <span class="hljs-string">&quot;my_version is higher than 1.0.0&quot;</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">my_version</span> <span class="hljs-string">is</span> <span class="hljs-string">version(&#x27;1.0.0&#x27;,</span> <span class="hljs-string">&#x27;&gt;&#x27;</span><span class="hljs-string">)</span><br><br>	<span class="hljs-comment"># 捕捉任务运行中的异常</span><br>	<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Attempt</span> <span class="hljs-string">and</span> <span class="hljs-string">graceful</span> <span class="hljs-string">roll</span> <span class="hljs-string">back</span> <span class="hljs-string">demo</span><br>      <span class="hljs-attr">block:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Print</span> <span class="hljs-string">a</span> <span class="hljs-string">message</span><br>          <span class="hljs-attr">ansible.builtin.debug:</span><br>            <span class="hljs-attr">msg:</span> <span class="hljs-string">&#x27;I execute normally&#x27;</span><br><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Force</span> <span class="hljs-string">a</span> <span class="hljs-string">failure</span><br>          <span class="hljs-attr">ansible.builtin.command:</span> <span class="hljs-string">/bin/false</span><br><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Never</span> <span class="hljs-string">print</span> <span class="hljs-string">this</span><br>          <span class="hljs-attr">ansible.builtin.debug:</span><br>            <span class="hljs-attr">msg:</span> <span class="hljs-string">&#x27;I never execute, due to the above task failing, :-(&#x27;</span><br>      <span class="hljs-attr">rescue:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Print</span> <span class="hljs-string">when</span> <span class="hljs-string">errors</span><br>          <span class="hljs-attr">ansible.builtin.debug:</span><br>            <span class="hljs-attr">msg:</span> <span class="hljs-string">&#x27;I caught an error&#x27;</span><br><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Force</span> <span class="hljs-string">a</span> <span class="hljs-string">failure</span> <span class="hljs-string">in</span> <span class="hljs-string">middle</span> <span class="hljs-string">of</span> <span class="hljs-string">recovery!</span> <span class="hljs-string">&gt;:-)</span><br>          <span class="hljs-attr">ansible.builtin.command:</span> <span class="hljs-string">/bin/false</span><br><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Never</span> <span class="hljs-string">print</span> <span class="hljs-string">this</span><br>          <span class="hljs-attr">ansible.builtin.debug:</span><br>            <span class="hljs-attr">msg:</span> <span class="hljs-string">&#x27;I also never execute :-(&#x27;</span><br>      <span class="hljs-attr">always:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Always</span> <span class="hljs-string">do</span> <span class="hljs-string">this</span><br>          <span class="hljs-attr">ansible.builtin.debug:</span><br>            <span class="hljs-attr">msg:</span> <span class="hljs-string">&quot;This always executes&quot;</span><br>	<br>	<span class="hljs-comment"># 渲染配置文件到指定位置</span><br>	<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Template</span> <span class="hljs-string">configuration</span> <span class="hljs-string">file</span><br>      <span class="hljs-attr">ansible.builtin.template:</span><br>        <span class="hljs-attr">src:</span> <span class="hljs-string">template.j2</span><br>        <span class="hljs-attr">dest:</span> <span class="hljs-string">/etc/foo.conf</span><br>	<br>	<span class="hljs-comment"># 确定软件处于最新版本</span><br>	<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">apache</span> <span class="hljs-string">is</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">latest</span> <span class="hljs-string">version</span><br>      <span class="hljs-attr">ansible.builtin.yum:</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br>        <span class="hljs-attr">state:</span> <span class="hljs-string">latest</span><br>	<br>	<span class="hljs-comment"># 确定软件运行状态</span><br>	<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Ensure</span> <span class="hljs-string">apache</span> <span class="hljs-string">is</span> <span class="hljs-string">running</span><br>      <span class="hljs-attr">ansible.builtin.service:</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">httpd</span><br>        <span class="hljs-attr">state:</span> <span class="hljs-string">started</span><br><br>    <span class="hljs-comment"># 忽略错误，并且将结果进行存储</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Do</span> <span class="hljs-string">not</span> <span class="hljs-string">count</span> <span class="hljs-string">this</span> <span class="hljs-string">as</span> <span class="hljs-string">a</span> <span class="hljs-string">failure</span><br>      <span class="hljs-attr">ansible.builtin.command:</span> <span class="hljs-string">/bin/false</span><br>      <span class="hljs-attr">ignore_errors:</span> <span class="hljs-literal">yes</span><br>      <span class="hljs-attr">register:</span> <span class="hljs-string">bass_result</span><br><br>    <span class="hljs-comment"># 在返回值处于某些状态时进行异常抛出</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Fail</span> <span class="hljs-string">task</span> <span class="hljs-string">when</span> <span class="hljs-string">both</span> <span class="hljs-string">files</span> <span class="hljs-string">are</span> <span class="hljs-string">identical</span><br>      <span class="hljs-attr">ansible.builtin.raw:</span> <span class="hljs-string">diff</span> <span class="hljs-string">foo/file1</span> <span class="hljs-string">bar/file2</span><br>      <span class="hljs-attr">register:</span> <span class="hljs-string">diff_cmd</span><br>      <span class="hljs-attr">failed_when:</span> <span class="hljs-string">diff_cmd.rc</span> <span class="hljs-string">==</span> <span class="hljs-number">0</span> <span class="hljs-string">or</span> <span class="hljs-string">diff_cmd.rc</span> <span class="hljs-string">&gt;=</span> <span class="hljs-number">2</span><br><br>    <span class="hljs-comment"># 使用代理完成任务</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">cobbler</span><br>      <span class="hljs-attr">ansible.builtin.package:</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">cobbler</span><br>        <span class="hljs-attr">state:</span> <span class="hljs-string">present</span><br>      <span class="hljs-attr">environment:</span><br>        <span class="hljs-attr">http_proxy:</span> <span class="hljs-string">http://proxy.example.com:8080</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 事情发生变化时触发处理程序！</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 大多数 Ansible 操作都可以在发生变化时检测并报告。</span><br>    <span class="hljs-comment"># 例如，如果文件权限与请求的权限不同，文件内容不同，或者在报告更改时安装（或删除）了包，则任务将假定为“已更改”状态。</span><br>    <span class="hljs-comment"># Ansible 可以选择通知一个或多个处理程序。</span><br>    <span class="hljs-comment"># 处理程序与普通任务类似，主要区别在于它们只在收到通知时运行。</span><br>    <span class="hljs-comment"># 常见的用法是在更新服务的配置文件后重新启动服务。</span><br>    <span class="hljs-comment"># https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#handlers-running-operations-on-change</span><br>    <br>    <span class="hljs-comment"># 在拷贝 httpd.conf 文件之后触发重启 Apache</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Update</span> <span class="hljs-string">the</span> <span class="hljs-string">Apache</span> <span class="hljs-string">config</span><br>      <span class="hljs-attr">copy:</span><br>        <span class="hljs-attr">src:</span> <span class="hljs-string">httpd.conf</span><br>        <span class="hljs-attr">dest:</span> <span class="hljs-string">/etc/httpd/httpd.conf</span><br>      <span class="hljs-attr">notify:</span> <span class="hljs-string">Restart</span> <span class="hljs-string">Apache</span><br><br>    <span class="hljs-comment"># 下面是如何指定多个处理程序的样例</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Update</span> <span class="hljs-string">our</span> <span class="hljs-string">app&#x27;s</span> <span class="hljs-string">configuration</span><br>      <span class="hljs-attr">copy:</span><br>        <span class="hljs-attr">src:</span> <span class="hljs-string">myapp.conf</span><br>        <span class="hljs-attr">dest:</span> <span class="hljs-string">/etc/myapp/production.conf</span><br>      <span class="hljs-attr">notify:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Restart</span> <span class="hljs-string">Apache</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Restart</span> <span class="hljs-string">Redis</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 引入来自其他文件的任务</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># Ansible 可以引入另一个文件中的任务列表。该文件必须表示任务列表。</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 任务列表如下:</span><br>    <span class="hljs-comment">#   ---</span><br>    <span class="hljs-comment">#   - name: create user</span><br>    <span class="hljs-comment">#     user: name=&#123;&#123;myuser&#125;&#125; color=&#123;&#123;color&#125;&#125;</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment">#   - name: add user to group</span><br>    <span class="hljs-comment">#     user: name=&#123;&#123;myuser&#125;&#125; groups=&#123;&#123;hisgroup&#125;&#125; append=true</span><br>    <span class="hljs-comment">#   ... # (文件结束)</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment">#   &#x27;tasks&#x27; YAML 文件中的内容是任务列表. 不要用 playbook YAML 代替 &#x27;tasks&#x27; YAML 文件。</span><br><br>    <span class="hljs-comment"># 在本例 new_user.yml 里，用户将是 &#x27;sklar&#x27;，&#x27;color&#x27; 将是 &#x27;red&#x27;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">import_tasks:</span> <span class="hljs-string">tasks/new_user.yml</span><br>      <span class="hljs-attr">vars:</span><br>        <span class="hljs-attr">myuser:</span> <span class="hljs-string">sklar</span><br>        <span class="hljs-attr">color:</span> <span class="hljs-string">red</span><br><br>    <span class="hljs-comment"># 在本例 new_user.yml 里，用户将是 &#x27;mosh&#x27;，&#x27;color&#x27; 将是 &#x27;mauve&#x27;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">import_tasks:</span> <span class="hljs-string">tasks/new_user.yml</span><br>      <span class="hljs-attr">vars:</span><br>        <span class="hljs-attr">myuser:</span> <span class="hljs-string">mosh</span><br>        <span class="hljs-attr">color:</span> <span class="hljs-string">mauve</span><br><br>    <span class="hljs-comment"># 引入 playbook 文件</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">import_playbook:</span> <span class="hljs-string">webservers.yml</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 使用列表运行任务</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># Ansible 提供了一个基本的循环方式. 如果任务中引入了 &#x27;loop&#x27; 则会依据给定的内容循环运行。</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Create</span> <span class="hljs-string">a</span> <span class="hljs-string">file</span> <span class="hljs-string">named</span> <span class="hljs-string">via</span> <span class="hljs-string">variable</span> <span class="hljs-string">in</span> <span class="hljs-string">/tmp</span><br>      <span class="hljs-attr">file:</span> <span class="hljs-string">path=/tmp/&#123;&#123;item&#125;&#125;</span> <span class="hljs-string">state=touched</span><br>      <span class="hljs-attr">loop:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">tangerine</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">lemon</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Loop</span> <span class="hljs-string">using</span> <span class="hljs-string">a</span> <span class="hljs-string">variable</span><br>      <span class="hljs-attr">file:</span> <span class="hljs-string">path=/tmp/&#123;&#123;item&#125;&#125;</span> <span class="hljs-string">state=touched</span><br>      <span class="hljs-attr">loop:</span> <span class="hljs-string">&#x27;&#123;&#123;mylist&#125;&#125;&#x27;</span><br>      <span class="hljs-attr">vars:</span><br>        <span class="hljs-comment"># 样例在此处定义，但实际使用中可以在任务运行前的任意位置进行定义。</span><br>        <span class="hljs-comment"># 请注意的是 YAML 的缩进，这样的方式也是正确的。</span><br>        <span class="hljs-attr">mylist:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">tangerine</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">lemon</span><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 有条件地执行任务</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 有时，您只想在特定条件下运行某个操作。</span><br>    <span class="hljs-comment"># Ansible 支持使用条件 Jinja 表达式，仅在“True”时执行任务。</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 如果您试图仅在值更改时运行任务，</span><br>    <span class="hljs-comment"># 请考虑将任务重写为处理程序并使用“notify”（见下文）。</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;shutdown all ubuntu&quot;</span><br>      <span class="hljs-attr">command:</span> <span class="hljs-string">/sbin/shutdown</span> <span class="hljs-string">-t</span> <span class="hljs-string">now</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">&#x27;&#123;&#123;is_ubuntu|bool&#125;&#125;&#x27;</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;shutdown the if host is in the government&quot;</span><br>      <span class="hljs-attr">command:</span> <span class="hljs-string">/sbin/shutdown</span> <span class="hljs-string">-t</span> <span class="hljs-string">now</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">&quot;<span class="hljs-template-variable">&#123;&#123;inventory_hostname in groups[&#x27;government&#x27;]&#125;&#125;</span>&quot;</span><br><br>      <span class="hljs-comment"># 另外一种实现方式</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;shutdown the if host is in the government&quot;</span><br>      <span class="hljs-attr">command:</span> <span class="hljs-string">/sbin/shutdown</span> <span class="hljs-string">-t</span> <span class="hljs-string">now</span><br>      <span class="hljs-attr">when:</span> <span class="hljs-string">&quot;<span class="hljs-template-variable">&#123;&#123;&#x27;government&#x27; in group_names&#125;&#125;</span>&quot;</span><br><br>    <span class="hljs-comment"># Ansible 有一些内置变量，您可以在此处检查它们。</span><br>    <span class="hljs-comment"># inventory_hostname 是执行任务的当前主机的名称（源自hosts:关键字）</span><br>    <span class="hljs-comment"># group_names 包含当前主机（inventory_hostname）所属的组列表</span><br>    <span class="hljs-comment"># 组是库存组与属于它们的主机列表的映射</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 使用其他用户运行</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 每个任务都有可选的关键字来控制用户，以及是否使用权限提升（如sudo或su）切换到该用户。</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">login</span> <span class="hljs-string">in</span> <span class="hljs-string">as</span> <span class="hljs-string">postgres</span> <span class="hljs-string">and</span> <span class="hljs-string">dump</span> <span class="hljs-string">all</span> <span class="hljs-string">postgres</span> <span class="hljs-string">databases</span><br>      <span class="hljs-attr">shell:</span> <span class="hljs-string">pg_dumpall</span> <span class="hljs-string">-w</span> <span class="hljs-string">-f</span> <span class="hljs-string">/tmp/backup.psql</span><br>      <span class="hljs-attr">remote_user:</span> <span class="hljs-string">postgres</span><br>      <span class="hljs-attr">become:</span> <span class="hljs-literal">False</span><br><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">login</span> <span class="hljs-string">normally,</span> <span class="hljs-string">but</span> <span class="hljs-string">sudo</span> <span class="hljs-string">to</span> <span class="hljs-string">postgres</span> <span class="hljs-string">to</span> <span class="hljs-string">dump</span> <span class="hljs-string">all</span> <span class="hljs-string">postgres</span> <span class="hljs-string">databases</span><br>      <span class="hljs-attr">shell:</span> <span class="hljs-string">pg_dumpall</span> <span class="hljs-string">-w</span> <span class="hljs-string">-f</span> <span class="hljs-string">/tmp/backup.psql</span><br>      <span class="hljs-attr">become:</span> <span class="hljs-literal">true</span><br>      <span class="hljs-attr">become_user:</span> <span class="hljs-string">postgres</span><br>      <span class="hljs-attr">become_method:</span> <span class="hljs-string">sudo</span><br><br>    <span class="hljs-comment">##########</span><br>    <span class="hljs-comment"># 本地运行!</span><br>    <span class="hljs-comment">#</span><br>    <span class="hljs-comment"># 任务也可以委派给控制主机</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">create</span> <span class="hljs-string">tempfile</span><br>      <span class="hljs-attr">local_action:</span> <span class="hljs-string">shell</span> <span class="hljs-string">dd</span> <span class="hljs-string">if=/dev/urandom</span> <span class="hljs-string">of=/tmp/random.txt</span> <span class="hljs-string">count=100</span><br><br>    <span class="hljs-comment"># 这相当于如下操作</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">create</span> <span class="hljs-string">tempfile</span><br>      <span class="hljs-attr">shell:</span> <span class="hljs-string">dd</span> <span class="hljs-string">if=/dev/urandom</span> <span class="hljs-string">of=/tmp/random.txt</span> <span class="hljs-string">count=100</span><br>      <span class="hljs-attr">delegate_to:</span> <span class="hljs-string">localhost</span><br>    <span class="hljs-comment"># “delegate_to”可以使用任何目标主机，但对于上述情况，它与使用“local_action”相同</span><br><br>  <span class="hljs-attr">handlers:</span><br>  <span class="hljs-comment">##########</span><br>  <span class="hljs-comment"># 关键参数: handlers</span><br>  <span class="hljs-comment"># 是否必填: 否</span><br>  <span class="hljs-comment"># 简介:</span><br>  <span class="hljs-comment">#   Handlers 是在另一个任务更改某些内容时运行的任务。</span><br>  <span class="hljs-comment">#   有关如何触发它们的示例，请参见上文。</span><br>  <span class="hljs-comment">#   定义 handlers 的格式与任务的格式完全相同。</span><br>  <span class="hljs-comment">#   请注意，如果多个任务在playbook运行中通知同一个处理程序，则该处理程序将只为该主机运行一次。</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   通过名称或使用 listen 关键字来引用处理程序。</span><br>  <span class="hljs-comment">#   它们将按照 playbook 中宣布的顺序运行。</span><br>  <span class="hljs-comment"># 例如：如果任务要以相反的顺序通知处理程序，如下所示：</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment">#   - task: ensure file does not exist</span><br>  <span class="hljs-comment">#     file:</span><br>  <span class="hljs-comment">#       name: /tmp/lock.txt</span><br>  <span class="hljs-comment">#       state: absent</span><br>  <span class="hljs-comment">#     notify:</span><br>  <span class="hljs-comment">#     - Restart application</span><br>  <span class="hljs-comment">#     - Restart nginx</span><br>  <span class="hljs-comment">#</span><br>  <span class="hljs-comment"># 因为声明时的顺序 &quot;Restart nginx&quot; handler 会在 &quot;Restart application&quot; 之前运行</span><br><br>    <span class="hljs-comment"># 使用名称触发的样例</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Restart</span> <span class="hljs-string">nginx</span><br>      <span class="hljs-attr">service:</span><br>         <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>         <span class="hljs-attr">state:</span> <span class="hljs-string">restarted</span><br><br>    <span class="hljs-comment"># 使用 listen 或名称触发</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">redis</span> <span class="hljs-string">restarter</span><br>      <span class="hljs-attr">service:</span><br>         <span class="hljs-attr">name:</span> <span class="hljs-string">redis</span><br>         <span class="hljs-attr">state:</span> <span class="hljs-string">restarted</span><br>      <span class="hljs-attr">listen:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Restart</span> <span class="hljs-string">redis</span><br><br>    <span class="hljs-comment"># 任何模块都可以用于处理程序操作，尽管这可以通过多种方式和多次触发，但每个主机只能执行一次</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">restart</span> <span class="hljs-string">application</span> <span class="hljs-string">that</span> <span class="hljs-string">should</span> <span class="hljs-string">really</span> <span class="hljs-string">be</span> <span class="hljs-string">a</span> <span class="hljs-string">service</span><br>      <span class="hljs-attr">command:</span> <span class="hljs-string">/srv/myapp/restart.sh</span><br>      <span class="hljs-attr">listen:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">Restart</span> <span class="hljs-string">application</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">restart</span> <span class="hljs-string">myapp</span><br><br>    <span class="hljs-comment"># 同样还可以包含来自另一个文件的处理程序。结构与任务文件相同，有关示例，请参见上面的任务部分。</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">import_tasks:</span> <span class="hljs-string">handlers/site.yml</span><br><br><br><span class="hljs-comment"># 请注意: 这不是一个 playbook 或任务中所有可能关键字的完整列表，只是一个非常常见的选项示例。</span><br><br><span class="hljs-comment"># 下面的内容是文档的结束标记</span><br><span class="hljs-string">...</span><br></code></pre></td></tr></table></figure>
+<h3 id="使用自带的工具进行加密">使用自带的工具进行加密</h3>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gauss">ansible-vault [<span class="hljs-keyword">create</span>(创建新)|<br><span class="hljs-built_in">decrypt</span>(解密)<br><span class="hljs-keyword">edit</span>(编辑加密文件<br><span class="hljs-built_in">encrypt</span>(加密)<br><span class="hljs-built_in">rekey</span>(修改口令)<br><span class="hljs-built_in">view</span>(查看)] <br>[<span class="hljs-built_in">options</span>(选项)] [vaultfile.yml]<br></code></pre></td></tr></table></figure>
+<p>例如可以将主机与密码文件单独写出然后进行加密</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible-vault encrypt hello.yml<br></code></pre></td></tr></table></figure>
+<h3 id="配置用户的方式">配置用户的方式</h3>
+<p>可以使用如下的方式覆写：</p>
+<ul>
+<li>在运行时使用 <code>-u</code> 参数</li>
+<li>将用户相关信息存储在库中</li>
+<li>将用户信息存储在配置文件中</li>
+<li>设置环境变量</li>
+</ul>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html">官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ansible/ansible/blob/devel/examples">官方样例</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/" class="print-no-link">#Python</a>
+      
+        <a href="/tags/Ansible/" class="print-no-link">#Ansible</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Ansible 试用</div>
+      <div>https://wangqian0306.github.io/2022/ansible-trial/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/ansible-install/" title="Ansible 安装">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ansible 安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/thread-pool/" title="线程池">
+                        <span class="hidden-mobile">线程池</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

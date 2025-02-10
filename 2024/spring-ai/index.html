@@ -1,0 +1,720 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Spring AI 简介 类似于 LangChain，Spring 也提供了和大模型的相关库。目前主要支持文本对话和从文本生成图像。但是对于向量数据库的支持比较好。 使用方式 Ollama Chat 在 Spring Initializer 里可以引入如下内容：  Ollama Spring Web Spring Reactive Web  之后为了使用更新版本的 Ollama 需要进行如下修改：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AI">
+<meta property="og:url" content="https://wangqian0306.github.io/2024/spring-ai/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Spring AI 简介 类似于 LangChain，Spring 也提供了和大模型的相关库。目前主要支持文本对话和从文本生成图像。但是对于向量数据库的支持比较好。 使用方式 Ollama Chat 在 Spring Initializer 里可以引入如下内容：  Ollama Spring Web Spring Reactive Web  之后为了使用更新版本的 Ollama 需要进行如下修改：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-29T13:32:58.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.482Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Spring AI - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spring AI"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-29 21:32" pubdate>
+          2024年3月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Spring AI</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Spring-AI">Spring AI</h2>
+<h3 id="简介">简介</h3>
+<p>类似于 LangChain，Spring 也提供了和大模型的相关库。目前主要支持文本对话和从文本生成图像。但是对于向量数据库的支持比较好。</p>
+<h3 id="使用方式">使用方式</h3>
+<h4 id="Ollama-Chat">Ollama Chat</h4>
+<p>在 <a target="_blank" rel="noopener" href="https://start.spring.io/">Spring Initializer</a> 里可以引入如下内容：</p>
+<ul>
+<li>Ollama</li>
+<li>Spring Web</li>
+<li>Spring Reactive Web</li>
+</ul>
+<p>之后为了使用更新版本的 Ollama 需要进行如下修改：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs groovy">repositories &#123;<br>    mavenCentral()<br>    maven &#123; url <span class="hljs-string">&#x27;https://repo.spring.io/milestone&#x27;</span> &#125;<br>    maven &#123; url <span class="hljs-string">&#x27;https://repo.spring.io/snapshot&#x27;</span> &#125;<br>&#125;<br><br>ext &#123;<br>    set(<span class="hljs-string">&#x27;springAiVersion&#x27;</span>, <span class="hljs-string">&quot;1.0.0-SNAPSHOT&quot;</span>)<br>&#125;<br><br>dependencies &#123;<br>    implementation <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span><br>    implementation <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-starter-webflux&#x27;</span><br>    implementation <span class="hljs-string">&#x27;org.springframework.ai:spring-ai-transformers-spring-boot-starter&#x27;</span><br>    implementation <span class="hljs-string">&#x27;org.springframework.ai:spring-ai-ollama-spring-boot-starter&#x27;</span><br>    compileOnly <span class="hljs-string">&#x27;org.projectlombok:lombok&#x27;</span><br>    developmentOnly <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-devtools&#x27;</span><br>    annotationProcessor <span class="hljs-string">&#x27;org.projectlombok:lombok&#x27;</span><br>    testImplementation <span class="hljs-string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span><br>    testImplementation <span class="hljs-string">&#x27;io.projectreactor:reactor-test&#x27;</span><br>&#125;<br><br>dependencyManagement &#123;<br>    imports &#123;<br>        mavenBom <span class="hljs-string">&quot;org.springframework.ai:spring-ai-bom:$&#123;springAiVersion&#125;&quot;</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>之后编写如下接口即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.ChatClient;<br><span class="hljs-keyword">import</span> org.springframework.ai.embedding.EmbeddingModel;<br><span class="hljs-keyword">import</span> org.springframework.ai.embedding.EmbeddingResponse;<br><span class="hljs-keyword">import</span> org.springframework.ai.ollama.api.OllamaOptions;<br><span class="hljs-keyword">import</span> org.springframework.core.ParameterizedTypeReference;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestParam;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><span class="hljs-keyword">import</span> reactor.core.publisher.Flux;<br><br><span class="hljs-keyword">import</span> java.util.List;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/ollama&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ChatController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatClient chatClient;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> EmbeddingModel embeddingModel;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ChatController</span><span class="hljs-params">(ChatClient.Builder builder, EmbeddingModel embeddingModel)</span> &#123;<br>        <span class="hljs-built_in">this</span>.chatClient = builder.defaultOptions(OllamaOptions.create().withModel(<span class="hljs-string">&quot;llama3&quot;</span>)).build();<br>        <span class="hljs-built_in">this</span>.embeddingModel = embeddingModel;<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">simple</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(required = false, defaultValue = &quot;hello&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatClient.prompt().user(message).call().content();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/embedding&quot;)</span><br>    <span class="hljs-keyword">public</span> EmbeddingResponse <span class="hljs-title function_">embedding</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(required = false, defaultValue = &quot;hello&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.embeddingModel.embedForResponse(List.of(message));<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat/stream&quot;)</span><br>    <span class="hljs-keyword">public</span> Flux&lt;String&gt; <span class="hljs-title function_">simpleFlux</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(required = false, defaultValue = &quot;hello&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatClient.prompt().user(message).stream().content();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat/parser&quot;)</span><br>    <span class="hljs-keyword">public</span> List&lt;Song&gt; <span class="hljs-title function_">simpleParser</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(required = false, defaultValue = &quot;Taylor Swift&quot;)</span> String artist)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">question</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">                Please give me a list of top 10 songs and it&#x27;s release year for the artist &#123;artist&#125;.  If you don&#x27;t know the answer , just say &quot;I don&#x27;t know&quot;.</span><br><span class="hljs-string">                &quot;&quot;&quot;</span>;<br>        <span class="hljs-keyword">return</span> chatClient.prompt().user(u -&gt; u.text(question).param(<span class="hljs-string">&quot;artist&quot;</span>, artist)).call().entity(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ParameterizedTypeReference</span>&lt;&gt;() &#123;<br>        &#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>然后需要进行如下配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">application:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">xxx</span><br>  <span class="hljs-attr">ai:</span><br>    <span class="hljs-attr">ollama:</span><br>      <span class="hljs-attr">base-url:</span> <span class="hljs-string">http://xxx.xxx.xxx.xxx:11434</span><br>      <span class="hljs-attr">chat:</span><br>        <span class="hljs-attr">options:</span><br>          <span class="hljs-attr">model:</span> <span class="hljs-string">llama3.1</span><br>          <span class="hljs-attr">num-ctx:</span> <span class="hljs-number">2048</span><br>      <span class="hljs-attr">embedding:</span><br>        <span class="hljs-attr">options:</span><br>          <span class="hljs-attr">model:</span> <span class="hljs-string">nomic-embed-text</span><br></code></pre></td></tr></table></figure>
+<p>num-ctx 参数是程序上下文的大小配置，如果有需求可以从 2k 提升到 8k, 16k, 32k 最大值为 128k。需要注意的是越大的上下文会影响硬件的内存部分。</p>
+<blockquote>
+<p>注：此处返回的结果与格式和模型有较大的关系，建议使用 <code>ollama run llama3</code> 先进行测试，其他参数详见 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/api/chat/ollama-chat.html">配置参考</a></p>
+</blockquote>
+<h5 id="设置不同模型">设置不同模型</h5>
+<p>如果需要为不同的接口使用不同的模型则可以使用如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ChatResponse</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> chatClient.prompt(<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Prompt</span>(<br>        <span class="hljs-string">&quot;Generate the names of 5 famous pirates.&quot;</span>,<br>        OllamaOptions.create()<br>            .withModel(<span class="hljs-string">&quot;llama2&quot;</span>)<br>            .withTemperature(<span class="hljs-number">0.4</span>)<br>    )).call();<br></code></pre></td></tr></table></figure>
+<h5 id="RAG">RAG</h5>
+<p>如果想要使用 RAG 则可以采用如下方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.ai.document.Document;<br><span class="hljs-keyword">import</span> org.springframework.ai.embedding.EmbeddingModel;<br><span class="hljs-keyword">import</span> org.springframework.ai.reader.TextReader;<br><span class="hljs-keyword">import</span> org.springframework.ai.transformer.splitter.TextSplitter;<br><span class="hljs-keyword">import</span> org.springframework.ai.transformer.splitter.TokenTextSplitter;<br><span class="hljs-keyword">import</span> org.springframework.ai.vectorstore.SimpleVectorStore;<br><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Value;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;<br><span class="hljs-keyword">import</span> org.springframework.core.io.Resource;<br><br><span class="hljs-keyword">import</span> java.io.File;<br><span class="hljs-keyword">import</span> java.util.List;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RagConfig</span> &#123;<br><br>    <span class="hljs-meta">@Value(&quot;./vectorstore.json&quot;)</span><br>    <span class="hljs-keyword">private</span> String vectorStorePath;<br><br>    <span class="hljs-meta">@Value(&quot;classpath:/docs/olympic-faq.txt&quot;)</span><br>    <span class="hljs-keyword">private</span> Resource faq;<br><br>    <span class="hljs-meta">@Bean</span><br>    SimpleVectorStore <span class="hljs-title function_">simpleVectorStore</span><span class="hljs-params">(EmbeddingModel embeddingModel)</span> &#123;<br>        <span class="hljs-type">var</span> <span class="hljs-variable">simpleVectorStore</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleVectorStore</span>(embeddingModel);<br>        <span class="hljs-type">var</span> <span class="hljs-variable">vectorStoreFile</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(vectorStorePath);<br>        <span class="hljs-keyword">if</span> (vectorStoreFile.exists()) &#123;<br>            log.info(<span class="hljs-string">&quot;Vector Store File Exists,&quot;</span>);<br>            simpleVectorStore.load(vectorStoreFile);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            log.info(<span class="hljs-string">&quot;Vector Store File Does Not Exist, load documents&quot;</span>);<br>            <span class="hljs-type">TextReader</span> <span class="hljs-variable">textReader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextReader</span>(faq);<br>            textReader.getCustomMetadata().put(<span class="hljs-string">&quot;filename&quot;</span>, <span class="hljs-string">&quot;olympic-faq.txt&quot;</span>);<br>            List&lt;Document&gt; documents = textReader.get();<br>            <span class="hljs-type">TextSplitter</span> <span class="hljs-variable">textSplitter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TokenTextSplitter</span>();<br>            List&lt;Document&gt; splitDocuments = textSplitter.apply(documents);<br>            simpleVectorStore.add(splitDocuments);<br>            simpleVectorStore.save(vectorStoreFile);<br>        &#125;<br>        <span class="hljs-keyword">return</span> simpleVectorStore;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>然后编写 <code>RagController</code> :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.ChatClient;<br><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;<br><span class="hljs-keyword">import</span> org.springframework.ai.vectorstore.SearchRequest;<br><span class="hljs-keyword">import</span> org.springframework.ai.vectorstore.VectorStore;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestParam;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/ollama&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RagController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatClient chatClient;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">RagController</span><span class="hljs-params">(ChatClient.Builder builder, VectorStore vectorStore)</span> &#123;<br>        <span class="hljs-built_in">this</span>.chatClient = builder.defaultAdvisors(<span class="hljs-keyword">new</span> <span class="hljs-title class_">QuestionAnswerAdvisor</span>(vectorStore, SearchRequest.defaults()))<br>                .build();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat/rag&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">rag</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(value = &quot;message&quot;, defaultValue = &quot;How many athletes compete in the Olympic Games Paris 2024&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatClient.prompt()<br>                .user(message)<br>                .call()<br>                .content();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：此处的 Advisors 是 Spring 在调用大模型时拦截并处理请求的组件。默认提供的 Advisor 有以下三项：历史记录管理(xxChatMemoryAdvistor)，RAG 增强(QuestionAnswerAdvisor)，敏感词过滤(SafeGuardAdvisor)。具体内容参见 <a target="_blank" rel="noopener" href="https://spring.io/blog/2024/10/02/supercharging-your-ai-applications-with-spring-ai-advisors">官方博客</a></p>
+</blockquote>
+<p>最后需要补充 <code>resources/prompts/rag-prompt-template.st</code> 提示词模板：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">You are a helpful assistant, conversing with a user about the subjects contained in a set of documents.<br>Use the information from the DOCUMENTS section to provide accurate answers. If unsure or if the answer<br>isn&#x27;t found in the DOCUMENTS section, simply state that you don&#x27;t know the answer.<br><br>QUESTION:<br>&#123;input&#125;<br><br>DOCUMENTS:<br>&#123;documents&#125;<br></code></pre></td></tr></table></figure>
+<p>和问答资料库 <code>resources/docs/olympic-faq.txt</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><code class="hljs text"><br>Q: How to buy tickets for the Olympic Games Paris 2024?<br>A: Tickets for the Olympic Games Paris 2024 are available for spectators around the world only on the official ticketing website. To buy tickets, click here.<br><br>The Paris 2024 Hospitality program offers packages that include tickets for sporting events combined with exceptional services in the competition venues (boxes, lounges) or in the heart of the city (accommodation, transport options, gastronomy, tourist activities, etc.).<br><br>The Paris 2024 Hospitality program is delivered by the official Paris 2024 Hospitality provider, On Location.<br><br>For more information about the Paris 2024 Hospitality &amp; Travel offers, click here.<br><br>Q: What is the official mascot of the Olympic Games Paris 2024?<br>A: The Olympic Games Paris 2024 mascot is Olympic Phryge. The mascot is based on the traditional small Phrygian hats for which they are shaped after.<br><br>The name and design were chosen as symbols of freedom and to represent allegorical figures of the French republic.<br><br>The Olympic Phryge is decked out in blue, white and red - the colours of France’s famed tricolour flag - with the golden Paris 2024 logo emblazoned across its chest.<br><br>Q: When and where are the next Olympic Games?<br>A: The Olympic Games Paris 2024 will take place in France from 26 July to 11 August.<br><br>Q: What sports are in the Olympic Games Paris 2024?<br>A: 3X3 Basketball<br>Archery<br>Artistic Gymnastics<br>Artistic Swimming<br>Athletics<br>Badminton<br>Basketball<br>Beach Volleyball<br>Boxing<br>Breaking<br>Canoe Slalom<br>Canoe Sprint<br>Cycling BMX Freestyle<br>Cycling BMX Racing<br>Cycling Mountain Bike<br>Cycling Road<br>Cycling Track<br>Diving<br>Equestrian<br>Fencing<br>Football<br>Golf<br>Handball<br>Hockey<br>Judo<br>Marathon Swimming<br>Modern Pentathlon<br>Rhythmic Gymnastics<br>Rowing<br>Rugby Sevens<br>Sailing<br>Shooting<br>Skateboarding<br>Sport Climbing<br>Surfing<br>Swimming<br>Table Tennis<br>Taekwondo<br>Tennis<br>Trampoline<br>Triathlon<br>Volleyball<br>Water Polo<br>Weightlifting<br>Wrestling<br><br>Q:Where to watch the Olympic Games Paris 2024?<br>A: In France, the 2024 Olympic Games will be broadcast by Warner Bros. Discovery (formerly Discovery Inc.) via Eurosport, with free-to-air coverage sub-licensed to the country&#x27;s public broadcaster France Télévisions. For a detailed list of the Paris 2024 Media Rights Holders here.<br><br>Q: How many athletes compete in the Olympic Games Paris 2024?<br>A: Around 10,500 athletes from 206 NOCs will compete.<br><br><br>Q: How often are the modern Olympic Games held?<br>A: The summer edition of the Olympic Games is normally held every four years.<br><br>Q: Where will the 2028 and 2032 Olympic Games be held?<br>A: Los Angeles, USA, will host the next Olympic Games from 14 to 30 July 2028. Brisbane, Australia, will host the Games in 2032.<br><br>Q: What is the difference between the Olympic Summer Games and the Olympic Winter Games?<br>A: The summer edition of the Olympic Games is a multi-sport event normally held once every four years usually in July or August.<br><br>The Olympic Winter Games are also held every four years in the winter months of the host location and the multi-sports competitions are practised on snow and ice.<br><br>Both Games are organised by the International Olympic Committee.<br><br>Q: Which cities have hosted the Olympic Summer Games?<br>A: 1896 Athens<br>1900 Paris<br>1904 St. Louis<br>1908 London<br>1912 Stockholm<br>1920 Antwerp<br>1924 Paris<br>1928 Amsterdam<br>1932 Los Angeles<br>1936 Berlin<br>1948 London<br>1952 Helsinki<br>1956 Melbourne<br>1960 Rome<br>1964 Tokyo<br>1968 Mexico City<br>1972 Munich<br>1976 Montreal<br>1980 Moscow<br>1984 Los Angeles<br>1988 Seoul<br>1992 Barcelona<br>1996 Atlanta<br>2000 Sydney<br>2004 Athens<br>2008 Beijing<br>2012 London<br>2016 Rio de Janeiro<br>2020 Tokyo<br>2024 Paris<br><br>Q: What year did the Olympic Games start?<br>A: The inaugural Games took place in 1896 in Athens, Greece.<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注：如果不配置 Ollama embedding options model 的话在初次启动时需要拉取 hugginface 和 github 当中的内容，启动时间较长且对网络环境要求很高。</p>
+</blockquote>
+<blockquote>
+<p>注： 读取 RAG 部分的官方文档在 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/api/etl-pipeline.html">ETL Pipeline文档中</a></p>
+</blockquote>
+<h5 id="对话记录">对话记录</h5>
+<p>编写如下代码即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.ChatClient;<br><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;<br><span class="hljs-keyword">import</span> org.springframework.ai.chat.memory.InMemoryChatMemory;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestParam;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/ollama&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MemoryController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatClient chatClient;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MemoryController</span><span class="hljs-params">(ChatClient.Builder builder)</span> &#123;<br>        <span class="hljs-built_in">this</span>.chatClient = builder.defaultAdvisors(<span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageChatMemoryAdvisor</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryChatMemory</span>()))<br>                .build();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat/memory&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">rag</span><span class="hljs-params">(</span><br><span class="hljs-params">            <span class="hljs-meta">@RequestParam(defaultValue = &quot;Here is chat room 1&quot;)</span> String message,</span><br><span class="hljs-params">            <span class="hljs-meta">@RequestParam(defaultValue = &quot;1&quot;)</span> String conversionId)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatClient.prompt()<br>                .user(message)<br>                .advisors(a -&gt; a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, conversionId))<br>                .call()<br>                .content();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h5 id="对话日志">对话日志</h5>
+<blockquote>
+<p>注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。</p>
+</blockquote>
+<p>编写如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;<br><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.ChatClient;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestParam;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(&quot;/ollama&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LogController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatClient chatClient;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">LogController</span><span class="hljs-params">(ChatClient.Builder builder)</span> &#123;<br>        <span class="hljs-built_in">this</span>.chatClient = builder.defaultAdvisors((<span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleLoggerAdvisor</span>()).build();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/chat/log&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">rag</span><span class="hljs-params">(</span><br><span class="hljs-params">            <span class="hljs-meta">@RequestParam(defaultValue = &quot;Hi&quot;)</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> chatClient.prompt()<br>                .user(message)<br>                .call()<br>                .content();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>然后修改日志配置即可：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">logging:</span><br>  <span class="hljs-attr">level:</span><br>    <span class="hljs-attr">org:</span><br>      <span class="hljs-attr">springframework:</span><br>        <span class="hljs-attr">ai:</span><br>          <span class="hljs-attr">chat:</span><br>            <span class="hljs-attr">client:</span><br>              <span class="hljs-attr">advisor:</span> <span class="hljs-string">DEBUG</span><br></code></pre></td></tr></table></figure>
+<h5 id="函数调用">函数调用</h5>
+<blockquote>
+<p>注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。</p>
+</blockquote>
+<p>编写需要被调用的函数 <code>MockWeatherService.java</code> ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.util.function.Function;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MockWeatherService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Function</span>&lt;MockWeatherService.Request, MockWeatherService.Response&gt; &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Unit</span> &#123; C, F &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">Request</span><span class="hljs-params">(String location, Unit unit)</span> &#123;&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">Response</span><span class="hljs-params">(<span class="hljs-type">double</span> temp, Unit unit)</span> &#123;&#125;<br><br>    <span class="hljs-keyword">public</span> Response <span class="hljs-title function_">apply</span><span class="hljs-params">(Request request)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;call mock service&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Response</span>(<span class="hljs-number">30.0</span>, Unit.C);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写配置类 <code>Config.java</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Configuration;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Description;<br><br><span class="hljs-keyword">import</span> java.util.function.Function;<br><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Config</span> &#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@Description(&quot;Get the weather in location&quot;)</span><br>    <span class="hljs-keyword">public</span> Function&lt;MockWeatherService.Request, MockWeatherService.Response&gt; currentWeatherFunction() &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MockWeatherService</span>();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>编写请求类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.ai.chat.client.ChatClient;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RequestParam;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ChatClient client;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">TestController</span><span class="hljs-params">(ChatClient.Builder builder)</span> &#123;<br>        <span class="hljs-built_in">this</span>.client = builder<br>                .defaultSystem(<span class="hljs-string">&quot;You are a helpful AI Assistant answering questions about cities around the world.&quot;</span>)<br>                .defaultFunctions(<span class="hljs-string">&quot;currentWeatherFunction&quot;</span>)<br>                .build();<br>    &#125;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/weather&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">weather</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam</span> String message)</span> &#123;<br>        <span class="hljs-keyword">return</span> client.prompt()<br>                .user(message)<br>                .call()<br>                .content();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>之后启动服务然后编写如下请求即可：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">GET http://localhost:8080/weather?message=What&#x27;s the weather like in Beijing<br></code></pre></td></tr></table></figure>
+<h5 id="指标监控">指标监控</h5>
+<blockquote>
+<p>注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。</p>
+</blockquote>
+<p>可以搭配 Spring Boot Actuator 访问官方提供的 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/api/generic-model.html">监控端点</a></p>
+<p>如果想检查请求的执行逻辑还可以引入 Zipkin 检查用户输入查询后，Spring 请求 LLM 接口花费的时间等细节内容。</p>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-ai/reference/index.html">官方文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/danvega/spring-into-ai">spring-into-ai</a></p>
+<p><a target="_blank" rel="noopener" href="https://spring.io/blog/2024/05/30/spring-ai-1-0-0-m1-released">Spring AI 1.0.0 M1 released</a></p>
+<p><a target="_blank" rel="noopener" href="https://spring.io/blog/2024/07/26/spring-ai-with-ollama-tool-support">Spring AI with Ollama Tool Support</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=afU8cK0pnpY">Spring Tips: Spring AI Observability</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=-Lyk7ygQw2E">AI Model Context Decoded</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring/" class="category-chain-item">Spring</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/Java/" class="print-no-link">#Java</a>
+      
+        <a href="/tags/Spring-Boot/" class="print-no-link">#Spring Boot</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Spring AI</div>
+      <div>https://wangqian0306.github.io/2024/spring-ai/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/isbd/" title="Iridium Short Burst Data">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Iridium Short Burst Data</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/pdf/" title="pdf">
+                        <span class="hidden-mobile">pdf</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

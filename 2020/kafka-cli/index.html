@@ -1,0 +1,1237 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="Kafka 相关命令梳理 容器化试用 Confluent 版本 可以使用如下命令安装项目： 123git clone https:&#x2F;&#x2F;github.com&#x2F;sknop&#x2F;kafka-docker-composercd kafka-docker-composerpip3 install jinjia2 然后使用如下命令创建 docker-compose 文件：  Zookeeper 版  1pytho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka CLI">
+<meta property="og:url" content="https://wangqian0306.github.io/2020/kafka-cli/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="Kafka 相关命令梳理 容器化试用 Confluent 版本 可以使用如下命令安装项目： 123git clone https:&#x2F;&#x2F;github.com&#x2F;sknop&#x2F;kafka-docker-composercd kafka-docker-composerpip3 install jinjia2 然后使用如下命令创建 docker-compose 文件：  Zookeeper 版  1pytho">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-09T14:43:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.462Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="Kafka">
+<meta property="article:tag" content="ZooKeeper">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Kafka CLI - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kafka CLI"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-06-09 22:43" pubdate>
+          2020年6月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Kafka CLI</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Kafka-相关命令梳理">Kafka 相关命令梳理</h2>
+<h3 id="容器化试用">容器化试用</h3>
+<h4 id="Confluent-版本">Confluent 版本</h4>
+<p>可以使用如下命令安装项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/sknop/kafka-docker-composer<br><span class="hljs-built_in">cd</span> kafka-docker-composer<br>pip3 install jinjia2<br></code></pre></td></tr></table></figure>
+<p>然后使用如下命令创建 <code>docker-compose</code> 文件：</p>
+<ul>
+<li>Zookeeper 版</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python3 kafka_docker_composer.py -b 1 -z 1<br></code></pre></td></tr></table></figure>
+<ul>
+<li>KRaft 版</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python3 kafka_docker_composer.py --brokers 1 --controllers 1<br></code></pre></td></tr></table></figure>
+<p>开启容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose up -d<br></code></pre></td></tr></table></figure>
+<h4 id="官方镜像版">官方镜像版</h4>
+<p>编写 <code>docker-compose.yaml</code> 文件，然后输入如下内容</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">broker:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">apache/kafka:latest</span><br>    <span class="hljs-attr">hostname:</span> <span class="hljs-string">broker</span><br>    <span class="hljs-attr">container_name:</span> <span class="hljs-string">broker</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;9092:9092&#x27;</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-attr">KAFKA_NODE_ID:</span> <span class="hljs-number">1</span><br>      <span class="hljs-attr">KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:</span> <span class="hljs-string">&#x27;CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT&#x27;</span><br>      <span class="hljs-attr">KAFKA_ADVERTISED_LISTENERS:</span> <span class="hljs-string">&#x27;PLAINTEXT_HOST://localhost:9092,PLAINTEXT://broker:19092&#x27;</span><br>      <span class="hljs-attr">KAFKA_PROCESS_ROLES:</span> <span class="hljs-string">&#x27;broker,controller&#x27;</span><br>      <span class="hljs-attr">KAFKA_CONTROLLER_QUORUM_VOTERS:</span> <span class="hljs-string">&#x27;1@broker:29093&#x27;</span><br>      <span class="hljs-attr">KAFKA_LISTENERS:</span> <span class="hljs-string">&#x27;CONTROLLER://:29093,PLAINTEXT_HOST://:9092,PLAINTEXT://:19092&#x27;</span><br>      <span class="hljs-attr">KAFKA_INTER_BROKER_LISTENER_NAME:</span> <span class="hljs-string">&#x27;PLAINTEXT&#x27;</span><br>      <span class="hljs-attr">KAFKA_CONTROLLER_LISTENER_NAMES:</span> <span class="hljs-string">&#x27;CONTROLLER&#x27;</span><br>      <span class="hljs-attr">CLUSTER_ID:</span> <span class="hljs-string">&#x27;4L6g3nShT-eMCtK--X86sw&#x27;</span><br>      <span class="hljs-attr">KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR:</span> <span class="hljs-number">1</span><br>      <span class="hljs-attr">KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS:</span> <span class="hljs-number">0</span><br>      <span class="hljs-attr">KAFKA_TRANSACTION_STATE_LOG_MIN_ISR:</span> <span class="hljs-number">1</span><br>      <span class="hljs-attr">KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR:</span> <span class="hljs-number">1</span><br>      <span class="hljs-attr">KAFKA_LOG_DIRS:</span> <span class="hljs-string">&#x27;/tmp/kraft-combined-logs&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>开启容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose up -d<br></code></pre></td></tr></table></figure>
+<h3 id="kafka-topics-sh"><a target="_blank" rel="noopener" href="http://kafka-topics.sh">kafka-topics.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--alter</code></td>
+<td style="text-align:center">增加主题分区数量(在已经使用的话题中永远不要增加新分区)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--config &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--create</code></td>
+<td style="text-align:center">创建话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--delete</code></td>
+<td style="text-align:center">删除话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">展示话题标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--list</code></td>
+<td style="text-align:center">话题列表的标识</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--replication-factor &lt;num&gt;</code></td>
+<td style="text-align:center">副本因子</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--partitions &lt;num&gt;</code></td>
+<td style="text-align:center">数据分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：如果需要删除话题需要在 <code>server.properties</code> 配置文件中编辑 <code>delete.topic.enable=true</code> 配置项。在标记删除的话题停止使用后 Kafka 才会真正清除话题。</p>
+</blockquote>
+<p>config 配置项目如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>cleanup.policy</code></td>
+<td style="text-align:center">数据清理策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>compression.type</code></td>
+<td style="text-align:center">压缩类型</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>delete.retention.ms</code></td>
+<td style="text-align:center">删除时间周期</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>file.delete.delay.ms</code></td>
+<td style="text-align:center">文件删除延时</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>flush.messages</code></td>
+<td style="text-align:center">写入磁盘的消息数量</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>flush.ms</code></td>
+<td style="text-align:center">写入磁盘的时间间隔</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>follower.replication.throttled.replicas</code></td>
+<td style="text-align:center">应在从属节点端限制日志复制的副本列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>index.interval.bytes</code></td>
+<td style="text-align:center">索引间隔文件大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>leader.replication.throttled.replicas</code></td>
+<td style="text-align:center">应在领导节点端限制日志复制的副本列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>max.compaction.lag.ms</code></td>
+<td style="text-align:center">消息在日志中不符合压缩条件的最长时间</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>max.message.bytes</code></td>
+<td style="text-align:center">允许的最大记录批量大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.format.version</code></td>
+<td style="text-align:center">消息格式版本呢</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.timestamp.difference.max.ms</code></td>
+<td style="text-align:center">broker 接收消息时的时间戳与消息中指定的时间戳之间允许的最大差异</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>message.timestamp.type</code></td>
+<td style="text-align:center">消息时间戳的类型</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.cleanable.dirty.ratio</code></td>
+<td style="text-align:center">日志压缩频率</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.compaction.lag.ms</code></td>
+<td style="text-align:center">未压缩日志的保存时间</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>min.insync.replicas</code></td>
+<td style="text-align:center">最少的同步副本数(ack=-1)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>preallocate</code></td>
+<td style="text-align:center">预分配磁盘文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>retention.bytes</code></td>
+<td style="text-align:center">保留文件大小</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>retention.ms</code></td>
+<td style="text-align:center">保留文件时间长度</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>segment.bytes</code></td>
+<td style="text-align:center">日志文件分片大小</td>
+</tr>
+</tbody>
+</table>
+<p>具体内容请参见官方手册。</p>
+<h3 id="kafka-console-producer-sh"><a target="_blank" rel="noopener" href="http://kafka-console-producer.sh">kafka-console-producer.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--batch-size &lt;num&gt;</code></td>
+<td style="text-align:center">发送缓冲区,默认为200</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;kafka_host&gt;:&lt;kafka_port&gt;,&lt;kafka_host1&gt;:&lt;kafka_port1&gt;</code></td>
+<td style="text-align:center">kafka Broker</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--compression-codec</code></td>
+<td style="text-align:center">数据压缩,可选 none,gzip,snappy,lz4,zstd 默认为 gzip</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--producer-property &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--producer.config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-console-consumer-sh"><a target="_blank" rel="noopener" href="http://kafka-console-consumer.sh">kafka-console-consumer.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--consumer-property &lt;name&gt;=&lt;value&gt;</code></td>
+<td style="text-align:center">配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--consumer.config &lt;path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--from-beginning</code></td>
+<td style="text-align:center">从头开始消费</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--group &lt;name&gt;</code></td>
+<td style="text-align:center">消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offset &lt;offset&gt;</code></td>
+<td style="text-align:center">消费偏移量，可填入数字或者 earliest 和 latest，默认为 latest</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--partition</code></td>
+<td style="text-align:center">分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;name&gt;</code></td>
+<td style="text-align:center">话题名</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-reassign-partitions-sh"><a target="_blank" rel="noopener" href="http://kafka-reassign-partitions.sh">kafka-reassign-partitions.sh</a></h3>
+<p>参数解释:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topics-to-move-json-file &lt;config_file&gt;</code></td>
+<td style="text-align:center">移动配置项</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;broker_id&gt;,&lt;broker_id&gt;</code></td>
+<td style="text-align:center">目标设备 ID</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--generate</code></td>
+<td style="text-align:center">依据配置文件生成分配计划</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--execute</code></td>
+<td style="text-align:center">执行重新分配计划</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--verify</code></td>
+<td style="text-align:center">检查分区计划是否成功</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--throttle</code></td>
+<td style="text-align:center">限速大小(Byte)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：–execute 和 --verify 参数所采用的配置项是 --generate 参数生成的。</p>
+</blockquote>
+<h3 id="kafka-preferred-replica-election-sh"><a target="_blank" rel="noopener" href="http://kafka-preferred-replica-election.sh">kafka-preferred-replica-election.sh</a></h3>
+<p>此工具使每个分区的领导权转移回“首选副本”，它可用于平衡服务器之间的领导权。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--zookeeper &lt;zk_host_1&gt;:&lt;zk_port_1&gt;,&lt;zk_host_2&gt;:&lt;zk_port_2&gt;/&lt;chroot&gt;</code></td>
+<td style="text-align:center">zookeeper 地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--path-to-json-file</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-consumer-groups-sh"><a target="_blank" rel="noopener" href="http://kafka-consumer-groups.sh">kafka-consumer-groups.sh</a></h3>
+<p>此工具可以列出所有的消费组详情，删除位移(offset)，重置消费组位移。</p>
+<p>消费组的重设策略如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">纬度</th>
+<th style="text-align:center">策略</th>
+<th style="text-align:center">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Earliest</td>
+<td style="text-align:center">最早</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Latest</td>
+<td style="text-align:center">当前最新</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Current</td>
+<td style="text-align:center">最新一次提交</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Specified-Offset</td>
+<td style="text-align:center">指定位移</td>
+</tr>
+<tr>
+<td style="text-align:center">位移维度</td>
+<td style="text-align:center">Shift-By-N</td>
+<td style="text-align:center">当前位移 +N</td>
+</tr>
+<tr>
+<td style="text-align:center">时间维度</td>
+<td style="text-align:center">DateTime</td>
+<td style="text-align:center">调整到大于给定时间的最小位移处</td>
+</tr>
+<tr>
+<td style="text-align:center">时间维度</td>
+<td style="text-align:center">Duration</td>
+<td style="text-align:center">调整到距离当前时间间隔的位移处</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--all-topics</code></td>
+<td style="text-align:center">管理所有话题</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--by-duration</code></td>
+<td style="text-align:center">Duration 策略，格式为 <code>PnDTnHnMnS</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--delete</code></td>
+<td style="text-align:center">删除位移(将目标组以如下形式传递 <code>--group g1 --group g2</code>)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">显示位移信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--dry-run</code></td>
+<td style="text-align:center">展示运行之后的情况(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--execute</code></td>
+<td style="text-align:center">执行操作(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--export</code></td>
+<td style="text-align:center">导出到csv(支持参数 reset-offsets)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--from-file &lt;conf_path&gt;</code></td>
+<td style="text-align:center">将导入位移</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--group</code></td>
+<td style="text-align:center">目标消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--list</code></td>
+<td style="text-align:center">列出消费组</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--members</code></td>
+<td style="text-align:center">列出组成员</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offsets</code></td>
+<td style="text-align:center">查看位移</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--reset-offsets</code></td>
+<td style="text-align:center">重置位移，可以配合试运行，执行操作，导出csv一起使用</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--shift-by &lt;Long: N&gt;</code></td>
+<td style="text-align:center">Shift-By-N策略，移动 N 个</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--state</code></td>
+<td style="text-align:center">显示状态</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--timeout &lt;Long: timeout (ms)&gt;</code></td>
+<td style="text-align:center">超时时间，默认 5000</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-current</code></td>
+<td style="text-align:center">Current 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-datetime &lt;String: datetime&gt;</code></td>
+<td style="text-align:center">DateTime 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-earliest</code></td>
+<td style="text-align:center">Earliest 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-latest</code></td>
+<td style="text-align:center">Latest 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--to-offset &lt;Long: offset&gt;</code></td>
+<td style="text-align:center">Specified-Offset 策略</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic &lt;String: topic&gt;</code></td>
+<td style="text-align:center">目标主题，在“重置偏移量”时，可以使用以下格式指定分区：<code>topic1:0,1,2</code>，其中0,1,2是要包括在进程中的分区。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--verbose</code></td>
+<td style="text-align:center">提供详细信息</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-log-dirs-sh"><a target="_blank" rel="noopener" href="http://kafka-log-dirs.sh">kafka-log-dirs.sh</a></h3>
+<p>查询各个 Broker 上的日志路径磁盘占用情况。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--broker-list &lt;String: Broker list&gt;</code></td>
+<td style="text-align:center">Broker 列表，样例如下 <code>0,1,2</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--describe</code></td>
+<td style="text-align:center">查看详情</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--topic-list &lt;String: Topic list&gt;</code></td>
+<td style="text-align:center">话题列表，样例如下 <code>topic1,topic2,topic3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-consumer-perf-test-sh"><a target="_blank" rel="noopener" href="http://kafka-consumer-perf-test.sh">kafka-consumer-perf-test.sh</a></h3>
+<p>消费者性能测试</p>
+<h3 id="kafka-producer-pref-test-sh"><a target="_blank" rel="noopener" href="http://kafka-producer-pref-test.sh">kafka-producer-pref-test.sh</a></h3>
+<p>生产者性能测试</p>
+<h3 id="kafka-dump-log-sh"><a target="_blank" rel="noopener" href="http://kafka-dump-log.sh">kafka-dump-log.sh</a></h3>
+<p>此工具有助于解析日志文件并将其内容转储到控制台，这对于调试看似损坏的日志段非常有用。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--files &lt;String: file1,file2,...&gt;</code></td>
+<td style="text-align:center">储存文件列表</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--max-message-size &lt;Integer: size&gt;</code></td>
+<td style="text-align:center">最大消息长度</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--print-data-log</code></td>
+<td style="text-align:center">同时打印至控制台</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--print-data-log</code></td>
+<td style="text-align:center">不输出元数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka-delete-records-sh"><a target="_blank" rel="noopener" href="http://kafka-delete-records.sh">kafka-delete-records.sh</a></h3>
+<p>此工具有助于将给定分区的记录向下删除到指定的偏移量。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>--bootstrap-server &lt;kafka_host&gt;:&lt;kafka_port&gt;</code></td>
+<td style="text-align:center">Kafka 地址及端口(必填)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--command-config &lt;conf_path&gt;</code></td>
+<td style="text-align:center">配置文件地址</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>--offset-json-file &lt;path&gt;</code></td>
+<td style="text-align:center">删除位移文件地址</td>
+</tr>
+</tbody>
+</table>
+<p>删除位移配置文件：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;partitions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;topic&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;foo&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;partition&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;offset&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+<h3 id="存储消息-日志-片段">存储消息(日志)片段</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kafka-run-class.sh kafka.tools.DullplogSegllents --files 00000000000052368601.<span class="hljs-built_in">log</span> --print-data-log<br></code></pre></td></tr></table></figure>
+<h3 id="自动创建主题">自动创建主题</h3>
+<p>默认情况下，Kafka 会在如下几种情形下自动创建主题：</p>
+<ul>
+<li>当一个生产者开始往主题中写入消息时；</li>
+<li>当一个消费者开始从出题读取消息时；</li>
+<li>当任意一个客户端向主题发送元数据请求时。</li>
+</ul>
+<h3 id="如何选择分区数量">如何选择分区数量</h3>
+<p>为主题选定分区数量并不是一件可有可无的事情，在进行数量选择时，需要考虑如下几个因素。</p>
+<ul>
+<li>主题需要达到多大的吞吐量？例如，是希望每秒钟写入 1OO KB 还是 1GB?</li>
+<li>从单个分区读取数据的最大吞吐量是多少？每个分区一般都会有一个消费者，如果你知道消费者将数据写入数据库的速度不会超过每秒 50 MB，那么你也该知道，从一个分区读取数据的吞吐量不需要超过每秒 50 MB。</li>
+<li>可以通过类似的方法估算生产者向单个分区写入数据的吞吐量，不过生产者的速度一般比消费者快得多，所以最好为生产者多估算一些吞吐量。</li>
+<li>每个 broker 包含的分区个数、可用的磁盘空间和网络带宽。</li>
+<li>如果消息是按照不同的键采写入分区的，那么为已有的主题新增分区就会很困难。</li>
+<li>单个 broker 对分区个数是有限制的，因为分区越多，占用的内存越多，完成首领选举需要的时间也越长。</li>
+</ul>
+<p>根据经验，把分区的大小限制在 25 GB 以内可以得到比较理想的效果。</p>
+<h3 id="强制删除话题">强制删除话题</h3>
+<p>在某些话题无法删除完成的时候可以直接操作 zookeeper 实现数据清除。</p>
+<p>首先需要定位到数据存储路径，检查 <code>server.properties</code> 文件中的 <code>log.dirs</code> 配置项，然后记录下来。</p>
+<p>然后使用如下命令进入 zookeeper</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">zookeeper-shell.sh &lt;zookeeper_host&gt;:&lt;zookeeper_port&gt;<br></code></pre></td></tr></table></figure>
+<p>然后使用下面的命令删除 zookeeper 数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">rmr /brokers/topics/&lt;name&gt;<br></code></pre></td></tr></table></figure>
+<p>如果之前已经设置过了 marked for deletion 则需要运行下面的语句</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">rmr /admin/delete_topics/&lt;name&gt;<br></code></pre></td></tr></table></figure>
+<p>然后在文件夹中删除真实的数据文件即可。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Kafka/" class="print-no-link">#Kafka</a>
+      
+        <a href="/tags/ZooKeeper/" class="print-no-link">#ZooKeeper</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kafka CLI</div>
+      <div>https://wangqian0306.github.io/2020/kafka-cli/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年6月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/performance/" title="大数据组件调优知识整理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">大数据组件调优知识整理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/kafka-connect/" title="Kafka Connect">
+                        <span class="hidden-mobile">Kafka Connect</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

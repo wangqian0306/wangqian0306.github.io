@@ -1,0 +1,1019 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="前言 之前一直没有关注过协议相关的内容，所以导致自己好像犯了些很蠢的错误。如今回头看看捡捡应该对自己的成长有很大的益处吧！ 超文本传输协议原文 请求报文  注：请求报文部分仅仅为了对之前的知识进行整理和补充，在下面的内容才是协议相关的内容。  HTTP 报文的格式如下 1234567请求方法 URL 协议版本 &#x2F;&#x2F; 请求行头部字段名: 对应值 &#x2F;&#x2F; 请求头...头部字段名: 对应值请求数据 &#x2F;&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP 请求相关的知识整理">
+<meta property="og:url" content="https://wangqian0306.github.io/2020/http/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="前言 之前一直没有关注过协议相关的内容，所以导致自己好像犯了些很蠢的错误。如今回头看看捡捡应该对自己的成长有很大的益处吧！ 超文本传输协议原文 请求报文  注：请求报文部分仅仅为了对之前的知识进行整理和补充，在下面的内容才是协议相关的内容。  HTTP 报文的格式如下 1234567请求方法 URL 协议版本 &#x2F;&#x2F; 请求行头部字段名: 对应值 &#x2F;&#x2F; 请求头...头部字段名: 对应值请求数据 &#x2F;&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-19T15:26:13.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.478Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>HTTP 请求相关的知识整理 - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="HTTP 请求相关的知识整理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-06-19 23:26" pubdate>
+          2020年6月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">HTTP 请求相关的知识整理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="前言">前言</h2>
+<p>之前一直没有关注过协议相关的内容，所以导致自己好像犯了些很蠢的错误。如今回头看看捡捡应该对自己的成长有很大的益处吧！</p>
+<p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc7231">超文本传输协议原文</a></p>
+<h2 id="请求报文">请求报文</h2>
+<blockquote>
+<p>注：请求报文部分仅仅为了对之前的知识进行整理和补充，在下面的内容才是协议相关的内容。</p>
+</blockquote>
+<p>HTTP 报文的格式如下</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">请求方法 URL 协议版本 // 请求行<br><br>头部字段名: 对应值 // 请求头<br>...<br>头部字段名: 对应值<br><br>请求数据 // 请求体<br></code></pre></td></tr></table></figure>
+<h2 id="请求方法总览">请求方法总览</h2>
+<p>协议中规定的请求方法有以下几种</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">请求方法</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">GET</td>
+<td style="text-align:center">检索信息</td>
+</tr>
+<tr>
+<td style="text-align:center">HEAD</td>
+<td style="text-align:center">HEAD方法与GET相同，不同之处在于服务器在响应中不得发送消息正文</td>
+</tr>
+<tr>
+<td style="text-align:center">POST</td>
+<td style="text-align:center">向指定资源提交数据处理请求</td>
+</tr>
+<tr>
+<td style="text-align:center">PUT</td>
+<td style="text-align:center">从客户端向服务器传送的数据取代指定的文档的内容</td>
+</tr>
+<tr>
+<td style="text-align:center">DELETE</td>
+<td style="text-align:center">移除目标资源</td>
+</tr>
+<tr>
+<td style="text-align:center">CONNECT</td>
+<td style="text-align:center">经过目标资源验证后建立一条与服务器通信的管道</td>
+</tr>
+<tr>
+<td style="text-align:center">OPTIONS</td>
+<td style="text-align:center">描述与目标资源的通信选项</td>
+</tr>
+<tr>
+<td style="text-align:center">TRACE</td>
+<td style="text-align:center">与目标资源之间的回路测试</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注：这个官方文档读起来真费劲。。。。</p>
+</blockquote>
+<h3 id="安全方法">安全方法</h3>
+<p>如果请求方法的定义语义本质上是只读的，则将其视为“安全方法“。</p>
+<p>在协议中将 GET, HEAD, OPTIONS, TRACE 方法定义为了安全方法。</p>
+<blockquote>
+<p>注：此处的只读指的是针对于目标数据而言，日志记录等操作不在考虑范围内。</p>
+</blockquote>
+<h3 id="幂等方法">幂等方法</h3>
+<p>如果使用该方法的多个相同请求在服务器上的预期效果与单个此类请求的效果相同，则该请求方法被视为“幂等方法” 。</p>
+<p>在协议中将 PUT, DELETE 方法规定为了幂等方法。</p>
+<blockquote>
+<p>注：此处的幂等指的是针对于目标数据而言，日志记录等操作不在考虑范围内。</p>
+</blockquote>
+<h3 id="可缓存的方法">可缓存的方法</h3>
+<p>可以将结果数据进行存储以供后来者取用的方法就是可缓存的方法。</p>
+<p>在协议中将 GET, HEAD, POST 方法规定为了可缓存的方法。</p>
+<h2 id="状态码说明">状态码说明</h2>
+<p>在协议中规定了如下四类状态码</p>
+<h3 id="提示信息-1xx">提示信息 (1xx)</h3>
+<p>状态代码的1xx类别指示临时响应，用于在完成请求的操作并发送最终响应之前传达连接状态或请求进度。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">状态码</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">100(Continue)</td>
+<td style="text-align:center">持续接受请求</td>
+</tr>
+<tr>
+<td style="text-align:center">101(Switching Protocols)</td>
+<td style="text-align:center">服务器理解并向客户端指出要升级到的协议</td>
+</tr>
+</tbody>
+</table>
+<h3 id="成功请求-2xx">成功请求 (2xx)</h3>
+<p>状态代码的2xx类表示服务器已成功接收并理解和接受了客户的请求。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">状态码</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">200(OK)</td>
+<td style="text-align:center">请求成功</td>
+</tr>
+<tr>
+<td style="text-align:center">201(Created)</td>
+<td style="text-align:center">请求成功并创建了新资源</td>
+</tr>
+<tr>
+<td style="text-align:center">202(Accepted)</td>
+<td style="text-align:center">该请求已被接受进行处理，但处理尚未完成</td>
+</tr>
+<tr>
+<td style="text-align:center">203(Non-Authoritative Information)</td>
+<td style="text-align:center">所得到的内容和原始服务器的返回内容可能不完全一致</td>
+</tr>
+<tr>
+<td style="text-align:center">204(No Content)</td>
+<td style="text-align:center">服务器执行成功但是没有任何数据返回</td>
+</tr>
+<tr>
+<td style="text-align:center">205(Reset Content)</td>
+<td style="text-align:center">表单重置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="重定向-3xx">重定向 (3xx)</h3>
+<p>状态代码的3xx类标识用户需要采取进一步的措施才能满足请求。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">状态码</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">300(Multiple Choices)</td>
+<td style="text-align:center">目标有多种</td>
+</tr>
+<tr>
+<td style="text-align:center">301(Moved Permanently)</td>
+<td style="text-align:center">已为目标资源分配了新的地址</td>
+</tr>
+<tr>
+<td style="text-align:center">302(Found)</td>
+<td style="text-align:center">目标资源暂时位于其他地址</td>
+</tr>
+<tr>
+<td style="text-align:center">303(See Other)</td>
+<td style="text-align:center">正在重定向用户请求到其他地址</td>
+</tr>
+<tr>
+<td style="text-align:center">305(Use Proxy)</td>
+<td style="text-align:center">已弃用</td>
+</tr>
+<tr>
+<td style="text-align:center">306(Unused)</td>
+<td style="text-align:center">已弃用</td>
+</tr>
+<tr>
+<td style="text-align:center">307(Temporary Redirect)</td>
+<td style="text-align:center">临时重定向</td>
+</tr>
+</tbody>
+</table>
+<h3 id="客户端异常-4xx">客户端异常 (4xx)</h3>
+<p>状态代码的4xx类表明客户端似乎已出错。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">状态码</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">400(Bad Request)</td>
+<td style="text-align:center">服务器无法处理用户传入的请求</td>
+</tr>
+<tr>
+<td style="text-align:center">402(Payment Required)</td>
+<td style="text-align:center">协议留用</td>
+</tr>
+<tr>
+<td style="text-align:center">403(Forbidden)</td>
+<td style="text-align:center">权限不足</td>
+</tr>
+<tr>
+<td style="text-align:center">404(Not Found)</td>
+<td style="text-align:center">资源不存在</td>
+</tr>
+<tr>
+<td style="text-align:center">405(Method Not Allowed)</td>
+<td style="text-align:center">请求方法异常</td>
+</tr>
+<tr>
+<td style="text-align:center">406(Not Acceptable)</td>
+<td style="text-align:center">目标资源与请求资源不符</td>
+</tr>
+<tr>
+<td style="text-align:center">408(Request Timeout)</td>
+<td style="text-align:center">服务器在限定时间内未收到完整的请求消息</td>
+</tr>
+<tr>
+<td style="text-align:center">409(Conflict)</td>
+<td style="text-align:center">与目标资源的当前状态冲突而无法完成请求</td>
+</tr>
+<tr>
+<td style="text-align:center">410(Gone)</td>
+<td style="text-align:center">在服务器上不再可以访问目标资源</td>
+</tr>
+<tr>
+<td style="text-align:center">411(Length Required)</td>
+<td style="text-align:center">必须传入Content-Length</td>
+</tr>
+<tr>
+<td style="text-align:center">413(Payload Too Large)</td>
+<td style="text-align:center">请求有效负载大于服务器愿意或能够处理的请求</td>
+</tr>
+<tr>
+<td style="text-align:center">414(URI Too Long)</td>
+<td style="text-align:center">请求目标长度大于服务器愿意解释的长度</td>
+</tr>
+<tr>
+<td style="text-align:center">415(Unsupported Media Type)</td>
+<td style="text-align:center">服务器拒绝为请求提供服务，因为有效负载的格式不受目标资源上此方法的支持</td>
+</tr>
+<tr>
+<td style="text-align:center">417(Expectation Failed)</td>
+<td style="text-align:center">服务器无法满足请求设定的Expect参数</td>
+</tr>
+<tr>
+<td style="text-align:center">426(Upgrade Required)</td>
+<td style="text-align:center">服务器拒绝使用当前协议执行请求</td>
+</tr>
+</tbody>
+</table>
+<h3 id="服务器端异常-5xx">服务器端异常 (5xx)</h3>
+<p>状态代码的5xx类表明服务器知道它已错误或无法执行所请求的方法。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">状态码</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">500(Internal Server Error)</td>
+<td style="text-align:center">服务器遇到意外状况，无法满足用户请求</td>
+</tr>
+<tr>
+<td style="text-align:center">501(Not Implemented)</td>
+<td style="text-align:center">服务器不支持满足请求所需的功能</td>
+</tr>
+<tr>
+<td style="text-align:center">502(Bad Gateway)</td>
+<td style="text-align:center">服务器充当网关或代理时从目标服务器得到了无效的相应</td>
+</tr>
+<tr>
+<td style="text-align:center">503(Service Unavailable)</td>
+<td style="text-align:center">服务器当前由于暂时的过载或计划的维护而无法处理该请求</td>
+</tr>
+<tr>
+<td style="text-align:center">504(Gateway Timeout)</td>
+<td style="text-align:center">服务器充当网关或代理时无法从目标服务器获得相应</td>
+</tr>
+<tr>
+<td style="text-align:center">505(HTTP Version Not Supported)</td>
+<td style="text-align:center">服务器不支持或拒绝支持请求中的HTTP版本</td>
+</tr>
+</tbody>
+</table>
+<h2 id="请求头说明">请求头说明</h2>
+<blockquote>
+<p>注：此处内容尚未进行整理，仅仅只是暂存。</p>
+</blockquote>
+<p>一般而言请求头内的数据有以下 Key</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">头部字段名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accept</td>
+<td style="text-align:center">客户端能够接收的内容类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Accept-Encoding</td>
+<td style="text-align:center">浏览器可以支持的web服务器返回内容压缩编码类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Connection</td>
+<td style="text-align:center">是否需要持久连接</td>
+</tr>
+<tr>
+<td style="text-align:center">Authorization</td>
+<td style="text-align:center">授权信息，常见的有 Basic 或 Bearer</td>
+</tr>
+<tr>
+<td style="text-align:center">Cache-Control</td>
+<td style="text-align:center">指定请求和响应遵循的缓存机制</td>
+</tr>
+<tr>
+<td style="text-align:center">Cookie</td>
+<td style="text-align:center">Cookie(这个没啥好说的)</td>
+</tr>
+<tr>
+<td style="text-align:center">Content-Length</td>
+<td style="text-align:center">请求的内容长度</td>
+</tr>
+<tr>
+<td style="text-align:center">Content-Type</td>
+<td style="text-align:center">请求数据类型(MIME)</td>
+</tr>
+<tr>
+<td style="text-align:center">Host</td>
+<td style="text-align:center">指定请求的服务器的域名和端口号</td>
+</tr>
+<tr>
+<td style="text-align:center">User-Agent</td>
+<td style="text-align:center">发送的浏览器和系统信息</td>
+</tr>
+</tbody>
+</table>
+<p>一般而言相应头内的数据有以下 Key</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">头部字段名</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accept-Ranges</td>
+<td style="text-align:center">表明服务器是否支持指定范围请求及哪种类型的分段请求</td>
+</tr>
+<tr>
+<td style="text-align:center">Age</td>
+<td style="text-align:center">从原始服务器到代理缓存形成的估算时间(以秒计，非负)</td>
+</tr>
+<tr>
+<td style="text-align:center">Last-Modified</td>
+<td style="text-align:center">请求资源的最后修改时间</td>
+</tr>
+<tr>
+<td style="text-align:center">Cache-Control</td>
+<td style="text-align:center">告诉所有的缓存机制是否可以缓存及哪种类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Content-Length</td>
+<td style="text-align:center">数据长度</td>
+</tr>
+<tr>
+<td style="text-align:center">Content-Encoding</td>
+<td style="text-align:center">服务器支持的返回内容压缩编码类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Content-Type</td>
+<td style="text-align:center">返回数据类型(MIME)</td>
+</tr>
+<tr>
+<td style="text-align:center">Date</td>
+<td style="text-align:center">原始服务器消息发出的时间</td>
+</tr>
+<tr>
+<td style="text-align:center">Expires</td>
+<td style="text-align:center">响应过期的日期和时间</td>
+</tr>
+<tr>
+<td style="text-align:center">Server</td>
+<td style="text-align:center">web服务器软件名称</td>
+</tr>
+</tbody>
+</table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Web/" class="category-chain-item">Web</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/HTTP/" class="print-no-link">#HTTP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>HTTP 请求相关的知识整理</div>
+      <div>https://wangqian0306.github.io/2020/http/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年6月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/short_url/" title="JAVA 版本的短网址算法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">JAVA 版本的短网址算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/java%20lock/" title="JAVA 当中的锁">
+                        <span class="hidden-mobile">JAVA 当中的锁</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

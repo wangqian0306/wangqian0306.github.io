@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/ayer.png">
+  <link rel="icon" href="/images/ayer.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="WangQian">
+  <meta name="keywords" content="技术博客">
+  
+    <meta name="description" content="YOLO 简介 YOLO(You Only Look Once) 是一款目标检测和图像分割模型。  注：AGPL-3.0 协议，可以付费商用。  使用场景 车辆跟踪识别 此样例严格限制 Python 版本 &gt;&#x3D;3.7,❤️.11  注：在测试中采用的系统版本是 Rocky Linux 9.3 Python 版本是 3.9.18 ，在训练和使用模型时使用显卡可以显著的减少训练时常。  在使用前">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLO">
+<meta property="og:url" content="https://wangqian0306.github.io/2023/yolo/index.html">
+<meta property="og:site_name" content="乾">
+<meta property="og:description" content="YOLO 简介 YOLO(You Only Look Once) 是一款目标检测和图像分割模型。  注：AGPL-3.0 协议，可以付费商用。  使用场景 车辆跟踪识别 此样例严格限制 Python 版本 &gt;&#x3D;3.7,❤️.11  注：在测试中采用的系统版本是 Rocky Linux 9.3 Python 版本是 3.9.18 ，在训练和使用模型时使用显卡可以显著的减少训练时常。  在使用前">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-23T13:41:32.000Z">
+<meta property="article:modified_time" content="2025-01-08T02:56:21.462Z">
+<meta property="article:author" content="WangQian">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>YOLO - 乾</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"wangqian0306.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"gtag":null,"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="乾" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 25vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>乾</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="YOLO"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-23 21:41" pubdate>
+          2023年11月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">YOLO</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="YOLO">YOLO</h2>
+<h3 id="简介">简介</h3>
+<p>YOLO(You Only Look Once) 是一款目标检测和图像分割模型。</p>
+<blockquote>
+<p>注：AGPL-3.0 协议，可以付费商用。</p>
+</blockquote>
+<h3 id="使用场景">使用场景</h3>
+<h4 id="车辆跟踪识别">车辆跟踪识别</h4>
+<p>此样例严格限制 Python 版本 &gt;=3.7,❤️.11</p>
+<blockquote>
+<p>注：在测试中采用的系统版本是 Rocky Linux 9.3 Python 版本是 3.9.18 ，在训练和使用模型时使用显卡可以显著的减少训练时常。</p>
+</blockquote>
+<p>在使用前可以访问 <a target="_blank" rel="noopener" href="https://pytorch.org/get-started/locally/">PyTorch</a> 官网根据实际情况获取安装命令然后进行安装。</p>
+<p>使用如下命令安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip3 install ultralytics<br></code></pre></td></tr></table></figure>
+<p>使用如下 Python 程序进行测试：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ultralytics<br>ultralytics.checks()<br></code></pre></td></tr></table></figure>
+<p>使用如下命令安装 C 环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum install gcc gcc-c++ cmake -y<br></code></pre></td></tr></table></figure>
+<p>使用如下命令安装 <code>ByteTrack</code> :</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/ifzhang/ByteTrack.git<br><span class="hljs-built_in">cd</span> ByteTrack<br></code></pre></td></tr></table></figure>
+<p>然后编辑 <code>requirements.txt</code>：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs txt"># overwrite protobuf version<br>protobuf==3.19.6<br><br># TODO: Update with exact module version<br>numpy==1.23.4<br>torch&gt;=1.7<br>opencv_python<br>loguru<br>scikit-image<br>tqdm<br>torchvision&gt;=0.10.0<br>Pillow<br>thop<br>ninja<br>tabulate<br>tensorboard<br>lapx<br>motmetrics<br>filterpy<br>h5py<br><br># verified versions<br>onnx==1.9.0<br>onnxruntime<br>onnx-simplifier==0.3.5<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip3 install -r requirements.txt<br>python3 setup.py develop<br>pip3 install cython; pip3 install <span class="hljs-string">&#x27;git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI&#x27;</span><br>pip3 install cython_bbox<br>pip3 install -q onemetric<br>pip3 install -q loguru lap thop<br></code></pre></td></tr></table></figure>
+<p>使用如下 Python 程序进行测试：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br>sys.path.append(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;HOME&#125;</span>/ByteTrack&quot;</span>)<br><br><br><span class="hljs-keyword">import</span> yolox<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;yolox.__version__:&quot;</span>, yolox.__version__)<br></code></pre></td></tr></table></figure>
+<p>使用如下命令安装 <code>Roboflow Supervision</code> ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip3 install supervision==0.1.0<br></code></pre></td></tr></table></figure>
+<p>使用如下 Python 程序进行测试：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> supervision<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;supervision.__version__:&quot;</span>, supervision.__version__)<br></code></pre></td></tr></table></figure>
+<p>下载演示视频流：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget --load-cookies /tmp/cookies.txt <span class="hljs-string">&quot;https://docs.google.com/uc?export=download&amp;confirm=<span class="hljs-subst">$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate &#x27;https://docs.google.com/uc?export=download&amp;id=1pz68D1Gsx80MoPg-_q-IbEdESEmyVLm-&#x27; -O- | sed -rn &#x27;s/.*confirm=([0-9A-Za-z_]+)</span>.*/\1\n/p&#x27;)&amp;id=1pz68D1Gsx80MoPg-_q-IbEdESEmyVLm-&quot;</span> -O vehicle-counting.mp4 &amp;&amp; <span class="hljs-built_in">rm</span> -rf /tmp/cookies.txt<br></code></pre></td></tr></table></figure>
+<p>编写示例程序：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><code class="hljs python">SOURCE_VIDEO_PATH = <span class="hljs-string">&quot;&lt;VIDEO_PATH&gt;&quot;</span><br>TARGET_VIDEO_PATH = <span class="hljs-string">&quot;&lt;PATH&gt;/vehicle-counting-result.mp4&quot;</span><br><span class="hljs-keyword">import</span> sys<br>sys.path.append(<span class="hljs-string">&quot;&lt;PATH&gt;/ByteTrack&quot;</span>)<br><br><span class="hljs-keyword">import</span> yolox<br><span class="hljs-keyword">from</span> yolox.tracker.byte_tracker <span class="hljs-keyword">import</span> BYTETracker, STrack<br><span class="hljs-keyword">from</span> onemetric.cv.utils.iou <span class="hljs-keyword">import</span> box_iou_batch<br><span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass<br><br><span class="hljs-meta">@dataclass(<span class="hljs-params">frozen=<span class="hljs-literal">True</span></span>)</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">BYTETrackerArgs</span>:<br>    track_thresh: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.25</span><br>    track_buffer: <span class="hljs-built_in">int</span> = <span class="hljs-number">30</span><br>    match_thresh: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.8</span><br>    aspect_ratio_thresh: <span class="hljs-built_in">float</span> = <span class="hljs-number">3.0</span><br>    min_box_area: <span class="hljs-built_in">float</span> = <span class="hljs-number">1.0</span><br>    mot20: <span class="hljs-built_in">bool</span> = <span class="hljs-literal">False</span><br><br><span class="hljs-keyword">import</span> supervision<br><span class="hljs-keyword">from</span> supervision.draw.color <span class="hljs-keyword">import</span> ColorPalette<br><span class="hljs-keyword">from</span> supervision.geometry.dataclasses <span class="hljs-keyword">import</span> Point<br><span class="hljs-keyword">from</span> supervision.video.dataclasses <span class="hljs-keyword">import</span> VideoInfo<br><span class="hljs-keyword">from</span> supervision.video.source <span class="hljs-keyword">import</span> get_video_frames_generator<br><span class="hljs-keyword">from</span> supervision.video.sink <span class="hljs-keyword">import</span> VideoSink<br><span class="hljs-keyword">from</span> supervision.notebook.utils <span class="hljs-keyword">import</span> show_frame_in_notebook<br><span class="hljs-keyword">from</span> supervision.tools.detections <span class="hljs-keyword">import</span> Detections, BoxAnnotator<br><span class="hljs-keyword">from</span> supervision.tools.line_counter <span class="hljs-keyword">import</span> LineCounter, LineCounterAnnotator<br><br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span><br><br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><br><span class="hljs-comment"># converts Detections into format that can be consumed by match_detections_with_tracks function</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">detections2boxes</span>(<span class="hljs-params">detections: Detections</span>) -&gt; np.ndarray:<br>    <span class="hljs-keyword">return</span> np.hstack((<br>        detections.xyxy,<br>        detections.confidence[:, np.newaxis]<br>    ))<br><br><br><span class="hljs-comment"># converts List[STrack] into format that can be consumed by match_detections_with_tracks function</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">tracks2boxes</span>(<span class="hljs-params">tracks: <span class="hljs-type">List</span>[STrack]</span>) -&gt; np.ndarray:<br>    <span class="hljs-keyword">return</span> np.array([<br>        track.tlbr<br>        <span class="hljs-keyword">for</span> track<br>        <span class="hljs-keyword">in</span> tracks<br>    ], dtype=<span class="hljs-built_in">float</span>)<br><br><br><span class="hljs-comment"># matches our bounding boxes with predictions</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">match_detections_with_tracks</span>(<span class="hljs-params"></span><br><span class="hljs-params">        detections: Detections,</span><br><span class="hljs-params">        tracks: <span class="hljs-type">List</span>[STrack]</span><br><span class="hljs-params"></span>) -&gt; Detections:<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> np.<span class="hljs-built_in">any</span>(detections.xyxy) <span class="hljs-keyword">or</span> <span class="hljs-built_in">len</span>(tracks) == <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> np.empty((<span class="hljs-number">0</span>,))<br><br>    tracks_boxes = tracks2boxes(tracks=tracks)<br>    iou = box_iou_batch(tracks_boxes, detections.xyxy)<br>    track2detection = np.argmax(iou, axis=<span class="hljs-number">1</span>)<br><br>    tracker_ids = [<span class="hljs-literal">None</span>] * <span class="hljs-built_in">len</span>(detections)<br><br>    <span class="hljs-keyword">for</span> tracker_index, detection_index <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(track2detection):<br>        <span class="hljs-keyword">if</span> iou[tracker_index, detection_index] != <span class="hljs-number">0</span>:<br>            tracker_ids[detection_index] = tracks[tracker_index].track_id<br><br>    <span class="hljs-keyword">return</span> tracker_ids<br><br>MODEL = <span class="hljs-string">&quot;yolov8x.pt&quot;</span><br><span class="hljs-keyword">from</span> ultralytics <span class="hljs-keyword">import</span> YOLO<br><br>model = YOLO(MODEL)<br>model.fuse()<br><br>CLASS_NAMES_DICT = model.model.names<br><span class="hljs-comment"># class_ids of interest - car, motorcycle, bus and truck</span><br>CLASS_ID = [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>]<br><br><span class="hljs-comment"># create frame generator</span><br>generator = get_video_frames_generator(SOURCE_VIDEO_PATH)<br><span class="hljs-comment"># create instance of BoxAnnotator</span><br>box_annotator = BoxAnnotator(color=ColorPalette(), thickness=<span class="hljs-number">4</span>, text_thickness=<span class="hljs-number">4</span>, text_scale=<span class="hljs-number">2</span>)<br><span class="hljs-comment"># acquire first video frame</span><br>iterator = <span class="hljs-built_in">iter</span>(generator)<br>frame = <span class="hljs-built_in">next</span>(iterator)<br><span class="hljs-comment"># model prediction on single frame and conversion to supervision Detections</span><br>results = model(frame)<br>detections = Detections(<br>    xyxy=results[<span class="hljs-number">0</span>].boxes.xyxy.cpu().numpy(),<br>    confidence=results[<span class="hljs-number">0</span>].boxes.conf.cpu().numpy(),<br>    class_id=results[<span class="hljs-number">0</span>].boxes.cls.cpu().numpy().astype(<span class="hljs-built_in">int</span>)<br>)<br><span class="hljs-comment"># format custom labels</span><br>labels = [<br>    <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;CLASS_NAMES_DICT[class_id]&#125;</span> <span class="hljs-subst">&#123;confidence:<span class="hljs-number">0.2</span>f&#125;</span>&quot;</span><br>    <span class="hljs-keyword">for</span> _, confidence, class_id, tracker_id<br>    <span class="hljs-keyword">in</span> detections<br>]<br><span class="hljs-comment"># annotate and display frame</span><br><span class="hljs-comment">#frame = box_annotator.annotate(frame=frame, detections=detections, labels=labels)</span><br><br><span class="hljs-comment"># show_frame_in_notebook(frame, (16, 16))</span><br><br>LINE_START = Point(<span class="hljs-number">50</span>, <span class="hljs-number">1500</span>)<br>LINE_END = Point(<span class="hljs-number">3840</span>-<span class="hljs-number">50</span>, <span class="hljs-number">1500</span>)<br><br>VideoInfo.from_video_path(SOURCE_VIDEO_PATH)<br><span class="hljs-comment"># from tqdm.notebook import tqdm</span><br><br><br><span class="hljs-comment"># create BYTETracker instance</span><br>byte_tracker = BYTETracker(BYTETrackerArgs())<br><span class="hljs-comment"># create VideoInfo instance</span><br>video_info = VideoInfo.from_video_path(SOURCE_VIDEO_PATH)<br><span class="hljs-comment"># create frame generator</span><br>generator = get_video_frames_generator(SOURCE_VIDEO_PATH)<br><span class="hljs-comment"># create LineCounter instance</span><br>line_counter = LineCounter(start=LINE_START, end=LINE_END)<br><span class="hljs-comment"># create instance of BoxAnnotator and LineCounterAnnotator</span><br>box_annotator = BoxAnnotator(color=ColorPalette(), thickness=<span class="hljs-number">4</span>, text_thickness=<span class="hljs-number">4</span>, text_scale=<span class="hljs-number">2</span>)<br>line_annotator = LineCounterAnnotator(thickness=<span class="hljs-number">4</span>, text_thickness=<span class="hljs-number">4</span>, text_scale=<span class="hljs-number">2</span>)<br><br><span class="hljs-comment"># open target video file</span><br><span class="hljs-keyword">with</span> VideoSink(TARGET_VIDEO_PATH, video_info) <span class="hljs-keyword">as</span> sink:<br>    <span class="hljs-comment"># loop over video frames</span><br>    <span class="hljs-keyword">for</span> frame <span class="hljs-keyword">in</span> generator:<br>        <span class="hljs-comment"># model prediction on single frame and conversion to supervision Detections</span><br>        results = model(frame)<br>        detections = Detections(<br>            xyxy=results[<span class="hljs-number">0</span>].boxes.xyxy.cpu().numpy(),<br>            confidence=results[<span class="hljs-number">0</span>].boxes.conf.cpu().numpy(),<br>            class_id=results[<span class="hljs-number">0</span>].boxes.cls.cpu().numpy().astype(<span class="hljs-built_in">int</span>)<br>        )<br>        <span class="hljs-comment"># filtering out detections with unwanted classes</span><br>        mask = np.array([class_id <span class="hljs-keyword">in</span> CLASS_ID <span class="hljs-keyword">for</span> class_id <span class="hljs-keyword">in</span> detections.class_id], dtype=<span class="hljs-built_in">bool</span>)<br>        detections.<span class="hljs-built_in">filter</span>(mask=mask, inplace=<span class="hljs-literal">True</span>)<br>        <span class="hljs-comment"># tracking detections</span><br>        tracks = byte_tracker.update(<br>            output_results=detections2boxes(detections=detections),<br>            img_info=frame.shape,<br>            img_size=frame.shape<br>        )<br>        tracker_id = match_detections_with_tracks(detections=detections, tracks=tracks)<br>        detections.tracker_id = np.array(tracker_id)<br>        <span class="hljs-comment"># filtering out detections without trackers</span><br>        mask = np.array([tracker_id <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">for</span> tracker_id <span class="hljs-keyword">in</span> detections.tracker_id], dtype=<span class="hljs-built_in">bool</span>)<br>        detections.<span class="hljs-built_in">filter</span>(mask=mask, inplace=<span class="hljs-literal">True</span>)<br>        <span class="hljs-comment"># format custom labels</span><br>        labels = [<br>            <span class="hljs-string">f&quot;#<span class="hljs-subst">&#123;tracker_id&#125;</span> <span class="hljs-subst">&#123;CLASS_NAMES_DICT[class_id]&#125;</span> <span class="hljs-subst">&#123;confidence:<span class="hljs-number">0.2</span>f&#125;</span>&quot;</span><br>            <span class="hljs-keyword">for</span> _, confidence, class_id, tracker_id<br>            <span class="hljs-keyword">in</span> detections<br>        ]<br>        <span class="hljs-comment"># updating line counter</span><br>        line_counter.update(detections=detections)<br>        <span class="hljs-comment"># annotate and display frame</span><br>        frame = box_annotator.annotate(frame=frame, detections=detections, labels=labels)<br>        line_annotator.annotate(frame=frame, line_counter=line_counter)<br>        sink.write_frame(frame)<br></code></pre></td></tr></table></figure>
+<p>运行程序即可在设定目录找到渲染视频。</p>
+<h3 id="参考资料">参考资料</h3>
+<p><a target="_blank" rel="noopener" href="https://github.com/ultralytics/ultralytics">官方项目</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.ultralytics.com/">官方手册</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/roboflow/notebooks/blob/main/notebooks/how-to-track-and-count-vehicles-with-yolov8.ipynb">车辆跟踪识别</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI/" class="print-no-link">#AI</a>
+      
+        <a href="/tags/Python/" class="print-no-link">#Python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>YOLO</div>
+      <div>https://wangqian0306.github.io/2023/yolo/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>WangQian</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/pyenv/" title="Simple Python Version Management(pyenv)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Simple Python Version Management(pyenv)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/jupyter/" title="Jupyter notebook">
+                        <span class="hidden-mobile">Jupyter notebook</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
