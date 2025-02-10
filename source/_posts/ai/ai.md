@@ -156,6 +156,36 @@ WORKSPACE_BASE=./workspace
 UID=$(id -u)
 ```
 
+#### MaxKB 
+
+项目地址：[MaxKB](https://github.com/1Panel-dev/MaxKB/)
+
+MaxKB 是一个基于大型语言模型（LLM）和检索增强生成（RAG）的聊天机器人。
+
+可以使用如下 `docker-compose.yaml` 文件运行：
+
+```yaml
+services:
+  maxkb:
+    image: cr2.fit2cloud.com/1panel/maxkb
+    container_name: maxkb
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ~/.maxkb:/var/lib/postgresql/data
+      - ~/.python-packages:/opt/maxkb/app/sandbox/python-packages
+```
+
+之后即可访问 [http://localhost:8080](http://localhost:8080) 进入管理页面，查看 swagger 地址，新增知识库等功能。
+
+默认用户名和密码如下：
+
+```text
+# username: admin
+# pass: MaxKB@123..
+```
+
 ### 环境准备
 
 #### PyTorch
