@@ -73,7 +73,6 @@ server {
         root /usr/share/nginx/xxx;
     }
 
-    return 301 https://$host$request_uri;
 }
 
 server {
@@ -105,6 +104,12 @@ acme.sh --install-cert -d xxx.xxx.xxx \
 ```
 
 #### 其他指令
+
+设定默认 CA 为 Let's Encrypt ：
+
+```bash
+acme.sh --set-default-ca --server letsencrypt
+```
 
 查看证书相关信息：
 
