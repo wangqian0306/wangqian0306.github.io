@@ -186,6 +186,14 @@ services:
 # pass: MaxKB@123..
 ```
 
+### 在线工具
+
+#### W&B (wandb)
+
+项目地址：[W&B](https://github.com/wandb/wandb)
+
+Weights & Biases (W&B) 是一种流行的工具，用于跟踪机器学习实验，与团队协作，以及管理模型。通过此工具可以监控在微调过程中的相关数据。
+
 ### 环境准备
 
 #### PyTorch
