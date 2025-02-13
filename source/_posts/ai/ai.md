@@ -47,6 +47,12 @@ no_toc: false
 
 [Is MLX the best Fine Tuning Framework?](https://www.youtube.com/watch?v=BCfCdTp-fdM)
 
+[Fast Fine Tuning with Unsloth](https://www.youtube.com/watch?v=dMY3dBLojTk)
+
+[Axolotl example](https://github.com/axolotl-ai-cloud/axolotl-cookbook/tree/main/examples/talk_like_a_pirate)
+
+[Axolotl is a AI FineTuning Magician](https://www.youtube.com/watch?v=lj44Bt9UxYQ)
+
 #### 量化(Quantization)
 
 LLM 越大效果越好，但是同时也会造成需要更多的内存，量化是目前最突出的解决方案。目前的模型通常会用 32 位的浮点数来表示权重(weights) 和激活函数 (activations) ，但是实际在使用中会将其转化至 `float32 -> float16` 和 `float32 -> int8` 。

@@ -23,6 +23,14 @@ Automatic Certificate Management Environment (ACME) 协议是一种通信协议�
 curl https://get.acme.sh | sh -s email=<email>
 ```
 
+（可选）设定默认 CA 为 Let's Encrypt ：
+
+> 注：在国内由于网络问题建议切换 CA 。
+
+```bash
+acme.sh --set-default-ca --server letsencrypt
+```
+
 #### 签发证书(独立签发)
 
 如果没有 nginx 服务器则使用如下命令：
@@ -104,12 +112,6 @@ acme.sh --install-cert -d xxx.xxx.xxx \
 ```
 
 #### 其他指令
-
-设定默认 CA 为 Let's Encrypt ：
-
-```bash
-acme.sh --set-default-ca --server letsencrypt
-```
 
 查看证书相关信息：
 
