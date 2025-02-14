@@ -1,0 +1,30 @@
+/* Default asciidoc style framework - important */
+@import "https://cdn.jsdelivr.net/gh/asciidoctor/asciidoctor@2.0/data/stylesheets/asciidoctor-default.css";
+
+h2, h3, h4, h5, h6 {
+    border: 1px solid #1B5CCC;
+    color: white;
+    padding: 5px 10px 5px 10px ;
+    background-color: #1B5CCC;
+    display: inline-block;
+}
+
+h2::after, h3::after, h4::after, h5::after, h6::after {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: #1B5CCC;
+    margin-top: 13px;
+}
+
+.tableblock th {
+    background-color: #1B5CCC;
+    color: #FFFFFF
+}
+
+.tableblock td {
+    background-color: #F0F6FF;
+    color: #333333
+}
