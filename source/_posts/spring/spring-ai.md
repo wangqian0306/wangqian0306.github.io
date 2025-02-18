@@ -63,6 +63,11 @@ dependencyManagement {
 之后编写如下接口即可：
 
 ```java
+public record Song(String song, Integer year) {
+}
+```
+
+```java
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingResponse;
@@ -84,7 +89,7 @@ public class ChatController {
     private final EmbeddingModel embeddingModel;
 
     public ChatController(ChatClient.Builder builder, EmbeddingModel embeddingModel) {
-        this.chatClient = builder.defaultOptions(OllamaOptions.create().withModel("llama3")).build();
+        this.chatClient = builder.defaultOptions(OllamaOptions.builder().model("llama3.1").build()).build();
         this.embeddingModel = embeddingModel;
     }
 
@@ -141,13 +146,11 @@ num-ctx 参数是程序上下文的大小配置，如果有需求可以从 2k �
 如果需要为不同的接口使用不同的模型则可以使用如下代码：
 
 ```java
-ChatResponse response = chatClient.prompt(
-    new Prompt(
-        "Generate the names of 5 famous pirates.",
-        OllamaOptions.create()
-            .withModel("llama2")
-            .withTemperature(0.4)
-    )).call();
+ChatResponse chatResponse = chatClient.prompt(
+                new Prompt(
+                        "Generate the names of 5 famous pirates.", 
+                        OllamaOptions.builder().model("llama3.1").build()
+                )).call().chatResponse();
 ```
 
 ##### RAG
@@ -155,7 +158,8 @@ ChatResponse response = chatClient.prompt(
 如果想要使用 RAG 则可以采用如下方式：
 
 ```java
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.reader.TextReader;
@@ -170,9 +174,10 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.util.List;
 
-@Slf4j
 @Configuration
 public class RagConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(RagConfig.class);
 
     @Value("./vectorstore.json")
     private String vectorStorePath;
@@ -182,7 +187,7 @@ public class RagConfig {
 
     @Bean
     SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel) {
-        var simpleVectorStore = new SimpleVectorStore(embeddingModel);
+        var simpleVectorStore = SimpleVectorStore.builder(embeddingModel).build();;
         var vectorStoreFile = new File(vectorStorePath);
         if (vectorStoreFile.exists()) {
             log.info("Vector Store File Exists,");
@@ -215,17 +220,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/ollama")
+@RequestMapping("/chat/ollama/v2/rag")
 public class RagController {
 
     private final ChatClient chatClient;
 
     public RagController(ChatClient.Builder builder, VectorStore vectorStore) {
-        this.chatClient = builder.defaultAdvisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()))
-                .build();
+        this.chatClient = builder.defaultAdvisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.builder().build())).build();
     }
 
-    @GetMapping("/chat/rag")
+    @GetMapping
     public String rag(@RequestParam(value = "message", defaultValue = "How many athletes compete in the Olympic Games Paris 2024") String message) {
         return chatClient.prompt()
                 .user(message)
