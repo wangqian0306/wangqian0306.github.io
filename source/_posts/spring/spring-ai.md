@@ -426,8 +426,6 @@ public class MemoryController {
 
 ##### 对话日志
 
-> 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
-
 编写如下代码：
 
 ```java
@@ -445,7 +443,7 @@ public class LogController {
     private final ChatClient chatClient;
 
     public LogController(ChatClient.Builder builder) {
-        this.chatClient = builder.defaultAdvisors((new SimpleLoggerAdvisor()).build();
+        this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
     }
 
     @GetMapping("/chat/log")
@@ -472,84 +470,62 @@ logging:
               advisor: DEBUG
 ```
 
-##### 函数调用
+##### 工具调用
 
-> 注：此处需要 Spring AI 的版本要大于 1.0.0-SNAPSHOT 。
-
-编写需要被调用的函数 `MockWeatherService.java` ：
+编写如下代码：
 
 ```java
-import java.util.function.Function;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.context.i18n.LocaleContextHolder;
 
-public class MockWeatherService implements Function<MockWeatherService.Request, MockWeatherService.Response> {
+import java.time.LocalDateTime;
 
-    public enum Unit { C, F }
-    public record Request(String location, Unit unit) {}
-    public record Response(double temp, Unit unit) {}
+public class DateTools {
 
-    public Response apply(Request request) {
-        System.out.println("call mock service");
-        return new Response(30.0, Unit.C);
-    }
-}
-```
-
-编写配置类 `Config.java`：
-
-```java
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
-
-import java.util.function.Function;
-
-@Configuration
-public class Config {
-
-    @Bean
-    @Description("Get the weather in location")
-    public Function<MockWeatherService.Request, MockWeatherService.Response> currentWeatherFunction() {
-        return new MockWeatherService();
+    @Tool(description = "Get the current date and time in the user's timezone")
+    String getCurrentDateTime() {
+        return LocalDateTime.now().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toString();
     }
 
 }
 ```
 
-编写请求类：
+编写如下处理逻辑：
 
 ```java
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TestController {
+@RequestMapping("/chat/ollama/v2/tool")
+public class ToolController {
 
-    private final ChatClient client;
+    private final ChatClient chatClient;
 
-    public TestController(ChatClient.Builder builder) {
-        this.client = builder
-                .defaultSystem("You are a helpful AI Assistant answering questions about cities around the world.")
-                .defaultFunctions("currentWeatherFunction")
-                .build();
+    public ToolController(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultOptions(OllamaOptions.builder().model("llama3.1").build()).build();
     }
 
-    @GetMapping("/weather")
-    public String weather(@RequestParam String message) {
-        return client.prompt()
+    @GetMapping
+    public String tool(
+            @RequestParam(defaultValue = "What day is today") String message) {
+        return chatClient.prompt()
                 .user(message)
+                .tools(new DateTools())
                 .call()
                 .content();
     }
-
 }
 ```
 
 之后启动服务然后编写如下请求即可：
 
 ```text
-GET http://localhost:8080/weather?message=What's the weather like in Beijing
+GET http://localhost:8080/weather?message=
 ```
 
 ##### 指标监控
