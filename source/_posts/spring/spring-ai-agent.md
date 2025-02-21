@@ -76,7 +76,7 @@ public class PromptChainAgent {
     }
 
     @GetMapping
-    public String chain(@RequestParam(defaultValue = "hello world") String message) {
+    public String chat(@RequestParam(defaultValue = "hello world") String message) {
         int step = 0;
         String response = message;
         log.info(String.format("\nSTEP %s:\n %s", step++, response));
@@ -133,15 +133,24 @@ public class RoutingAgent {
             "llama3.1"
     };
 
+    public record RoutingResult(Integer answer, String reason) {}
+
     private RoutingResult determineRoute(String input) {
         String selectorPrompt = String.format("""
                 Analyze the input and select the most appropriate support team from these options: 中国人, American
-                If the American suit for answer return 1 else return 0 provide with json format. Input: %s""", input);
+                If the American suit for answer return 1 else return 0 provide with json format.
+                \\{
+                    "reason": "Brief explanation of why this ticket should be routed to a specific team.
+                                Consider key terms, user intent, and urgency level.",
+                    "answer": "The chosen team name"
+                \\}
+                Input: %s
+                """, input);
         return chatClient.prompt(selectorPrompt).call().entity(RoutingResult.class);
     }
 
     @GetMapping
-    public String chain(@RequestParam(defaultValue = "什么是春节") String message) {
+    public String chat(@RequestParam(defaultValue = "什么是春节") String message) {
         int index = determineRoute(message).answer();
         return chatClient.prompt(new Prompt(DEFAULT_ROUTES_SYSTEM_PROMPTS[index], OllamaOptions.builder().model(DEFAULT_MODEL_LIST[index]).build())).user(message).call().content();
     }
@@ -153,6 +162,55 @@ public class RoutingAgent {
 ![Parallelization](https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F406bb032ca007fd1624f261af717d70e6ca86286-2401x1000.png&w=3840&q=75)
 
 通过将不同的子问题发送到不同的 LLM 来加速生成结果。
+
+```java
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/chat/ollama/v2/parallelization-agent")
+public class ParallelizationAgent {
+
+    private final ChatClient chatClient;
+
+    public ParallelizationAgent(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
+    }
+
+    @PostMapping
+    public List<String> chat(@RequestBody List<String> messageList) {
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<CompletableFuture<String>> futures = messageList.stream()
+                    .map(input -> CompletableFuture.supplyAsync(() -> {
+                        try {
+                            return chatClient.prompt(new Prompt(input, OllamaOptions.builder().build())).call().content();
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to process input: " + input, e);
+                        }
+                    }, executor))
+                    .toList();
+            CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                    futures.toArray(new CompletableFuture[0]));
+            allFutures.join();
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .collect(Collectors.toList());
+        }
+    }
+}
+```
 
 #### Orchestrator-workers
 
