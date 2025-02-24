@@ -222,7 +222,106 @@ public class ParallelizationAgent {
 
 ![Evaluator-optimizer](https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F14f51e6406ccb29e695da48b17017e899a6119c7-2401x1000.png&w=3840&q=75)
 
-设立两个 LLM ,一个解答一个检查，如果遇到问题给到反馈，例如用 code 模型编码，LLAMA 检查代码风格和格式
+设立两个 LLM ,一个解答一个检查，如果遇到问题给到反馈，例如用 code 模型编码，LLAMA 检查正确性。
+
+```java
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/chat/ollama/v2/evaluator-optimizer-agent")
+public class EvaluatorOptimizerAgent {
+
+    public static final String DEFAULT_GENERATOR_PROMPT = """
+            You are an expert programmer that helps to write Python code based on the user request, with concise explanations. Don't be too verbose.
+            """;
+
+    public static final String DEFAULT_EVALUATOR_PROMPT = """
+            Evaluate this code implementation for correctness, time complexity, and best practices.
+            Respond with EXACTLY this JSON format on a single line:
+            
+            {"evaluation":"PASS, NEEDS_IMPROVEMENT, or FAIL", "feedback":"Your feedback here"}
+            
+            The evaluation field must be one of: "PASS", "NEEDS_IMPROVEMENT", "FAIL"
+            Use "PASS" only if all criteria are met with no improvements needed.
+            """;
+
+    public static final String GENERATOR_MODEL = "codellama";
+
+    public static final String EVALUATOR_MODEL = "llama3.1";
+
+    public record Generation(String thoughts, String response) {
+    }
+
+    public record EvaluationResponse(Evaluation evaluation, String feedback) {
+
+        public enum Evaluation {
+            PASS, NEEDS_IMPROVEMENT, FAIL
+        }
+    }
+
+    public record RefinedResponse(String solution, List<Generation> chainOfThought) {
+    }
+
+    private final ChatClient chatClient;
+
+    public EvaluatorOptimizerAgent(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
+    }
+
+    private RefinedResponse loop(String task, String context, List<String> memory,
+                                 List<Generation> chainOfThought) {
+        Generation generation = generate(task, context);
+        memory.add(generation.response());
+        chainOfThought.add(generation);
+        EvaluationResponse evaluationResponse = evaluate(generation.response(), task);
+        if (evaluationResponse.evaluation().equals(EvaluationResponse.Evaluation.PASS)) {
+            return new RefinedResponse(generation.response(), chainOfThought);
+        }
+        StringBuilder newContext = new StringBuilder();
+        newContext.append("Previous attempts:");
+        for (String m : memory) {
+            newContext.append("\n- ").append(m);
+        }
+        newContext.append("\nFeedback: ").append(evaluationResponse.feedback());
+        return loop(task, newContext.toString(), memory, chainOfThought);
+    }
+
+    private Generation generate(String task, String context) {
+        return chatClient.prompt(new Prompt(DEFAULT_GENERATOR_PROMPT, OllamaOptions.builder().model(GENERATOR_MODEL).build()))
+                .user(u -> u.text("{context}\nTask: {task}")
+                        .param("context", context)
+                        .param("task", task))
+                .call()
+                .entity(Generation.class);
+    }
+
+    private EvaluationResponse evaluate(String content, String task) {
+        return chatClient.prompt(new Prompt(DEFAULT_EVALUATOR_PROMPT, OllamaOptions.builder().model(EVALUATOR_MODEL).build()))
+                .user(u -> u.text("Original task: {task}\nContent to evaluate: {content}")
+                        .param("task", task)
+                        .param("content", content))
+                .call()
+                .entity(EvaluationResponse.class);
+    }
+
+    @GetMapping
+    public RefinedResponse chat(@RequestParam(defaultValue = "help me write a bubble sort in Python") String task) {
+        List<String> memory = new ArrayList<>();
+        List<Generation> chainOfThought = new ArrayList<>();
+        return loop(task, "", memory, chainOfThought);
+    }
+}
+```
 
 ### Agent
 
@@ -237,3 +336,5 @@ LLM 自行判断需要向外获取什么内容，结果是否可用。
 [官方博客](https://spring.io/blog/2025/01/21/spring-ai-agentic-patterns)
 
 [示例代码](https://github.com/spring-projects/spring-ai-examples/tree/main/agentic-patterns)
+
+[A Distributed State of Mind: Event-Driven Multi-Agent Systems](https://www.confluent.io/blog/event-driven-multi-agent-systems/)
