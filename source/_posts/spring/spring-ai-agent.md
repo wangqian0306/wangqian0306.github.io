@@ -56,12 +56,12 @@ public class PromptChainAgent {
 
     private static final Logger log = LoggerFactory.getLogger(PromptChainAgent.class);
 
-    private static final String[] DEFAULT_SYSTEM_PROMPTS = {
+    private static final String[] SYSTEM_PROMPTS = {
             "You are an interpreter, help me explain what I am saying",
             "将输入内容转化为中文"
     };
 
-    private static final String[] DEFAULT_MODEL_LIST = {
+    private static final String[] MODEL_LIST = {
             "llama3.1",
             "qwen2.5:7b"
     };
@@ -72,20 +72,20 @@ public class PromptChainAgent {
 
     public PromptChainAgent(ChatClient.Builder builder) {
         this.chatClient = builder.build();
-        this.systemPrompts = DEFAULT_SYSTEM_PROMPTS;
+        this.systemPrompts = SYSTEM_PROMPTS;
     }
 
     @GetMapping
-    public String chat(@RequestParam(defaultValue = "hello world") String message) {
+    public String chat(@RequestParam(defaultValue = "hello world") String task) {
         int step = 0;
-        String response = message;
+        String response = task;
         log.info(String.format("\nSTEP %s:\n %s", step++, response));
         for (String prompt : systemPrompts) {
             String input = String.format("{%s}\n {%s}", prompt, response);
             if (step%2 == 0) {
-                response = chatClient.prompt(new Prompt(input, OllamaOptions.builder().model(DEFAULT_MODEL_LIST[1]).build())).call().content();
+                response = chatClient.prompt(new Prompt(input, OllamaOptions.builder().model(MODEL_LIST[1]).build())).call().content();
             } else {
-                response = chatClient.prompt(new Prompt(input, OllamaOptions.builder().model(DEFAULT_MODEL_LIST[0]).build())).call().content();
+                response = chatClient.prompt(new Prompt(input, OllamaOptions.builder().model(MODEL_LIST[0]).build())).call().content();
             }
             log.info(String.format("\nSTEP %s:\n %s", step++, response));
             if (response == null || response.contains("I don't know")) {
@@ -123,12 +123,12 @@ public class RoutingAgent {
         this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
     }
 
-    private static final String[] DEFAULT_ROUTES_SYSTEM_PROMPTS = new String[]{
+    private static final String[] ROUTES_SYSTEM_PROMPTS = new String[]{
             "你是一个中国人，你知道怎么回答中文的问题",
             "You are an American, you know how to answer English questions"
     };
 
-    private static final String[] DEFAULT_MODEL_LIST = {
+    private static final String[] MODEL_LIST = {
             "qwen2.5:7b",
             "llama3.1"
     };
@@ -139,20 +139,15 @@ public class RoutingAgent {
         String selectorPrompt = String.format("""
                 Analyze the input and select the most appropriate support team from these options: 中国人, American
                 If the American suit for answer return 1 else return 0 provide with json format.
-                \\{
-                    "reason": "Brief explanation of why this ticket should be routed to a specific team.
-                                Consider key terms, user intent, and urgency level.",
-                    "answer": "The chosen team name"
-                \\}
-                Input: %s
-                """, input);
+                
+                Input: %s""", input);
         return chatClient.prompt(selectorPrompt).call().entity(RoutingResult.class);
     }
 
     @GetMapping
-    public String chat(@RequestParam(defaultValue = "什么是春节") String message) {
-        int index = determineRoute(message).answer();
-        return chatClient.prompt(new Prompt(DEFAULT_ROUTES_SYSTEM_PROMPTS[index], OllamaOptions.builder().model(DEFAULT_MODEL_LIST[index]).build())).user(message).call().content();
+    public String chat(@RequestParam(defaultValue = "什么是春节") String task) {
+        int index = determineRoute(task).answer();
+        return chatClient.prompt(new Prompt(ROUTES_SYSTEM_PROMPTS[index], OllamaOptions.builder().model(MODEL_LIST[index]).build())).user(task).call().content();
     }
 }
 ```
@@ -190,9 +185,9 @@ public class ParallelizationAgent {
     }
 
     @PostMapping
-    public List<String> chat(@RequestBody List<String> messageList) {
+    public List<String> chat(@RequestBody List<String> taskList) {
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<CompletableFuture<String>> futures = messageList.stream()
+            List<CompletableFuture<String>> futures = taskList.stream()
                     .map(input -> CompletableFuture.supplyAsync(() -> {
                         try {
                             return chatClient.prompt(new Prompt(input, OllamaOptions.builder().build())).call().content();
@@ -216,7 +211,89 @@ public class ParallelizationAgent {
 
 ![Orchestrator-workers](https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F8985fc683fae4780fb34eab1365ab78c7e51bc8e-2401x1000.png&w=3840&q=75)
 
-通过 LLM 将问题分解，然后转发给不同的 LLM 处理问题，例如用 code 模型处理代码，LLAMA 生成描述。
+通过 LLM 将问题分解，然后独立处理子问题。
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/chat/ollama/v2/orchestrator-worker-agent")
+public class OrchestratorWorkerAgent {
+
+    private static final Logger log = LoggerFactory.getLogger(OrchestratorWorkerAgent.class);
+
+    private final ChatClient chatClient;
+
+    public static final String ORCHESTRATOR_PROMPT = """
+            Analyze this task and break it down into 2-3 distinct approaches:
+            
+            Task: {task}
+            
+            Return your response in this JSON format:
+            \\{
+            "analysis": "Explain your understanding of the task and which variations would be valuable.Focus on how each approach serves different aspects of the task.",
+            "tasks": [
+            	\\{
+            	"type": "formal",
+            	"description": "Write a precise, technical version that emphasizes specifications"
+            	\\},
+            	\\{
+            	"type": "conversational",
+            	"description": "Write an engaging, friendly version that connects with readers"
+            	\\}
+            ]
+            \\}
+            """;
+
+    public static final String WORKER_PROMPT = """
+            Generate content based on:
+            Task: {original_task}
+            Style: {task_type}
+            Guidelines: {task_description}
+            """;
+
+    public record Task(String type, String description) {
+    }
+
+    public record OrchestratorResponse(String analysis, List<Task> tasks) {
+    }
+
+    public record FinalResponse(String analysis, List<String> workerResponses) {
+    }
+
+    public OrchestratorWorkerAgent(ChatClient.Builder builder) {
+        this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
+    }
+
+    @GetMapping
+    public FinalResponse chat(@RequestParam(defaultValue = "help me write a spring boot application with a ") String task) {
+        OrchestratorResponse orchestratorResponse = this.chatClient.prompt()
+                .user(u -> u.text(ORCHESTRATOR_PROMPT)
+                        .param("task", task))
+                .call()
+                .entity(OrchestratorResponse.class);
+        assert orchestratorResponse != null;
+        List<String> workerResponses = orchestratorResponse.tasks().stream().map(t -> this.chatClient.prompt()
+                .user(u -> u.text(WORKER_PROMPT)
+                        .param("original_task", task)
+                        .param("task_type", t.type())
+                        .param("task_description", t.description()))
+                .call()
+                .content()).toList();
+        log.error(workerResponses.toString());
+        return new FinalResponse(orchestratorResponse.analysis(), workerResponses);
+    }
+}
+```
 
 #### Evaluator-optimizer
 
@@ -241,11 +318,11 @@ import java.util.List;
 @RequestMapping("/chat/ollama/v2/evaluator-optimizer-agent")
 public class EvaluatorOptimizerAgent {
 
-    public static final String DEFAULT_GENERATOR_PROMPT = """
+    public static final String GENERATOR_PROMPT = """
             You are an expert programmer that helps to write Python code based on the user request, with concise explanations. Don't be too verbose.
             """;
 
-    public static final String DEFAULT_EVALUATOR_PROMPT = """
+    public static final String EVALUATOR_PROMPT = """
             Evaluate this code implementation for correctness, time complexity, and best practices.
             Respond with EXACTLY this JSON format on a single line:
             
@@ -297,7 +374,7 @@ public class EvaluatorOptimizerAgent {
     }
 
     private Generation generate(String task, String context) {
-        return chatClient.prompt(new Prompt(DEFAULT_GENERATOR_PROMPT, OllamaOptions.builder().model(GENERATOR_MODEL).build()))
+        return chatClient.prompt(new Prompt(GENERATOR_PROMPT, OllamaOptions.builder().model(GENERATOR_MODEL).build()))
                 .user(u -> u.text("{context}\nTask: {task}")
                         .param("context", context)
                         .param("task", task))
@@ -306,7 +383,7 @@ public class EvaluatorOptimizerAgent {
     }
 
     private EvaluationResponse evaluate(String content, String task) {
-        return chatClient.prompt(new Prompt(DEFAULT_EVALUATOR_PROMPT, OllamaOptions.builder().model(EVALUATOR_MODEL).build()))
+        return chatClient.prompt(new Prompt(EVALUATOR_PROMPT, OllamaOptions.builder().model(EVALUATOR_MODEL).build()))
                 .user(u -> u.text("Original task: {task}\nContent to evaluate: {content}")
                         .param("task", task)
                         .param("content", content))
