@@ -134,7 +134,8 @@ markdown:
   enable_rules:
   disable_rules:
   plugins:
-    - markdown-it-emoji
+    - "markdown-it-emoji"
+    - "@traptitech/markdown-it-katex"
   anchors:
     level: 2
     collisionSuffix: ''
@@ -144,16 +145,3 @@ markdown:
     permalinkSymbol: '¶'
     case: 0
     separator: '-'
-
-math:
-  katex:
-    css: 'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
-    options:
-      throwOnError: false
-  mathjax:
-    css: 'https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css'
-    options:
-      conversion:
-        display: false
-      tex:
-      svg:

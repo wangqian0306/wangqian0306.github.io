@@ -8,6 +8,7 @@ id: epidemic_algorithms_for_replicated_database_maintenance
 no_word_count: true
 no_toc: false
 categories: 大数据
+math: true
 ---
 
 ## Epidemic Algorithms For Replicated Database Maintenance 中文翻译版
@@ -87,4 +88,6 @@ Clearinghouse servers 维护了三种层级的转化关系，层级名称到机�
 
 ### 0.2 相关工作
 
+$$s.\text{ValueOf}: K \rightarrow (v : V \times t : T)$$
 
+$$\forall s, s' \in S : s.\text{ValueOf} = s'.\text{ValueOf}$$
