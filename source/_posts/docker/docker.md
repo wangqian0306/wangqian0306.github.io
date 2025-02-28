@@ -252,6 +252,14 @@ systemctl daemon-reload
 systemctl restart docker
 ```
 
+## 覆盖 entrypoint 
+
+除了通过使用 `--entrypoint` 参数手动覆盖容器的进入命令之外，还可以通过编写 Dockerfile 的方式对此进行处理：
+
+```text
+ENTRYPOINT []
+```
+
 ## 常见问题及解决方案
 
 ### 网络错误

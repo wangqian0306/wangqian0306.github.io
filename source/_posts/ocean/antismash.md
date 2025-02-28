@@ -50,6 +50,18 @@ docker-compose up
 docker run --rm -it --entrypoint="" antismash/standalone:latest /bin/bash
 ```
 
+官方除了命令行的方式之外还提供了 web 界面，如需远程调用可以尝试使用 [websmash](https://github.com/antismash/websmash) 
+
+```text
+FROM antismash/standalone:latest
+WORKDIR /web
+RUN apt-get update && apt-get install -y git uwsgi
+RUN git clone https://github.com/antismash/websmash.git
+RUN cd websmash
+RUN pip install -r requirements.txt
+CMD ["uwsgi"]
+```
+
 #### 系统安装(失败)
 
 系统基于 Ubuntu 22.04.4 LTS
