@@ -411,6 +411,73 @@ chroma-js 是一个用于操作颜色的库。其在 typescript 中的安装方�
 npm install @types/chroma-js chroma-js
 ```
 
+### swiper
+
+swiper 是一个轮播图库，其在 typescript 中的安装方式如下：
+
+```bash
+npm install swiper
+```
+
+之后即可编写这样的页面：
+
+```typescript
+"use client"
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+import 'swiper/css';
+
+export default function Demo() {
+  return (
+    <Swiper
+      spaceBetween={50}
+      slidesPerView={3}
+      onSlideChange={() => console.log('slide change')}
+      onSwiper={(swiper) => console.log(swiper)}
+    >
+      <SwiperSlide>Slide 1</SwiperSlide>
+      <SwiperSlide>Slide 2</SwiperSlide>
+      <SwiperSlide>Slide 3</SwiperSlide>
+      <SwiperSlide>Slide 4</SwiperSlide>
+    </Swiper>
+  )
+}
+```
+
+之后点按鼠标左键横移文字即可。
+
+若是图片则可以采用如下代码：
+
+```typescript
+import Image from 'next/image'
+
+const images = [
+  '/test/display-1.png',
+  '/test/display-2.png',
+  '/test/display-3.png',
+  '/test/display-4.png',
+]
+
+export default function Home() {
+  return (
+    <div className="w-full overflow-x-hidden">
+      {images.map((img, index) => (
+        <div key={index} className="w-full mb-5">
+          <Image
+            src={images[index]}
+            alt={"pic-" + (index + 1)}
+            layout="responsive"
+            width={1125}
+            height={2436}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
 ### 和后台项目集成
 
 可以参考 Spring boot + nextjs starter kit 视频。
