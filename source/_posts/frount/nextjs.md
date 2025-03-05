@@ -482,6 +482,25 @@ export default function Home() {
 
 可以参考 Spring boot + nextjs starter kit 视频。
 
+### 读取 URL 参数
+
+```typescript
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+const DEFAULT_NAME = "demo"
+
+export default function Test() {
+  const searchParams = useSearchParams()
+  const name = Number(searchParams.get('name')) || DEFAULT_NAME
+  return (
+    <div>
+      <p>{name}</p>
+    </div>
+  )
+}
+```
+
 ### 部署
 
 大致的本地部署方式可以划分如下：
