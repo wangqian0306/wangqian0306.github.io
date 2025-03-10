@@ -89,6 +89,12 @@ EMQX 是一个高性能、可扩展的 MQTT 消息服务器，自带了管理 We
 - 编辑 `docker-compose.yaml`
 
 ```yaml
+volumes:
+  vol-emqx-data:
+    name: foo-emqx-data
+  vol-emqx-log:
+    name: foo-emqx-log
+
 services:
   emqx:
     image: emqx:latest
@@ -98,6 +104,9 @@ services:
     ports:
       - "18083:18083"
       - "1883:1883"
+    volumes:
+      - vol-emqx-data:/opt/emqx/data
+      - vol-emqx-log:/opt/emqx/log
     restart: unless-stopped
 ```
 
@@ -115,6 +124,8 @@ docker-compose down
 
 之后访问 [http://localhost:18083](http://localhost:18083) 使用 admin 账户和配置好的 EMQX_DASHBOARD__DEFAULT_PASSWORD 即可登录。
 
+> 注：如果需要本地卷可以使用 named data volume 或者将目录权限设定为 777 。
+
 ### 连接例程
 
 - 安装软件包
@@ -126,6 +137,7 @@ pip3 install paho-mqtt --user
 - 编写生产者程序
 
 ```python
+import time
 from paho.mqtt import client as mqtt_client
 
 broker = 'xxx.xxx.xxx.xxx'
