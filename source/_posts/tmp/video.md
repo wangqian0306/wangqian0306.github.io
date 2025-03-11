@@ -34,6 +34,25 @@ ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f flv rtmp://your_rtmp_server/liv
 ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://your_rtsp_server/live/stream_key
 ```
 
+### ZLMediaKit
+
+可以使用如下方式进行部署：
+
+```yaml
+services:
+  media:
+    image: zlmediakit/zlmediakit:master
+    ports:
+      - "10935:10935"
+      - "5540:5540"
+      - "6080:6080"
+    volumes:
+      - ./conf:/opt/media/conf
+    restart: unless-stopped
+```
+
+[配置文件样例](https://github.com/ZLMediaKit/ZLMediaKit/blob/master/conf/config.ini) 
+
 ### 参考资料
 
 [Janus WebRTC Server](https://janus.conf.meetecho.com/)
@@ -41,3 +60,5 @@ ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://your_rtsp_server/li
 [Ant Media Server](https://github.com/ant-media/Ant-Media-Server)
 
 [MediaMTX](https://github.com/bluenviron/mediamtx)
+
+[ZLMediaKit](https://github.com/ZLMediaKit/ZLMediaKit)
