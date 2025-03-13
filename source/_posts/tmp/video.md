@@ -86,10 +86,7 @@ services:
     restart: always
     environment:
       TZ: ${TZ}
-    ports:
-      - ${STREAM_PORT}:${STREAM_PORT}/udp
-      - ${STREAM_PORT}:${STREAM_PORT}/tcp
-      - 3001:3001
+    network_mode: "host"
     volumes:
       - ./config/zlm/config.ini:/opt/media/conf/config.ini
     healthcheck:
@@ -97,50 +94,42 @@ services:
       test: [ "CMD", "curl", "-sS", "http://localhost:3001" ]
       timeout: 10s
       retries: 10
-  wvp:
-    build:
-      context: ./buildFiles/wvp
-    image: custom-wvp:latest
-    restart: always
-    environment:
-      TZ: ${TZ}
-      SIP_DOMAIN: ${SIP_DOMAIN}
-      SIP_ID: ${SIP_ID}
-      SIP_PASSWORD: ${SIP_PASSWORD}
-      WVP_IP: ${WVP_IP}
-      SIP_IP: ${SIP_IP}
-      SHOW_IP: ${SHOW_IP}
-      SDP_IP: ${SDP_IP}
-      ZLM_IP: ${ZLM_IP}
-      WVP_DB_PATH: ${WVP_DB_PATH}
-      MYSQL_USERNAME: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
-      REDIS_PWD: ${REDIS_PASSWORD}
-      STREAM_HOST: ${STREAM_HOST}
-      DRUID_USER: ${DRUID_USER}
-      DRUID_PASS: ${DRUID_PASS}
-      JT1078_PORT: ${JT1078_PORT}
-      JT1078_PASS: ${JT1078_PASS}
+  nginx:
+    image: nginx:1-alpine
     ports:
-      - 5060:5060
-      - 5060:5060/udp
-      - ${JT1078_PORT}:${JT1078_PORT}
-      - ${JT1078_PORT}:${JT1078_PORT}/udp
-      - 3000:3000
+      - "2000:2000"
     volumes:
-      - ./config/wvp:/config
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/www:/opt/ylcx/www
+    environment:
+      - TZ=Asia/Shanghai
+  wvp:
+    buid: .wvp/
+    image: wvp-local:latest
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+       - 5060:5060
+       - 5060:5060/udp
+       - 3000:3000
+    volumes:
+      - ./config/wvp/application.yaml:/app/application.yaml
+      - ./config/wvp/application-local.yaml:/app/application-local.yaml
+    command: java -jar wvp.jar --spring.config.location=/app/application.yaml
     depends_on:
       mysql:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      zlm:
         condition: service_healthy
 ```
 
 具体配置参考项目实现即可。
 
 > 注：目前版本界面不好用，登录不进去，需要修改源码。
+
+测试摄像头则可以采用 [EasyGBD](https://github.com/EasyDarwin/EasyGBD)
 
 ### 参考资料
 
