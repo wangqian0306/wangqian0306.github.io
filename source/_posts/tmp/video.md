@@ -34,6 +34,21 @@ ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f flv rtmp://your_rtmp_server/liv
 ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://your_rtsp_server/live/stream_key
 ```
 
+也可以使用 Python 代码：
+
+```bash
+pip install ffmpeg-python
+```
+
+```python
+import ffmpeg
+
+input_stream = "test.mp4"
+output_stream = "rtmp://<ip>/live/test"
+
+ffmpeg.input(input_stream).output(output_stream, format='flv').run()
+```
+
 ### WVP PRO
 
 有对于视频平台有相应的国标 GB28181-2016 ，WEB VIDEO PLATFORM(wvp) 是一款网络视频平台，负责实现核心信令与设备后台管理功能。
@@ -131,6 +146,10 @@ services:
 
 测试摄像头则可以采用 [EasyGBD](https://github.com/EasyDarwin/EasyGBD)
 
+若有配置不是很清楚也可用收费软件进行试用调试 [EasyGBS](https://www.tsingsee.com/download) 解压之后内含配置手册，依照进行配置即可。
+
+! ! ! 在使用过程中发现在公网防火墙代理后出现了推流无法正常接收的问题。 ! ! !
+
 ### 参考资料
 
 [Janus WebRTC Server](https://janus.conf.meetecho.com/)
@@ -140,3 +159,5 @@ services:
 [MediaMTX](https://github.com/bluenviron/mediamtx)
 
 [ZLMediaKit](https://github.com/ZLMediaKit/ZLMediaKit)
+
+[EasyGBS通过抓包来分析不能播放的原因](https://www.bilibili.com/video/BV1x54y1e7A5)
