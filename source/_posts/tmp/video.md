@@ -24,14 +24,31 @@ no_toc: false
 
 ### 视频推流
 
-可以使用 `ffmpeg` 命令进行推流：
+可以使用 `ffmpeg` 命令进行推流，安装方式如下：
 
 ```bash
-ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f flv rtmp://your_rtmp_server/live/stream_key
+sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+dnf install ffmpeg-free -y
 ```
 
+推流
+
+- RTMP
+
 ```bash
-ffmpeg -re -i input.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://your_rtsp_server/live/stream_key
+ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://<host>:<port>/live/stream_key
+```
+
+- RTSP
+
+```bash
+ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://<host>:<port>/live/stream_key
+```
+
+- RTP
+
+```bash
+ffmpeg -re -i test.mp4 -an -c:v libx264 -preset ultrafast -tune zerolatency -f rtp rtp://<host>:<port>
 ```
 
 也可以使用 Python 代码：
@@ -119,8 +136,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
   wvp:
-    buid: .wvp/
-    image: wvp-local:latest
+    image: openjdk:11-jre-slim-buster
     environment:
       - TZ=Asia/Shanghai
     ports:
@@ -128,8 +144,7 @@ services:
        - 5060:5060/udp
        - 3000:3000
     volumes:
-      - ./config/wvp/application.yaml:/app/application.yaml
-      - ./config/wvp/application-local.yaml:/app/application-local.yaml
+      - ./config/wvp:/app
     command: java -jar wvp.jar --spring.config.location=/app/application.yaml
     depends_on:
       mysql:
@@ -147,8 +162,6 @@ services:
 测试摄像头则可以采用 [EasyGBD](https://github.com/EasyDarwin/EasyGBD)
 
 若有配置不是很清楚也可用收费软件进行试用调试 [EasyGBS](https://www.tsingsee.com/download) 解压之后内含配置手册，依照进行配置即可。
-
-! ! ! 在使用过程中发现在公网防火墙代理后出现了推流无法正常接收的问题。 ! ! !
 
 ### 参考资料
 

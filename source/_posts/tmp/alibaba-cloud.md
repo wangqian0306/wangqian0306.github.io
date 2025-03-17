@@ -32,11 +32,10 @@ ossutil config
 
 然后依次配置如下参数：
 
-- 语言，按需选择即可。
-- endpoint , 此参数可以定位到 [oss bucket 清单](https://oss.console.aliyun.com/bucket) 中的详情进行查看。
-- stsToken ，此参数可以访问 [官方手册](https://help.aliyun.com/zh/vod/user-guide/sts-tokens#section-fl0-3ek-tqk) 进行创建，也可以不使用此种方式，转而使用 accessKey。
-- accessKeyID ，访问 [RAM 访问控制页](https://ram.console.aliyun.com/users) 选择用户，在 AccessKey 部分即可创建。
+- accessKeyID ，访问 [RAM 访问控制页](https://ram.console.aliyun.com/users) 选择用户，在 AccessKey 部分即可创建，需要授予 OSS 全部管理权限。
 - accessKeySecret ，同上。
+- region ，此参数可以定位到 [OSS地域和访问域名](https://www.alibabacloud.com/help/zh/oss/user-guide/regions-and-endpoints#concept-zt4-cvy-5db) 中进行查看，此项需要填写 地域ID。
+- endpoint , 同上，此项需要填写 外网Endpoint 或 内网Endpoint 。
 
 配置完成后可以使用如下命令进行检测：
 
