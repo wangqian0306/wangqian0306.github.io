@@ -36,35 +36,24 @@ dnf install ffmpeg-free -y
 - RTMP
 
 ```bash
-ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f flv rtmp://<host>:<port>/live/stream_key
+ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -f flv rtmp://<host>:<port>/live/stream
 ```
 
 - RTSP
 
 ```bash
-ffmpeg -re -i test.mp4 -c:v libx264 -c:a aac -f rtsp rtsp://<host>:<port>/live/stream_key
+ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -rtsp_transport tcp -f rtsp rtsp://<host>:<port>/live/stream
 ```
 
 - RTP
 
 ```bash
-ffmpeg -re -i test.mp4 -an -c:v libx264 -preset ultrafast -tune zerolatency -f rtp rtp://<host>:<port>
+ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -f rtp rtp://<host>:<port>
 ```
 
-也可以使用 Python 代码：
+拉流：
 
-```bash
-pip install ffmpeg-python
-```
-
-```python
-import ffmpeg
-
-input_stream = "test.mp4"
-output_stream = "rtmp://<ip>/live/test"
-
-ffmpeg.input(input_stream).output(output_stream, format='flv').run()
-```
+使用 potplayer 填入地址即可。
 
 ### WVP PRO
 
