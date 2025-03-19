@@ -142,3 +142,5 @@ Connect API 允许实现从某个源数据系统不断拉入 Kafka 或从 Kafka 
 ### Admin API
 
 Admin API 支持管理和检查主题、broker、acl 和其他 Kafka 对象。
+
+[How To Delete a Topic in Apache Kafka®: A Step-By-Step Guide](https://www.confluent.io/blog/delete-kafka-topic/)

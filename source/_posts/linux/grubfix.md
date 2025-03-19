@@ -29,8 +29,12 @@ cat /etc/centos-release
 > 注：目录样例如下 `https://vault.centos.org/7.3.1611/isos/x86_64/CentOS-7-x86_64-DVD-1611.iso`
 
 3. 进入虚拟机设置页面，挂载光驱并指定刚刚下载的镜像文件。
+
 4. 进入虚拟机 BIOS 或 UEFI 指定将光驱的启动顺序移动至磁盘前。
-5. 开启虚拟机，选择 `Troubleshooting` -> `Rescue a CentOS Linux system` -> `1) Continue` 。
+
+> 注：进入 BIOS 可以通过 VMware 上的 电源 -> 打开电源时进入固件 功能进入。
+
+5. 开启虚拟机进入光盘引导，选择 `Troubleshooting` -> `Rescue a CentOS Linux system` -> `1) Continue` 。
 
 > 注：进入交互式命令行后按 `1` 即可。
 
@@ -64,7 +68,7 @@ rpm -aq kernel*
 yum -y remove kernel*
 cd /mnt/Packages
 yum -y install ./kernel*
-cd /
+cd ../..
 rpm -aq kernel*
 ```
 
@@ -93,6 +97,10 @@ cat /boot/grub2/grub.cfg | grep menuentry
 
 若 `menuentry` 和 `$menuentry_id_option` 中的子版本对应即证明操作正常。
 
-9. 使用 `exit` 命令退出至图形化界面，选择 `Troubleshooting` -> `Boot from local drive` 进入系统即可正常启动。
+9. (可选) 使用 passwd 命令重设密码
 
-10. 进入虚拟机设置中，卸载光驱。
+10. 使用 `exit` 命令退出 grub 模式进入 Rescue 中，然后使用 `shutdown now` 命令关机 
+
+10. 在虚拟机配置中，卸载光驱，重新开机即可正常进入系统。
+
+> 注：此时仅仅修复完成系统，还需要重新挂载数据盘等操作。详情请参照磁盘管理文档。
