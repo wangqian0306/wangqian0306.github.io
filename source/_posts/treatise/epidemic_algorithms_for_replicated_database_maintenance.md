@@ -166,3 +166,12 @@ $\text{Update}[v : V] \equiv s.\text{ValueOf} \leftarrow (v, \text{Now}[])$
 
 #### 1.2 直接发送
 
+直接发送策略会在变更完成后第一时间尝试通知其他所有的站点。在发生更新的站点上执行的基本算法是：
+
+$$
+\begin{aligned}
+&\text{FOR EACH } s' \in S \text{ DO} \\
+&\quad \text{PostMail}[\text{to}:s', \text{msg}: (\text{"Update"}, s.\text{ValueOf})] \\
+&\text{ENDLOOP}
+\end{aligned}
+$$
