@@ -172,6 +172,52 @@ $$
 \begin{aligned}
 &\text{FOR EACH } s' \in S \text{ DO} \\
 &\quad \text{PostMail}[\text{to}:s', \text{msg}: (\text{"Update"}, s.\text{ValueOf})] \\
-&\text{ENDLOOP}
+&\quad \text{ENDLOOP}
+\end{aligned}
+$$
+
+在接收到更新消息 `("Update",(v,t))` 时站点会执行如下逻辑
+
+$$
+\begin{aligned}
+&\text{IF s.ValueOf.t < t THEN} \\
+&\quad \text{s.ValueOf} \leftarrow \text{(v,t)} \\
+\end{aligned}
+$$
+
+PostMail 操作预计几乎可靠，但并非完全可靠。
+它将报文缓存到队列中，因此发送端不会延迟。
+队列保存在邮件服务器上的稳定存储中，因此它们不受服务器崩溃的影响。
+但是，PostMail 也会出错，消息可能会在队列溢出或目标地址长时间网络不可达的情况下被丢弃。
+除了这种报文系统基本的错误之外，直接发送方式也会在更新操作的源站点不具有正确的站点集合 S 时发生。
+
+在 Grapevine 系统 `[Bi]` 中，检测和纠正直接发送策略失败的责任由管理网络的人员承担。
+在只有几十台服务器的网络中，这被证明是足够的。
+
+直接发送每次更新会生成 n 条消息；每条消息都会遍历其源和目标之间的所有网络链接。
+因此，以（链接·消息）为单位，流量与站点数乘以站点之间的平均距离成正比。
+
+#### 1.3 反熵
+
+Grapevine 的设计者意识到，在大型网络中处理直接发送的故障将超出人的处理能力。
+他们提出反熵作为一种可以在后台运行的机制，以自动从此类故障中恢复 `[Bi]` 。
+Grapevine 没有实现反熵，但该设计交易所中基本上没有改变。
+
+在反熵最基本的形式是在每个站点定期执行的以下算法：
+
+$$
+\begin{aligned}
+&\text{FOR SOME s'} \in \text{S DO} \\
+&\quad \text{ResloveDifference[s,s']} \\
+&\quad \text{ENDLOOP}
+\end{aligned}
+$$
+
+`ResloveDifference[s,s']` 程序由两个服务器协同执行。
+基于设计来说，共有三种结果，分别是 推，拉和推拉：
+
+$$
+\begin{aligned}
+&\text{ResloveDiffreence: PROC[s,s'] = \{ -- push }
 \end{aligned}
 $$
