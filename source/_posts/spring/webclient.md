@@ -491,7 +491,110 @@ public class AsyncRequestController {
 
 [参考代码](https://github.com/danvega/rc-logging/blob/main/src/main/java/dev/danvega/ClientLoggerRequestInterceptor.java)
 
-之后在 RestClient 构建的时候配置拦截器就即可。
+之后在 RestClient 构建的时候配置拦截器就即可，样例如下。
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+@Component
+public class LoggingInterceptor implements ClientHttpRequestInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);
+
+    @Override
+    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        logRequest(request, body);
+        ClientHttpResponse response = execution.execute(request, body);
+        return logResponse(request, response);
+    }
+
+    private void logRequest(HttpRequest request, byte[] body) {
+        log.info("Request: {} {}", request.getMethod(), request.getURI());
+        logHeaders(request.getHeaders());
+        if (body.length > 0) {
+            log.info("Request body: {}", new String(body, StandardCharsets.UTF_8));
+        }
+    }
+
+    private ClientHttpResponse logResponse(HttpRequest request, ClientHttpResponse response) throws IOException {
+        log.info("Response status: {}", response.getStatusCode());
+        logHeaders(response.getHeaders());
+
+        byte[] responseBody = response.getBody().readAllBytes();
+        if (responseBody.length > 0) {
+            log.info("Response body: {}", new String(responseBody, StandardCharsets.UTF_8));
+        }
+
+        return new BufferingClientHttpResponseWrapper(response, responseBody);
+    }
+
+    private void logHeaders(HttpHeaders headers) {
+        headers.forEach((name, values) -> values.forEach(value -> log.info("{}={}", name, value)));
+    }
+
+    private static class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
+        private final ClientHttpResponse response;
+        private final byte[] body;
+
+        public BufferingClientHttpResponseWrapper(ClientHttpResponse response, byte[] body) {
+            this.response = response;
+            this.body = body;
+        }
+
+        @Override
+        public InputStream getBody() throws IOException {
+            return new ByteArrayInputStream(body);
+        }
+
+        @Override
+        public HttpHeaders getHeaders() {
+            return response.getHeaders();
+        }
+
+        @Override
+        public HttpStatusCode getStatusCode() throws IOException {
+            return response.getStatusCode();
+        }
+
+        @Override
+        public String getStatusText() throws IOException {
+            return response.getStatusText();
+        }
+
+        @Override
+        public void close() {
+            response.close();
+        }
+    }
+}
+```
+
+在请求类上则进行如下配置：
+
+```java
+@RestController
+@RequestMapping("/demo")
+public class DemoController {
+
+    private final RestClient restClient;
+
+    public DemoController(RestClient.Builder builder, LoggingInterceptor loggingInterceptor) {
+        this.restClient = builder.baseUrl("http://xxx.xxx.xxx.xxx").requestInterceptor(loggingInterceptor).build();
+    }
+
+}
+```
 
 ### 参考资料
 
