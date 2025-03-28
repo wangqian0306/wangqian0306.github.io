@@ -218,6 +218,29 @@ $$
 
 $$
 \begin{aligned}
-&\text{ResloveDiffreence: PROC[s,s'] = \{ -- push }
+&\text{ResloveDiffreence: PROC[s,s'] = \{ -- push } \\
+&\quad \text{IF s.ValueOf.t > s'.ValueOf.t THEN} \\
+&\quad \quad \text{s'ValueOf} \leftarrow \text{s.ValueOf} \\
+&\quad \}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+&\text{ResloveDiffreence: PROC[s,s'] = \{ -- pull } \\
+&\quad \text{IF s.ValueOf.t < s'.ValueOf.t THEN} \\
+&\quad \quad \text{s.ValueOf} \leftarrow \text{s'.ValueOf} \\
+&\quad \}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+&\text{ResloveDiffreence: PROC[s,s'] = \{ -- push-pull } \\
+&\quad \text{SELECT TRUE FROM} \\
+&\quad \quad \text{sValueOf.t} > \text{s'.ValueOf.t} $\Rightarrow$ \text{s'.ValueOf} \leftarrow \text{s.ValueOf;} \\
+&\quad \quad \text{sValueOf.t} < \text{s'.ValueOf.t} $\Rightarrow$ \text{s.ValueOf} \leftarrow \text{s'.ValueOf;} \\
+&\quad \quad \text{EMDECASE} $\Rightarrow$ \text{NULL} \\
+&\quad \}
 \end{aligned}
 $$
