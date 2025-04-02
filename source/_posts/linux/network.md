@@ -114,3 +114,51 @@ firewall-cmd --zone=public --list-ports
 ```bash
 netstat -lnpt
 ```
+
+## 流量监控
+
+Linux 有很多流量监控工具，需要根据场景选择工具。
+
+### iftop
+
+使用条件：
+
+希望看到网卡上传下载速度和请求 IP
+
+安装命令如下：
+
+```bash
+sudo dnf install iftop  # Fedora
+sudo apt install iftop  # Debian/Ubuntu
+sudo yum install iftop  # CentOS/RHEL
+```
+
+使用方式：
+
+```bash
+iftop -i <name>
+```
+
+> 注：此处需要使用网卡名
+
+### bmon
+
+使用条件：
+
+希望看到网卡上传下载速度和波形
+
+安装命令如下：
+
+```bash
+sudo dnf install bmon  # Fedora
+sudo apt install bmon  # Debian/Ubuntu
+sudo yum install bmon  # CentOS/RHEL
+```
+
+使用方式：
+
+```bash
+sudo bmon -p eth0
+```
+
+> 注：此处需要使用网卡名

@@ -125,6 +125,8 @@ logging:
 }
 ```
 
+等待一会即可看见 MCP 清单中出现了绿色的点，此时即可进行提问。
+
 ### 参考资料
 
 [官网](https://modelcontextprotocol.io/introduction)
