@@ -4,6 +4,7 @@ date: 2020-04-03 21:41:32
 tags:
 - "Container"
 - "Docker"
+- "AI"
 id: docker
 no_word_count: true
 no_toc: false
@@ -259,6 +260,78 @@ systemctl restart docker
 ```text
 ENTRYPOINT []
 ```
+
+## AI
+
+在 Docker Desktop 软件中提供了 AI 本地部署的功能。
+
+> 注：目前处于 Beta 版本，且仅供 Apple Silicon 设备使用。
+
+[模型清单](https://hub.docker.com/u/ai)
+
+[官方文档](https://docs.docker.com/desktop/features/model-runner/)
+
+[Run AI Models Locally: Zero API Keys, Zero Fees with Docker Desktop Model Runner](https://www.youtube.com/watch?v=6E6JFLMHcoQ)
+
+常见命令如下：
+
+检查服务状态
+
+```bash
+docker model status
+```
+
+模型清单
+
+```bash
+docker model list
+```
+
+运行模型
+
+```bash
+docker model run <model>
+```
+
+删除模型
+
+```bash
+docker model rm <model>
+```
+
+容器中调用可以直接访问 [model-runner.docker.internal](model-runner.docker.internal)
+
+远程调用则需要访问 [localhost:12434](localhost:12434)
+
+> 注：此处需要打开服务中的 AI tcp 端口。
+
+调用样例如下：
+
+```bash
+curl http://localhost:12434/engines/llama.cpp/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+      "model": "ai/smollm2",
+      "messages": [
+          {
+              "role": "system",
+              "content": "You are a helpful assistant."
+          },
+          {
+              "role": "user",
+              "content": "Please write 500 words about the fall of Rome."
+          }
+      ]
+  }'
+```
+
+对外部服务来说目标地址是：
+
+[http://localhost:12434/engines/llama.cpp](http://localhost:12434/engines/llama.cpp)
+
+Token 随便填写即可。
+
+内容补充接口地址和 OpenAI 一致是 `/v1/chat/complections`
 
 ## 常见问题及解决方案
 
