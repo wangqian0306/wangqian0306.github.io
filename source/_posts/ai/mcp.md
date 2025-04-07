@@ -109,6 +109,30 @@ logging:
 
 ### 测试流程
 
+#### MCP Inspector
+
+使用如下命令安装 uv：
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+然后使用如下命令运行服务：
+
+```bash
+npx @modelcontextprotocol/inspector uvx
+```
+
+在其中填写如下 Arguments ：
+
+```text
+mcp-server-time --local-timezone=America/New_York
+```
+
+点击链接后即可在页面内看到运行结果。
+
+#### Cline
+
 在 VScode 中安装 Cline 然后使用 Cline MCP 的配置文件即可：
 
 ```json
@@ -143,8 +167,12 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 [官网](https://modelcontextprotocol.io/introduction)
 
+[Model Context Protocol servers](https://github.com/modelcontextprotocol/servers)
+
 [Awesome MCP Servers](https://mcpservers.org/)
 
 [Spring AI MCP](https://docs.spring.io/spring-ai/reference/1.0/api/mcp/mcp-overview.html)
 
 [Build Your Own MCP Server in Under 15 Minutes | Spring AI Tutorial](https://www.youtube.com/watch?v=w5YVHG1j3Co)
+
+[Inspector](https://modelcontextprotocol.io/docs/tools/inspector)
