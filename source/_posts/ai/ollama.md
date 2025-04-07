@@ -167,31 +167,7 @@ curl -X POST http://localhost:11434/api/chat -H "Content-Type: application/json"
 
 #### Open WebUI
 
-编写如下 `docker-compose.yaml` 文件：
-
-```yaml
-services:
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    ports:
-      - "3000:8080"
-    environment:
-      - 'OLLAMA_BASE_URL=<ollama_address>'
-      - 'WEBUI_SECRET_KEY='
-    volumes:
-      - ./data:/app/backend/data
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    restart: always
-```
-
-然后使用如下命令启动即可：
-
-```bash
-docker-compose up -d 
-```
-
-> 注：启动时间有些长，记得使用 `docker-compose logs -f` 看日志。
+参见 Open WebUI 文档。
 
 #### LobeChat
 

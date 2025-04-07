@@ -127,6 +127,18 @@ logging:
 
 等待一会即可看见 MCP 清单中出现了绿色的点，此时即可进行提问。
 
+### 常见问题
+
+### spawn uvx ENOENT
+
+在使用第三方使用 uv 的 MCP 服务器时出现了此问题，可以通过修改安装方式进行处理。
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+> 注：只测试过 linux 环境。
+
 ### 参考资料
 
 [官网](https://modelcontextprotocol.io/introduction)
