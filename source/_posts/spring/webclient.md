@@ -160,6 +160,105 @@ JokeClient jokeClient(WebClient.Builder builder) {
 }
 ```
 
+#### 下载文件
+
+编写 `FileDownloadService.java` 文件：
+
+```java
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+
+import java.nio.file.Path;
+import java.util.OptionalLong;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+@Service
+public class FileDownloadService {
+
+    private final WebClient webClient;
+
+    public FileDownloadService(WebClient.Builder builder) {
+        this.webClient = builder.clientConnector(
+                new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))).build();
+    }
+
+    public Mono<Void> downloadWithProgress(String url, Path outputPath, Consumer<Double> progressConsumer) {
+        return webClient.get()
+                .uri(url)
+                .exchangeToMono(response -> {
+                    if (!response.statusCode().is2xxSuccessful()) {
+                        return Mono.error(new RuntimeException("请求失败，状态码: " + response.statusCode()));
+                    }
+
+                    OptionalLong contentLength = response.headers().contentLength();
+                    if (contentLength.isEmpty()) {
+                        return Mono.error(new RuntimeException("无法获取文件大小"));
+                    }
+
+                    AtomicLong bytesReceived = new AtomicLong();
+                    return response.bodyToFlux(DataBuffer.class)
+                            .doOnNext(buffer -> {
+                                long current = bytesReceived.addAndGet(buffer.readableByteCount());
+                                double progress = (current * 100.0) / contentLength.getAsLong();
+                                progressConsumer.accept(progress);
+                            })
+                            .as(flux -> DataBufferUtils.write(flux, outputPath))
+                            .then();
+                });
+    }
+
+}
+```
+
+编写 `DemoController.java` 进行调用测试 
+
+```java
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+@Slf4j
+@RestController
+@RequestMapping("/demo")
+public class DemoController {
+
+    private final FileDownloadService downloadService;
+
+    public DemoController(FileDownloadService downloadService) {
+        this.downloadService = downloadService;
+    }
+
+    @GetMapping(value = "/download-with-progress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> downloadWithProgressStream() {
+        Path outputPath = Paths.get("downloaded-file.zip");
+        Sinks.Many<String> progressSink = Sinks.many().unicast().onBackpressureBuffer();
+
+        downloadService.downloadWithProgress(
+                        "http://localhost:8080/downloadtest.zip",
+                        outputPath,
+                        progress -> progressSink.tryEmitNext(String.format("download: %.2f%%", progress)))
+                .doOnSuccess(v -> progressSink.tryEmitComplete())
+                .doOnError(progressSink::tryEmitError)
+                .subscribe();
+        return progressSink.asFlux();
+    }
+
+}
+```
+
 ### RestClient 实现
 
 引入 Web 包：
