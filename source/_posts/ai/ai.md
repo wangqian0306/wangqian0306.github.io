@@ -22,6 +22,10 @@ no_toc: false
 
 [李宏毅2024春《生成式人工智能导论》](https://www.bilibili.com/video/BV1BJ4m1e7g8)
 
+[Microsoft AI 学习中心](https://learn.microsoft.com/zh-cn/ai)
+
+[OpenAI 开发者中心](https://platform.openai.com/docs/overview)
+
 #### 微调(Fine Tuning)
 
 微调是指对已经在大量通用文本数据上训练好的大型语言模型进行进一步的调整，以优化其在特定任务或领域中的性能。
