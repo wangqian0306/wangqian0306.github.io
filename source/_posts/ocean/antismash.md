@@ -64,29 +64,40 @@ CMD ["uwsgi"]
 
 #### 系统安装(失败)
 
-系统基于 Ubuntu 22.04.4 LTS
+系统基于 Ubuntu 24.04.4 LTS
 
 ```bash
-pyenv install anaconda3-2022.10
-pyenv local anaconda3-2022.10
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-sudo apt update
-sudo apt install build-essential zlib1g-dev
-sudo apt-get install hmmer2 hmmer diamond-aligner fasttree prodigal ncbi-blast+ muscle
-conda install bioconda::glimmerhmm
-conda install libgcc-ng
-conda install bioconda::meme=4.11.2
-wget https://dl.secondarymetabolites.org/releases/6.0.0/antismash-6.0.0.tar.gz
-tar -xvf antismash-6.0.0.tar.gz
-pip install ./antismash-6.0.0
+sudo apt-get update
+sudo apt-get install -y apt-transport-https
+sudo wget http://dl.secondarymetabolites.org/antismash-stretch.list -O /etc/apt/sources.list.d/antismash.list
+sudo wget -q -O- http://dl.secondarymetabolites.org/antismash.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install hmmer2 hmmer diamond-aligner fasttree prodigal ncbi-blast+ glimmerhmm muscle3 meme-suite -y
+sudo apt install python3-pip python3-virtualenv git -y
+git clone https://github.com/antismash/antismash.git
+virtualenv -p $(which python3) ~/asenv
+source ~/asenv/bin/activate
+pip install ./antismash
 download-antismash-databases
-antismash --check-prereqs
+antismash --prepare-data
 ```
 
-> 注：由于 meme 版本不对所以此处方案没能成功安装，如果后续 antiSMASH 版本更新可以再尝试。
+> 注：此处需要注意版本问题，源码下载尽可能使用稳定版，切换分支到指定版本，此处是特殊需求。
+
+##### 数据下载指纹不一致
+
+在下载数据时遇到了 sha256sum mismatch 的问题。
+
+想使用如下逻辑进行修复：
+
+```bash
+curl -q https://dl.secondarymetabolites.org/releases/latest/download_antismash_databases_docker > demo_dl
+chmod a+x demo_dl
+mkdir db
+./demo_dl db
+```
+
+此处即可使用 Docker 下载数据库，将其移动至 `~/asenv/lib/python<version>/site-packages/antismash/databases` 内之后正常使用即可。
 
 ### 参考资料
 
