@@ -196,6 +196,14 @@ services:
 # pass: MaxKB@123..
 ```
 
+#### Agent Development Kit(ADK)
+
+项目地址: [ADK](https://github.com/google/adk-python)
+
+ADK 是一个 Agent 开发框架，还自带了 Web 页面，可以使用多种模型。
+
+[颠覆传统智能体！ADK谷歌最强AI智能体发布！支持MCP与ollama！Agent Development Kit详细教程！超越AutoGen和LangChain!轻松打造多智能体系统！自带UI界面](https://www.youtube.com/watch?v=z7aGIvVyo_I)
+
 ### 在线工具
 
 #### W&B (wandb)
