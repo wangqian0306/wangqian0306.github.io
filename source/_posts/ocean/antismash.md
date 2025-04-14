@@ -15,54 +15,7 @@ antiSMASH 框架允许检测基因组中共存的生物合成基因簇，称为�
 
 ### 安装方式
 
-#### Docker
-
-创建本地卷路径
-
-```bash
-mkdir input
-mkdir output
-wget -P output https://github.com/antismash/antismash/blob/master/antismash/test/integration/data/nisin.gbk
-```
-
-然后编写如下 `docker-compose.yaml` 文件即可
-
-```bash
-services:
-  anti:
-    image: antismash/standalone:latest
-    command: [nisin.gbk]
-    user: <uid>:<gid>
-    volumes: 
-      - "./input:/input"
-      - "./output:/output"
-```
-
-使用如下命令，等待命令完成后，即可在 /output 目录获取到处理结果。
-
-```bash
-docker-compose up
-```
-
-如果需要进入容器中试用其他工具可以使用如下命令：
-
-```bash
-docker run --rm -it --entrypoint="" antismash/standalone:latest /bin/bash
-```
-
-官方除了命令行的方式之外还提供了 web 界面，如需远程调用可以尝试使用 [websmash](https://github.com/antismash/websmash) 
-
-```text
-FROM antismash/standalone:latest
-WORKDIR /web
-RUN apt-get update && apt-get install -y git uwsgi
-RUN git clone https://github.com/antismash/websmash.git
-RUN cd websmash
-RUN pip install -r requirements.txt
-CMD ["uwsgi"]
-```
-
-#### 系统安装(失败)
+#### 系统安装
 
 系统基于 Ubuntu 24.04.4 LTS
 
@@ -84,20 +37,66 @@ antismash --prepare-data
 
 > 注：此处需要注意版本问题，源码下载尽可能使用稳定版，切换分支到指定版本，此处是特殊需求。
 
-##### 数据下载指纹不一致
+若遇到下载指纹不匹配的问题，可以选择修改 `antismash/download_databases.py` 文件，并重新执行安装和下载流程。
 
-在下载数据时遇到了 sha256sum mismatch 的问题。
+测试命令如下：
 
-想使用如下逻辑进行修复：
+```bash
+antismash --genefinding-tool prodigal --taxon bacteria --genefinding-gff3 <name>.gff <name>.fna --cb-knownclusters --cb-general --cc-mibig --clusterhmmer --cb-subclusters --fullhmmer --asf --pfam2go --smcog-trees --output-dir <name>
+```
+
+#### Docker
+
+如果只是想运行命令可以使用如下方式：
+
+```bash
+mkdir ~/bin
+curl -q https://dl.secondarymetabolites.org/releases/latest/docker-run_antismash-lite > ~/bin/run_antismash
+chmod a+x ~/bin/run_antismash
+```
+
+下载数据集：
 
 ```bash
 curl -q https://dl.secondarymetabolites.org/releases/latest/download_antismash_databases_docker > demo_dl
 chmod a+x demo_dl
-mkdir db
-./demo_dl db
+mkdir -p /data/databases
+./demo_dl /data/databases
 ```
 
-此处即可使用 Docker 下载数据库，将其移动至 `~/asenv/lib/python<version>/site-packages/antismash/databases` 内之后正常使用即可。
+之后使用如下命令即可：
+
+```bash
+run_antismash <input file> <output directory> [antismash options]
+```
+
+如果想自定义可以遵循如下逻辑：
+
+如果需要进入容器中试用其他工具可以使用如下命令：
+
+```bash
+docker run --rm -it --entrypoint="" antismash/standalone:latest /bin/bash
+```
+
+运行脚本：
+
+```bash
+docker run --rm antismash/standalone:latest -v ./db:/dataset -v ./input:/input -v ./output:/output --genefinding-tool prodigal --taxon bacteria --genefinding-gff3 <name>.gff <name>.fna --cb-knownclusters --cb-general --cc-mibig --clusterhmmer --cb-subclusters --fullhmmer --asf --pfam2go --smcog-trees --output-dir output
+```
+
+> 注：此处暂未验证。
+
+官方除了命令行的方式之外还提供了 web 界面，如需远程调用可以尝试使用 [websmash](https://github.com/antismash/websmash) 
+
+```text
+FROM antismash/standalone:latest
+WORKDIR /web
+RUN apt-get update && apt-get install -y git uwsgi
+RUN git clone https://github.com/antismash/websmash.git
+RUN cd websmash
+RUN pip install -r requirements.txt
+CMD ["uwsgi"]
+```
 
 ### 参考资料
 
