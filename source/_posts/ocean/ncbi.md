@@ -216,6 +216,24 @@ curl -X POST "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/download?filename=
 
 下载结果
 
+> 注：此处由于网络问题，下载最好加上 api_token 且还是会失败，建议采用命令的形式完成。
+
+### 使用命令
+
+使用如下命令安装脚本：
+
+```bash
+curl -o datasets 'https://ftp.ncbi.nlm.nih.gov/pub/datasets/command-line/v2/linux-amd64/datasets'
+sudo chmod a+x datasets
+sudo mv datasets /usr/local/bin
+```
+
+使用如下命令即可下载基因文件：
+
+```bash
+datasets download genome accession GCF_037619325.1 GCF_900116435.1 --include genome,gff3,cds,protein --filename all_genomes.zip
+```
+
 ### 参考资料
 
 [NCBI 数据下载页](https://www.ncbi.nlm.nih.gov/home/download/)

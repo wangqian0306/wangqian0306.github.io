@@ -176,6 +176,13 @@ mysql -uambari -pambari ambari < /var/lib/ambari-server/resources/Ambari-DDL-MyS
 
 ### 服务安装
 
+(可选)向从机发放 SSH 密钥：
+
+```bash
+ssh-copy-id -o StrictHostKeyChecking=no root@<follower_ip_1>
+ssh-copy-id -o StrictHostKeyChecking=no root@<follower_ip_2>
+```
+
 在 Ambari 主机上执行如下命令：
 
 ```bash
