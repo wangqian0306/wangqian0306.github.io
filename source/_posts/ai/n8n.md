@@ -69,7 +69,27 @@ sudo npm install n8n -g
 然后编写如下配置文件 `/n8n/n8n-config.json` ：
 
 ```json
-
+{
+  "auth": {
+    "cookie": {
+      "secure": false
+    }
+  },
+  "versionNotifications": {
+    "enabled": false
+  },
+  "templates": {
+    "enabled": false
+  },
+  "diagnostics": {
+    "enabled": false,
+    "frontendConfig": "",
+    "backendConfig": ""
+  },
+  "generic": {
+    "timezone": "Asia/Shanghai"
+  }
+}
 ```
 
 > 注：此处配置暂无文档，需要查看 [源码](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts)
@@ -91,3 +111,7 @@ sudo npm update -g n8n
 [官方文档](https://docs.n8n.io/)
 
 [官方项目](https://github.com/n8n-io/n8n)
+
+[初级视频教程](https://www.youtube.com/playlist?list=PLlET0GsrLUL59YbxstZE71WszP3pVnZfI)
+
+[高级视频教程](https://www.youtube.com/playlist?list=PLlET0GsrLUL5bxmx5c1H1Ms_OtOPYZIEG)
