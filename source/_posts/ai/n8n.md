@@ -123,3 +123,5 @@ sudo npm update -g n8n
 [初级视频教程](https://www.youtube.com/playlist?list=PLlET0GsrLUL59YbxstZE71WszP3pVnZfI)
 
 [高级视频教程](https://www.youtube.com/playlist?list=PLlET0GsrLUL5bxmx5c1H1Ms_OtOPYZIEG)
+
+[API 文档](https://docs.n8n.io/api/api-reference/)
