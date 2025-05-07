@@ -56,3 +56,72 @@ services:
 #### 参考资料
 
 [官方项目](https://github.com/Stirling-Tools/Stirling-PDF)
+
+### wkhtmltopdf 
+
+html 快捷转化为 PDF 的小工具（已经 Archived）。
+
+#### 使用方式
+
+使用如下命令安装：
+
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install fonts-noto-cjk
+sudo apt install wkhtmltopdf
+```
+
+然后使用如下命令运行即可：
+
+```bash
+wkhtmltopdf input.html output.pdf
+```
+
+如果有异步加载的内容可以使用如下逻辑：
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    #main {
+      width: 600px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+  <script>
+    var chart = echarts.init(document.getElementById('main'));
+    chart.setOption({
+      title: {
+        text: '示例图表'
+      },
+      tooltip: {},
+      xAxis: {
+        data: ["A", "B", "C", "D"]
+      },
+      yAxis: {},
+      series: [{
+        name: '数量',
+        type: 'bar',
+        data: [5, 20, 36, 10]
+      }]
+    });
+    chart.on('finished', function () {
+      window.status = 'ready';
+    });
+  </script>
+</body>
+</html>
+```
+
+命令如下：
+
+```bash
+wkhtmltopdf --window-status ready input.html output.pdf
+```
