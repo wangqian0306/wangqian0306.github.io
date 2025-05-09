@@ -131,6 +131,14 @@ acme.sh --list
 acme.sh --renew -d <domain> --force
 ```
 
+删除域名：
+
+```bash
+acme.sh --remove -d <domian>
+```
+
+> 注：如果申请用的不是同一个签发方建议删了重新申请。
+
 ### 参考资料
 
 [维基百科](https://en.wikipedia.org/wiki/Automatic_Certificate_Management_Environment)
