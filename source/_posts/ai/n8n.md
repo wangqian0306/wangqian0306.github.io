@@ -106,6 +106,58 @@ N8N_CONFIG_FILES=/n8n/n8n-config.json n8n start
 sudo npm update -g n8n
 ```
 
+启动完成后可以持久化环境变量：
+
+```bash
+vim ~/.bashrc
+```
+
+然后新增如下配置：
+
+```text
+N8N_CONFIG_FILES=/n8n/n8n-config.json
+```
+
+#### 服务部署
+
+在完成手动部署后可以使用 pm2 进行管理，安装逻辑如下：
+
+```bash
+sudo npm install pm2 -g
+```
+
+然后需要使用如下命令启动服务：
+
+```bash
+pm2 startup systemd
+pm2 start n8n
+pm2 save
+```
+
+使用如下命令即可查看服务状态：
+
+```bash
+pm2 list
+```
+
+使用如下命令查看服务日志：
+
+```bash
+pm2 logs <name>
+```
+
+使用如下终止任务：
+
+```bash
+pm2 stop <name>
+```
+
+使用如下命令删除服务：
+
+```bash
+pm2 delete <name>
+```
+
 ### 注意事项
 
 > 注：建议先看完官方教程再使用。
