@@ -28,11 +28,15 @@ no_toc: false
 
 [Bolt.New](https://bolt.new/)
 
+> 注：建议用这个，实现效果很不错。
+
 #### V0
 
 基于 Next.js 实现，还可以做部署。
 
 [V0](https://v0.dev/)
+
+> 注：在对接 Figma 的时候选用的逻辑是截图复现，结果较差无法使用。
 
 ### 参考资料
 
