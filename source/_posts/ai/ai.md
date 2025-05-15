@@ -212,25 +212,22 @@ ADK 是一个 Agent 开发框架，还自带了 Web 页面，可以使用多种�
 
 Weights & Biases (W&B) 是一种流行的工具，用于跟踪机器学习实验，与团队协作，以及管理模型。通过此工具可以监控在微调过程中的相关数据。
 
-### 环境准备
+### 选用合适的模型
 
-#### PyTorch
+[How to Choose Large Language Models: A Developer’s Guide to LLMs](https://www.youtube.com/watch?v=pYax2rupKEY)
 
-使用如下命令即可安装 PyTorch
+在需要选择合适的模型时，如果需要用在线模型可以参照：
 
-```bash
-pip3 install torch torchvision torchaudio
-```
+[Artificial Analysis](https://artificialanalysis.ai/)
 
-使用如下脚本可以监测默认设备
+如果需要一些社区模型的投票参考则可以访问：
 
-```python
-import torch
+[Chatbot Arena LLM Leaderboard](https://lmarena.ai/?leaderboard)
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-    print("默认设备为GPU")
-else:
-    device = torch.device("cpu")
-    print("默认设备为CPU")
-```
+> 注：此处还支持模型回复的对比。
+
+对于简单的开源和微调模型可以访问：
+
+[UGI Leaderboard](https://huggingface.co/spaces/DontPlanToEnd/UGI-Leaderboard)
+
+在选好一系列模型后需要到本地使用 Ollama + OpenWebUI 进行实际测试。

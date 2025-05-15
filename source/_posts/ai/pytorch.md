@@ -23,6 +23,21 @@ PyTorch 是一个开源的机器学习库，由 Facebook 的人工智能研究�
 pip3 install torch torchvision torchaudio opencv-python
 ```
 
+### 监测默认设备
+
+使用如下脚本可以监测默认设备
+
+```python
+import torch
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+    print("默认设备为GPU")
+else:
+    device = torch.device("cpu")
+    print("默认设备为CPU")
+```
+
 ### 常见用例
 
 #### 目标识别(Object Detection)
