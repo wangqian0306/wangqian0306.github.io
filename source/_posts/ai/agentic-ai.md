@@ -31,6 +31,16 @@ Agent 本身具备的如下特性：
 4. 细分和隔离(限制 AI 到特定的环境当中，明确功能和任务)
 5. 可观察性
 
+#### 避免风险
+
+为了避免 ‌‌Agentic AI 使用当中的风险，需要从以下几个角度进行处理：
+
+- 模型，需要确保模型的安全措施，保证输出
+- 编排，做额外捕捉，避免死循环和用户体验以及使用的 Token 数量
+- 工具，限制代理使用的工具
+- 测试，在开发完成后进行详细测试
+- 监控，持续进行评估，记录幻觉或违反合规性的行为进行修改
+
 ### 参考资料
 
 [What Are AI Identities? Understanding Agentic Systems & Governance](https://www.youtube.com/watch?v=AuV62XbiZcw)
