@@ -28,3 +28,5 @@ Redis 官方提供了 `RedisInsight` 工具来协助用户管理数据库。
 ### 参考资料
 
 [RedisInsight](https://redis.com/redis-enterprise/redis-insight/#insight-form)
+
+[官方文档](https://redis.io/docs/latest/get-started/)
