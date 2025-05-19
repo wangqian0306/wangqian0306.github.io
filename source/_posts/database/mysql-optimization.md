@@ -218,6 +218,17 @@ MySQL 支持许多不同的存储引擎(表类型)和 行格式。对于每个�
 - CPU 周期(CPU cycles)
 - 内存带宽(Memory bandwidth)
 
+### 批量数据写入优化
+
+1. 使用 MyBatis-Plus 的 saveBatch 方法进行插入。
+2. 打开 jdbc 配置项 rewriteBatchedStatements=true 将插入语句进行合并。
+3. 预先生成 ID。
+4. 使用多线程异步分解任务，并行实现插入。
+5. 如果使用了多线程需要配置连接池大小。
+6. 配置线程池到合适的大小。
+
 ### 参考资料
 
 [官方文档](https://dev.mysql.com/doc/refman/8.0/en/optimization.html)
+
+[性能提升 2000%！揭秘 MyBatis-Plus 批量插入的终极优化技巧](https://zhuanlan.zhihu.com/p/9705526150)
