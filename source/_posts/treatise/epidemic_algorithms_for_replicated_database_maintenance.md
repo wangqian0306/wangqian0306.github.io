@@ -792,3 +792,230 @@ $$
 
 #### 3.2 空间分布和谣言
 
+因为反熵会在变更后有效地检查了整个数据库，所以它非常健壮。
+例如，考虑一个空间分布，对于每对（s，s'）站点，s 选择与 s' 交换数据的概率为非零。
+使用这样的分布很容易证明反熵收敛于概率1，因为在这些条件下，每个站点最终都会直接与其他站点交换数据。
+
+另一方面，谣言传播会趋于平静——每个谣言最终都会变得不活跃，如果到那时还没有传播到所有站点，它就永远不会传播。
+因此，持有新更新的站点最终联系其他所有网站是不够的；联系必须“足够快”发生，否则更新可能无法传播到所有站点。
+这表明，对于空间分布和网络拓扑的变化，谣言传播可能不如反熵那么稳健。 
+事实上，我们发现情况确实如此。
+
+谣言传播有一个可以调整的参数：随着空间分布变得不那么均匀，我们可以增加谣言传播算法中的 k 值来补偿。
+对于CIN拓扑上的推拉谣言传播，这种技术非常有效。
+我们使用越来越不均匀的空间分布模拟了第1.4节中描述的谣言传播的（反馈、计数器、推拉、无连接限制）变化。 
+我们发现，在200次试验中，一旦k被调整为100%分布，流量和收敛时间与表4中的结果几乎相同。
+也就是说，存在一个小的有限 k，它实现了与 $k = \infty$ 相同的结果。
+
+谣言传播达到了与表4相同的结果，这一事实比最初看起来更有力。
+表4中的收敛时间以周期为单位给出；然而，反熵循环的成本是数据库大小的函数，而谣言传播循环的成本则是系统中活跃谣言数量的函数。
+同样，表4中的比较流量数据在解释为与反熵或谣言传播有关时具有不同的含义。
+一般来说，散布谣言的比较应该比反熵比较便宜，因为它们只需要检查热门谣言的列表。
+
+我们得出结论，非均匀的空间分布可以显著提高推拉谣言传播的性能，特别是关键网络链路上的流量。
+
+谣言传播的推拉变体似乎比推拉对非均匀空间分布和任意网络拓扑的组合更敏感。 
+使用（反馈、计数器、推送、无连接限制）谣言散布和a=1.2的空间分布（3.1.1 章节），在200次模拟试验中实现100%分布所需的k值为36；收敛时间相应地很高。
+对较大a值的模拟并没有在一夜之间完成，因此放弃了尝试。
+
+我们还没有完全理解这种行为，但两个简单的例子说明了可能出现的问题。
+这两个例子都依赖于拥有与网络其他部分相当遥远的孤立站点。
+
+![图 1 和图 2](https://s2.loli.net/2025/05/21/boAhHMEOeundz1p.png)
+
+首先，考虑一个如图 1 所示的网络，其中两个站点s和t彼此靠近，距离站点 $u_1,...,u_m$ 稍远且它们都与 s 和 t等距。
+（构建这样的网络很容易，因为我们不需要在每个网络节点上都有一个数据库站点）。 
+假设 s 和 t 使用 $Q_s(d)^{-2}$ 分布来选择合作伙伴。
+如果 m 大于 k，则 s 和 t 在 k 个连续周期中选择彼此作为合作伙伴的可能性很大。
+如果正在使用推送谣言，并且在 s 或 t 引入了更新，这将导致灾难性的失败——更新被传递给s和t；k循环后，它不再是热门谣言，也没有被传递到任何其他网站。 
+如果正在使用pull，并且更新是在网络的主要部分引入的，那么每次 s 或 t 联系站点 $u_i$ 时，该站点都很有可能还不知道更新，或者知道更新的时间太长，以至于它不再是热门谣言；结果是 s 和 t 都无法得知更新。
+
+作为第二个例子，考虑一个如图 2 所示的网络。 
+站点 s 链接到了有 n-1 个站点的完全二叉树的根节点 $u_0$，从 s 到 $u_0$ 的距离大于树的高度。
+如上所述，假设所有网站都使用 $Q_s(d)^{-2}$ 分布来选择散布谣言的合作伙伴。
+如果 n 相对于 k 较大，则在 k 个连续循环中，树中没有站点会尝试联系 s 的可能性很大。
+使用推送谣言传播，如果在树的某个节点引入了更新，则更新可能无法传递到 s，直到它不再是任何地方的热门谣言。
+
+在充分理解空间分布和不规则网络拓扑之间的关系之前，还需要进行更多的研究。
+上述示例和仿真结果强调，需要用反熵来支持谣言传播，以确保完全覆盖。
+然而，有了这样的保证，具有空间分布的推拉式谣言传播对CIN来说似乎非常有吸引力。
+
+### 4. 结论
+
+可以用简单的随机算法代替用于复制数据库一致性的复杂确定性算法，这些算法几乎不需要底层通信系统的保证。
+随机化反熵算法已在 Xerox Corporate Internet 上实施，在实现一致性和减少网络开销流量方面都提供了令人印象深刻的性能改进。
+通过使用精心选择的空间分布来选择反熵合作伙伴，与使用统一选择合作伙伴的算法相比，所实现的算法将平均链路流量减少了4倍以上，将某些关键链路上的流量减少了30倍。
+
+反熵表现得像一个简单的流行病，这一观察结果促使我们考虑其他类似流行病的算法，如谣言传播，这表明它有望有效替代分发更新的初始邮件步骤。 
+备份反熵方案很容易将更新传播到少数没有收到谣言的网站。 
+事实上，可以将反熵的剥离版本与谣言传播相结合，这样谣言传播就永远不会完全传播更新。
+
+没有终止证明的帮助，流行病算法和直邮算法都无法正确传播删除的缺失。
+终止证明的保留时间、消耗的存储空间和旧数据在数据库中不期望地重新出现的可能性之间存在权衡。 
+通过在少数站点保留休眠终止证明，我们可以以合理的存储成本显著提高网络对过时数据的免疫力。 
+
+还有更多问题需要探讨。病理网络拓扑结构存在性能问题。
+一种解决方案是找到适用于所有拓扑的算法；如果做不到这一点，人们会想描述病理拓扑结构。
+流行病的分析和设计工作仍有待完成。
+到目前为止，我们避免了区分服务器；通过构建一个动态层次结构，可以实现更好的性能，在这个层次结构中，高层站点与远程的其他高层服务器联系，与短距离的低层服务器联系。
+（这种机制的关键问题是保持层次结构。）
+
+### 5. 致谢
+
+我们希望感谢 Mike Paterson 在部分分析工作中提供的帮助，同时感谢 Subhana Menis 和 Laurel Morgan 在复杂繁琐的出版流程中协助完成最终稿件的整理与准备。
+
+### 参考资料
+
+`[Ab]`
+
+Karl Abrahamson, Andrew Addler, Lisa Higham, David Kirkpatrick
+
+Probabilistic Solitude Verification on a Ring.
+
+Proceedings of the Fifth Annual ACM Symposium on Principles of Distributed Computing.
+
+Calgary, Alberta, Canada. 1986, Pages 161-173. 
+
+`[Aw]` 
+
+Baruch Awerbuch and Shimon Even.
+
+Efficient and Reliable Broadcast is Achievable in an Eventually Connected Network.
+
+Proceedings of the Third Annual ACM Symposium on Principles of Distributed Computing.
+
+Vancouver, B.C., Canada. 1984, Pages 278-281. 
+
+`[Ba]` 
+
+Norman T. J. Bailey.
+
+The Mathematical Theory of Infectious Diseases and its Applications (second edition).
+
+Hafner Press, Second Edition, 1975. 
+
+`[Be83]`
+
+M. Ben-Or.
+
+Another Advantage of Free Choice.
+
+Proceedings of the Second Annual ACM Symposium on Principles
+of Distributed Computing.
+
+Montreal, Quebec, Canada. 1983.
+
+`[Be85]`
+
+M. Ben-Or
+
+Fast Asynchronous Byzantine Agreement.
+
+Proceedings of the Fourth Annual ACM Symposium on Principles
+of Distributed Computing.
+
+Minaki, Ontario, Canada. 1985, Pages 149-151.
+
+`[Bi]`
+
+A. D. Birrell, R. Levin, R. M. Needham, and M. D. Schroeder.
+
+Grapevine, An Exercise in Distributed Computing.
+
+Communications of the ACM 25(4):260-274, 1982.
+
+`[Ch]`
+
+K. M. Chandy and L. Lamport.
+
+Distributed Snapshots: Determining Global States of Distributed Systems.
+
+ACM Transactions on Computing Systems 3(1):63-75 1985
+
+`[Fr]`
+
+J. C. Frauenthal.
+
+Mathematical Modeling in Epidemiology, Pages 12-24.
+
+Springer-Verlag, 1980.
+
+`[Gi]`
+
+D. K. Gifford.
+
+Weighted Voting for Replicated Data.
+
+Proceedings of the Seventh Symposium on Operating Systems Principles ACM SIGOPS.
+
+Pacific Grove, California. 1979, Pages 150-159.
+
+`[Jo]`
+
+P. R. Johnson and R. H. Thomas.
+
+The Maintenance of Duplicate Databases.
+
+Bolt Beranek and Newman Inc., Arpanet Request for Comments (RFC)
+677, 1975.
+
+`[La]`
+
+Butler W. Lampson.
+
+Designing a Global Name Service.
+
+Proceedings of the Fifth Annual ACM Symposium on Principles of Distributed Computing.
+
+Calgary, Alberta, Canada. 1986, Pages 1-10.
+
+`[Mo]`
+
+P. Mockapetris.
+
+The domain name system.
+
+Proceedings IFIP 6.5 International Symposium on Computer Messaging,
+Nottingham, England, May 1984.
+
+Also available as:
+
+USC Information Sciences Institute,
+
+Report ISI/RS-84-133, June 1984.
+
+`[Op]`
+
+Derek C. Oppen and Yogen K. Dalal.
+
+The Clearinghouse: A Decentralized Agent for Locating Named Objects in a Distributed
+
+Environment.
+
+Xerox Technical Report: OPD-T8103, 1981. 
+
+`[Pi]`
+
+Boris Pittel.
+
+On Spreading a Rumor.
+
+SIAM Journal of Applied Mathematics 47(1):213-223, 1987.
+
+`[Ra]`
+
+Michael O. Rabin.
+
+Randomized Byzantine Generals.
+
+24th Annual Symposium on Foundations of Computer Science.
+
+IEEE Computer Society, 1983, Pages 403-409.
+
+`[Sa]`
+
+S. K. Sarin and N. A. Lynch.
+
+Discarding Obsolete Information in a Replicated Database System.
+
+IEEE Transactions on Software Engineering SE-13(1):39-47 1987. 
