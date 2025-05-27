@@ -91,6 +91,8 @@ pip install zeep
 pip install onvif_zeep
 ```
 
+##### 持续移动
+
 然后使用如下代码即可：
 
 ```python
@@ -141,3 +143,95 @@ time.sleep(1)
 # 发送转动停止信号
 ptz.Stop({'ProfileToken': media_profile.token})
 ```
+
+##### 角度移动
+
+```python
+from onvif import ONVIFCamera
+import time
+
+class HikvisionPTZControl:
+    def __init__(self, ip, port, user, password):
+        self.mycam = ONVIFCamera(ip, port, user, password)
+        self.media = self.mycam.create_media_service()
+        self.ptz = self.mycam.create_ptz_service()
+
+        # 获取所有 Profiles
+        self.profiles = self.media.GetProfiles()
+        if not self.profiles:
+            raise ValueError("No ONVIF profile found.")
+        self.profile = self.profiles[0]  # 默认使用第一个 Profile
+        self.profile_token = self.profile.token
+
+        # 验证 PTZ 是否支持绝对移动
+        if not self._supports_absolute_move():
+            raise ValueError("Camera does not support absolute PTZ movement.")
+
+    def _supports_absolute_move(self):
+        """检查是否支持绝对 PTZ 移动"""
+        try:
+            capabilities = self.ptz.GetCapabilities({'ProfileToken': self.profile_token})
+            return bool(capabilities.Spaces.AbsolutePanTiltPositionSpace and
+                        capabilities.Spaces.AbsoluteZoomPositionSpace)
+        except Exception as e:
+            print(f"Error checking capabilities: {e}")
+            return False
+
+    def move_to_position(self, x, y, zoom=0):
+        """
+        将摄像头移动到指定的 x (水平), y (垂直) 位置，并设置 zoom 缩放等级。
+        - x, y 的取值范围为 [-1, 1]。
+        - zoom 的取值范围为 [0, 1]。
+        """
+        request = self.ptz.create_type('AbsoluteMove')
+        request.ProfileToken = self.profile_token
+        request.Position = {
+            'PanTilt': {'x': x, 'y': y},
+            'Zoom': {'x': zoom}
+        }
+        self.ptz.AbsoluteMove(request)
+
+    def set_zoom(self, zoom):
+        """
+        设置摄像头的缩放等级，保持当前云台位置不变。
+        - zoom 的取值范围为 [0, 1]。
+        """
+        status = self.ptz.GetStatus({'ProfileToken': self.profile_token})
+        current_pan = status.Position.PanTilt.x
+        current_tilt = status.Position.PanTilt.y
+        self.move_to_position(current_pan, current_tilt, zoom)
+
+# 使用示例
+if __name__ == "__main__":
+    # 替换为你的摄像头 IP、端口、用户名和密码
+    ip = "xxx.xxx.xxx.xxx"
+    port = 80
+    username = "xxxxx"
+    password = "xxxxx"
+
+    try:
+        ptz_ctrl = HikvisionPTZControl(ip, port, username, password)
+
+        # 移动到 x=0.5, y=0.5 的位置，缩放为 0.5
+        ptz_ctrl.move_to_position(0.5, 0.5, 0.5)
+        print("Camera moved to center position with moderate zoom.")
+        time.sleep(3)
+
+        # 设置缩放为最大（0.8）
+        ptz_ctrl.set_zoom(0.8)
+        print("Camera zoomed in.")
+        time.sleep(3)
+
+        # 返回初始位置
+        ptz_ctrl.move_to_position(0.5, 0.5, 0.5)
+        print("Camera returned to original position.")
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
+```
+
+### 参考资料
+
+[海康威视 ISAPI 文档](https://download.isecj.jp/catalog/misc/isapi.pdf)
+
+[Control the white ColorVU LED on Hikvision cameras](https://community.home-assistant.io/t/control-the-white-colorvu-led-on-hikvision-cameras/245092/13)

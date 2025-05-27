@@ -55,6 +55,20 @@ ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrat
 
 使用 potplayer 填入地址即可。
 
+### 视频处理
+
+#### 减少分辨率并指定帧数
+
+```bash
+ffmpeg -i rtsp://xxxx:xxxx@xxx.xxx.xxx.xxx:xxx/xxx/xxx \
+       -vf "scale=640:360:force_original_aspect_ratio=decrease,pad=640:360:(ow-iw)/2:(oh-ih)/2" \
+       -c:v h264 \
+       -b:v 512k \
+       -r 25 \
+       -f rtsp \
+       rtsp://xxx.xxx.xxx.xxx:xxx/xxx/xxx
+```
+
 ### WVP PRO
 
 有对于视频平台有相应的国标 GB28181-2016 ，WEB VIDEO PLATFORM(wvp) 是一款网络视频平台，负责实现核心信令与设备后台管理功能。
