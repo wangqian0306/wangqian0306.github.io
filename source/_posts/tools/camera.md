@@ -128,11 +128,14 @@ request.ProfileToken = media_profile.token
 # 发送转动停止信号
 ptz.Stop({'ProfileToken': media_profile.token})
 
-# 转动请求配置，x 和 y 都是 0-1.0 的数字
+# 转动和缩放请求配置，x 和 y 都是 0-1.0 的数字
 request.Velocity = {
     'PanTilt': {
         'x': 0.5,
         'y': 0
+    },
+    'Zoom': {
+        'x': 0.8
     }
 }
 
@@ -148,7 +151,7 @@ ptz.Stop({'ProfileToken': media_profile.token})
 
 ```python
 from onvif import ONVIFCamera
-import time
+
 
 class HikvisionPTZControl:
     def __init__(self, ip, port, user, password):
@@ -162,20 +165,6 @@ class HikvisionPTZControl:
             raise ValueError("No ONVIF profile found.")
         self.profile = self.profiles[0]  # 默认使用第一个 Profile
         self.profile_token = self.profile.token
-
-        # 验证 PTZ 是否支持绝对移动
-        if not self._supports_absolute_move():
-            raise ValueError("Camera does not support absolute PTZ movement.")
-
-    def _supports_absolute_move(self):
-        """检查是否支持绝对 PTZ 移动"""
-        try:
-            capabilities = self.ptz.GetCapabilities({'ProfileToken': self.profile_token})
-            return bool(capabilities.Spaces.AbsolutePanTiltPositionSpace and
-                        capabilities.Spaces.AbsoluteZoomPositionSpace)
-        except Exception as e:
-            print(f"Error checking capabilities: {e}")
-            return False
 
     def move_to_position(self, x, y, zoom=0):
         """
@@ -201,31 +190,18 @@ class HikvisionPTZControl:
         current_tilt = status.Position.PanTilt.y
         self.move_to_position(current_pan, current_tilt, zoom)
 
+
 # 使用示例
 if __name__ == "__main__":
     # 替换为你的摄像头 IP、端口、用户名和密码
-    ip = "xxx.xxx.xxx.xxx"
+    ip = "192.168.1.64"
     port = 80
-    username = "xxxxx"
-    password = "xxxxx"
+    username = "admin"
+    password = "a1234567"
 
     try:
         ptz_ctrl = HikvisionPTZControl(ip, port, username, password)
-
-        # 移动到 x=0.5, y=0.5 的位置，缩放为 0.5
-        ptz_ctrl.move_to_position(0.5, 0.5, 0.5)
-        print("Camera moved to center position with moderate zoom.")
-        time.sleep(3)
-
-        # 设置缩放为最大（0.8）
-        ptz_ctrl.set_zoom(0.8)
-        print("Camera zoomed in.")
-        time.sleep(3)
-
-        # 返回初始位置
-        ptz_ctrl.move_to_position(0.5, 0.5, 0.5)
-        print("Camera returned to original position.")
-
+        ptz_ctrl.move_to_position(1, 1, 0)
     except Exception as e:
         print(f"Error occurred: {e}")
 ```
