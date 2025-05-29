@@ -178,7 +178,34 @@ class HikvisionPTZControl:
             'PanTilt': {'x': x, 'y': y},
             'Zoom': {'x': zoom}
         }
+        request.Speed = {
+            'PanTilt': {'x': 0.1, 'y': 0.1}
+        }
         self.ptz.AbsoluteMove(request)
+    
+    def get_ptz_configuration_options(self):
+        """
+        获取 PTZ 配置参数清单
+        """
+        request = self.ptz.create_type('GetConfigurationOptions')
+        request.ConfigurationToken = self.profile_token
+        ptz_configuration_options = self.ptz.GetConfigurationOptions(request)
+        print(ptz_configuration_options)
+
+    def get_ptz_config(self):
+        """
+        获取硬件 PTZ 配置
+        """
+        request_configuration = self.ptz.create_type('GetConfiguration')
+        request_configuration.PTZConfigurationToken = self.profile_token
+        ptz_configuration = self.ptz.GetConfiguration(request_configuration)
+        print(ptz_configuration)
+    
+    def get_ptz_status(self):
+        """
+        获取硬件 PTZ 状态
+        """
+        print(self.ptz.GetStatus({'ProfileToken': self.profile_token}))
 
     def set_zoom(self, zoom):
         """
@@ -194,16 +221,128 @@ class HikvisionPTZControl:
 # 使用示例
 if __name__ == "__main__":
     # 替换为你的摄像头 IP、端口、用户名和密码
-    ip = "192.168.1.64"
+    ip = "xxx.xxx.xxx.xxx"
     port = 80
-    username = "admin"
-    password = "a1234567"
+    username = "xxxxx"
+    password = "xxxxx"
 
     try:
         ptz_ctrl = HikvisionPTZControl(ip, port, username, password)
         ptz_ctrl.move_to_position(1, 1, 0)
     except Exception as e:
         print(f"Error occurred: {e}")
+```
+
+### 控制灯光和雨刷
+
+#### 调试
+
+打开灯
+
+```bash
+curl -X PUT "http://xxx.xxx.xxx.xxx/ISAPI/PTZCtrl/channels/1/auxcontrols/1" \
+     -u xxx:xxxx \
+     --digest \
+     -H "Content-Type: application/xml" \
+     -d '<?xml version="1.0" encoding="UTF-8"?><PTZAux><id>1</id><type>LIGHT</type><status>on</status></PTZAux>'
+```
+
+关闭灯
+
+```bash
+curl -X PUT "http://xxx.xxx.xxx.xxx/ISAPI/PTZCtrl/channels/1/auxcontrols/1" \
+     -u xxx:xxxx \
+     --digest \
+     -H "Content-Type: application/xml" \
+     -d '<?xml version="1.0" encoding="UTF-8"?><PTZAux><id>1</id><type>LIGHT</type><status>off</status></PTZAux>'
+```
+
+打开雨刷
+
+```bash
+curl -X PUT "http://xxx.xxx.xxx.xxx/ISAPI/PTZCtrl/channels/1/auxcontrols/1" \
+     -u xxx:xxxx \
+     --digest \
+     -H "Content-Type: application/xml" \
+     -d '<?xml version="1.0" encoding="UTF-8"?><PTZAux><id>1</id><type>WIPER</type><status>on</status></PTZAux>'
+```
+
+关闭雨刷
+
+```bash
+curl -X PUT "http://xxx.xxx.xxx.xxx/ISAPI/PTZCtrl/channels/1/auxcontrols/1" \
+     -u xxx:xxxx \
+     --digest \
+     -H "Content-Type: application/xml" \
+     -d '<?xml version="1.0" encoding="UTF-8"?><PTZAux><id>1</id><type>WIPER</type><status>off</status></PTZAux>'
+```
+
+#### 控制代码
+
+```python
+import requests
+from requests.auth import HTTPDigestAuth
+
+
+class PlugInController:
+    def __init__(self, host, username, password):
+        """
+        初始化控制器
+
+        :param host:  
+        :param username: 登录用户名
+        :param password: 登录密码
+        """
+        self.base_url = f'http://{host}/ISAPI/PTZCtrl/channels/1/auxcontrols/1'
+        self.username = username
+        self.password = password
+        self.headers = {
+            "Content-Type": "application/xml"
+        }
+
+    def _send_command(self, action_type, status):
+        """
+        内部方法：发送控制命令
+
+        :param action_type: 设备类型，如 LIGHT 或 WIPER
+        :param status: 状态 on 或 off
+        :return: 响应对象
+        """
+        xml_data = f'''<?xml version="1.0" encoding="UTF-8"?>
+<PTZAux>
+  <id>1</id>
+  <type>{action_type}</type>
+  <status>{status}</status>
+</PTZAux>'''
+
+        try:
+            response = requests.put(
+                self.base_url,
+                auth=HTTPDigestAuth(self.username, self.password),
+                headers=self.headers,
+                data=xml_data,
+                timeout=5  # 设置超时时间
+            )
+            return response
+        except requests.exceptions.RequestException as e:
+            print("请求失败:", e)
+            return None
+
+    def turn_light_on(self):
+        """打开灯光"""
+        return self._send_command("LIGHT", "on")
+
+    def turn_light_off(self):
+        """关闭灯光"""
+        return self._send_command("LIGHT", "off")
+
+    def turn_wiper_on(self):
+        """启动雨刷"""
+        return self._send_command("WIPER", "on")
+
+    def turn_wiper_off(self):
+        """停止雨刷"""
+        return self._send_command("WIPER", "off")
 ```
 
 ### 参考资料
