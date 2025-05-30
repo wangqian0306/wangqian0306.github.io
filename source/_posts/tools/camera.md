@@ -233,6 +233,44 @@ if __name__ == "__main__":
         print(f"Error occurred: {e}")
 ```
 
+#### 定位到记忆点
+
+```python
+from onvif import ONVIFCamera
+
+ip_address = 'xxx.xxx.xxx.xxx'
+port = 80
+username = 'xxxx'
+password = 'xxxx'
+
+# 创建 ONVIF 摄像头对象
+mycam = ONVIFCamera(ip_address, port, username, password)
+
+# 创建媒体服务和 PTZ 服务
+media_service = mycam.create_media_service()
+ptz_service = mycam.create_ptz_service()
+
+# 获取第一个配置项
+configs = media_service.GetProfiles()
+profile_token = configs[0].token
+
+# 获取所有预设点
+presets = ptz_service.GetPresets(ProfileToken=profile_token)
+
+print("PTZ Presets:")
+for idx, preset in enumerate(presets):
+    print(f"{idx}: {preset.token} - {preset.Name}")
+
+# 选择一个预设点编号
+selected_index = int(input("请输入要跳转的预设点编号: "))
+
+# 移动到选定的预设点
+ptz_service.GotoPreset(ProfileToken=profile_token,
+                       PresetToken=presets[selected_index].token)
+
+print("已跳转至预设点:", presets[selected_index].Name)
+```
+
 ### 控制灯光和雨刷
 
 #### 调试
