@@ -62,6 +62,38 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
+> 注：在更新 Ollama 0.9.0 后可以管理思考模式
+
+关闭思考：
+
+```text
+/set nothink
+```
+
+打开思考(默认)：
+
+```text
+/set think
+```
+
+在调用时也可以使用如下参数：
+
+```bash
+curl http://localhost:11434/api/chat -d '{
+  "model": "deepseek-r1",
+  "messages": [
+    {
+      "role": "user",
+      "content": "how many r in the word strawberry?"
+    }
+  ],
+  "think": true,
+  "stream": false
+}'
+```
+
+在 Message 中读取 `thinking` 字段即可获取输出。
+
 ##### 微调后的模型
 
 除了官方模型清单内的模型之外，还可以使用 [huggingface](https://huggingface.co/models?library=gguf) 上的其他模型。

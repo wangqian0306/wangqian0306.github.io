@@ -16,9 +16,11 @@ no_toc: false
 
 LangChain 是一个用于开发由语言模型驱动的应用程序的框架，由以下几个部分组成：
 
-- LangChain Libraries：Python 和 JavaScript 库，通过 LangChain 库可以更便捷的与大模型进行交互
-- LangChain Templates：一组易于部署的参考架构，适用于各种任务
-- LangServe：REST API 服务器
+![LangChain 技术栈](https://python.langchain.com/svg/langchain_stack_112024.svg)
+
+- LangChain Core：不同组件的基础抽象以及将它们组合在一起的方法。
+- Integration packages：不同大模型的调用包。
+- LangGraph: 用于将 LangChain 组件组合成可投入生产的应用程序的编排框架，具有持久性、流式传输和其他关键功能。
 - LangSmith：调试监控平台(开发中，目前需要在云上)
 
 ### 使用方式
@@ -193,3 +195,7 @@ python demo-server.py
 [Ollama](https://github.com/jmorganca/ollama)
 
 [LangChain Tools](https://python.langchain.com/docs/integrations/tools)
+
+[GraphRAG Explained: AI Retrieval with Knowledge Graphs & Cypher](https://www.youtube.com/watch?v=Za7aG-ooGLQ)
+
+[GraphRAG Demo](https://github.com/IBM/ibmdotcom-tutorials/blob/main/generative-ai/graphrag.ipynb)

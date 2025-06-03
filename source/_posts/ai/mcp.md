@@ -176,3 +176,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 [Build Your Own MCP Server in Under 15 Minutes | Spring AI Tutorial](https://www.youtube.com/watch?v=w5YVHG1j3Co)
 
 [Inspector](https://modelcontextprotocol.io/docs/tools/inspector)
+
+[Securing Spring AI MCP servers with OAuth2 视频](https://www.youtube.com/watch?v=gBUnLYFwwyE)
+
+[Securing Spring AI MCP servers with OAuth2 博文](https://spring.io/blog/2025/04/02/mcp-server-oauth2)
+
+[Securing Spring AI MCP servers with OAuth2 代码](https://github.com/spring-projects/spring-ai-examples/tree/main/model-context-protocol/weather/starter-webmvc-server)
