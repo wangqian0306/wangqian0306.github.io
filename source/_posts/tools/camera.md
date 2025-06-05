@@ -128,7 +128,7 @@ request.ProfileToken = media_profile.token
 # 发送转动停止信号
 ptz.Stop({'ProfileToken': media_profile.token})
 
-# 转动和缩放请求配置，x 和 y 都是 0-1.0 的数字
+# 转动和缩放请求配置，x 和 y 都是 -1,1 的数字
 request.Velocity = {
     'PanTilt': {
         'x': 0.5,
@@ -146,6 +146,8 @@ time.sleep(1)
 # 发送转动停止信号
 ptz.Stop({'ProfileToken': media_profile.token})
 ```
+
+> 注：缩放也是需要持续移动的。
 
 ##### 角度移动
 
