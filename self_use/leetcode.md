@@ -292,3 +292,42 @@ public class Solution {
 ```
 
 [和为 K 的子数组](https://leetcode.cn/problems/subarray-sum-equals-k)
+
+#### 滑动窗口最大值
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0) return new int[0];
+        
+        int n = nums.length;
+        int[] result = new int[n - k + 1];
+        Deque<Integer> deque = new LinkedList<>();
+        int idx = 0; // 结果数组的索引
+
+        for (int i = 0; i < nums.length; i++) {
+            // 1. 移除超出窗口范围的索引（队首）
+            while (!deque.isEmpty() && deque.peekFirst() < i - k + 1) {
+                deque.pollFirst();
+            }
+
+            // 2. 移除比当前元素小的索引（队尾）
+            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) {
+                deque.pollLast();
+            }
+
+            // 3. 添加当前元素索引
+            deque.offerLast(i);
+
+            // 4. 记录窗口最大值
+            if (i >= k - 1) {
+                result[idx++] = nums[deque.peekFirst()];
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+[滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum)
