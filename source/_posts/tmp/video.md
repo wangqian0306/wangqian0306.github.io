@@ -48,7 +48,13 @@ ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset veryfast -maxrate 30
 - RTP
 
 ```bash
-ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -f rtp rtp://<host>:<port>
+ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -f rtp rtp://<host>:<port>/live/stream
+```
+
+- RTSP 到 RTSP
+
+```bash
+ffmpeg -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_stream -c:v copy -an -f rtsp -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
 ```
 
 拉流：
@@ -67,6 +73,37 @@ ffmpeg -i rtsp://xxxx:xxxx@xxx.xxx.xxx.xxx:xxx/xxx/xxx \
        -r 25 \
        -f rtsp \
        rtsp://xxx.xxx.xxx.xxx:xxx/xxx/xxx
+```
+
+### ZLMediakit
+
+可使用如下命令：
+
+```bash
+docker run -id -p 1935:1935 -p 8080:80 -p 8443:443 -p 8554:554 -p 10000:10000 -p 10000:10000/udp -p 8000:8000/udp -p 9000:9000/udp zlmediakit/zlmediakit:master
+```
+
+或使用如下 docker-compose :
+
+```yaml
+services:
+  zlmediakit:
+    image: zlmediakit/zlmediakit:master
+    container_name: zlmediakit
+    restart: unless-stopped
+    ports:
+      - "1935:1935"             # RTMP
+      - "8080:80"               # HTTP
+      - "8443:443"              # HTTPS
+      - "8554:554"              # RTSP
+      - "10000:10000"           # RTP TCP
+      - "10000:10000/udp"       # RTP UDP
+      - "8000:8000/udp"         # RTCP
+      - "9000:9000/udp"         # SIP (如用于 GB28181)
+    volumes:
+      - ./media:/opt/media
+    environment:
+      - TZ=Asia/Shanghai
 ```
 
 ### WVP PRO
@@ -177,3 +214,5 @@ services:
 [ZLMediaKit](https://github.com/ZLMediaKit/ZLMediaKit)
 
 [EasyGBS通过抓包来分析不能播放的原因](https://www.bilibili.com/video/BV1x54y1e7A5)
+
+[FFMPEG 安裝教學(windows)](https://vocus.cc/article/64701a2cfd897800014daed0)
