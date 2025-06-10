@@ -61,6 +61,32 @@ ffmpeg -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_stream -c:v copy -an -f
 
 使用 potplayer 填入地址即可。
 
+如果有自动重试等需求可以考虑使用 FFmpeg 的镜像：
+
+```yaml
+services:
+  wq_cam:
+    image: linuxserver/ffmpeg:7.1.1
+    container_name: wq_cam
+    restart: always
+    command:
+      - "-i"
+      - "rtsp://<user>:<password>@<ip>/Streaming/Channels/1"
+      - "-c:v"
+      - "copy"
+      - "-an"
+      - "-f"
+      - "rtsp"
+      - "-rtsp_transport"
+      - "tcp"
+      - "rtsp://<ip>:<port>/live/stream"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+```
+
 ### 视频处理
 
 #### 减少分辨率并指定帧数
