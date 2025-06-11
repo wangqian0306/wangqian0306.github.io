@@ -75,3 +75,39 @@ podman play kube demo.yml
 ```bash
 podman pod <command>
 ```
+
+### 开机运行
+
+与 Docker 不同 podman 需要通过 Quadlets 管理开机启动的容器。
+
+首先需要创建配置目录，若是全局配置则如下：
+
+- 临时全局：`/run/containers/systemd/`
+- 管理员全局： `/etc/containers/systemd/`
+- Distribution defined : `/usr/share/containers/systemd/`
+
+普通用户配置：
+
+- `$XDG_RUNTIME_DIR/containers/systemd/`
+- `$XDG_CONFIG_HOME/containers/systemd/` or `~/.config/containers/systemd/`
+- `/etc/containers/systemd/users/$(UID)`
+- `/etc/containers/systemd/users/`
+
+例如可以编写 `~/.config/containers/systemd/nginx.container` 文件，内容如下：
+
+```text
+# nginx.container
+[Container]
+ContainerName=nginx
+Image=nginx
+PublishPort=80:8080
+
+[Service]
+Restart=always
+```
+
+### 参考资料
+
+[官方文档](https://docs.podman.io/en/latest/)
+
+[Podman Quadlet 官方文档](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
