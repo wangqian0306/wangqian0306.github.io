@@ -549,3 +549,5 @@ GET http://localhost:8080/weather?message=
 [Spring Tips: Spring AI Observability](https://www.youtube.com/watch?v=afU8cK0pnpY)
 
 [AI Model Context Decoded](https://www.youtube.com/watch?v=-Lyk7ygQw2E)
+
+[Your First Spring AI 1.0 Application](https://spring.io/blog/2025/05/20/your-first-spring-ai-1)

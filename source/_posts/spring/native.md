@@ -187,3 +187,5 @@ ENTRYPOINT [ "java", "-jar", "/app/app.jar" ]
 [Gradle 插件官方文档](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
 
 [成功优化！Java 基础 Docker 镜像从 674MB 缩减到 58MB 的经验分享](https://mp.weixin.qq.com/s/3Tzc4QyC8_5wiWqA73htQw)
+
+[Spring Data Ahead of Time Repositories](https://spring.io/blog/2025/05/22/spring-data-ahead-of-time-repositories)
