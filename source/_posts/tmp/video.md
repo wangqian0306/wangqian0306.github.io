@@ -54,7 +54,7 @@ ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrat
 - RTSP 到 RTSP
 
 ```bash
-ffmpeg -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_stream -c:v copy -an -f rtsp -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
+ffmpeg -timeout 10000000 -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_stream -c:v copy -an -f rtsp -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
 ```
 
 拉流：
@@ -70,6 +70,8 @@ services:
     container_name: wq_cam
     restart: always
     command:
+      - "-timeout"
+      - "10000000"
       - "-i"
       - "rtsp://<user>:<password>@<ip>/Streaming/Channels/1"
       - "-c:v"
