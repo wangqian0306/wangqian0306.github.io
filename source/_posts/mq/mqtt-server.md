@@ -181,24 +181,43 @@ client_id = 'consumer-01'
 username = 'xxxx'
 password = 'xxxx'
 
+userdata = {
+    'topic': topic
+}
 
-def connect_mqtt():
-    client = mqtt_client.Client(callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2, client_id=client_id)
-    client.username_pw_set(username, password)
-    client.connect(broker, port)
+def on_connect(client, userdata, flags, rc, properties):
+    client.subscribe(userdata['topic'])
+    print(f"Subscribed to topic: {userdata['topic']}")
+
+def on_message(client, userdata, msg):
+    print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+
+def on_disconnect(client, userdata, disconnect_flags,reason_code, properties, rc):
+    print(f"[MQTT] 已断开连接，原因码 rc={rc}")
+
+def connect_mqtt(user_data) -> mqtt_client.Client:
+    client = mqtt_client.Client(
+        callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2,
+        client_id=client_id,
+        userdata=user_data
+    )
+
+    client.username_pw_set(mqtt_username, mqtt_password)
+    client.connect(broker, port, keepalive=60)
+
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.on_disconnect = on_disconnect
+
     return client
 
-
-def subscribe(client: mqtt_client):
-    def on_message(client, userdata, msg):
-        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-
-    client.subscribe(topic)
-    client.on_message = on_message
-
-
 if __name__ == '__main__':
-    client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
+    try:
+        client = connect_mqtt(userdata)
+        print(f"Connected to MQTT Broker: {broker}:{port}")
+        client.loop_forever()
+    except Exception as e:
+        print(f"MQTT : {e}")
 ```
+
+> 注：loop_forever 默认会断线重连
