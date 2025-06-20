@@ -122,7 +122,6 @@ After=network.target
 Requires=docker.service
 
 [Service]
-Type=oneshot
 RemainAfterExit=true
 WorkingDirectory=/home/xxx/xxx
 ExecStart=/bin/bash -c "/usr/bin/docker-compose down && /usr/bin/docker-compose up -d"
@@ -137,7 +136,7 @@ Type 部分可选参数如下：
 
 |Type|功能|
 |:---:|:---:|
-|simple|服务主进程前台运行|
+|simple|服务主进程前台运行(默认)|
 |exec|Systemd v250+ 的改进型 simple|
 |forking|服务会自行 fork 到后台|
 |oneshot|一次性命令|

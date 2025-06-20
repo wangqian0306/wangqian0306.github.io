@@ -192,8 +192,8 @@ def on_connect(client, userdata, flags, rc, properties):
 def on_message(client, userdata, msg):
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
 
-def on_disconnect(client, userdata, disconnect_flags,reason_code, properties, rc):
-    print(f"[MQTT] 已断开连接，原因码 rc={rc}")
+def on_disconnect(client, userdata, disconnect_flags,reason_code, properties):
+    print(f"[MQTT] 已断开连接")
 
 def connect_mqtt(user_data) -> mqtt_client.Client:
     client = mqtt_client.Client(
