@@ -333,7 +333,8 @@ class PlugInController:
         :param username: 登录用户名
         :param password: 登录密码
         """
-        self.base_url = f'http://{host}/ISAPI/PTZCtrl/channels/1/auxcontrols/1'
+        self.ptz_url = f'http://{ip}/ISAPI/PTZCtrl/channels/1/auxcontrols/1'
+        self.osd_url = f'http://{ip}/ISAPI/System/Video/inputs/channels/1/overlays'
         self.username = username
         self.password = password
         self.headers = {
@@ -357,7 +358,7 @@ class PlugInController:
 
         try:
             response = requests.put(
-                self.base_url,
+                self.ptz_url,
                 auth=HTTPDigestAuth(self.username, self.password),
                 headers=self.headers,
                 data=xml_data,
@@ -383,7 +384,49 @@ class PlugInController:
     def turn_wiper_off(self):
         """停止雨刷"""
         return self._send_command("WIPER", "off")
+
+        def read_osd(self):
+        """读取 OSD 内容"""
+        response = requests.get(
+            self.osd_url,
+            auth=HTTPDigestAuth(self.username, self.password),
+            headers=self.headers,
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            self.osd_data = ET.fromstring(response.content)
+            return self.osd_data
+        else:
+            print("读取 OSD 失败:", response.status_code)
+            return None
+
+    def write_osd(self, new_text):
+        """修改 OSD 内容"""
+        overlay = self.osd_data.find(".//hik:TextOverlayList/hik:TextOverlay[hik:id='1']", self.ns)
+        if overlay is not None:
+            overlay.find("hik:displayText", self.ns).text = f"电量：{new_text} %"
+            overlay.find("hik:enabled", self.ns).text = "true"
+            xml_data = ET.tostring(self.osd_data, encoding="utf-8", xml_declaration=True)
+            try:
+                response = requests.put(
+                    self.osd_url,
+                    auth=HTTPDigestAuth(self.username, self.password),
+                    headers=self.headers,
+                    data=xml_data,
+                    timeout=5
+                )
+                if response.status_code == 200:
+                    print("OSD 内容修改成功")
+                else:
+                    print("OSD 内容修改失败:", response.status_code)
+            except requests.exceptions.RequestException as e:
+                print("请求失败:", e)
+        else:
+            print("找不到要修改的 OSD")
 ```
+
+> 注：OSD 是在屏幕上显示的额外字符，去配置中可以调整位置
 
 ### 参考资料
 
