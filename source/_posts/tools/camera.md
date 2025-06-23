@@ -322,6 +322,7 @@ curl -X PUT "http://xxx.xxx.xxx.xxx/ISAPI/PTZCtrl/channels/1/auxcontrols/1" \
 ```python
 import requests
 from requests.auth import HTTPDigestAuth
+from xml.etree import ElementTree as ET
 
 
 class PlugInController:
@@ -340,6 +341,10 @@ class PlugInController:
         self.headers = {
             "Content-Type": "application/xml"
         }
+        self.osd_data = None
+        ET.register_namespace('', "http://www.hikvision.com/ver20/XMLSchema")
+        self.ns = {'hik': 'http://www.hikvision.com/ver20/XMLSchema'}
+        self.read_osd()
 
     def _send_command(self, action_type, status):
         """
