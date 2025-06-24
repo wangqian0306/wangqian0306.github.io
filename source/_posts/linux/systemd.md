@@ -118,8 +118,8 @@ systemctl restart <name>
 ```text
 [Unit]
 Description=Demo service
-After=network.target
-Requires=docker.service
+After=network.target dev-ttyUSB0.device
+Requires=docker.service dev-ttyUSB0.device
 
 [Service]
 RemainAfterExit=true
