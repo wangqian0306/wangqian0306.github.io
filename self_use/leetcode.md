@@ -331,3 +331,102 @@ class Solution {
 ```
 
 [滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum)
+
+#### 最小覆盖子串
+
+```java
+public class Solution {
+    public String minWindow(String s, String t) {
+        // 记录目标字符串 t 的字符需求
+        Map<Character, Integer> need = new HashMap<>();
+        // 记录当前窗口中的字符数量
+        Map<Character, Integer> window = new HashMap<>();
+
+        // 初始化 need 表
+        for (char c : t.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+
+        // 双指针
+        int left = 0;
+        int right = 0;
+
+        // 匹配计数：valid 表示当前窗口满足 need 条件的字符个数
+        int valid = 0;
+
+        // 最小覆盖子串的起始索引和长度
+        int start = 0;
+        int minLength = Integer.MAX_VALUE;
+
+        while (right < s.length()) {
+            char c = s.charAt(right);
+            right++;
+
+            // 如果当前字符是需要的，则加入窗口并更新 valid
+            if (need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                // 判断是否已经满足了该字符的需求
+                if (window.get(c).equals(need.get(c))) {
+                    valid++;
+                }
+            }
+
+            // 当窗口满足条件时，尝试收缩左边界以获取更小窗口
+            while (valid == need.size()) {
+                // 更新最小窗口
+                if (right - left < minLength) {
+                    start = left;
+                    minLength = right - left;
+                }
+
+                char d = s.charAt(left);
+                left++;
+
+                // 如果移出的是目标字符，更新窗口信息
+                if (need.containsKey(d)) {
+                    if (window.get(d).equals(need.get(d))) {
+                        valid--;
+                    }
+                    window.put(d, window.get(d) - 1);
+                }
+            }
+        }
+
+        // 返回最小覆盖子串
+        return minLength == Integer.MAX_VALUE ? "" : s.substring(start, start + minLength);
+    }
+}
+```
+
+[最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring)
+
+#### 最大子数组和
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        // 如果数组为空或长度为0，返回0或抛异常均可
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        // 当前子数组的和
+        int currentSum = nums[0];
+        // 最大子数组和
+        int maxSum = nums[0];
+
+        // 从第二个元素开始遍历
+        for (int i = 1; i < nums.length; i++) {
+            // 如果当前子数组和为负数，则舍弃前面的子数组，从当前元素重新开始
+            currentSum = Math.max(nums[i], currentSum + nums[i]);
+
+            // 更新最大子数组和
+            maxSum = Math.max(maxSum, currentSum);
+        }
+
+        return maxSum;
+    }
+}
+```
+
+[最大子数组和](https://leetcode.cn/problems/maximum-subarray)
