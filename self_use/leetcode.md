@@ -430,3 +430,34 @@ class Solution {
 ```
 
 [最大子数组和](https://leetcode.cn/problems/maximum-subarray)
+
+#### 合并区间
+
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        if (intervals == null || intervals.length == 0) {
+            return new int[0][];
+        }
+
+        // 按照区间的起始点排序
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+
+        List<int[]> merged = new ArrayList<>();
+        for (int[] interval : intervals) {
+            // 如果列表为空或者当前区间不与上一个区间重叠，直接加入
+            if (merged.isEmpty() || merged.get(merged.size() - 1)[1] < interval[0]) {
+                merged.add(interval);
+            } else {
+                // 否则合并
+                merged.get(merged.size() - 1)[1] = Math.max(merged.get(merged.size() - 1)[1], interval[1]);
+            }
+        }
+
+        // 转换为二维数组返回
+        return merged.toArray(new int[merged.size()][]);
+    }
+}
+```
+
+[合并区间](https://leetcode.cn/problems/merge-intervals)
