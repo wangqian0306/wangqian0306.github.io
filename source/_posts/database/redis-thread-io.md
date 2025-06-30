@@ -71,6 +71,8 @@ io-threads-do-reads no
 
 ### 参考资料
 
-https://www.cnblogs.com/gz666666/p/12901507.html
+[Diving Into Redis 6.0](https://redis.io/blog/diving-into-redis-6/)
 
-https://raw.githubusercontent.com/redis/redis/6.0/redis.conf
+[Redis 6.0 多线程重磅发布！！！](https://www.cnblogs.com/gz666666/p/12901507.html)
+
+[Redis 配置示例文件](https://raw.githubusercontent.com/redis/redis/6.0/redis.conf)

@@ -461,3 +461,36 @@ class Solution {
 ```
 
 [合并区间](https://leetcode.cn/problems/merge-intervals)
+
+#### 轮转数组
+
+```java
+class Solution {
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        k = k % n;  // 避免多余的旋转
+        
+        int count = 0;  // 已处理元素个数
+        int start = 0;  // 起始点
+
+        while (count < n) {
+            int current = start;
+            int prev = nums[current];
+            
+            do {
+                int next = (current + k) % n;
+                int temp = nums[next];
+                nums[next] = prev;
+                prev = temp;
+                current = next;
+                count++;
+                
+            } while (current != start);  // 直到回到起点
+            
+            start++;  // 处理下一个环
+        }
+    }
+}
+```
+
+[轮转数组](https://leetcode.cn/problems/rotate-array)
