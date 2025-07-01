@@ -494,3 +494,116 @@ class Solution {
 ```
 
 [轮转数组](https://leetcode.cn/problems/rotate-array)
+
+#### 除自身以外数组的乘积
+
+```java
+class Solution {
+    public static int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] answer = new int[n];
+
+        // 第一步：计算每个元素左边所有元素的乘积
+        answer[0] = 1; // 第一个元素左边没有元素，乘积为1
+        for (int i = 1; i < n; i++) {
+            answer[i] = answer[i - 1] * nums[i - 1];
+        }
+
+        // 第二步：计算每个元素右边所有元素的乘积，并乘到answer数组上
+        int R = 1; // 用于记录当前元素右边的乘积
+        for (int i = n - 1; i >= 0; i--) {
+            answer[i] = answer[i] * R;
+            R *= nums[i]; // 更新R，为下一个元素的右边乘积
+        }
+
+        return answer;
+    }
+}
+```
+
+[除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self)
+
+#### 缺失的第一个正数
+
+```java
+class Solution {
+    public static int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+
+        // 第一步：将每个 1~n 范围内的数放到它应该在的位置
+        for (int i = 0; i < n; i++) {
+            // 只处理 1~n 的数，并且确保不会死循环（nums[i] != nums[nums[i] - 1]）
+            while (nums[i] > 0 && nums[i] <= n && nums[i] != nums[nums[i] - 1]) {
+                // 将 nums[i] 放到正确的位置上
+                int correctIndex = nums[i] - 1;
+                int temp = nums[i];
+                nums[i] = nums[correctIndex];
+                nums[correctIndex] = temp;
+            }
+        }
+
+        // 第二步：遍历数组，找到第一个不匹配的位置
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != i + 1) {
+                return i + 1;
+            }
+        }
+
+        // 如果所有位置都匹配，则缺失的是 n+1
+        return n + 1;
+    }
+}
+```
+
+[缺失的第一个正数](https://leetcode.cn/problems/first-missing-positive)
+
+#### 矩阵置零
+
+```java
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        // 获取矩阵的行数 m 和列数 n
+        int m = matrix.length, n = matrix[0].length;
+        
+        // 用于标记第一列是否需要置零
+        boolean flagCol0 = false;
+
+        // 第一次遍历：使用第一行和第一列作为标记数组
+        for (int i = 0; i < m; i++) {
+            // 如果第一列中的某一行是 0，则记录下来（最后统一处理整列）
+            if (matrix[i][0] == 0) {
+                flagCol0 = true;
+            }
+
+            // 遍历当前行的其余列（从第1列开始）
+            for (int j = 1; j < n; j++) {
+                // 如果当前位置 matrix[i][j] 是 0
+                if (matrix[i][j] == 0) {
+                    // 将该行的第一个元素（matrix[i][0]）和该列的第一个元素（matrix[0][j]）设为 0
+                    // 这样就用第一行和第一列来标记哪些行和列需要置零
+                    matrix[i][0] = matrix[0][j] = 0;
+                }
+            }
+        }
+
+        // 第二次遍历：根据第一行和第一列的标记，将对应位置置零
+        for (int i = m - 1; i >= 0; i--) {
+            // 从右下角向上遍历每一行
+            for (int j = 1; j < n; j++) {
+                // 如果当前行的第一个元素或当前列的第一个元素为 0
+                // 说明这一行或这一列应该全部置零
+                if (matrix[i][0] == 0 || matrix[0][j] == 0) {
+                    matrix[i][j] = 0;
+                }
+            }
+
+            // 处理第一列，如果 flagCol0 为 true，则当前行的第一个元素也置零
+            if (flagCol0) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+}
+```
+
+[矩阵置零](https://leetcode.cn/problems/set-matrix-zeroes)
