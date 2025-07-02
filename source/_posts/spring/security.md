@@ -216,26 +216,6 @@ public class CustomUserDetail implements UserDetails {
         return user.getUsername();
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
 }
 ```
 
@@ -284,7 +264,7 @@ import java.io.IOException;
 public class NoRedirectLogoutSuccessHandler implements LogoutSuccessHandler {
 
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         response.setStatus(200);
     }
 
@@ -302,7 +282,6 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -320,7 +299,6 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableRSocketSecurity
 public class SecurityConfig {
 
     @Resource
@@ -400,7 +378,6 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
 
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 
     public void login(HttpServletRequest request,
                       HttpServletResponse response,
