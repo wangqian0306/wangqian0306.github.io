@@ -204,6 +204,14 @@ ADK 是一个 Agent 开发框架，还自带了 Web 页面，可以使用多种�
 
 [颠覆传统智能体！ADK谷歌最强AI智能体发布！支持MCP与ollama！Agent Development Kit详细教程！超越AutoGen和LangChain!轻松打造多智能体系统！自带UI界面](https://www.youtube.com/watch?v=z7aGIvVyo_I)
 
+#### PurpleLlama
+
+项目地址: [PurpleLlama](https://github.com/meta-llama/PurpleLlama)
+
+PurpleLlama 是一系列保护 llama 大模型的工具，包含以模型方式工作的 Llama Guard 和从规则引擎出发的 LlamaFirewall 等。
+
+[LLM Hacking Defense: Strategies for Secure AI](https://www.youtube.com/watch?v=y8iDGA4Y650)
+
 ### 在线工具
 
 #### W&B (wandb)
