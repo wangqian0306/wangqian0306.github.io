@@ -74,7 +74,7 @@ dnf install freetype freetype-devel -y
 
 ### 自定义引入类
 
-在引入 `GraalVM Native Support` 之后，打包过程中可能会忽略部分未使用的类，所以建议在运行时新增如下配置，手动标识引入内容。
+在引入 `GraalVM Native Support` 之后，打包过程中可能会忽略部分未使用的类或者文件，所以建议在运行时新增如下配置，手动标识引入内容。
 
 #### ImportRuntimeHints
 
@@ -92,6 +92,8 @@ import java.lang.reflect.Method;
 @ImportRuntimeHints(MyRuntimeHints.MyRuntimeRegistrar.class)
 public class MyRuntimeHints {
 
+    static final Resource = new ClassPathResource("/message");
+
     static class MyRuntimeRegistrar implements RuntimeHintsRegistrar {
 
         @Override
@@ -107,6 +109,8 @@ public class MyRuntimeHints {
 
             // Register proxy
             hints.proxies().registerJdkProxy(MyInterface.class);
+
+            hints.resources().registerResource(Resource);
         }
     }
 
@@ -114,6 +118,21 @@ public class MyRuntimeHints {
 ```
 
 > 注：生成的 hint 文件可以在 Maven 项目的 target/spring-aot/main/resources Gradle 项目的 build/generated/aotResources 目录中。
+
+若是文件则可以按照如下逻辑:
+
+```java
+import org.springframework.context.annotation.Configuration;
+import org.springframework.graalvm.buildtime.classpath.ClasspathResourceHint;
+import org.springframework.graalvm.buildtime.classpath.ResourceHint;
+
+@Configuration
+@ResourceHints({
+    @ResourceHint(types = ClasspathResourceHint.class, patterns = "message")
+})
+public class ResourceConfig {
+}
+```
 
 #### RegisterReflectionForBinding
 
@@ -123,11 +142,15 @@ public class MyRuntimeHints {
 
 在方法上使用 `@Reflective` 注解。
 
+### 其余包的相关信息
+
+在引用除了 Spring 的包之外，oracle 官方还对其余配置有汇总，地址如下：
+
+[GraalVM Reachability Metadata Repository](https://github.com/oracle/graalvm-reachability-metadata)
+
 ### 安装其他命令
 
 在项目中需要额外的软件或命令的时候，使用此方式就很烦了。spring 官方使用了 Paketo Buildpacks 作为 builder 但是它采用了 buildpack 弃用的 stack 方式来构建项目。自定义构建包难度好大，但是可以通过挂载卷的方式将命令挂载到容器中进行执行。
-
-
 
 ### 构建失败解决方案
 
