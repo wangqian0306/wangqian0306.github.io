@@ -16,6 +16,8 @@ categories: Spring
 
 Spring Boot 可以通过默认的 `gradle` 或 `maven` 插件省略 `Dockerfile` 的形式构建容器，而且在 3.0 版本之后也支持使用 GraalVM native-image 编译器将 Spring 应用程序编译为本机可执行文件和容器，非常适合容器云平台。
 
+> 注：使用付费的 Oracle JVM 可以使用特定的工具将内存也进行一些优化，提升启动速度。
+
 ### 使用
 
 - 项目初始化

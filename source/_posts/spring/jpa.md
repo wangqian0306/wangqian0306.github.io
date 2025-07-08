@@ -651,3 +651,7 @@ QBE 适合以下场景：
 - 自定义 SQL
 
 [样例项目](https://github.com/danvega/qbe)
+
+### 参考资料
+
+[Cause of Death: Spring Data JPA by Thorben Janssen @ Spring I/O 2025](https://www.youtube.com/watch?v=AF9RAgGN5CM)
