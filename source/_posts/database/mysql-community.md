@@ -82,6 +82,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: test
     volumes:
       - "<data-dir>:/var/lib/mysql"
       - "<initsql-dir>:/docker-entrypoint-initdb.d"
