@@ -25,20 +25,26 @@ services:
   demo: # 服务名
     build: ../../.. # Dockerfile 的相对路 build: . # Dockerfile 的相对路径
     image: demo:0.0.1 # 镜像名
+    container_name: demo # 容器名
     command: [ ] # 覆写容器启动命令
     ports: # 开启端口
       - "5000:5000" # 本地端口:容器端口
     environment:
       - JAVA_HOME=/opt/java/bin #环境变量(程序运行时生效，构建时不生效)
+    entrypoint: [] # 覆写容器启动前置命令
+    restart: always # 重启触发条件
     deploy:
       resources:
         limits: # 资源限制
           cpus: '0.50'
           memory: 50M
     volumes:
-      - /opt/data:/var/lib/mysql
-#    depends_on: # 启动依赖
-#      - db # 依赖服务名
+      - "/opt/data:/var/lib/mysql"
+    devices: # 外部硬件，如串口等
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    depends_on: # 启动依赖
+      db: # 依赖服务名
+        condition: service_healthy #启动条件
 ```
 
 [官方文档地址](https://docs.docker.com/compose/compose-file/)
@@ -65,7 +71,7 @@ docker-compose ps
 docker-compose exec <服务名> <运行命令>
 ```
 
-> 注: 使用bash或者sh进入交互式执行模式。
+> 注: 使用 bash 或者 sh 进入交互式执行模式。
 
 关闭容器
 ```
