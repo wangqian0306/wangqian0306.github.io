@@ -12,7 +12,9 @@ categories: JAVA
 
 ## 导出 Excel
 
-### Maven 依赖
+### poi-ooxml
+
+#### Maven 依赖
 
 ```xml
 <!-- Excel Export -->
@@ -23,7 +25,7 @@ categories: JAVA
 </dependency>
 ```
 
-### 编码
+#### 编码
 
 - 编写工具包：
 
@@ -165,8 +167,143 @@ public class ExcelController {
 }
 ```
 
+### FastExcel
+
+#### Gradle 依赖
+
+```groovy
+dependencies {
+    implementation 'cn.idev.excel:fastexcel:1.2.0'
+}
+```
+
+#### 编码
+
+首先要编写导出模型：
+
+```java
+import cn.idev.excel.annotation.ExcelProperty;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+public class ExportData {
+
+    @ExcelProperty("ID")
+    private Long id;
+
+    @ExcelProperty("文本")
+    private String text;
+
+    @ExcelProperty("日期时间")
+    private LocalDateTime localDateTime;
+
+    @ExcelProperty
+    private BigDecimal bigDecimal;
+
+}
+```
+
+然后编写假数据生成类：
+
+```java
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class TestDataGenerator {
+
+    private static final Random random = new Random();
+
+    public static List<ExportData> generate(int count) {
+        List<ExportData> dataList = new ArrayList<>();
+
+
+        for (int i = 0; i < count; i++) {
+            ExportData data = new ExportData();
+            data.setId((long) (i + 1));
+            data.setText("示例文本-" + i);
+            data.setLocalDateTime(LocalDateTime.now().plusMinutes(i)); // 模拟不同时间
+            data.setBigDecimal(BigDecimal.valueOf(Math.round(Math.random() * 1000000) / 100.0)); // 保留两位小数
+            dataList.add(data);
+        }
+
+        return dataList;
+    }
+}
+```
+
+最后写服务即可：
+
+```java
+import cn.idev.excel.ExcelWriter;
+import cn.idev.excel.FastExcel;
+import cn.idev.excel.write.metadata.WriteSheet;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+@Service
+public class ExportService {
+
+    public void exportExcel(HttpServletResponse response) {
+        // 设置响应头
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = null;
+        fileName = URLEncoder.encode("导出数据列表", StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+
+        // 开始写入 Excel
+        try (ExcelWriter writer = FastExcel.write(response.getOutputStream(), ExportData.class).build()) {
+            WriteSheet sheet = FastExcel.writerSheet("用户数据").build();
+            List<ExportData> exportDataList = TestDataGenerator.generate(10);
+            writer.write(exportDataList, sheet);
+            writer.finish();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+```
+
+如需测试可以写 controller :
+
+```java
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/export")
+public class ExportController {
+
+    @Resource
+    private ExportService exportService;
+
+    @GetMapping("/excel")
+    public void export(HttpServletResponse response) {
+        exportService.exportExcel(response);
+    }
+
+}
+```
+
 ### 参考资料
 
 [官方文档](https://poi.apache.org/components/spreadsheet/quick-guide.html)
 
 [手把手教你springboot中导出数据到excel中](https://www.cnblogs.com/zaevn00001/p/13353744.html?utm_source=tuicool)
+
+[FastExcel](https://readmex.com/fast-excel/fastexcel/)
