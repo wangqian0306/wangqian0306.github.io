@@ -61,6 +61,12 @@ ffmpeg -timeout 10000000 -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_strea
 
 使用 potplayer 填入地址即可。
 
+或者使用自带的测试工具进行测试(延迟低)：
+
+```bash
+ffplay -fflags nobuffer -flags low_delay -framedrop -an -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
+```
+
 如果有自动重试等需求可以考虑使用 FFmpeg 的镜像：
 
 ```yaml
