@@ -36,19 +36,19 @@ dnf install ffmpeg-free -y
 - RTMP
 
 ```bash
-ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -f flv rtmp://<host>:<port>/live/stream
+ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx265 -preset veryfast -maxrate 3000k -bufsize 6000k -f flv rtmp://<host>:<port>/live/stream
 ```
 
 - RTSP
 
 ```bash
-ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -rtsp_transport tcp -f rtsp rtsp://<host>:<port>/live/stream
+ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx265 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -rtsp_transport tcp -f rtsp rtsp://<host>:<port>/live/stream
 ```
 
 - RTP
 
 ```bash
-ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -f rtp rtp://<host>:<port>/live/stream
+ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx265 -preset veryfast -maxrate 3000k -bufsize 6000k -c:a aac -b:a 128k -f rtp rtp://<host>:<port>/live/stream
 ```
 
 - RTSP 到 RTSP
@@ -56,6 +56,14 @@ ffmpeg -re -stream_loop -1 -i test.mp4 -an -c:v libx264 -preset veryfast -maxrat
 ```bash
 ffmpeg -timeout 10000000 -i rtsp://<user>:<password>@<ip>/h265/ch1/main/av_stream -c:v copy -an -f rtsp -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
 ```
+
+- 屏幕到 RTSP
+
+```bash
+ffmpeg -f x11grab -framerate 15 -i :1 -vcodec libx265 -preset ultrafast -tune zerolatency -f rtsp -rtsp_transport tcp rtsp://<ip>:<port>/live/stream
+```
+
+> 注：-i 参数是当前的显示屏幕可以用 `echo $DISPLAY` 查看。
 
 拉流：
 
