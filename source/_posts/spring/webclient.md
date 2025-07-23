@@ -695,6 +695,37 @@ public class DemoController {
 }
 ```
 
+### 更新内容
+
+在 SpringBoot 4 中可以更新写法，将通用的
+
+```java
+@Bean
+JokeClient jokeClient(WebClient.Builder builder) {
+    WebClient client = builder
+            .baseUrl("https://icanhazdadjoke.com/")
+            .defaultHeader("Accept", "application/json")
+            .build();
+    HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();
+    return factory.createClient(JokeClient.class);
+}
+```
+
+替换为统一的写法
+
+```java
+@Configuration(proxyBeanMethods = false)
+@ImportHttpServices(group = "joke", types = {JokeClient.class})
+static class HttpServicesConfiguration extends AbstractHttpServiceRegistrar {
+
+	@Bean
+	public RestClientHttpServiceGroupConfigurer groupConfigurer() {
+		return groups -> groups.filterByName("joke")
+				.configureClient((group, builder) -> builder.defaultHeader("Accept", "application/json"));
+	}
+}
+```
+
 ### 参考资料
 
 [WebClient 文档](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html)
@@ -706,3 +737,5 @@ public class DemoController {
 [Spring Security 6.4 中 OAuth2 的 RestClient 支持](https://spring.io/blog/2024/10/28/restclient-support-for-oauth2-in-spring-security-6-4)
 
 ["Spring Boot REST Client Logging Made Easy](https://www.youtube.com/watch?v=l35P5GylXN8)
+
+[E-Z declarative interface HTTP clients in Spring Boot 4.0](https://www.youtube.com/watch?v=HjLPvw_eY7g)
