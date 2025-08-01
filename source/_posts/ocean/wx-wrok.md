@@ -43,3 +43,60 @@ categories:
 
 [添加企业客户事件](https://developer.work.weixin.qq.com/document/path/92130#%E6%B7%BB%E5%8A%A0%E4%BC%81%E4%B8%9A%E5%AE%A2%E6%88%B7%E4%BA%8B%E4%BB%B6)
 
+在调试时可以采用如下文件：
+
+```text
+### token
+@id = aaa
+@secret = aaa
+GET https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={{id}}&corpsecret={{secret}}
+
+> {% client.global.set("token", response.body.access_token); %}
+
+### create_contact
+@user_id = WangQian
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way?access_token={{token}}
+Content-Type: application/json
+
+{
+    "type": 1,
+    "scene": 2,
+    "remark": "渠道客户",
+    "skip_verify": true,
+    "state": "teststate",
+    "user": [{{user_id}}]
+}
+
+### list_contact
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way?access_token={{token}}
+Content-Type: application/json
+
+{
+  "start_time":1622476800,
+  "limit":1000
+}
+
+### get_contact_config
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way?access_token={{token}}
+Content-Type: application/json
+
+{
+  "config_id":"42b34949e138eb6e027c123cba77fad7"
+}
+
+### get_customers
+GET https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token={{token}}&userid={{user_id}}
+Content-Type: application/json
+
+### get_customer_details
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user?access_token={{token}}
+Content-Type: application/json
+
+{
+  "userid_list": [
+    "zhangsan",
+    "lisi"
+  ],
+  "limit": 100
+}
+```
