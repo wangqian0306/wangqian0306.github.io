@@ -54,7 +54,6 @@ GET https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={{id}}&corpsecret={{secr
 > {% client.global.set("token", response.body.access_token); %}
 
 ### create_contact
-@user_id = WangQian
 POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way?access_token={{token}}
 Content-Type: application/json
 
@@ -64,7 +63,7 @@ Content-Type: application/json
     "remark": "渠道客户",
     "skip_verify": true,
     "state": "teststate",
-    "user": [{{user_id}}]
+    "user": ["xxxx"]
 }
 
 ### list_contact
@@ -100,3 +99,27 @@ Content-Type: application/json
   "limit": 100
 }
 ```
+
+### get_contact_list
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way?access_token={{token}}
+Content-Type: application/json
+
+{}
+
+### delete_contact
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way?access_token={{token}}
+Content-Type: application/json
+
+{
+  "config_id": "92fef8ac665d969c40d078ee38b49492"
+}
+
+### update_external_contact_info
+POST https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remark?access_token={{token}}
+Content-Type: application/json
+
+{
+  "userid": "xxx",
+  "external_userid": "xxx",
+  "remark": "xxx-xxx"
+}
