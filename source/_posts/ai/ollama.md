@@ -329,6 +329,16 @@ OLLAMA_KV_CACHE_TYPE=f16
 
 > 注：需要重启服务才能生效，且不同模型效果可能不同，建议先用 Qwen2.5 看下显存占用，修改配置后启动服务再看下。
 
+### 调试
+
+在问题回答有明显问题时建议开启调试模式，看到 OLLAMA 的处理逻辑和给到模型的提示词。
+
+```text
+OLLAMA_DEBUG=1 
+```
+
+> 注：若日志没有显示则将其调整为 2 。
+
 ### 参考资料
 
 [官方项目](https://github.com/ollama/ollama)
@@ -346,3 +356,7 @@ OLLAMA_KV_CACHE_TYPE=f16
 [Gollama 项目](https://github.com/sammcj/gollama)
 
 [Structured outputs](https://ollama.com/blog/structured-outputs)
+
+[How to troubleshoot issues](https://github.com/ollama/ollama/blob/main/docs/troubleshooting.md)
+
+[Debugging Ollama](https://www.youtube.com/watch?v=ofrXnkZxIkw)
