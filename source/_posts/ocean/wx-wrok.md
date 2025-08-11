@@ -41,6 +41,8 @@ categories:
 
 [回调配置](https://developer.work.weixin.qq.com/document/path/90930)
 
+[回调测试](https://developer.work.weixin.qq.com/devtool/interface/alone?id=14961)
+
 [添加企业客户事件](https://developer.work.weixin.qq.com/document/path/92130#%E6%B7%BB%E5%8A%A0%E4%BC%81%E4%B8%9A%E5%AE%A2%E6%88%B7%E4%BA%8B%E4%BB%B6)
 
 在调试时可以采用如下文件：
