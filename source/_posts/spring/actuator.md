@@ -37,9 +37,13 @@ management:
     jmx:
       exposure:
         include: "health,info"
+
+management:
+  server:
+    port: 8081
 ```
 
-> 注：上面的样例表示了开放 health 和 info 信息，其他内容请参照官方文档。
+> 注：上面的样例表示了开放 health 和 info 信息，其他内容请参照官方文档，为了确保安全可以让 actuator 运行在不同的端口。
 
 #### 开启版本和服务信息(开发环境)
 
@@ -130,3 +134,5 @@ spring:
 ### 参考资料
 
 [官方文档](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html)
+
+[Getting your application production-ready with Actuator by Michael Vitz @ Spring I/O 2025](https://www.youtube.com/watch?v=mqhxDDee4Vg)
