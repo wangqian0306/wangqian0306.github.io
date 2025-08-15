@@ -43,7 +43,7 @@ management:
     port: 8081
 ```
 
-> 注：上面的样例表示了开放 health 和 info 信息，其他内容请参照官方文档，为了确保安全可以让 actuator 运行在不同的端口。
+> 注：上面的样例表示了开放 health 和 info 信息，为了确保安全可以让 actuator 运行在不同的端口，其他内容请参照官方文档，。
 
 #### 开启版本和服务信息(开发环境)
 
@@ -130,6 +130,27 @@ spring:
 之后即可访问如下地址获取到 liveness 状态：
 
 [http://localhost:8080/actuator/health/liveness](http://localhost:8080/actuator/health/liveness)
+
+最好在使用中加入 SpringSecurity 保护 actuator 接口，配置如下：
+
+```java
+@Bean
+public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.securityMatcher(EndpointRequest.toAnyEndpoint())
+            .authorizeHttpRequests(requests -> requests
+            .requestMatchers(EndpointRequest.to("health")).permitAll()
+            .anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .build();
+}
+```
+
+可以简单通过配置文件设置密码：
+
+```text
+spring.security.user.password=123
+```
+
 
 ### 参考资料
 
