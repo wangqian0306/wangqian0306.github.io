@@ -92,3 +92,5 @@ public class ThreadPoolService {
 ### 参考资料
 
 [阿里巴巴规范创建 Java 线程池](https://www.jianshu.com/p/14298f302bb2)
+
+[线程池掌故：管理并发的秘籍](https://learn.lianglianglee.com/%e4%b8%93%e6%a0%8f/Java%20%e5%b9%b6%e5%8f%91%ef%bc%9aJUC%20%e5%85%a5%e9%97%a8%e4%b8%8e%e8%bf%9b%e9%98%b6/02%20%e7%ba%bf%e7%a8%8b%e6%b1%a0%e6%8e%8c%e6%95%85%ef%bc%9a%e7%ae%a1%e7%90%86%e5%b9%b6%e5%8f%91%e7%9a%84%e7%a7%98%e7%b1%8d.md)
