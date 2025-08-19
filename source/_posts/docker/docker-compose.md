@@ -49,6 +49,8 @@ services:
 
 [官方文档地址](https://docs.docker.com/compose/compose-file/)
 
+> 注：此处绑定外部硬件时需要注意，若设备重新进行了插拔，则编号可能发生变化，Linux 会在 /dev/serial/by-id/ 下为每个 USB 串口生成一个基于厂商、序列号的唯一软链接建议用这个做绑定。
+
 ## Docker Compose 常用命令
 
 构建镜像
