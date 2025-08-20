@@ -49,7 +49,16 @@ services:
 
 [官方文档地址](https://docs.docker.com/compose/compose-file/)
 
-> 注：此处绑定外部硬件时需要注意，若设备重新进行了插拔，则编号可能发生变化，Linux 会在 /dev/serial/by-id/ 下为每个 USB 串口生成一个基于厂商、序列号的唯一软链接建议用这个做绑定。
+> 注：设备若重新插拔了，建议重启容器。若不想重启容器可以进行如下配置。
+
+```yaml
+services:
+  demo:
+    image: demo:0.0.1
+    privileged: true
+    volumes:
+      - "/dev:/dev"
+```
 
 ## Docker Compose 常用命令
 
