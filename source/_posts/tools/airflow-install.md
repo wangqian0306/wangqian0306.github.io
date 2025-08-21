@@ -64,7 +64,7 @@ export AIRFLOW_HOME=~/airflow
 
 pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
 
-# initialize the database
+# 初始化数据库
 airflow db init
 
 airflow users create \
@@ -74,10 +74,17 @@ airflow users create \
     --role Admin \
     --email spiderman@superhero.org
 
-# start the web server, default port is 8080
-airflow webserver --port 8080
+# 开启服务
+airflow webserver --port 8080 --deamon
 
-# start the scheduler
-# open a new terminal or else run webserver with ``-D`` option to run it as a daemon
-airflow scheduler
+# 开启执行器
+airflow scheduler --daemon
+
+# 关闭服务
+airflow scheduler --daemon stop
+airflow webserver --daemon stop
 ```
+
+### 参考资料
+
+[官方文档](https://airflow.apache.org/docs/apache-airflow/stable/index.html)
