@@ -24,7 +24,23 @@ categories: "Ocean"
 pip install copernicusmarine netCDF4 xarray pyproj
 ```
 
-编写代码如下：
+访问 [官方网站](https://data.marine.copernicus.eu/products) 选择数据集
+
+根据网页上的 product_id 查看 dataset_id ：
+
+```python
+import json
+
+import copernicusmarine
+
+with open("wave_conf.json", 'r') as conf_schedule:
+    conf = json.load(conf_schedule)
+
+print(copernicusmarine.describe(product_id="GLOBAL_ANALYSISFORECAST_PHY_001_024", disable_progress_bar=True))
+
+```
+
+下载数据代码如下：
 
 ```python
 import copernicusmarine
