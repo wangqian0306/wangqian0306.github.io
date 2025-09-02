@@ -24,7 +24,7 @@ categories: "Ocean"
 pip install copernicusmarine netCDF4 xarray pyproj
 ```
 
-访问 [官方网站](https://data.marine.copernicus.eu/products) 选择数据集
+访问 [官方网站](https://data.marine.copernicus.eu/products) 选择数据集，之后也可以通过文件中的名字来做内容过滤
 
 根据网页上的 product_id 查看 dataset_id ：
 

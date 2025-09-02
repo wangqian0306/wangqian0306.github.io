@@ -131,6 +131,8 @@ spring:
 
 [http://localhost:8080/actuator/health/liveness](http://localhost:8080/actuator/health/liveness)
 
+也可以通过 `management.endpoint.health.show-details=always` 默认打开所有当前依赖的状态信息。
+
 最好在使用中加入 SpringSecurity 保护 actuator 接口，配置如下：
 
 ```java
@@ -151,6 +153,30 @@ public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws
 spring.security.user.password=123
 ```
 
+如果需要向 Actuator 中增加内容也可以通过如下代码实现：
+
+```java
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.time.Instant;
+
+@Configuration
+public class CustomConfig {
+
+    @Bean
+    public HealthIndicator customHealthIndicator() {
+        return new HealthIndicator() {
+            @Override
+            public Health health() {
+                return Health.up().withDetail("status", "OK").withDetail("now", Instant.now()).build();
+            }
+        };
+    }
+}
+```
 
 ### 参考资料
 
