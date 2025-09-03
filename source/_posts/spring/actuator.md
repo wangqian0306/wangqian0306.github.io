@@ -43,7 +43,7 @@ management:
     port: 8081
 ```
 
-> 注：上面的样例表示了开放 health 和 info 信息，为了确保安全可以让 actuator 运行在不同的端口，其他内容请参照官方文档，。
+> 注：上面的样例表示了开放 health 和 info 信息，为了确保安全可以让 actuator 运行在不同的端口，在处理 readiness 状态时为了避免服务不一致的情况可以使用 `management.endpoint.health.probes.add-additional-paths=true` 这样在普通环境也有基本接口 `http://localhost:8080/readyz` 和 `http://localhost:8080/livez`。
 
 #### 开启版本和服务信息(开发环境)
 
@@ -176,6 +176,62 @@ public class CustomConfig {
         };
     }
 }
+```
+
+> 注：记得打开 `management.endpoint.health.probes.add-additional-paths=true` 参数显示全部信息，可以用来排查。
+
+### 自定义端点和响应对象
+
+可以简单进行如下编写：
+
+```java
+import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
+import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.stereotype.Component;
+
+@Component
+@Endpoint(id = "my")
+public class MyEndpoint {
+
+    @ReadOperation
+    public int getDemo() {
+        return 42;
+    }
+
+}
+```
+
+也可以做自定义对象返回：
+
+```java
+import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.boot.actuate.endpoint.web.annotation.EndpointWebExtension;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Component
+@EndpointWebExtension(endpoint = MyEndpoint.class)
+public class MyEndpointWebExtension {
+
+    private final MyEndpoint myEndpoint;
+
+    public MyEndpointWebExtension(MyEndpoint myEndpoint) {
+        this.myEndpoint = myEndpoint;
+    }
+
+    @ReadOperation
+    public Map<?, ?> getTest() {
+        return Map.of("test", myEndpoint.getDemo());
+    }
+
+}
+```
+
+记得该配置就行：
+
+```text
+management.endpoints.web.exposure.include=self,health,health-path,my
 ```
 
 ### 参考资料
