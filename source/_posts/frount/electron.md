@@ -24,26 +24,50 @@ Electron⚡️Vite 项目是 Electron 与 Vite 结合的一个社区实践方案
 npm create electron-vite@latest
 ```
 
+#### Linux
+
 然后使用如下命令安装依赖：
 
 ```bash
 ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install
 ```
 
-若是 Windows 环境则可以使用 Powershell 命令如下：
+使用如下命令即可运行程序：
+
+```bash
+npm run dev
+```
+
+使用如下命令构建程序：
+
+```bash
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm run build
+```
+
+#### Windows
+
+然后使用如下 Powershell 命令安装依赖如下：
 
 ```text
 $env:ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
 npm install
 ```
 
-> 注：在打包的时候也需要设置此环境变量。
-
 使用如下命令即可运行程序：
 
 ```bash
 npm run dev
 ```
+
+使用如下命令构建可执行文件：
+
+```bash
+$env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
+$env:ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
+npm run build
+```
+
+### 打开调试
 
 若需要打开调试工具可以在 `electron/main.ts` 文件的 `createWindow()` 方法中加入如下内容：
 
