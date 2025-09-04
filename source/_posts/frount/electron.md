@@ -30,10 +30,25 @@ npm create electron-vite@latest
 ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install
 ```
 
+若是 Windows 环境则可以使用 Powershell 命令如下：
+
+```text
+$env:ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
+npm install
+```
+
+> 注：在打包的时候也需要设置此环境变量。
+
 使用如下命令即可运行程序：
 
 ```bash
 npm run dev
+```
+
+若需要打开调试工具可以在 `electron/main.ts` 文件的 `createWindow()` 方法中加入如下内容：
+
+```typescript
+win.webContents.openDevTools()
 ```
 
 ### 参考资料
