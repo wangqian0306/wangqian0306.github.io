@@ -50,4 +50,3 @@ categories: Spring
 ### 参考资料
 
 [Mastering Challenges of Cloud-Native Architectures With Spring by Timo Salm @ Spring I/O 2025](https://www.youtube.com/watch?v=hASsv4eQSgs)
-1

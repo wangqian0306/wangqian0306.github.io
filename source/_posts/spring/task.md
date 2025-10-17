@@ -82,6 +82,28 @@ public class Test {
 spring.task.scheduling.pool.size=5
 ```
 
+如果需要安全关闭则需要进行如下配置：
+
+```java
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+
+    @Bean(name = "customExecutor")
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("async-task-");
+        executor.setWaitForTasksToCompleteOnShutdown(true); // ✅ 等待任务完成
+        executor.setAwaitTerminationSeconds(10);
+        executor.initialize();
+        return executor;
+    }
+}
+```
+
 ### Quartz
 
 首先需要引入下面的依赖包：
