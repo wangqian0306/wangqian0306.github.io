@@ -1,5 +1,5 @@
 ---
-title: ‌Agentic AI
+title: Agentic AI
 date: 2025-05-09 22:26:13
 tags:
 - "AI"
@@ -8,7 +8,7 @@ no_word_count: true
 no_toc: false
 ---
 
-## ‌‌Agentic AI
+## Agentic AI
 
 ### 简介
 
@@ -33,7 +33,7 @@ Agent 本身具备的如下特性：
 
 #### 避免风险
 
-为了避免 ‌‌Agentic AI 使用当中的风险，需要从以下几个角度进行处理：
+为了避免 Agentic AI 使用当中的风险，需要从以下几个角度进行处理：
 
 - 模型，需要确保模型的安全措施，保证输出
 - 编排，做额外捕捉，避免死循环和用户体验以及使用的 Token 数量
