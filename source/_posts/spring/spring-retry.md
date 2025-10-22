@@ -53,7 +53,82 @@ public class TestService {
 
 #### Resilience4j
 
+在使用 Resilience4j 时需要引入如下包：
 
+```groovy
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.cloud:spring-cloud-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+}
+```
+
+然后需要编写如下配置项：
+
+```yaml
+resilience4j:
+  retry:
+    instances:
+      externalService:
+        max-attempts: 4
+        wait-duration: 1s
+        enable-exponential-backoff: false
+        retry-exceptions:
+          - java.lang.RuntimeException
+```
+
+需要在配置类或者主类上开启如下注解：
+
+```java
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+@EnableAspectJAutoProxy
+public class XXX {
+}
+```
+
+编写 Service ：
+
+```java
+import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.stereotype.Service;
+
+@Service
+public class TestService {
+
+    private int count = 0;
+
+    @Retry(name = "externalService")
+    public String test() {
+        count++;
+        System.out.println("Attempt " + count);
+        throw new RuntimeException("Remote call failed");
+    }
+}
+```
+
+编写 Controller ：
+
+```java
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/test")
+public class TestController {
+
+    @Resource
+    private TestService testService;
+
+    @GetMapping
+    public String test() {
+        return testService.test();
+    }
+
+}
+```
 
 ### 参考资料
 
