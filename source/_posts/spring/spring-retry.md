@@ -138,4 +138,6 @@ public class TestController {
 
 [Resilience4j](https://resilience4j.readme.io/)
 
+[Resilience4j-SpringBoot 文档](https://resilience4j.readme.io/docs/getting-started-3)
+
 [Spring　Retry 官方项目](https://github.com/spring-projects/spring-retry)
