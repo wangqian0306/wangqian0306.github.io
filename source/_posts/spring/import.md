@@ -7,7 +7,8 @@ tags:
 id: import
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- "Spring"
 ---
 
 ## Spring 注入 Bean
@@ -23,10 +24,46 @@ Spring 有如下种注入方式
 - 属性注入
 - 构造函数注入
 - 工厂方法注入
+- 编程注入
 
 而在一般的使用过程中可以选择使用 
 
 `@Autowired` 注解或者 `@Resource` 注解进行注入。
+
+而在需要按照配置进行注入的时候可以采用 SpringFramework 7 提供的 BeanRegistrar 实现。
+
+具体例子如下：
+
+```java
+class MyBeanRegistrar implements BeanRegistrar {
+
+    @Override
+    public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean("foo", Foo.class);
+        registry.registerBean("bar", Bar.class, spec -> spec
+                .prototype()
+                .lazyInit()
+                .description("Custom description")
+                .supplier(context -> new Bar(context.bean(Foo.class))));
+        if (env.matchesProfiles("baz")) {
+            registry.registerBean(Baz.class, spec -> spec
+                    .supplier(context -> new Baz("Hello World!")));
+        }
+        registry.registerBean(MyRepository.class);
+        registry.registerBean(RouterFunction.class, spec ->
+                spec.supplier(context -> router(context.bean(MyRepository.class))));
+    }
+}
+```
+
+在需要用到在此处注入的 Bean 的时候则需要按照如下方法进行引入：
+
+```java
+@Configuration
+@Import(MyBeanRegistrar.class)
+class MyConfiguration {
+}
+```
 
 ### Autowired 与 Resource 的区别
 
@@ -42,3 +79,7 @@ Spring 不但支持自己定义的 @Autowired 注解，还支持几个由 JSR-25
 [Spring @Autowired](https://blog.csdn.net/bigtree_3721/article/details/87014878)
 
 [@autowired和@resource注解的区别是什么？](https://www.php.cn/java/base/463170.html)
+
+[Spring Framework 7: Dynamic Bean Registration Made Easy (NEW BeanRegistrar Interface)](https://www.youtube.com/watch?v=yh760wTFL_4)
+
+[Programmatic Bean Registration](https://docs.spring.io/spring-framework/reference/core/beans/java/programmatic-bean-registration.html)
