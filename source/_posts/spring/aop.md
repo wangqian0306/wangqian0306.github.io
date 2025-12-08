@@ -7,7 +7,8 @@ tags:
 id: spring-aop
 no_word_count: true
 no_toc: false
-categories: Spring
+categories: 
+- "Spring"
 ---
 
 ## Spring AOP
