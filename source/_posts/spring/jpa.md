@@ -652,8 +652,30 @@ QBE 适合以下场景：
 
 [样例项目](https://github.com/danvega/qbe)
 
+
+### Debug
+
+在使用 Spring Data Jpa 或 Spring Data JDBC 在生成 SQL 有疑问的时候可以参照 IDEA 2025.3 的特性，实现生成代码检测参考文章如下 [Master Spring Data AOT in IntelliJ IDEA](https://blog.jetbrains.com/idea/2025/11/spring-data-aot/)
+
+可以在 Gradle 文件中进行如下修改：
+
+```groovy
+tasks.named("bootRun") {
+    if (project.hasProperty("aot")) {
+        jvmArgs("-Dspring.aot.enabled=true")
+        systemProperty("spring.profiles.active", "aot")
+    }
+}
+```
+
+然后点击左侧按钮运行，即可在 `build/generated/aotSources` 找到编译后生成的代码。
+
+> 注：此处仅适用于 SpringBoot 4 之后的版本。
+
 ### 参考资料
 
 [Cause of Death: Spring Data JPA by Thorben Janssen @ Spring I/O 2025](https://www.youtube.com/watch?v=AF9RAgGN5CM)
 
 [视频源码](https://github.com/Persistence-Hub/Talk_CauseOfDeathSpringDataJPA)
+
+[Master Spring Data AOT in IntelliJ IDEA](https://blog.jetbrains.com/idea/2025/11/spring-data-aot/)
