@@ -12,6 +12,20 @@ no_toc: false
 
 ### 简介
 
+此处针对使用 AI 开发产品时的一些注意事项和技术流程进行基本的梳理。
+
+### 技术选型
+
+#### 什么时候需要 Agent 什么时候需要 Workflow
+
+##### Agent
+
+1. 在子功能数量多，且不适合做前端交互的时候。
+
+##### Workflow
+
+1. 在流程不需要用户介入的场景下。
+
 ### 构建注意事项
 
 #### 治理
@@ -44,3 +58,11 @@ Agent 本身具备的如下特性：
 ### 参考资料
 
 [What Are AI Identities? Understanding Agentic Systems & Governance](https://www.youtube.com/watch?v=AuV62XbiZcw)
+
+[Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+
+[Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+
+[那些 Agent 神文没告诉你的事：照着做，系统只会更烂 【AI agent 搭建实操指南】](https://www.youtube.com/watch?v=b_9D7T0n4RA)
+
+[AI agent 开发千万别越努力，越心酸！【AI agent 搭建实操指南 第二弹】](https://www.youtube.com/watch?v=j7Os40UFYH4)
