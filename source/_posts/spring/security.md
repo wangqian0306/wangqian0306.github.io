@@ -352,6 +352,8 @@ public class SecurityConfig {
 }
 ```
 
+> 注：在调试权限部分内容时可以开启 Debug 开关 @EnableWebSecurity(debug = True) 或是打开如下开关 logging.level.springframework.security = TRACE 
+
 新建用户验证服务 `auth/AuthService.java`：
 
 ```java
@@ -930,6 +932,225 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 在通过 Spring 调用相应需要鉴权的方法时就会触发安全检查，抛出相应异常。
 
+### MFA
+
+Spring Security 7 支持了原生的多方式认证逻辑，比方说验证码登录就可以采用如下配置：
+
+配置文件 `SecurityConfig.java`
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.ott.OneTimeTokenService;
+import org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+import java.time.Duration;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
+@Configuration
+@EnableWebSecurity
+@EnableMultiFactorAuthentication(authorities = {
+        FactorGrantedAuthority.PASSWORD_AUTHORITY,
+        FactorGrantedAuthority.OTT_AUTHORITY
+})
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        return http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/", "/ott/sent").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                )
+                .formLogin(withDefaults())
+                .oneTimeTokenLogin(withDefaults())
+                .build();
+    }
+
+    @Bean
+    UserDetailsService userDetailsService() {
+        var user = User.withUsername("user")
+                .password("{noop}password")
+                .roles("USER")
+                .build();
+        var admin = User.withUsername("admin")
+                .password("{noop}password")
+                .roles("ADMIN","USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+
+    @Bean
+    public OneTimeTokenService oneTimeTokenService() {
+        PinOneTimeTokenService service = new PinOneTimeTokenService();
+        service.setTokenExpiresIn(Duration.ofMinutes(3));
+        return service;
+    }
+
+}
+```
+
+测试路由文件 `HomeController.java`
+
+```java
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HomeController {
+
+    @GetMapping("/")
+    public String home() {
+        return "Hello World!";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "Admin Page";
+    }
+
+    @GetMapping("/ott/sent")
+    String ottSent() {
+        return "OneTimeToken Sent";
+    }
+
+}
+```
+
+发送验证码服务 `OttSuccessHandler.java`
+
+```java
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.ott.OneTimeToken;
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
+import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.IOException;
+
+@Component
+public class OttSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(OttSuccessHandler.class);
+
+    private final OneTimeTokenGenerationSuccessHandler redirectHandler = new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken) throws IOException, ServletException {
+        String magicLink = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/login/ott")
+                .queryParam("token", oneTimeToken.getTokenValue())
+                .toUriString();
+
+        // Email, SMS, custom implementation, etc.
+        System.out.println("Magic Link: " + magicLink);
+        this.redirectHandler.handle(request, response, oneTimeToken);
+    }
+
+}
+```
+
+验证码生成逻辑：
+
+```java
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.authentication.ott.*;
+import org.springframework.util.Assert;
+
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class PinOneTimeTokenService implements OneTimeTokenService {
+
+
+    /*
+     * The collision risk is higher with 5-digit PINs (100,000 possible values) compared to UUIDs.
+     * For production with high traffic, you might want to add collision detection or use a database-backed implementation
+     */
+    private static final int PIN_LENGTH = 5;
+    private static final int MAX_PIN_VALUE = 100_000;
+
+    private final Map<String, OneTimeToken> oneTimeTokenByToken = new ConcurrentHashMap<>();
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    private Clock clock = Clock.systemUTC();
+    // Consider setting a shorter expiration time for these PINs (typically 5-10 minutes for SMS codes) since they're more susceptible to brute force than UUIDs
+    private Duration tokenExpiresIn = Duration.ofMinutes(5);
+
+    @Override
+    public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
+        String token = generatePin();
+        Instant expiresAt = this.clock.instant().plus(this.tokenExpiresIn);
+        OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
+        this.oneTimeTokenByToken.put(token, ott);
+        cleanExpiredTokensIfNeeded();
+        return ott;
+    }
+
+    @Override
+    public @Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken) {
+        OneTimeToken ott = this.oneTimeTokenByToken.remove(authenticationToken.getTokenValue());
+        if (ott == null || isExpired(ott)) {
+            return null;
+        }
+        return ott;
+    }
+
+    public void setTokenExpiresIn(Duration tokenExpiresIn) {
+        Assert.notNull(tokenExpiresIn, "tokenExpiresIn cannot be null");
+        Assert.isTrue(!tokenExpiresIn.isNegative() && !tokenExpiresIn.isZero(),
+                "tokenExpiresIn must be positive");
+        this.tokenExpiresIn = tokenExpiresIn;
+    }
+
+    private String generatePin() {
+        int pin = secureRandom.nextInt(MAX_PIN_VALUE);
+        return String.format("%0" + PIN_LENGTH + "d", pin);
+    }
+
+    private void cleanExpiredTokensIfNeeded() {
+        if (this.oneTimeTokenByToken.size() < 100) {
+            return;
+        }
+        for (Map.Entry<String, OneTimeToken> entry : this.oneTimeTokenByToken.entrySet()) {
+            if (isExpired(entry.getValue())) {
+                this.oneTimeTokenByToken.remove(entry.getKey());
+            }
+        }
+    }
+
+    private boolean isExpired(OneTimeToken ott) {
+        return this.clock.instant().isAfter(ott.getExpiresAt());
+    }
+
+    public void setClock(Clock clock) {
+        Assert.notNull(clock, "clock cannot be null");
+        this.clock = clock;
+    }
+
+}
+```
+
+> 注：现在阶段的代码需要在访问 admin 路由时确认两种认证都存在才能操作，如果需要单种责任可以试试权限部分识别 `FACTOR_OTT` 或 `FACTOR_PASSWORD`
+
 ### 参考资料
 
 [Spring Security 例程](https://github.com/spring-projects/spring-security-samples)
@@ -953,3 +1174,5 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 [spring-security-64](https://github.com/rwinch/spring-security-64)
 
 [Testing with CSRF Protection](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/csrf.html)
+
+[Spring Security 7 Adds Multi-Factor Authentication (MFA)](https://www.youtube.com/watch?v=KmNAqlaKwjw)
