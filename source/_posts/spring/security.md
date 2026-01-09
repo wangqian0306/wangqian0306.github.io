@@ -942,6 +942,7 @@ Spring Security 7 支持了原生的多方式认证逻辑，比方说验证码�
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
+import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -957,17 +958,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@EnableMultiFactorAuthentication(authorities = {
-        FactorGrantedAuthority.PASSWORD_AUTHORITY,
-        FactorGrantedAuthority.OTT_AUTHORITY
-})
+@EnableMultiFactorAuthentication(authorities = {})
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        var mfa = AuthorizationManagerFactories.multiFactor()
+                .requireFactors(
+                        FactorGrantedAuthority.PASSWORD_AUTHORITY,
+                        FactorGrantedAuthority.OTT_AUTHORITY
+                )
+                .build();
         return http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/ott/sent").permitAll()
+                        .requestMatchers("/", "/ott/sent", "/test").permitAll()
+                        .requestMatchers("/admin/mfa").access(mfa.authenticated())
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                 )
                 .formLogin(withDefaults())
@@ -995,15 +1000,21 @@ public class SecurityConfig {
         service.setTokenExpiresIn(Duration.ofMinutes(3));
         return service;
     }
-
 }
+
 ```
 
 测试路由文件 `HomeController.java`
 
 ```java
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class HomeController {
@@ -1013,9 +1024,26 @@ public class HomeController {
         return "Hello World!";
     }
 
+    @GetMapping("/test")
+    public List<String> test() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<String> authorities = new ArrayList<>();
+        if (authentication != null) {
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                authorities.add(authority.getAuthority());
+            }
+        }
+        return authorities;
+    }
+
     @GetMapping("/admin")
     public String admin() {
         return "Admin Page";
+    }
+
+    @GetMapping("/admin/mfa")
+    public String mfa() {
+        return "MFA Page";
     }
 
     @GetMapping("/ott/sent")
@@ -1148,8 +1176,6 @@ public class PinOneTimeTokenService implements OneTimeTokenService {
 
 }
 ```
-
-> 注：现在阶段的代码需要在访问 admin 路由时确认两种认证都存在才能操作，如果需要单种责任可以试试权限部分识别 `FACTOR_OTT` 或 `FACTOR_PASSWORD`
 
 ### 参考资料
 
