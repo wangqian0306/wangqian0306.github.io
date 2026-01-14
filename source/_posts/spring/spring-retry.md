@@ -35,6 +35,8 @@ public class XXX {
 }
 ```
 
+##### 注解方式
+
 ```java
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,159 @@ public class TestService {
         System.out.println("Attempting remote call (sync) …");
         // 模拟失败
         throw new RuntimeException("Remote call failed");
+    }
+}
+```
+
+除了基本用法之外还可以指定如下参数
+
+|     参数      |      作用      |
+|:-----------:|:------------:|
+|  includes   |   捕捉到异常时重试   |
+|  excludes   |   排除异常外重试    |
+| maxAttempts | 最多访问次数(包含初次) |
+|    delay    |     延迟时长     |
+| multiplier  | 连续失败的时长等待倍数  |
+|  maxDelay   |    最大等待时长    |
+|   jetter    |     抖动时长     |
+
+除了重试之外，Spring 还提供了并发限制，用来保证不会有超过并发限制的请求导致产生新的问题：
+
+```java
+@ConcurrencyLimit(10)
+public void sendNotification() {
+}
+```
+
+##### 编码方式使用
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.retry.RetryException;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Service
+public class RetryTestService {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryTestService.class);
+
+    private final RetryTemplate retryTemplate;
+    private final Random random = new Random();
+
+    public RetryTestService() {
+        var retryPolicy = RetryPolicy.builder()
+                .maxRetries(10)
+                .delay(Duration.ofMillis(2000))
+                .multiplier(1.5)
+                .build();
+        retryTemplate = new RetryTemplate(retryPolicy);
+    }
+
+    public String test() throws RetryException {
+        final AtomicInteger attempt = new AtomicInteger(0);
+        return retryTemplate.execute( () -> {
+            int currentAttempt = attempt.incrementAndGet();
+            if (random.nextDouble() > 0.5) {
+                log.error("retry in {} times", currentAttempt);
+                throw new RuntimeException("designed failed");
+            }
+            log.error("request success");
+            return "success";
+        });
+    }
+}
+```
+
+###### 加入监听器做完整日志
+
+```java
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.retry.RetryListener;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.Retryable;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+@Component
+public class RetryTestListener implements RetryListener {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryTestListener.class);
+
+    private final AtomicInteger totalRetries = new AtomicInteger(0);
+    private final AtomicInteger successfulRecoveries = new AtomicInteger(0);
+    private final AtomicInteger finalFailures = new AtomicInteger(0);
+
+    private final ThreadLocal<Integer> currentAttempt = ThreadLocal.withInitial(() -> 0);
+
+    @Override
+    public void beforeRetry(@NonNull RetryPolicy retryPolicy, Retryable<?> retryable) {
+        int attemptNumber = currentAttempt.get() + 1;
+        currentAttempt.set(attemptNumber);
+        totalRetries.incrementAndGet();
+        log.info("🔁 RetryListener: Attempt #{} starting for operation '{}'",
+                attemptNumber,
+                retryable.getName());
+    }
+
+    @Override
+    public void onRetrySuccess(@NonNull RetryPolicy retryPolicy, @NonNull Retryable<?> retryable, Object result) {
+        int attemptCount = currentAttempt.get();
+
+        if (attemptCount > 1) {
+            successfulRecoveries.incrementAndGet();
+            log.info("✅ RetryListener: Operation '{}' succeeded after {} attempt(s)",
+                    retryable.getName(),
+                    attemptCount);
+        } else {
+            log.debug("✅ RetryListener: Operation '{}' succeeded on first attempt",
+                    retryable.getName());
+        }
+
+        currentAttempt.remove();
+    }
+
+    @Override
+    public void onRetryFailure(@NonNull RetryPolicy retryPolicy, Retryable<?> retryable, Throwable throwable) {
+        int attemptCount = currentAttempt.get();
+        finalFailures.incrementAndGet();
+        log.error("❌ RetryListener: Operation '{}' failed after {} attempt(s): {}",
+                retryable.getName(),
+                attemptCount,
+                throwable.getMessage());
+        currentAttempt.remove();
+    }
+}
+```
+
+在实际使用时修改如下代码：
+
+```java
+@Service
+public class RetryTestService {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryTestService.class);
+
+    private final RetryTemplate retryTemplate;
+    private final Random random = new Random();
+
+    public RetryTestService(RetryTestListener retryTestListener) {
+        var retryPolicy = RetryPolicy.builder()
+                .maxRetries(10)
+                .delay(Duration.ofMillis(2000))
+                .multiplier(1.5)
+                .build();
+        retryTemplate = new RetryTemplate(retryPolicy);
+        retryTemplate.setRetryListener(retryTestListener);
     }
 }
 ```
@@ -130,7 +285,17 @@ public class TestController {
 }
 ```
 
+与 Spring 原生方式对应，Resilience4j 也提供并发限制相关的注解：
+
+```java
+@Bulkhead(name = "paymentService", maxConcurrentCalls = 10)
+public String pay(Order order) {
+}
+```
+
 ### 参考资料
+
+[Core Spring Resilience Features: @ConcurrencyLimit, @Retryable, and RetryTemplate](https://spring.io/blog/2025/09/09/core-spring-resilience-features)
 
 [Resilience Features](https://docs.spring.io/spring-framework/reference/7.0-SNAPSHOT/core/resilience.html)
 
