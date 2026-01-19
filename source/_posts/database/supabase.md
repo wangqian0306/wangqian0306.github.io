@@ -536,6 +536,36 @@ docker compose up -d
 
 待程序启动后即可访问 [http://localhost:8000](http://localhost:8000) 进入服务
 
+#### 作为 PostgresSQL 服务器使用
+
+> 注：此处需要在创建项目时设置的管理员密码，若忘记密码需要从 Project Settings -> Database -> Reset Password 
+
+在连接样例提示库中，链接方式可以选择为 JDBC，源保持为 Primary Database 不变，注意链接方式，Direct 方式仅支持 IPv6 建议选择 Session pooler
+
+之后即可在连接处看到 JDBC 连接了，可以使用 IDE 连接进行测试。
+
+在 SpringBoot 中的配置样例如下：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://xxx:xxx/xxx
+    username: xxx
+    password: xxx
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+```
+
 ### 参考资料
 
 [官方项目](https://github.com/supabase/supabase)
