@@ -33,6 +33,38 @@ services:
 
 > 注：如果部署之后出现访问权限异常，则最好先检查下文件，重新构建一次前端项目试试。
 
+#### 系统配置软件源部署
+
+安装前置依赖：
+
+```bash
+sudo yum install yum-utils
+sudo vim /etc/yum.repos.d/nginx.repo
+```
+
+填入如下内容：
+
+```text
+[nginx-stable]
+name=nginx stable repo
+baseurl=https://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+```
+
+> 注：如果遇到 SSL 证书问题可以改为 http 协议
+
+使用如下命令刷新 `repo` 然后进行安装和启动：
+
+```bash
+sudo yum clean all
+sudo yum makecache
+sudo yum install nginx -y
+sudo systemctl enable nginx --now
+```
+
 ### 常见使用模式
 
 #### 代理加密
@@ -311,3 +343,5 @@ server {
 [官方文档](http://nginx.org/en/docs/)
 
 [容器页](https://hub.docker.com/_/nginx)
+
+[nginx: Linux packages](https://nginx.org/en/linux_packages.html)
